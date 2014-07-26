@@ -1,0 +1,56 @@
+<head>
+    <link rel="stylesheet" href="{{ STATIC_URL }}css/base.css" type="text/css"/>
+  	<link rel="stylesheet" href="{{ STATIC_URL }}css/menus.css" type="text/css"/>
+  	<!--<link rel="stylesheet" href="{{ STATIC_URL }}css/buttons.css" type="text/css"/>-->
+  	<link rel="stylesheet" href="{{ STATIC_URL }}css/text_styles.css" type="text/css"/>
+  	<!--
+  	<link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint/screen.css" type="text/css" media="screen, projection">
+	<link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint/print.css" type="text/css" media="print">
+    <link rel="stylesheet" href="{{ STATIC_URL }}/css/blueprint/plugins/buttons/screen.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="{{ STATIC_URL }}/css/blueprint/src/typography.css" type="text/css" media="screen">
+   	-->
+   	<link rel="stylesheet" href="{{ STATIC_URL }}/css/bootstrap.css" type="text/css" media="screen">
+    <link rel="stylesheet" href="{{ STATIC_URL }}/css/font-awesome.css" type="text/css" media="screen">
+	<!--[if lt IE 8]>
+  		<link rel="stylesheet" href="{{ STATIC_URL }}css/blueprint/ie.css" type="text/css" media="screen, projection">
+	<![endif]-->
+  	<link rel="stylesheet" href="{{ STATIC_URL }}css/ui-lightness/jquery-ui-1.8.24.custom.css" type="text/css"/>
+  	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.8.2.min.js"></script>
+  	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery-ui-1.8.24.custom.min.js"></script>
+  	<script type="text/javascript" src="{{ STATIC_URL }}js/bootstrap.js"></script>
+  	<script type="text/javascript" src="{{ STATIC_URL }}js/tiny_mce/tiny_mce.js"></script>
+  	<script type="text/javascript" src="{{ STATIC_URL }}js/qsub.js"></script>
+  	
+  	<title>Login</title>
+</head>
+
+{% if form.errors %}
+  <p class="error">shit done gone wrong</p>
+{% endif %}
+
+<body>
+	<div class="container">
+		<form action="" method="post" class="form-horizontal">
+			<legend>Login</legend>
+			{% csrf_token %}
+			<div class="control-group">
+				<label class="control-label" for="username">Username: </label>
+				<div class="controls">
+					<input type="text" name="username"/>
+				</div>
+			</div>
+			<div class="control-group">
+				<label class="control-label" for="password">Password: </label>
+				<div class="controls">
+					<input type="password" name="password"/>
+				</div>
+			</div>
+			<div class="control-group">
+				<div class="controls">
+					<input type="submit" value="Submit"/>
+					<input type="hidden" name="next" value="/main/"/>
+				</div>
+			</div>
+		</form>
+	</div>
+</body>

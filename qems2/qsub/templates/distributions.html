@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block header %}
+	<h1>distributions view</h1>
+{% endblock %}
+
+{% block content %}
+	<table class="table table-striped">
+		<caption class="alert alert-info">
+			<strong>Available distributions</strong>
+		</caption>
+		<thead>
+			<th>Distribution name</th>
+		</thead>
+		<tbody>
+			{% if not dists %}
+				<td>No distributions available. Create one!</td>
+			{% else %}
+			{% for dist in dists %}
+			<tr>
+				<td>
+					<a href="/editdistribution/{{ dist.id }}/">
+					{{ dist.name }}
+					</a>
+				</td>
+			</tr>
+			{% endfor %}
+			{% endif %}
+		</tbody>
+	</table>
+	
+	<a href="/editdistribution/" class="btn btn-primary"><i class="icon-plus"></i> New distribution</a>
+{% endblock %}

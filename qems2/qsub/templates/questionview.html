@@ -1,0 +1,162 @@
+{% extends "base.html" %}
+{% load filters %}
+{% block header %}
+	<h1>questions view</h1>
+{% endblock %}
+
+{% block content %}
+
+	{% include "packetnav.html" %}
+	
+	<table class="table table-striped table-hover">
+		<caption class="alert alert-info"><strong>You are the author of the following {{ type|tossups_or_bonuses }}</strong></caption>
+		{% for question in questions_authored %}
+			{% if type == "tossup" %}
+			<tr>
+				<td>{{ forloop.counter }}. 
+					{{ question.tossup_text|safe|removetags:"p span" }}
+				</td>
+			</tr>
+			<tr>
+				<td>
+					ANSWER: <a href="/editquestion/tossup/{{ question.id }}/">
+						{{ question.tossup_answer|safe|removetags:"p span" }}</a>
+				</td>
+			</tr>
+			{% endif %}
+		
+		{% if type == "bonus" %}
+			<tr>
+				<td>{{ forloop.counter }}.
+				{{ question.leadin|safe|truncatewords:25|removetags:"p span"}}
+				</td>
+			</tr>
+			<tr>
+				<td>
+				ANSWERS:
+				<a href="/editquestion/bonus/{{ question.id }}/">
+					{{ question.part1_answer|safe|removetags:"p span" }}/
+					{{ question.part2_answer|safe|removetags:"p span" }}/
+					{{ question.part3_answer|safe|removetags:"p span" }}
+				</a>
+				</td>
+			</tr>
+		{% endif %}
+		
+		{% endfor %}
+	</table>
+	
+	{% if questions_to_edit %}
+	<table>
+		<caption class="alert alert-info">
+			<strong>You can also edit the following {{ type|tossups_or_bonuses }} written by your teammates:</strong>
+		</caption>
+		<tbody>
+		{% for question in questions_to_edit %}
+			{% if type == "tossup" %}
+				<tr>
+					<td>
+					{{ forloop.counter }}.
+					{{ question.tossup_text|safe|truncatewords:25|removetags:"p span" }}
+					</td>
+				</tr>
+				<tr>
+					<td>
+					ANSWER:&nbsp;
+					<a href="/editquestion/tossup/{{ question.id }}/"> {{ question.tossup_answer|safe|removetags:"p span" }} </a>
+					</td>
+				</tr>
+			{% endif %}
+	
+			{% if type == "bonus" %}
+				<tr>
+					<td>
+					{{ forloop.counter }}.
+					{{ question.leadin|safe|truncatewords:25|removetags:"p span"}}
+					</td>
+				</tr>
+				<tr>
+					<td>
+					ANSWERS:
+					<a href="/editquestion/bonus/{{ question.id }}/">
+						{{ question.part1_answer|safe|removetags:"p span" }}/
+						{{ question.part2_answer|safe|removetags:"p span" }}/
+						{{ question.part3_answer|safe|removetags:"p span" }}
+					</a>
+					</td>
+				</tr>
+			{% endif %}
+		{% endfor %}
+		</tbody>
+	</table>
+	{% else %}
+		{% if role %}
+			{% if role.can_edit_others %}
+				<div class="alert alert-info" style="text-align: center;">
+					<strong>You can edit your teammates' questions but they haven't written any yet.</strong>
+				</div>
+			{% else %}
+				<div class="alert alert-warning">
+					You are not allowed to edit questions written by your teammates.
+				</div>
+			{% endif %}
+		{% else %}
+			<div class="alert alert-info">
+				You are not allowed to edit questions written by your teammates.
+			</div>
+		{% endif %}	
+	{% endif %}
+	
+	{% if questions_to_view %}
+		<p>
+			You can also view, but not edit the following {{ type|tossups_or_bonuses }} written by your teammates:
+		</p>
+	
+		{% for question in questions_to_edit %}
+			{% if type == "tossup" %}
+				<p>
+					{{ forloop.counter }}.
+					{{ question.tossup_text|safe|truncatewords:25|removetags:"p span" }}
+				</p>
+				<p>
+					ANSWER:&nbsp;
+					<a href="/editquestion/tossup/{{ question.id }}/"> {{ question.tossup_answer|safe|removetags:"p span" }} </a>
+				</p>
+			{% endif %}
+	
+			{% if type == "bonus" %}
+				<p>
+					{{ forloop.counter }}.
+					{{ question.leadin|safe|truncatewords:25|removetags:"p span"}}
+				</p>
+				<p>
+					ANSWERS:
+					<a href="/editquestion/bonus/{{ question.id }}/">
+						{{ question.part1_answer|safe|removetags:"p span" }}/
+						{{ question.part2_answer|safe|removetags:"p span" }}/
+						{{ question.part3_answer|safe|removetags:"p span" }}
+					</a>
+				</p>
+			{% endif %}
+		{% endfor %}
+	{% else %}
+		{% if role %}
+			{% if not role.can_edit_others %}
+				{% if role.can_view_others %}
+					<p>
+						You can view your teammates' questions but they haven't written any yet.
+					</p>
+				{% else %}
+					<p>
+						You are not allowed to see questions written by your teammates.
+					</p>
+				{% endif %}
+			{% endif %}
+		{% else %}
+			<p>
+				You are not allowed to see questions written by your teammates.
+			</p>
+		{% endif %}
+	{% endif %}
+
+{% endblock %}

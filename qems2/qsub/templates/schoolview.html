@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block header %}
+
+	<h1>school view</h1>
+
+{% endblock %}
+
+{% block content %}
+
+	<div class="alert alert-block">
+		<h4>WARNING:</h4>
+		DO NOT ADD YOUR INSTITUTION MORE THAN ONCE! IF YOUR SCHOOL IS ALREADY ON THE LIST
+		BELOW YOU DO NOT NEED TO ADD IT AGAIN. DOING SO WILL ONLY COMPLICATE YOUR LIFE AND MINE.
+	</div>
+	<a href="/schooladd/" class="btn btn-primary"><i class="icon-plus"></i> Add new school</a>
+	<p>Schools currently in the system:</p>
+	<table class="table table-striped">
+		<thead>
+			<tr>
+				<th>School name</th>
+				<th>Contact</th>
+			</tr>
+		</thead>
+		<tbody>
+			{% for school in school_list %}
+			<tr>
+				<td><a href="/schoolinfo/{{ school.id}}/">{{ school.name }}</a></td>
+				<td>{{ school.contact }}</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	
+
+{% endblock %}

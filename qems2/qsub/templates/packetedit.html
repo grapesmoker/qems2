@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load filters %}
+
+{% block header %}
+	<h1>team editing</h1>
+{% endblock %}
+
+{% block content %}
+
+	{% include "packetnav.html" %}
+
+	<div class="tabbable">
+		<ul class="nav nav-tabs">
+			<li class="active">
+				<a href="#packet-status" data-toggle="tab">
+					Packet status
+				</a>
+			</li>
+			{% for tq in teammate_questions %}
+			<li>
+				<a href="#questions-{{ tq.name }}" data-toggle="tab">Questions by {{ tq.name }} 
+					{% if forloop.first %} (you) {% endif %}</a>
+			</li>
+			{% endfor %}
+		</ul>
+	
+		<div class="tab-content">
+			<div class="tab-pane active" id="packet-status">
+				<table class="table table-striped">
+					<caption class="alert alert-info">
+						<strong>Current packet status</strong>
+					</caption>
+					<thead>
+						<tr>
+							<th>Category</th>
+							<th>tossups required</th>
+							<th>tossups written</th>
+							<th>bonuses required</th>
+							<th>bonuses written</th>
+						</tr>
+					</thead>
+					{% for cat, req in distribution.items %}
+					<tr>
+						<td>{{ cat_names|lookup:cat }}</td>
+						<td>{{ req.0 }}</td>
+						<td>{{ tu_cat_table|lookup:cat }}</td>
+						<td>{{ req.1 }}</td>
+						<td>{{ b_cat_table|lookup:cat }}</td>
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+	
+			{% for tq in teammate_questions %}
+			<div class="tab-pane" id="questions-{{ tq.name }}">
+				<table class="table table-striped">
+					<caption class="alert alert-info">
+						<strong>Questions by {{ tq.name }}</strong>
+					</caption>
+					<thead>
+						<tr>
+							<th>Category</th>
+							<th>tossups written</th>
+							<th>bonuses written</th>
+						</tr>
+					</thead>
+					{% for cat in distribution.keys %}
+					<tr>
+						<td>{{ cat_names|lookup:cat }}</td>
+						<td>{{ tq.tu_cat_table|lookup:cat }}</td>
+						<td>{{ tq.b_cat_table|lookup:cat }}</td>
+					</tr>
+					{% endfor %}
+				</table>
+			</div>
+			{% endfor %}
+		</div>
+	</div>
+
+	<input type="hidden" value="{{ packet.id }}" id="packet_id">
+
+
+{% endblock %}

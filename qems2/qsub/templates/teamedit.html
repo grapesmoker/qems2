@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block header %}
+	<h1>team editing</h1>
+{% endblock %}
+
+{% block content %}
+
+	<form action="" method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      {% if not read_only %}
+      	<button type="submit" class="button positive">
+    	<img src="{{ STATIC_URL }}/css/blueprint/plugins/buttons/icons/tick.png" alt=""/> Save
+  	  	</button>
+      {% endif %}
+    </form>
+    {% if message %}
+    	<p>{{ message }}</p>
+    {% endif %}
+    <hr>
+    {% if not read_only %}
+    	<table class="table table-striped table-hover">
+    		<caption class="alert alert-info">The following players are currently on this team.</caption>
+    		<thead>
+				<tr>
+					<th>Player name</th>
+					<th>Player username</th>
+					<th colspan="3">Actions</th>
+				</tr>    			
+    		</thead>
+			
+			<tr>
+				<td>
+					{{ player.user.first_name }} {{player.user.last_name }}
+					(you 
+					{% if player == team.team_owner %}
+						, team manager)
+					{% else %}
+						)
+					{% endif %}
+				</td>
+				<td>
+					{{ player.user.username }}
+				</td>
+				<td>
+					<a href="/writeassign/{{ player.id }}/{{ team.id }}">
+    					<!--<img src="{{ STATIC_URL }}/images/icons/without-shadows/page-pencil-16-ns.png" title="Claim categories">-->
+    					<i class="icon-edit" title="Claim categories"></i>
+    				</a>
+				</td>
+				<td>
+					&nbsp;
+				</td>
+				<td>
+					&nbsp;
+				</td>
+			</tr>
+			{% for teammate in teammates %}
+		
+    			<tr>
+    				<td>
+    					{{ teammate.user.first_name }} {{ teammate.user.last_name }}
+    				</td>
+    				<td>
+    					{{ teammate.user.username }}
+    				</td>
+    				<td>
+    					<a href="/writeassign/{{ teammate.id }}/{{ team.id }}">
+    						<!--<img src="{{ STATIC_URL }}/images/icons/without-shadows/page-pencil-16-ns.png" title="Assign categories">-->
+    						<i class="icon-pencil" title="Assign categories"></i>
+    					</a>
+    				</td>
+    				<td>
+    					<a href="/removeteammate/{{ team.id }}/{{ teammate.id }}">
+    						<!--<img src="{{ STATIC_URL }}/images/icons/without-shadows/minus-16-ns.png" title="Remove teammate">-->
+    						<i class="icon-minus" title="Remove teammate"></i>
+    					</a>
+    				</td>
+    				<td>
+						&nbsp;
+					</td>
+    			</tr>
+    		{% endfor %}
+    		<tr>
+    			<th colspan=2>Packet name</th>
+    			<th>&nbsp;</th>
+    		</tr>
+    	
+    		{% if packets %}
+    		
+	    		{% for packet in packets %}
+	   				<tr>
+	 					<td colspan=2 class="span-18">{{ team.team_name }}</td>
+	 					
+	 					<td>
+	 						<a href="/packetedit/{{ packet.id }}">
+	 							<i class="icon-edit" title="Edit packet"></i>
+	 							<!--<img src="{{ STATIC_URL }}/images/icons/without-shadows/page-pencil-24-ns.png" title="Edit packet">-->
+	 						</a>
+	 					</td>
+	 					<td>
+	 						<a href="/packetdelete/{{ packet.id }}">
+	 							<!--<img src="{{ STATIC_URL }}/images/icons/without-shadows/minus-24-ns.png" title="Delete packet">-->
+	 							<i class="icon-minus-sign" title="Delete packet"></i>
+	 						</a>
+	 					</td>
+	 					<td>
+	 						<a href="/packetsubmit/{{ packet.id }}">
+	 							<!--<img src="{{ STATIC_URL }}/images/icons/without-shadows/check-24-ns.png" title="Submit packet">-->
+	 							<i class="icon-ok-sign" title="Submit packet"></i>
+	 						</a>
+	 					</td>
+	   				</tr>
+	   			{% endfor %}
+   			{% else %}
+	   			<hr>
+	   			<p>Your team currently has no active packets for this tournament.
+	   				<button class="button positive" type="button">
+	   				<img src="{{ STATIC_URL }}/css/blueprint/plugins/buttons/icons/tick.png" alt=""/>
+	   				<a href="/packetcreate/{{ team.id }}">Start a packet</a>.
+	   				</button>
+   			{% endif %}
+   		</table>
+    {% endif %}
+
+<input type="hidden" id="team_id" value="{{ team.id }}" />
+{% endblock %}

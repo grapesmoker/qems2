@@ -1,0 +1,58 @@
+/* text_styles.css */
+
+div.warning {
+	border: solid 1px;
+	font-family: bold 12px verdana;
+	margin: 15px;
+	padding: 15px;
+	color: #9F6000;
+	background: #FEEFB3;
+}
+
+li.edit-tab {
+	padding: 10px 20px;
+	background: #3194c6;
+	text-decoration:none;
+	border-radius: 4px;
+}
+
+a.edit-link:link {
+	color: #000000;
+}
+
+a.edit-link:visited {
+	color: #000000;
+}
+
+label {
+	width: 10em;
+	float: left;
+	text-align: left;
+	margin-right: 1em;
+	display: block
+}
+
+.button-link {
+	padding: 5px;
+	background: #F7D358;
+	color: #000000;
+	font-family:"Lucida Console";
+	text-decoration: none;
+	border-radius: 2px;
+}
+
+textarea.question-test {
+	font-size: 14px;
+}
+
+/*
+.tooltip {
+    display:none;
+    background:transparent;
+    font-size:12px;
+    height:70px;
+    width:160px;
+    padding:25px;
+    color:#eee;
+  }
+*/

@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% load filters %}
+
+{% block header %}
+	<h1>tournament editing</h1>
+{% endblock %}
+
+{% block content %}
+
+	<div class="tabbable">
+		<ul class="nav nav-tabs">
+			<li class="active">
+				<a href="#tour-info" data-toggle="tab">Tournament info</a>
+			</li>
+			<li>
+				<a href="#editors" data-toggle="tab">Editor assignments</a>
+			</li>
+			<li>
+				<a href="#packets" data-toggle="tab">Packets</a>
+			</li>
+		</ul>
+		<div class="tab-content">
+			<div class="tab-pane active" id="tour-info">
+				<div class="alert alert-info" style="text-align: center;"><strong>Tournament information</strong></div>
+				<form action="" method="post">
+					{% csrf_token %}
+					{{ form.as_p }}
+					{% if not read_only %}
+					<input type="submit" value="Submit changes"/>
+					{% endif %}
+				</form>
+				{% if message %}
+				<p>
+					<div class="alert {{ message_class }}">
+						{{ message }}
+					</div>
+				</p>
+				{% endif %}
+			</div>
+			<div class="tab-pane" id="editors">
+				{% if not read_only %}
+				<table class="table table-striped table-hover">
+					<caption class="alert alert-info">
+						<strong>Current tournament editors</strong>
+					</caption>
+					<thead>
+						<tr>
+							<th>Editor name</th>
+							<th>Editor username</th>
+							<th>Categories</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for editor in editors %}
+						<tr>
+							<td>{{ editor.user.first_name }} {{ editor.user.last_name }}</td>
+							<td>{{ editor.user.username }}</td>
+							<td>{{ editor|get_editor_categories:tour }}</td>
+							<td><a href="/roleassign/{{ editor.id }}/{{ tour.id}}/" rel="tooltip" title="Assign categories">
+								<i class="icon-edit"></i> 
+								</a><a href="/removeeditor/{{ tour.id }}/{{ editor.id }}/" rel="tooltip" title="Remove editor"> 
+									<i class="icon-remove-sign"></i> </a>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				{% else %}
+				<div class="alert alert-info">
+					You are not authorized to view this information
+				</div>
+				
+				{% endif %}
+			</div>
+			<div class="tab-pane" id="packets">
+				<table class="table table-striped table-hover">
+					<caption class="alert alert-info">
+						<strong>
+							Active packets
+						</strong>
+					</caption>
+					<thead>
+						<tr>
+							<th>Team name</th>
+							<th>Team members</th>
+							<th>Completion status</th>
+							<th>Submitted</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for packet in packets %}
+						<td>
+							{% if not read_only %}
+							<a href="/packetedit/{{ packet.id }}">{{ packet.team.team_name }}</a>
+    						{% else %}
+    						{{ packet.team.team_name}}
+    						{% endif %}
+						</td>
+						<td>
+							{% for member in packet.authors.all %}
+								{{ member.user.first_name }} {{ member.user.last_name }} ({{ member.user.username }})
+							{% endfor %}
+						</td>
+						<td>
+							N/A
+						</td>
+						<td>
+							{{ packet.date_submitted }}
+						</td>
+						<td>
+							N/A
+						</td>
+						{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+<input type="hidden" id="tour_id" value={{ tour.id }} />
+{% endblock %}

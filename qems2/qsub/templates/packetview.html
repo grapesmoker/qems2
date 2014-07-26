@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block header %}
+	<h1>packet view</h1>
+{% endblock %}
+
+{% block content %}
+
+	<table class="table table-striped">
+		<caption class="alert alert-info"><strong>You are currently working on the following packets:</strong></caption>
+		<thead>
+			<th>Team name</th>
+			<th>Tournament name</th>
+			<th>Tournament date</th>
+		</thead>
+		<tbody>
+			{% for packet in packet_list %}
+			<tr>
+				<td>
+					<a href="/packetedit/{{ packet.id }}/">{{ packet.team.team_name }}</a>
+				</td>
+				<td>
+					{{ packet.team.tournament }}
+				</td>
+				<td>
+					{{ packet.team.tournament.date }}
+				</td>
+			</tr>
+			{% endfor %}
+		</tbody>
+	</table>
+	
+	
+{% endblock %}

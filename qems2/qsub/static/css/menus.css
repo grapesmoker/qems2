@@ -1,0 +1,129 @@
+/* menus.css */
+
+/*ul#menu {
+    width: 90%;
+    position: relative;
+    z-index: 5;
+}
+
+ul#menu li {
+    list-style: none;
+    position: relative;
+    display: block;
+    float: left;
+    padding: 0px 10px 0px 10px;
+    font-size: 11pt;
+    background: rgba(255,255,255,0.5);
+}
+
+ul#menu li a {
+    text-decoration: none;
+}
+
+ul#menu ul {
+    position: absolute;
+    left: -9999px;
+}
+
+ul#menu li:hover {
+    background: rgba(152, 104, 120, 0.2);
+}
+
+ul#menu li:hover ul {
+    left: -15px;
+}
+
+/*
+ * 
+ul.edit-bar {
+	display:inline-table;
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	position: relative;
+	width: 100%;
+}
+
+ul.edit-bar li {
+	margin: 0;
+	padding: 10px 20px;
+	list-style: none;
+	display: block;
+	float: left;
+	position: relative;
+	text-align: center;
+}
+
+ul.dropdown {
+	margin: 0;
+	padding: 10px 20px;
+	display: block;
+	position: absolute;
+	z-index: 999;
+	top: 100%;
+	width: 200px;
+	display: none;
+	left: 0;
+}
+
+ul.edit-bar a {
+	position: relative;
+	display: block;
+}
+
+ul.edit-bar li {
+	background: #FEEFB3;
+	border: 1px solid;
+	width: 40%;
+}
+
+ul.dropdown ul.dropdown {
+	top: 0;
+	left: 100%;
+}
+
+ul.dropdown li {
+	margin: 0;
+	padding: 0;
+	float: none;
+	position: relative;
+	list-style: none;
+	display: table-cell;
+	border: 1px solid;
+}
+
+ul.dropdown li a {
+	padding: 10px 25px;
+	display: block;
+	background: #FEEFB3;
+}
+
+ul.sidebar-menu {
+	margin: 0;
+	padding: 25px 25px;
+	list-style: none;
+}
+
+ul.sidebar-menu li {
+	text-align: center;
+	padding: 10px 25px;
+	border: 1px solid;
+	background: #AEB404;
+}
+
+ul.sidebar-menu li a {
+	display: block;
+	text-decoration: none;
+	font-family:"Book Antiqua";
+}
+
+ul.sidebar-menu li a:visited {
+	color: #000000;
+	text-decoration: none;
+}
+
+ul.sidebar-menu li:hover {
+	color: #000000;
+	text-decoration: none;
+	background: #2ECCFA;
+}*/

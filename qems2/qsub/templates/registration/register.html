@@ -1,19 +1,14 @@
 {% extends "base.html" %}
 
-{% block css %}
-<link rel="stylesheet" href="{{ STATIC_URL }}admin/css/base.css" type="text/css"/>
-<link rel="stylesheet" href="{{ STATIC_URL }}admin/css/login.css" type="text/css"/>
-{% endblock %}
-
 {% block title %}Create an account{% endblock %}
 
 {% block content %}
-  <div class="container">
-    <h1>Create an account:</h1>
-    <form action="" method="post">
-      {% csrf_token %}
-      {{ form.as_p }}
-      <input type="submit" value="Create account"/>
+<div class="container">
+    <form action="" method="post" class="form-signin">
+        <legend>Create an account:</legend>
+        {% csrf_token %}
+        {{ form.as_p }}
+        <input type="submit" value="Create account"/>
     </form>
-  </div>
+</div>
 {% endblock %}

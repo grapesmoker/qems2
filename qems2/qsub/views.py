@@ -36,7 +36,9 @@ def main (request):
     else:
         return HttpResponseRedirect("/accounts/login/")
         #return HttpResponse('<font color="red">bad shit happened</font>')
-    
+
+
+
 def tourview(request):
     
     if request.user.is_authenticated():

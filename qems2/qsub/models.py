@@ -108,7 +108,7 @@ class Writer (models.Model):
     tournament_writer = models.ManyToManyField('Tournament', related_name='writer')
     tournament_editor = models.ManyToManyField('Tournament', related_name='editor')
 
-    administrator = models.BooleanField()
+    administrator = models.BooleanField(default=False)
 
     def __str__(self):
         return '{0!s}'.format(self.user.username)

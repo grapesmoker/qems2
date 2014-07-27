@@ -1,6 +1,6 @@
 from django.template.defaultfilters import register
 from django.utils.safestring import mark_safe
-from QuEST.qsub.models import *
+from qems2.qsub.models import *
 
 @register.filter(name='lookup')
 def lookup(dict, key):

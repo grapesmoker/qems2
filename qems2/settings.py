@@ -109,12 +109,12 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'QuEST.urls'
+ROOT_URLCONF = 'qems2.urls'
 
 AUTH_PROFILE_MODULE = 'qsub.Player'
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'QuEST.wsgi.application'
+WSGI_APPLICATION = 'qems2.wsgi.application'
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".

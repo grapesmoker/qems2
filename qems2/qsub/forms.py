@@ -4,24 +4,22 @@ from django.db import models
 from models import *
 from django import forms
 
-class PlayerCreationForm(UserCreationForm):
-    
-    school = forms.CharField(max_length=100)
-    
+class WriterCreationForm(UserCreationForm):
+
     def save(self, commit=False):
-        user = super(PlayerCreationForm, self).save(commit=False)
+        user = super(WriterCreationForm, self).save(commit=False)
         user.save()
-        
+
         try:
             profile = user.get_profile()
         except:
-            profile = Player(user=user)
-            
+            profile = Writer(user=user)
+
         profile.school = self.cleaned_data['school']
         profile.save()
-        
+
         return user
-    
+
 class TournamentForm(forms.ModelForm):
     
     class Meta:
@@ -35,47 +33,15 @@ class TournamentForm(forms.ModelForm):
                 self.fields[field].widget.attrs['readonly'] = True
                 print self.fields[field].widget.attrs
         else:
-            self.fields['player_to_add'] = forms.CharField(max_length=100, required=False)
-            self.fields['hd_player_to_add'] = forms.IntegerField(widget=forms.HiddenInput, required=False)
+            #self.fields['player_to_add'] = forms.CharField(max_length=100, required=False)
+            #self.fields['hd_player_to_add'] = forms.IntegerField(widget=forms.HiddenInput, required=False)
             self.fields['public'] = forms.BooleanField(required=False)
-        
-class TeamForm(forms.ModelForm):
-    
-    class Meta:
-        model = Team
-        exclude = ('team_owner')
-        
-    def __init__(self, read_only=False, *args, **kwargs):
-        super(TeamForm, self).__init__(*args, **kwargs)
-        if read_only:
-            for field in self.fields:
-                self.fields[field].widget.attrs['readonly'] = True
-        else:
-            self.fields['teammate_to_add'] = forms.CharField(max_length=100, required=False)
-            self.fields['hd_teammate_to_add'] = forms.IntegerField(widget=forms.HiddenInput, required=False)
-
-class SchoolForm(forms.ModelForm):
-    
-    class Meta:
-        model = School
-        exclude = ('created_by')
-        
-    def __init__(self, read_only=False, *args, **kwargs):
-        super(SchoolForm, self).__init__(*args, **kwargs)
-        print 'read_only:', read_only
-        if read_only:
-            print 'read only'
-            for field in self.fields:
-                self.fields[field].widget.attrs['readonly'] = True
-        else:
-            pass
-        
 
 class RoleAssignmentForm(forms.ModelForm):
     
     class Meta:
         model = Role
-        exclude = ['player', 'tournament']
+        exclude = ['writer', 'tournament']
         
     def __init__(self, categories=None, *args, **kwargs):
         super(RoleAssignmentForm, self).__init__(*args, **kwargs)
@@ -86,25 +52,6 @@ class RoleAssignmentForm(forms.ModelForm):
     #editor = forms.IntegerField(widget=forms.HiddenInput, required=True)
     #tournament = forms.IntegerField(widget=forms.HiddenInput, required=True)
     #categories = forms.MultipleChoiceField(widget=forms.SelectMultiple, choices=CATEGORIES)
-    #can_view_others = forms.BooleanField(required=False)
-    #can_edit_others = forms.BooleanField(required=False)
-    
-class TeamRoleAssignmentForm(forms.ModelForm):
-    
-    class Meta:
-        model = TeamRole
-        exclude = ['team', 'player']
-        
-    def __init__(self, categories=None, *args, **kwargs):
-        super(TeamRoleAssignmentForm, self).__init__(*args, **kwargs)
-        self.fields['category'] = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'size': len(CATEGORIES)}), choices=CATEGORIES)
-        #self.fields['can_view_others'].required = False
-        #self.fields['can_edit_others'].required = False
-        if categories:
-            self.initial['category'] = categories
-    #writer = forms.IntegerField(widget=forms.HiddenInput, required=True)
-    #team = forms.IntegerField(widget=forms.HiddenInput, required=True)
-    #categories = forms.MultipleChoiceField(widget=forms.SelectMultiple(attrs={'size': len(CATEGORIES)}), choices=CATEGORIES)
     #can_view_others = forms.BooleanField(required=False)
     #can_edit_others = forms.BooleanField(required=False)
     

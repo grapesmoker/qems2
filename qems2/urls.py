@@ -20,6 +20,11 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     (r'^main/$', main),
     (r'^$', main),
+
+
+
+
+
     (r'^tour/$', tour),
     (r'^school/$', school),
     (r'^schoolinfo/(?P<school_id>\d+)/$', school_info),

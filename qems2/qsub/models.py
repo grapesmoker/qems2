@@ -101,12 +101,24 @@ ACF_DISTRO = OrderedDict([('S', (5, 5)),
                           ('G', (1, 1)),
                           ('PC', (1, 1))])
 
+class Writer (models.Model):
+
+    user = models.OneToOneField(User)
+
+    tournament_writer = models.ManyToManyField('Tournament', related_name='writer')
+    tournament_editor = models.ManyToManyField('Tournament', related_name='editor')
+
+    administrator = models.BooleanField()
+
+    def __str__(self):
+        return '{0!s}'.format(self.user.username)
+
 class Tournament (models.Model):
     name = models.CharField(max_length=200)
     date = models.DateField()
     host = models.CharField(max_length=200)
     address = models.TextField(max_length=200)
-    owner = models.OneToOneField('Player', related_name='owner')
+    owner = models.OneToOneField('Writer', related_name='owner')
     public = models.BooleanField()
     distribution = models.ForeignKey('Distribution')
     #teams = models.ForeignKey('Team')
@@ -115,64 +127,23 @@ class Tournament (models.Model):
 
     def __str__(self):
         return '{0!s}'.format(self.name)
-
-class Team (models.Model):
-    
-    team_name = models.CharField(max_length=200)
-    tournament = models.ForeignKey(Tournament)
-    school = models.ForeignKey('School')
-    team_owner = models.ForeignKey('Player', related_name='team_owner')
-    
-    def __str__(self):
-        return'{0!s} - {1!s}'.format(self.team_name, self.tournament)
-    
-class Player(models.Model):
-    user = models.OneToOneField(User)
-    
-    team = models.ManyToManyField(Team)
-    tournament = models.ManyToManyField(Tournament)
-    school = models.ForeignKey('School')
-    
-    def __str__(self):
-        return '{0!s}'.format(self.user.username)
-    
-class School(models.Model):
-    
-    name = models.CharField(max_length=200)
-    contact = models.CharField(max_length=200)
-    contact_email = models.EmailField(max_length=200)
-    contact_phone = models.CharField(max_length=50)
-    address = models.TextField()
-    
-    created_by = models.ForeignKey(Player, related_name='created_by')
-    
-    def __str__(self):
-        return '{0!s}'.format(self.name)
     
 class Role(models.Model):
     
-    player = models.ForeignKey(Player)
+    writer = models.ForeignKey(Writer)
     tournament = models.ForeignKey(Tournament)
     category = models.CharField(max_length=500)
     can_view_others = models.BooleanField()
     can_edit_others = models.BooleanField()
 
-class TeamRole(models.Model):
-    
-    player = models.ForeignKey(Player, blank=True)
-    team = models.ForeignKey(Team, blank=True)
-    category = models.CharField(max_length=100)
-    can_view_others = models.BooleanField(blank=True)
-    can_edit_others = models.BooleanField(blank=True)
-
 class Packet (models.Model):
     team_name = models.CharField(max_length=200)
     date_submitted = models.DateField()
-    authors = models.ManyToManyField(Player)
+    # authors = models.ManyToManyField(Player)
     tournament = models.ForeignKey(Tournament)
-    team = models.ForeignKey(Team)
+    #team = models.ForeignKey(Team)
     
-    created_by = models.ForeignKey(Player, related_name='packet_creator')
+    created_by = models.ForeignKey(Writer, related_name='packet_creator')
 
 class DistributionPerPacket(models.Model):
     
@@ -210,7 +181,7 @@ class Tossup (models.Model):
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)
     
-    author = models.ForeignKey(Player)
+    author = models.ForeignKey(Writer)
     
     locked = models.BooleanField()
 
@@ -229,7 +200,7 @@ class Bonus(models.Model):
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)
     
-    author = models.ForeignKey(Player)
+    author = models.ForeignKey(Writer)
     
     locked = models.BooleanField()
     
@@ -244,7 +215,7 @@ class Test(models.Model):
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
-        Player.objects.create(user=instance)
+        Writer.objects.create(user=instance)
 
 post_save.connect(create_user_profile, sender=User)
     

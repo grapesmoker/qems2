@@ -18,13 +18,13 @@ from itertools import chain
 
 def register (request):
     if request.method == 'POST':
-        form = PlayerCreationForm(request.POST)
+        form = WriterCreationForm(request.POST)
         
         if form.is_valid():
             new_user = form.save()
             return HttpResponseRedirect("/main/")
     else:
-        form = PlayerCreationForm()
+        form = WriterCreationForm()
     return render_to_response('registration/register.html',
                               {'form': form,},
                               context_instance=RequestContext(request))
@@ -67,119 +67,10 @@ def tour(request):
                                   context_instance=RequestContext(request))
     else:
         return HttpResponseRedirect("/accounts/login/")
-    
-def school(request):
-    if request.user.is_authenticated():
-        player = request.user.get_profile()
-        all_schools = School.objects.all()
-        
-        return render_to_response('schoolview.html',
-                                  {'school_list': all_schools},
-                                  context_instance=RequestContext(request))
-    else:
-        return HttpResponseRedirect('/accounts/login/')
-    
-def school_info(request, school_id):
-    if request.user.is_authenticated():
-        
-        if request.method == 'POST':
-            form = SchoolForm(data=request.POST, read_only=False)
-            if form.is_valid():
-                school = School.objects.get(id=school_id)
-                school.name = form.cleaned_data['name']
-                school.address = form.cleaned_data['address']
-                school.contact = form.cleaned_data['contact']
-                school.contact_email = form.cleaned_data['contact_email']
-                school.contact_phone = form.cleaned_data['contact_phone']
-                school.save()
-                
-                return render_to_response('schoolinfo.html',
-                                          {'form': form,
-                                           'school_id': school_id,
-                                           'read_only': False,
-                                           'message': 'Your changes have been successfully saved',
-                                           'message_class': 'alert-success'},
-                                          context_instance=RequestContext(request))
-                
-            else:
-                return render_to_response('schoolinfo.html',
-                                  {'form': form,
-                                   'school_id': school_id,
-                                   'read_only': False,
-                                   'message': 'There were errors saving the changes.',
-                                   'message_class': 'alert-error'},
-                                  context_instance=RequestContext(request))
-        
-        else:
-            player = request.user.get_profile()
-            school = School.objects.get(id=school_id)
-            read_only = True
-            if school.created_by == player:
-                read_only = False
-            form = SchoolForm(instance=school, read_only=read_only)
-        
-        return render_to_response('schoolinfo.html',
-                                  {'form': form,
-                                   'school_id': school_id,
-                                   'read_only': read_only},
-                                  context_instance=RequestContext(request))
-        
-    else:
-        return HttpResponseRedirect('/accounts/login/')
 
-def create_school(request):
-    if request.user.is_authenticated():
-        if request.method == 'POST':
-            print 'post'
-            print request.POST
-            form = SchoolForm(data=request.POST, read_only=False)
-            if form.is_valid():
-                print 'valid'
-                player = request.user.get_profile()
-                school = form.save(commit=False)
-                school.created_by = player
-                school.save()
-                
-                return render_to_response('success.html',
-                                          {'message': 'Your school has been added to the database.'},
-                                          context_instance=RequestContext(request))
-            else:
-                print 'not valid'
-                print form.errors
-                pass
-        else:
-            print 'not post'
-            form = SchoolForm()
-        
-        print 'return'
-        print form
-        print form.non_field_errors()
-        return render_to_response('schoolcreate.html',
-                                  {'form': form},
-                                  context_instance=RequestContext(request))
-    else:
-        return HttpResponseRedirect('/accounts/login/')
         
 def school_edit(request):
     pass
-
-    
-def team(request):
-    if request.user.is_authenticated():
-        player = request.user.get_profile()
-        owned_teams = Team.objects.filter(team_owner=player)
-        member_teams = player.team.all()
-        joinable_teams = [team for team in Team.objects.all() if team not in owned_teams and team not in member_teams]
-        
-        all_teams = [{'header': 'Teams you created', 'teams': owned_teams, 'id': 'teams-owned'},
-                     {'header': 'Teams you are a member of', 'teams': member_teams, 'id': 'teams-member'},
-                     {'header': 'Teams you can request to join', 'teams': joinable_teams, 'id': 'teams-avail'}]
-        
-        return render_to_response('teamview.html',
-                                  {'team_list': all_teams},
-                                  context_instance=RequestContext(request)) 
-    else:
-        return HttpResponseRedirect('/accounts/login/')
 
 def packet(request):
     if request.user.is_authenticated():
@@ -237,142 +128,7 @@ def editor_create_packet(request, tour_id):
         packet = Packet()
         packet.tournament = tour
         packet.created_by = player
-        
 
-def create_packet(request, team_id):
-    if request.user.is_authenticated():
-        if team_id is None:
-            return render_to_response('failure.html',
-                                      {'message': 'Team ID required to create packet!'},
-                                      context_instance=RequestContext(request))
-            
-        player = request.user.get_profile()
-        print player, player.id, team_id
-        team = Team.objects.get(id=team_id)
-        
-        # check to make sure this player belongs to this team
-        if player != team.team_owner:
-            return render_to_response('failure.html',
-                                      {'message': 'You cannot create a packet unless you are the team manager!'},
-                                      context_instance=RequestContext(request))
-        # don't create multiple packets; editor packet creation handled separately
-        if len(team.packet_set.all()) != 0:
-            return render_to_response('failure.html',
-                                      {'message': 'A packet already exists for this team and tournament!'},
-                                      context_instance=RequestContext(request))
-            
-        packet = Packet()
-        packet.tournament = team.tournament
-        packet.team = team
-        packet.created_by = player
-        packet.save()
-        packet.authors = team.player_set.all()
-        packet.authors.add(player)
-        packet.save()
-        form = TeamForm(instance=team)
-        
-        return render_to_response('teamedit.html',
-                                  {'form': form,
-                                   'teammates': team.player_set.all(),
-                                   'packets': team.packet_set.all(),
-                                   'team': team,
-                                   'message': 'Your packet has been created!',
-                                   'message_type': 'success',
-                                   'player': player},
-                                  context_instance=RequestContext(request))
-        
-    else:
-        return HttpResponseRedirect('/accounts/login/')
-
-def create_team(request):
-    if request.method == 'POST':
-        print request.POST
-        form = TeamForm(data=request.POST)
-        if form.is_valid():
-            player = request.user.get_profile()
-            school = form.cleaned_data['school']
-            tournament = form.cleaned_data['tournament']
-            
-            team = form.save(commit=False)
-            team.team_owner = player
-            existing_team = Team.objects.filter(school=school, tournament=tournament)
-            
-            if existing_team is not None:
-                return render_to_response('failure.html',
-                                          {'message': 'A team with that name already exists for this tournament!'},
-                                          context_instance=RequestContext(request))
-            
-            team.save()
-            
-            return render_to_response('success.html',
-                                      {'message': 'Your team has been successfully created!'},
-                                      context_instance=RequestContext(request))
-    else:
-        form = TeamForm()
-        
-    return render_to_response('teamcreate.html',
-                              {'form': form},
-                              context_instance=RequestContext(request))
-
-def edit_team(request, team_id):
-    
-    read_only = False
-    message = ''
-    player = request.user.get_profile()
-    
-    if request.method == 'POST':
-        form = TeamForm(data=request.POST)
-        if form.is_valid():
-            team = Team.objects.get(id=team_id)
-            try:
-                teammate_to_add_id = request.POST.get('hd_teammate_to_add')
-                teammate = Player.objects.get(id=teammate_to_add_id)
-                team.player_set.add(teammate)
-                if team.packet_set.all().exists():
-                    packet = team.packet_set.all()[0]
-                    packet.authors.add(teammate)
-            except Exception as ex:
-                print ex
-            team.team_name = form.cleaned_data['team_name']
-            team.tournament = form.cleaned_data['tournament']
-            team.school = form.cleaned_data['school']
-            
-            team.save()
-            
-            packets = team.packet_set.all()
-            
-            return render_to_response('teamedit.html',
-                                      {'form': form,
-                                       'teammates': team.player_set.all(),
-                                       'team': team,
-                                       'packets': packets,
-                                       'message': 'Your changes have been successfully saved!',
-                                       'message_type': 'success',
-                                       'player': player},
-                                      context_instance=RequestContext(request))
-        else:
-            teammates = []
-    else:
-        team = Team.objects.get(id=team_id)
-        teammates = team.player_set.all()
-        packets = team.packet_set.all()
-        
-        if request.user.get_profile() != team.team_owner:
-            form = TeamForm(instance=team, read_only=True)
-            read_only = True
-            message = 'You are not authorized to edit this team information.'
-        else:
-            form = TeamForm(instance=team)
-            
-    return render_to_response('teamedit.html',
-                              {'form': form,
-                               'teammates': teammates,
-                               'team': team,
-                               'packets': packets,
-                               'read_only': read_only,
-                               'message': message,
-                               'player': player},
-                              context_instance=RequestContext(request))
 
 def edit_tournament(request, tour_id):
     print tour_id
@@ -388,7 +144,7 @@ def edit_tournament(request, tour_id):
                 editor_to_add_id = request.POST.get('hd_player_to_add')
                 print request.POST
                 print editor_to_add_id
-                player = Player.objects.get(id=editor_to_add_id)
+                player = Writer.objects.get(id=editor_to_add_id)
                 tournament.player_set.add(player)
             except Exception as ex:
                 print ex
@@ -526,62 +282,6 @@ def edit_tossups(request, packet_id):
     pass
 
 def edit_bonuses(request, packet_id):
-    pass
-
-def question_view(request, type, packet_id):
-    
-    if type != 'tossup' and type != 'bonus':
-        return render_to_response('failure.html',
-                                  {'message': 'Invalid question type!',
-                                   'message_type': 'error'})
-    
-    if request.user.is_authenticated():
-        player = request.user.get_profile()
-        packet = Packet.objects.get(id=packet_id)
-        team = packet.team
-        
-        if type == 'tossup':
-            question_set = packet.tossup_set.all()
-        elif type == 'bonus':
-            question_set = packet.bonus_set.all()
-            
-        questions_authored = []
-        questions_to_edit = []
-        questions_to_view = []
-        
-        # is the player allowed to view/edit?
-        # if he has any kind of role, show him that
-        
-        if TeamRole.objects.filter(team=team, player=player).exists():
-            player_role = TeamRole.objects.get(team=team, player=player)
-            for question in question_set:
-                if question.author == player:
-                    questions_authored.append(question)
-                elif question.author != player and player_role.can_edit_others:
-                    questions_to_edit.append(question)
-                elif question.author != player and player_role.can_view_others:
-                    questions_to_view.append(question)
-        # otherwise just show the stuff he wrote
-        else:
-            player_role = None
-            for question in question_set:
-                if question.author == player:
-                    questions_authored.append(question)
-                    
-        return render_to_response('questionview.html',
-                                  {'questions_authored': questions_authored,
-                                   'questions_to_edit': questions_to_edit,
-                                   'questions_to_view': questions_to_view,
-                                   'role': player_role,
-                                   'player': player,
-                                   'packet': packet,
-                                   'team': team,
-                                   'type': type},
-                                  context_instance=RequestContext(request))
-                    
-            
-    else:
-        return HttpResponseRedirect('/accounts/login/')
     pass
 
 
@@ -784,68 +484,6 @@ TossupFormset = formset_factory(TossupForm)
                                   context_instance=RequestContext(request))
                                   '''
 
-def players_in_tournament(tournament):
-    
-    teams = tournament.team_set.all()
-    players = []
-    for team in teams:
-        for player in team.player_set.all():
-            players.append(player)
-            
-    return players
-
-def find_player(request):
-    data = []
-    if request.user.is_authenticated():
-        if request.is_ajax() and request.method == 'GET':
-            player = request.user.get_profile()
-            term = request.GET.get('term', '')
-            tour_id = request.GET.get('tour_id', '')
-            tournament = Tournament.objects.get(id=tour_id)
-            players_playing = players_in_tournament(tournament)
-            available_editors = Player.objects.exclude(id=player.id).exclude(tournament=tournament).filter(user__username__startswith=term)
-            for editor in available_editors:
-                if editor not in players_playing:
-                    data.append({'label': editor.user.username, 'value': editor.id})
-    else:
-        print 'User not authenticated'
-    return HttpResponse(simplejson.dumps(data), 'application/json')
-
-def find_teammate(request):
-    data = []
-    print 'finding teammate'
-    if request.user.is_authenticated():
-        if request.is_ajax() and request.method == 'GET':
-            player = request.user.get_profile()
-            term = request.GET.get('term', '')
-            team_id = request.GET.get('team_id', '')
-            team = Team.objects.get(id=team_id)
-            
-            players_on_team = team.player_set.all()
-            print 'butts'
-            players_playing = players_in_tournament(team.tournament) 
-            
-            available_teammates = Player.objects.exclude(id=player.id).filter(user__username__startswith=term)
-            for teammate in available_teammates:
-                if teammate not in players_playing:
-                    data.append({'label': teammate.user.username, 'value': teammate.id})
-    else:
-        print 'User not authenticated'
-    return HttpResponse(simplejson.dumps(data), 'application/json')
-
-
-def get_tournament_players(request):
-    data = []
-    
-    if request.user.is_authenticated():
-        if request.is_ajax() and request.method == 'POST':
-            tour_id = request.POST.get('tour_id', '')
-            tour = Tournament.objects.get(id=tour_id)
-            players = tour.player_set.all()
-            for player in players:
-                data.append({'label': player.user.username, 'value': editor.id})
-    return HttpResponse(simplejson.dumps(data), 'application/json')
-            
 def distributions(request):
     
     data = []
@@ -976,7 +614,7 @@ def role_assign(request, editor_id, tour_id):
             can_view_others = form.cleaned_data['can_view_others']
             
             categories = ';'.join(categories)
-            editor = Player.objects.get(id=editor_id)
+            editor = Writer.objects.get(id=editor_id)
             tournament = Tournament.objects.get(id=tour_id)
             
             role, created = Role.objects.get_or_create(player=editor,
@@ -995,10 +633,10 @@ def role_assign(request, editor_id, tour_id):
                                        'message_class': 'alert-success'},
                                       context_instance=RequestContext(request))
         else:
-            editor = Player.objects.get(id=editor_id)
+            editor = Writer.objects.get(id=editor_id)
             
     else:
-        editor = Player.objects.get(id=editor_id)
+        editor = Writer.objects.get(id=editor_id)
         tour = Tournament.objects.get(id=tour_id)
         if Role.objects.filter(player=editor, tournament=tour).exists():
             role = Role.objects.get(player=editor, tournament=tour)
@@ -1012,82 +650,12 @@ def role_assign(request, editor_id, tour_id):
                             {'form': form,
                              'editor': editor},
                               context_instance=RequestContext(request))
-    
-def team_role_assign(request, writer_id, team_id):
-    
-    if request.method == 'POST':
-        form = TeamRoleAssignmentForm(data=request.POST)
-        if form.is_valid():
-            categories = form.cleaned_data['category']
-            can_edit_others = form.cleaned_data['can_edit_others']
-            can_view_others = form.cleaned_data['can_view_others']
-            
-            categories = ';'.join(categories)
-            writer = Player.objects.get(id=writer_id)
-            team = Team.objects.get(id=team_id)
-            
-            team_role, created = TeamRole.objects.get_or_create(player=writer,
-                                                       team=team)
-            team_role.category = categories
-            team_role.can_edit_others = can_edit_others
-            team_role.can_view_others = can_view_others
-            team_role.save() 
-            
-            form = TeamRoleAssignmentForm(instance=team_role, categories=categories.split(';'))
-            
-            return render_to_response('teamroleassign.html',
-                                      {'form': form,
-                                       'writer': writer},
-                                      context_instance=RequestContext(request))
-        else:
-            writer = Player.objects.get(id=writer_id)
-            
-    else:
-        writer = Player.objects.get(id=writer_id)
-        team = Team.objects.get(id=team_id)
-        if TeamRole.objects.filter(player=writer, team=team).exists():
-            team_role = TeamRole.objects.get(player=writer, team=team)
-            categories = team_role.category.split(';')
-            form = TeamRoleAssignmentForm(instance=team_role, categories=categories)
-        else:
-            form = TeamRoleAssignmentForm()
-        
-    return render_to_response('teamroleassign.html',
-                            {'form': form,
-                             'writer': writer},
-                              context_instance=RequestContext(request))
-    
-def remove_teammate(request, team_id, teammate_id):
-    if request.user.is_authenticated():
-        print teammate_id
-        player = request.user.get_profile()
-        teammate = Player.objects.get(id=teammate_id)
-        team = Team.objects.get(id=team_id)
-        
-        if player == team.team_owner:
-            if teammate in team.player_set.all():
-                team.player_set.remove(teammate)
-                team.save()
-                if teammate.teamrole_set.filter(team_id=team.id).exists():
-                    teammate_role = teammate.teamrole_set.get(team_id=team.id, player_id=teammate.id)
-                    teammate_role.delete()
-                message = 'You have removed {0!s} from your team.'.format(teammate)
-            else:
-                message = '{0!s} is not on your team.'.format(teammate)
-        else:
-            message = 'You are not the team manager and are not allowed to remove players.'
-            
-        form = TeamForm(instance=team)
-        teammates = team.player_set.all()
-        
-        return HttpResponseRedirect('/teamedit/{0!s}/'.format(team.id))
-    else:
-        return HttpResponseRedirect('/accounts/login/')
+
     
 def remove_editor(request, tournament_id, editor_id):
     if request.user.is_authenticated():
         player = request.user.get_profile()
-        editor = Player.objects.get(id=editor_id)
+        editor = Writer.objects.get(id=editor_id)
         tournament = Tournament.objects.get(id=tournament_id)
         
         if player == tournament.owner:

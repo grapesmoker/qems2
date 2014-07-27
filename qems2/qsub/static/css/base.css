@@ -28,3 +28,40 @@ div#content {
 	position: absolute;
     background-color: #e0e0e0; 
 }*/
+
+body {
+  padding-top: 50px;
+  background-color: #fff;
+}
+
+
+/*
+ * Global add-ons
+ */
+
+.sub-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/*
+ * Top navigation
+ * Hide default border to remove 1px line.
+ */
+.navbar-fixed-top {
+  border: 0;
+}
+
+.sidebar {
+position: fixed;
+top: 51px;
+bottom: 0;
+left: 0;
+z-index: 1000;
+display: block;
+padding: 20px;
+overflow-x: hidden;
+overflow-y: auto;
+border-right: 1px solid #eee;
+background-color: #eee;
+}

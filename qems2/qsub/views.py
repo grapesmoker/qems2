@@ -8,7 +8,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView
 from django.utils import simplejson
 from django.contrib.auth.models import User
-
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from models import *
 from forms import *
 
@@ -19,24 +20,44 @@ from itertools import chain
 def register (request):
     if request.method == 'POST':
         form = WriterCreationForm(request.POST)
-        
         if form.is_valid():
-            new_user = form.save()
-            return HttpResponseRedirect("/main/")
+            user = form.save()
+            print form.cleaned_data
+            auth_user = authenticate(username=form.cleaned_data['username'],
+                                     password=form.cleaned_data['password1'])
+            if auth_user.is_active:
+                login(request, auth_user)
+                return HttpResponseRedirect("/main/")
+            else:
+                render_to_response('failure.html', {'message': 'Account disabled! Contact administrator!'})
     else:
         form = WriterCreationForm()
     return render_to_response('registration/register.html',
                               {'form': form,},
                               context_instance=RequestContext(request))
 
+@login_required
 def main (request):
-    if request.user.is_authenticated():
-        return render_to_response('main.html', {'user': request.user},
-                                  context_instance=RequestContext(request))
-    else:
-        return HttpResponseRedirect("/accounts/login/")
-        #return HttpResponse('<font color="red">bad shit happened</font>')
+    return render_to_response('main.html', {'user': request.user},
+                              context_instance=RequestContext(request))
 
+@login_required
+def tournaments (request):
+    user = request.user
+
+    # all the tournaments owned by this user
+    owned_tournaments = Tournament.objects.filter(owner=user)
+    # the tournaments for which this user is an editor
+    editor_tournaments = user.tournament_editor.all()
+    # the tournaments for which this user is a writer
+    writer_tournaments = user.tournament_writer.all()
+
+    all_tournaments = [{'header': 'Tournaments you own', 'tours': owned_tournaments, 'id': 'tour-owned'},
+                       {'header': 'Tournaments you are editing', 'tours': editor_tournaments, 'id': 'tour-edit'},
+                       {'header': 'Tournaments you are writing for', 'tours': writer_tournaments, 'id': 'tour-write'}]
+
+    return render_to_response('tournaments.html', {'tournament_list': all_tournaments},
+                              context_instance=RequestContext(request))
 
 
 def tourview(request):

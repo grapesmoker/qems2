@@ -6,8 +6,9 @@
 
 <head>
     <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.css' %}">
-    <link rel="stylesheet" href="{% static 'fontawesome/css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome/css/font-awesome.css' %}">
     <link rel="stylesheet" href="{% static 'css/signin.css' %}">
+    <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
     <script type="text/javascript" href="{% static 'jquery/src/jquery.js' %}"></script>
     <script type="text/javascript" href="{% static 'jquery-ui/jquery-ui.js' %}"></script>
@@ -17,22 +18,18 @@
 </head>
 
 <body>
- 	<div class="container-fluid">
- 		<div class="row-fluid">
- 			<div class="span12" id="header">
-  				{% block header %}{% endblock %}
-  			</div>
-  		</div>
-  		<div class="row-fluid">
-  			<div class="span2" id="sidebar">
-  				{% block sidebar %}{% endblock %}
-  			</div>
-  			<div class="span10">
-  				{% block content %}{% endblock %}
-  			</div>
-  		</div>
-  		{% block footer %}{% endblock %}
- 	</div>
+<div class="container-fluid">
+    {% block header %}{% endblock %}
+    <div class="container-fluid">
+        <div class="row">
+            {% block sidebar %}{% endblock %}
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    {% block footer %}{% endblock %}
+
+</div>
 </body>
 </html>
   

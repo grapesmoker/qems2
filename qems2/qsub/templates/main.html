@@ -1,9 +1,20 @@
 {% extends "base.html" %}
 
+{% block title %}
+QEMS v2
+{% endblock %}
+
 {% block header %}
-<h1>welcome to qsub</h1>
+{% include "header.html" %}
+{% endblock %}
+
+{% block sidebar %}
+{% include "sidebar.html" %}
 {% endblock %}
 
 {% block content %}
-<p>This is where the main part goes</p>
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h1 class="page-header">Dashboard</h1>
+</div>
+
 {% endblock %}

@@ -6,19 +6,21 @@ from django import forms
 
 class WriterCreationForm(UserCreationForm):
 
-    def save(self, commit=False):
-        user = super(WriterCreationForm, self).save(commit=False)
-        user.save()
+    class Meta:
+        model = User
+        fields = ['username', 'first_name', 'last_name', 'email']
 
-        try:
-            profile = user.get_profile()
-        except:
-            profile = Writer(user=user)
+    def __init__(self, *args, **kwargs):
+        super(WriterCreationForm, self).__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'class': 'form-control'})
+        self.fields['first_name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['last_name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['email'].widget.attrs.update({'class': 'form-control'})
 
-        profile.school = self.cleaned_data['school']
-        profile.save()
-
-        return user
+        #print self.fields
+        self.fields['password1'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
+        self.fields['username'].widget.attrs.update({'class': 'form-control'})
 
 class TournamentForm(forms.ModelForm):
     

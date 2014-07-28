@@ -26,18 +26,16 @@ class TournamentForm(forms.ModelForm):
     
     class Meta:
         model = Tournament
-        exclude = ['owner', 'public', 'distribution']
+        exclude = ['owner', 'public', 'distribution', 'address', 'host']
     
     def __init__(self, read_only=False, *args, **kwargs):
         super(TournamentForm, self).__init__(*args, **kwargs)
-        if read_only:
-            for field in self.fields:
+
+        for field in self.fields:
+            if read_only:
                 self.fields[field].widget.attrs['readonly'] = True
-                print self.fields[field].widget.attrs
-        else:
-            #self.fields['player_to_add'] = forms.CharField(max_length=100, required=False)
-            #self.fields['hd_player_to_add'] = forms.IntegerField(widget=forms.HiddenInput, required=False)
-            self.fields['public'] = forms.BooleanField(required=False)
+
+            self.fields[field].widget.attrs['class'] = 'form-control'
 
 class RoleAssignmentForm(forms.ModelForm):
     

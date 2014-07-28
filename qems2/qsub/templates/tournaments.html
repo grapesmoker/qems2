@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block sidebar %}
+{% include "sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+{% load static %}
+
+
+
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h2 class="page-header">Tournaments</h2>
+    <!--<div class="tabbable">-->
+		<ul class="nav nav-tabs" role="tablist">
+			{% for tour_type in tournament_list %}
+			<li class="{% if forloop.first %}active{% endif %}">
+				<a href="#{{ tour_type.id }}" role="tab" data-toggle="tab">{{ tour_type.header }}</a>
+			</li>
+			{% endfor %}
+		</ul>
+
+		<div class="tab-content">
+			{% for tour_type in tournament_list %}
+			<div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ tour_type.id }}">
+				{% if forloop.first %}
+				<a href="/create_tournament/" class="btn btn-primary" title="Create new tournament">
+					<i class="icon-plus"></i> Create new tournament
+				</a>
+				{% endif %}
+				<table class="table table-striped">
+					<thead>
+						<tr>
+							<th>Tournament name</th>
+							<th>Date</th>
+							<th>Host</th>
+							<th>Location</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for tournament in tour_type.tours %}
+					<tr>
+						<td><a href="/touredit/{{ tournament.id }}/">{{ tournament.name }}</a></td>
+						<td>{{ tournament.date }}</td>
+						<td>{{ tournament.host }}</td>
+						<td>{{ tournament.location }}</td>
+					</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+			{% endfor %}
+		</div>
+	<!--</div>-->
+</div>
+
+{% endblock %}

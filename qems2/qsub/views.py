@@ -43,14 +43,14 @@ def main (request):
 
 @login_required
 def tournaments (request):
-    user = request.user
+    writer = request.user.writer
 
     # all the tournaments owned by this user
-    owned_tournaments = Tournament.objects.filter(owner=user)
+    owned_tournaments = Tournament.objects.filter(owner=writer)
     # the tournaments for which this user is an editor
-    editor_tournaments = user.tournament_editor.all()
+    editor_tournaments = writer.tournament_editor.all()
     # the tournaments for which this user is a writer
-    writer_tournaments = user.tournament_writer.all()
+    writer_tournaments = writer.tournament_writer.all()
 
     all_tournaments = [{'header': 'Tournaments you own', 'tours': owned_tournaments, 'id': 'tour-owned'},
                        {'header': 'Tournaments you are editing', 'tours': editor_tournaments, 'id': 'tour-edit'},
@@ -60,40 +60,6 @@ def tournaments (request):
                               context_instance=RequestContext(request))
 
 
-def tourview(request):
-    
-    if request.user.is_authenticated():
-        return render_to_response('tourview.html', {}, context_instance=RequestContext(request))
-    else:
-        return HttpResponse('<font color="red">You are not authorized to view this page</font>')
-    
-def tour(request):
-    if request.user.is_authenticated():
-        player = request.user.get_profile()
-        # collect all tournaments owned by player
-        owned_tournaments = Tournament.objects.filter(owner=player)
-        # now get all the tournaments this player is an editor on
-        editor_tournaments = player.tournament.all()
-        # now get all the tournaments this player is not part of but which are also not public
-        available_tournaments = Tournament.objects.exclude(owner=player).exclude(public=True)
-        joinable_tournaments = [tour for tour in available_tournaments if tour not in editor_tournaments]
-        # now finally all public tournaments (can overlap with above?)
-        public_tournaments = Tournament.objects.filter(public=True)
-        
-        all_tournaments = [{'header': 'Tournaments you own', 'tours': owned_tournaments, 'id': 'tour-owned'},
-                           {'header': 'Tournaments you are editing', 'tours': editor_tournaments, 'id': 'tour-edit'},
-                           {'header': 'Tournaments you can ask to join', 'tours': joinable_tournaments, 'id': 'tour-avail'},
-                           {'header': 'Public tournaments', 'tours': public_tournaments, 'id': 'tour-public'}]
-        
-        return render_to_response('tourview.html', 
-                                  {'tournament_list': all_tournaments},
-                                  context_instance=RequestContext(request))
-    else:
-        return HttpResponseRedirect("/accounts/login/")
-
-        
-def school_edit(request):
-    pass
 
 def packet(request):
     if request.user.is_authenticated():
@@ -110,17 +76,22 @@ def packet(request):
         return HttpResponseRedirect('/accounts/login/')
         
 
-def create_tournament(request):
+@login_required
+def create_tournament (request):
     if request.method == 'POST':
         form = TournamentForm(data=request.POST)
-        print form
         if form.is_valid():
-            player = request.user.get_profile()
+            writer = request.user.writer
+            # for the moment, just use the default ACF Distribution
+            dist = Distribution.objects.get(id=1)
             tournament = form.save(commit=False)
-            tournament.owner = player
+            tournament.owner = writer
+            tournament.distribution = dist
             tournament.save()
-            tournament.player_set.add(player)
-            tournament.save()
+            form.save_m2m()
+            writer.tournament_editor.add(tournament)
+            writer.save()
+            #tournament.save()
             #tournament.save_m2m()
             
             return render_to_response('success.html',
@@ -134,7 +105,7 @@ def create_tournament(request):
     else:
         form = TournamentForm()
         
-    return render_to_response('tourcreate.html',
+    return render_to_response('create_tournament.html',
                               {'form': form},
                               context_instance=RequestContext(request))
     

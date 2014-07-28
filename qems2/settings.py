@@ -132,6 +132,7 @@ INSTALLED_APPS = (
     # Uncomment the next line to enable the admin:
     'django.contrib.admin',
     'djangobower',
+    'debug_toolbar',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'qems2.qsub',
@@ -153,6 +154,10 @@ LOGGING = {
         }
     },
     'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'level': 'DEBUG',
+        },
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
@@ -160,6 +165,7 @@ LOGGING = {
         }
     },
     'loggers': {
+
         'django.request': {
             'handlers': ['mail_admins'],
             'level': 'ERROR',

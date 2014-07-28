@@ -119,7 +119,7 @@ class Tournament (models.Model):
     host = models.CharField(max_length=200)
     address = models.TextField(max_length=200)
     owner = models.OneToOneField('Writer', related_name='owner')
-    public = models.BooleanField()
+    #public = models.BooleanField()
     distribution = models.ForeignKey('Distribution')
     #teams = models.ForeignKey('Team')
 

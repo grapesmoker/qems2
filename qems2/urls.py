@@ -1,8 +1,10 @@
 from django.conf.urls import patterns, include, url
-from django.contrib.auth.views import login, logout
+from django.contrib.auth.views import logout, login
 from django.views.generic import ListView
 from qsub.views import *
 from qsub.models import *
+
+import django
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -21,9 +23,11 @@ urlpatterns = patterns('',
     (r'^main/$', main),
     (r'^$', main),
     (r'^register/$', register),
-    (r'^accounts/login/$', login),
+    (r'^accounts/login/$', django.contrib.auth.views.login),
     (r'^accounts/logout/$', logout),
-    (r'^tournaments/$', tournaments),
-    (r'^create_tournament/$', create_tournament),
+    (r'^question_sets/$', question_sets),
+    (r'^create_question_set/$', create_question_set),
+    (r'^edit_question_set/(?P<qset_id>[0-9]+)/$', edit_question_set),
     (r'^distributions/$', distributions),
+    (r'^add_editor/(?P<qset_id>[0-9]+)/$', add_editor),
 )

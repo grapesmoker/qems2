@@ -26,6 +26,7 @@ def register (request):
             auth_user = authenticate(username=form.cleaned_data['username'],
                                      password=form.cleaned_data['password1'])
             if auth_user.is_active:
+                print 'foo'
                 login(request, auth_user)
                 return HttpResponseRedirect("/main/")
             else:
@@ -38,25 +39,30 @@ def register (request):
 
 @login_required
 def main (request):
+    print request.user.is_authenticated()
     return render_to_response('main.html', {'user': request.user},
                               context_instance=RequestContext(request))
 
 @login_required
-def tournaments (request):
+def question_sets (request):
     writer = request.user.writer
 
     # all the tournaments owned by this user
-    owned_tournaments = Tournament.objects.filter(owner=writer)
+    owned_sets = QuestionSet.objects.filter(owner=writer)
     # the tournaments for which this user is an editor
-    editor_tournaments = writer.tournament_editor.all()
+    editor_sets = writer.question_set_editor.all()
     # the tournaments for which this user is a writer
-    writer_tournaments = writer.tournament_writer.all()
+    writer_sets = writer.question_set_writer.all()
 
-    all_tournaments = [{'header': 'Tournaments you own', 'tours': owned_tournaments, 'id': 'tour-owned'},
-                       {'header': 'Tournaments you are editing', 'tours': editor_tournaments, 'id': 'tour-edit'},
-                       {'header': 'Tournaments you are writing for', 'tours': writer_tournaments, 'id': 'tour-write'}]
+    print writer
+    print owned_sets
 
-    return render_to_response('tournaments.html', {'tournament_list': all_tournaments},
+    all_sets  = [{'header': 'Question sets you own', 'qsets': owned_sets, 'id': 'qsets-owned'},
+                 {'header': 'Question sets you are editing', 'qsets': editor_sets, 'id': 'qsets-edit'},
+                 {'header': 'Question sets you are writing for', 'qsets': writer_sets, 'id': 'qsets-write'}]
+
+    print all_sets
+    return render_to_response('question_sets.html', {'question_set_list': all_sets},
                               context_instance=RequestContext(request))
 
 
@@ -77,33 +83,33 @@ def packet(request):
         
 
 @login_required
-def create_tournament (request):
+def create_question_set (request):
     if request.method == 'POST':
-        form = TournamentForm(data=request.POST)
+        form = QuestionSetForm(data=request.POST)
         if form.is_valid():
             writer = request.user.writer
             # for the moment, just use the default ACF Distribution
             dist = Distribution.objects.get(id=1)
-            tournament = form.save(commit=False)
-            tournament.owner = writer
-            tournament.distribution = dist
-            tournament.save()
+            question_set = form.save(commit=False)
+            question_set.owner = writer
+            question_set.distribution = dist
+            question_set.save()
             form.save_m2m()
-            writer.tournament_editor.add(tournament)
+            writer.question_set_editor.add(question_set)
             writer.save()
             
             return render_to_response('success.html',
-                                      {'message': 'Your tournament has been successfully created!'},
+                                      {'message': 'Your question set has been successfully created!'},
                                       context_instance=RequestContext(request))
         else:
             print form.errors
             return render_to_response('failure.html',
-                                      {'message': 'There was an error in creating your tournament!'},
+                                      {'message': 'There was an error in creating your question set!'},
                                       context_instance=RequestContext(request))
     else:
-        form = TournamentForm()
+        form = QuestionSetForm()
         
-    return render_to_response('create_tournament.html',
+    return render_to_response('create_question_set.html',
                               {'form': form},
                               context_instance=RequestContext(request))
     
@@ -121,62 +127,106 @@ def editor_create_packet(request, tour_id):
         packet.tournament = tour
         packet.created_by = player
 
-
-def edit_tournament(request, tour_id):
-    print tour_id
+@login_required
+def edit_question_set(request, qset_id):
+    print qset_id
     read_only = False
     message = ''
-    
-    if request.method == 'POST':
+
+    qset = QuestionSet.objects.get(id=qset_id)
+    qset_editors = qset.editor.all()
+    user = request.user.writer
+
+    if request.method == 'POST' and (user == qset.owner or user in qset_editors):
         print request.POST
-        form = TournamentForm(data=request.POST)
+        form = QuestionSetForm(data=request.POST)
         if form.is_valid():
-            tournament = Tournament.objects.get(id=tour_id)
+            qset = QuestionSet.objects.get(id=qset_id)
             try:
                 editor_to_add_id = request.POST.get('hd_player_to_add')
                 print request.POST
                 print editor_to_add_id
                 player = Writer.objects.get(id=editor_to_add_id)
-                tournament.player_set.add(player)
+                qset.writers.add(player)
             except Exception as ex:
                 print ex
-            tournament.name = form.cleaned_data['name']
-            tournament.date = form.cleaned_data['date']
-            tournament.host = form.cleaned_data['host']
-            tournament.address = form.cleaned_data['address']
+            qset.name = form.cleaned_data['name']
+            qset.date = form.cleaned_data['date']
+
+            qset.save()
             
-            tournament.save()
-            
-            return render_to_response('touredit.html',
+            return render_to_response('edit_question_set.html',
                                       {'form': form,
-                                       'tour': tournament,
-                                       'editors': tournament.player_set.all(),
-                                       'packets': tournament.packet_set.all(), 
+                                       'qset': qset,
+                                       'editors': [ed for ed in qset_editors if ed != qset.owner],
+                                       'writers': qset.writer.all(),
+                                       'packets': qset.packet_set.all(),
                                        'message': 'Your changes have been successfully saved.',
                                        'message_class': 'alert-success'},
                                       context_instance=RequestContext(request))
         else:
             tournament_editors = []
     else:
-        tournament = Tournament.objects.get(id=tour_id)
-        tournament_editors = tournament.player_set.all()
-        if request.user.get_profile() not in tournament_editors and request.user.get_profile() != tournament.owner:
-            form = TournamentForm(instance=tournament, read_only=True)
+        if user not in qset_editors and user != qset.owner:
+            form = QuestionSetForm(instance=qset, read_only=True)
             read_only = True
             message = 'You are not authorized to edit this tournament.'
         else:
-            form = TournamentForm(instance=tournament)
+            form = QuestionSetForm(instance=qset)
         
         
-    return render_to_response('touredit.html',
+    return render_to_response('edit_question_set.html',
                               {'form': form,
-                               'editors': tournament_editors,
-                               'packets': tournament.packet_set.all(),
-                               'tour': tournament,
-                               'tour_id': tour_id,
+                               'editors': [ed for ed in qset_editors if ed != qset.owner],
+                               'packets': qset.packet_set.all(),
+                               'qset': qset,
                                'read_only': read_only,
                                'message': message},
                               context_instance=RequestContext(request))
+
+@login_required
+def find_editor(request):
+    pass
+
+@login_required
+def add_editor(request, qset_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+    message = ''
+
+    if request.method == 'GET':
+        current_editors = qset.editor.all()
+        available_editors = [writer for writer in Writer.objects.all()
+                             if writer not in current_editors and writer != qset.owner and writer.id != 1]
+        print available_editors
+        return render_to_response('add_editor.html',
+            {'qset': qset,
+             'available_editors': available_editors},
+            context_instance=RequestContext(request))
+
+    elif request.method == 'POST':
+        print request.POST
+        editors_to_add = request.POST.getlist('editors_to_add')
+        # do some basic validation here
+        if all([x.isdigit() for x in editors_to_add]):
+            for editor_id in editors_to_add:
+                print editor_id
+                editor = Writer.objects.get(id=editor_id)
+                qset.editor.add(editor)
+            qset.save()
+            current_editors = qset.editor.all()
+            available_editors = [writer for writer in Writer.objects.all()
+                                 if writer not in current_editors and writer != qset.owner and writer.id != 1]
+        else:
+            message = 'Invalid data entered!'
+            available_editors = []
+
+        return render_to_response('add_editor.html',
+            {'qset': qset,
+             'available_editors': available_editors,
+             'message': message},
+            context_instance=RequestContext(request))
+
 
 def edit_packet(request, packet_id):
     

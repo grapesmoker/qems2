@@ -37,6 +37,10 @@ class QuestionSetForm(forms.ModelForm):
 
             self.fields[field].widget.attrs['class'] = 'form-control'
 
+class AddUserForm(forms.ModelForm):
+
+    add_user = forms.BooleanField(required=False)
+
 class RoleAssignmentForm(forms.ModelForm):
     
     class Meta:

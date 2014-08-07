@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block sidebar %}
+{% include "sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+{% load static %}
+
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
+    <h2 class="page-header">Add Editors to {{ qset.name }}</h2>
+	<form action="" method="post" role="form" class="form-horizontal form-standard">
+        {% csrf_token %}
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>Available editors</th>
+                <th>Add to set?</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for editor in available_editors %}
+            <tr>
+                <td>{{ editor.user.first_name }} {{ editor.user.last_name }}</td>
+                <td><input type="checkbox" value="{{ editor.id }}" name="editors_to_add"></td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+
+
+        <button class="btn btn-lg btn-primary pull-right" type="submit">Submit</button>
+    </form>
+
+</div>
+{% endblock %}

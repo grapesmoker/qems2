@@ -11,8 +11,8 @@
 		<form action="" method="post" class="form-signin">
 			<legend>Login</legend>
 			{% csrf_token %}
-			<input type="text" class="form-control" placeholder="User name" required autofocus>
-            <input type="password" class="form-control" placeholder="Password" required>
+            <input type="hidden" name="next" value="{{ next }}" />
+            {{ form.as_table }}
             <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
             <a href="/register/" class="btn btn-lg btn-primary btn-block" role="button">Register</a>
 		</form>

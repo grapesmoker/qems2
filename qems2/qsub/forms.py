@@ -22,14 +22,14 @@ class WriterCreationForm(UserCreationForm):
         self.fields['password2'].widget.attrs.update({'class': 'form-control'})
         self.fields['username'].widget.attrs.update({'class': 'form-control'})
 
-class TournamentForm(forms.ModelForm):
+class QuestionSetForm(forms.ModelForm):
     
     class Meta:
-        model = Tournament
+        model = QuestionSet
         exclude = ['owner', 'public', 'distribution', 'address', 'host']
     
     def __init__(self, read_only=False, *args, **kwargs):
-        super(TournamentForm, self).__init__(*args, **kwargs)
+        super(QuestionSetForm, self).__init__(*args, **kwargs)
 
         for field in self.fields:
             if read_only:
@@ -41,7 +41,7 @@ class RoleAssignmentForm(forms.ModelForm):
     
     class Meta:
         model = Role
-        exclude = ['writer', 'tournament']
+        exclude = ['writer', 'question_set']
         
     def __init__(self, categories=None, *args, **kwargs):
         super(RoleAssignmentForm, self).__init__(*args, **kwargs)

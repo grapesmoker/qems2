@@ -24,5 +24,6 @@ urlpatterns = patterns('',
     (r'^accounts/login/$', login),
     (r'^accounts/logout/$', logout),
     (r'^tournaments/$', tournaments),
-    (r'^create_tournament/$', create_tournament)
+    (r'^create_tournament/$', create_tournament),
+    (r'^distributions/$', distributions),
 )

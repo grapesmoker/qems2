@@ -91,8 +91,6 @@ def create_tournament (request):
             form.save_m2m()
             writer.tournament_editor.add(tournament)
             writer.save()
-            #tournament.save()
-            #tournament.save_m2m()
             
             return render_to_response('success.html',
                                       {'message': 'Your tournament has been successfully created!'},
@@ -477,20 +475,16 @@ TossupFormset = formset_factory(TossupForm)
                                    'b_formset': b_formset},
                                   context_instance=RequestContext(request))
                                   '''
-
-def distributions(request):
+@login_required
+def distributions (request):
     
     data = []
-    if request.user.is_authenticated():
-        all_dists = Distribution.objects.all()
+    all_dists = Distribution.objects.all()
         
-        return render_to_response('distributions.html',
-                                  {'dists': all_dists},
-                                  context_instance=RequestContext(request))
-        
-    else:
-        return HttpResponseRedirect('/accounts/login/')
-            
+    return render_to_response('distributions.html',
+                              {'dists': all_dists},
+                              context_instance=RequestContext(request))
+
 def edit_distribution(request, dist_id=None):
     
     data = []

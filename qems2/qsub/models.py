@@ -105,15 +105,15 @@ class Writer (models.Model):
 
     user = models.OneToOneField(User)
 
-    tournament_writer = models.ManyToManyField('Tournament', related_name='writer')
-    tournament_editor = models.ManyToManyField('Tournament', related_name='editor')
+    question_set_writer = models.ManyToManyField('QuestionSet', related_name='writer')
+    question_set_editor = models.ManyToManyField('QuestionSet', related_name='editor')
 
     administrator = models.BooleanField(default=False)
 
     def __str__(self):
         return '{0!s}'.format(self.user.username)
 
-class Tournament (models.Model):
+class QuestionSet (models.Model):
     name = models.CharField(max_length=200)
     date = models.DateField()
     host = models.CharField(max_length=200)
@@ -131,7 +131,7 @@ class Tournament (models.Model):
 class Role(models.Model):
     
     writer = models.ForeignKey(Writer)
-    tournament = models.ForeignKey(Tournament)
+    question_set = models.ForeignKey(QuestionSet)
     category = models.CharField(max_length=500)
     can_view_others = models.BooleanField()
     can_edit_others = models.BooleanField()
@@ -140,14 +140,14 @@ class Packet (models.Model):
     team_name = models.CharField(max_length=200)
     date_submitted = models.DateField()
     # authors = models.ManyToManyField(Player)
-    tournament = models.ForeignKey(Tournament)
+    question_set = models.ForeignKey(QuestionSet)
     #team = models.ForeignKey(Team)
     
     created_by = models.ForeignKey(Writer, related_name='packet_creator')
 
 class DistributionPerPacket(models.Model):
     
-    tournament = models.ManyToManyField(Tournament)
+    question_set = models.ManyToManyField(QuestionSet)
     category = models.CharField(max_length=10, choices=CATEGORIES)
     subcategory = models.CharField(max_length=10)
     num_tossups = models.IntegerField()

@@ -75,10 +75,36 @@
 						{% endfor %}
 					</tbody>
 				</table>
+
+                <table class="table table-striped table-hover">
+					<caption class="alert alert-info">
+						<strong>Current set writers</strong>
+					</caption>
+					<thead>
+						<tr>
+							<th>Writer name</th>
+							<th>Writer username</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for writer in writers %}
+						<tr>
+							<td>{{ writer.user.first_name }} {{ writer.user.last_name }}</td>
+							<td>{{ writer.user.username }}</td>
+							<td><i class="fa fa-edit"></i>
+								</a><a href="/removeeditor/{{ tour.id }}/{{ editor.id }}/" rel="tooltip" title="Remove writer">
+									<i class="fa fa-minus-circle"></i> </a>
+							</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+
                 <a href="/add_editor/{{ qset.id }}" class="btn btn-primary" title="Add set editor" id="btn-add-editor">
 					<i class="fa fa-plus-circle"></i> Add set editor
 				</a>
-                <a href="/add_writer/" class="btn btn-primary" title="Add set writer">
+                <a href="/add_writer/{{ qset.id }}" class="btn btn-primary" title="Add set writer">
 					<i class="fa fa-plus-circle"></i> Add set writer
 				</a>
 				{% else %}
@@ -88,6 +114,9 @@
 
 				{% endif %}
 			</div>
+            <div class="tab-pane" id="questions">
+
+            </div>
 			<div class="tab-pane" id="packets">
 				<table class="table table-striped table-hover">
 					<caption class="alert alert-info">

@@ -135,6 +135,7 @@ def edit_question_set(request, qset_id):
 
     qset = QuestionSet.objects.get(id=qset_id)
     qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()
     user = request.user.writer
 
     if request.method == 'POST' and (user == qset.owner or user in qset_editors):
@@ -142,14 +143,6 @@ def edit_question_set(request, qset_id):
         form = QuestionSetForm(data=request.POST)
         if form.is_valid():
             qset = QuestionSet.objects.get(id=qset_id)
-            try:
-                editor_to_add_id = request.POST.get('hd_player_to_add')
-                print request.POST
-                print editor_to_add_id
-                player = Writer.objects.get(id=editor_to_add_id)
-                qset.writers.add(player)
-            except Exception as ex:
-                print ex
             qset.name = form.cleaned_data['name']
             qset.date = form.cleaned_data['date']
 
@@ -165,7 +158,7 @@ def edit_question_set(request, qset_id):
                                        'message_class': 'alert-success'},
                                       context_instance=RequestContext(request))
         else:
-            tournament_editors = []
+            qset_editors = []
     else:
         if user not in qset_editors and user != qset.owner:
             form = QuestionSetForm(instance=qset, read_only=True)
@@ -178,6 +171,7 @@ def edit_question_set(request, qset_id):
     return render_to_response('edit_question_set.html',
                               {'form': form,
                                'editors': [ed for ed in qset_editors if ed != qset.owner],
+                               'writers': [wr for wr in qset_writers if wr != qset.owner],
                                'packets': qset.packet_set.all(),
                                'qset': qset,
                                'read_only': read_only,
@@ -195,31 +189,41 @@ def add_editor(request, qset_id):
     message = ''
 
     if request.method == 'GET':
-        current_editors = qset.editor.all()
-        available_editors = [writer for writer in Writer.objects.all()
-                             if writer not in current_editors and writer != qset.owner and writer.id != 1]
-        print available_editors
-        return render_to_response('add_editor.html',
-            {'qset': qset,
-             'available_editors': available_editors},
-            context_instance=RequestContext(request))
-
-    elif request.method == 'POST':
-        print request.POST
-        editors_to_add = request.POST.getlist('editors_to_add')
-        # do some basic validation here
-        if all([x.isdigit() for x in editors_to_add]):
-            for editor_id in editors_to_add:
-                print editor_id
-                editor = Writer.objects.get(id=editor_id)
-                qset.editor.add(editor)
-            qset.save()
+        if user == qset.owner:
             current_editors = qset.editor.all()
             available_editors = [writer for writer in Writer.objects.all()
                                  if writer not in current_editors and writer != qset.owner and writer.id != 1]
+            print available_editors
         else:
-            message = 'Invalid data entered!'
             available_editors = []
+            message = 'You are not authorized to make changes to this tournament!'
+        return render_to_response('add_editor.html',
+                                 {'qset': qset,
+                                  'available_editors': available_editors,
+                                  'message': message},
+                                  context_instance=RequestContext(request))
+
+
+    elif request.method == 'POST':
+        print request.POST
+        if user == qset.owner:
+            editors_to_add = request.POST.getlist('editors_to_add')
+            # do some basic validation here
+            if all([x.isdigit() for x in editors_to_add]):
+                for editor_id in editors_to_add:
+                    print editor_id
+                    editor = Writer.objects.get(id=editor_id)
+                    qset.editor.add(editor)
+                qset.save()
+                current_editors = qset.editor.all()
+                available_editors = [writer for writer in Writer.objects.all()
+                                     if writer not in current_editors and writer != qset.owner and writer.id != 1]
+            else:
+                message = 'Invalid data entered!'
+                available_editors = []
+        else:
+            available_editors = []
+            message = 'You are not authorized to make changes to this tournament!'
 
         return render_to_response('add_editor.html',
             {'qset': qset,
@@ -227,6 +231,60 @@ def add_editor(request, qset_id):
              'message': message},
             context_instance=RequestContext(request))
 
+@login_required
+def add_writer(request, qset_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+    message = ''
+
+    if request.method == 'GET':
+        if user == qset.owner:
+            current_writers = qset.writer.all()
+            current_editors = qset.editor.all()
+            available_writers = [writer for writer in Writer.objects.all()
+                                 if writer not in current_writers
+                                 and writer not in current_editors
+                                 and writer != qset.owner and writer.id != 1]
+            print available_writers
+        else:
+            available_writers = []
+            message = 'You are not authorized to make changes to this tournament!'
+        return render_to_response('add_writer.html',
+                                 {'qset': qset,
+                                  'available_writers': available_writers,
+                                  'message': message},
+                                  context_instance=RequestContext(request))
+
+
+    elif request.method == 'POST':
+        print request.POST
+        if user == qset.owner:
+            writers_to_add = request.POST.getlist('writers_to_add')
+            # do some basic validation here
+            if all([x.isdigit() for x in writers_to_add]):
+                for writer_id in writers_to_add:
+                    print writer_id
+                    editor = Writer.objects.get(id=writer_id)
+                    qset.editor.add(editor)
+                qset.save()
+                current_writers = qset.writer.all()
+                current_editors = qset.editor.all()
+                available_writers = [writer for writer in Writer.objects.all()
+                                     if writer not in current_writers
+                                     and writer not in current_editors
+                                     and writer != qset.owner and writer.id != 1]
+            else:
+                message = 'Invalid data entered!'
+                available_writers = []
+        else:
+            available_writers = []
+            message = 'You are not authorized to make changes to this tournament!'
+
+        return render_to_response('add_writer.html',
+            {'qset': qset,
+             'available_editors': available_writers,
+             'message': message},
+            context_instance=RequestContext(request))
 
 def edit_packet(request, packet_id):
     

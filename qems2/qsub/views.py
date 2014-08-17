@@ -1,3 +1,5 @@
+import json
+
 from django.template.loader import get_template
 from django.template import Context, RequestContext
 from django.shortcuts import render_to_response
@@ -6,12 +8,12 @@ from django.forms.formsets import formset_factory
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView
-from django.utils import simplejson
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
 from models import *
 from forms import *
+from utils import *
 
 from collections import OrderedDict
 from itertools import chain
@@ -148,12 +150,13 @@ def edit_question_set(request, qset_id):
             qset.name = form.cleaned_data['name']
             qset.date = form.cleaned_data['date']
             qset.distribution = form.cleaned_data['distribution']
+            qset.num_packets = form.cleaned_data['num_packets']
 
             qset.save()
 
             if user == qset.owner:
                 tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Tossup.objects.filter(question_set=qset)
+                bonuses = Bonus.objects.filter(question_set=qset)
             
             return render_to_response('edit_question_set.html',
                                       {'form': form,
@@ -176,7 +179,7 @@ def edit_question_set(request, qset_id):
         else:
             if user == qset.owner:
                 tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Tossup.objects.filter(question_set=qset)
+                bonuses = Bonus.objects.filter(question_set=qset)
             form = QuestionSetForm(instance=qset)
         
         
@@ -403,21 +406,288 @@ def add_tossups(request, qset_id):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
     message = ''
+    message_class = ''
+    read_only = True
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            tossup_form = TossupForm(qset_id=qset_id)
+            tossup_form = TossupForm(qset_id=qset.id)
+            #dist = qset.distribution
+            #dist_entries = dist.distributionentry_set.all()
+            #tossup_form.fields['category'].queryset = dist_entries
+            read_only = False
         else:
             tossup_form = None
             message = 'You are not authorized to add questions to this tournament!'
+            message_class = 'alert alert-warning'
+            read_only = True
 
         return render_to_response('add_tossups.html',
             {'form': tossup_form,
-             'message': message},
+             'message': message,
+             'message_class': message_class,
+             'read_only': read_only},
             context_instance=RequestContext(request))
 
+    elif request.method == 'POST':
+        if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
+            tossup_form = TossupForm(request.POST, qset_id=qset.id)
+            #dist = qset.distribution
+            #dist_entries = dist.distributionentry_set.all()
+            #tossup_form.fields['category'].queryset = dist_entries
+            #tossup_form.data = request.POST.copy()
+            #tossup_form.is_bound = True
 
+            if tossup_form.is_valid():
+                tossup = tossup_form.save(commit=False)
+                tossup.author = user
+                tossup.question_set = qset
+                tossup.save()
+                message = 'Your tossup has been successfully added to the set! Write more questions!'
+                message_class = 'alert alert-success'
+            else:
+                print request.POST
+            read_only = False
+        else:
+            message = 'You are not authorized to add questions to this tournament!'
+            message_class = 'alert alert-warning'
+            tossup_form = []
+            read_only = True
 
+        return render_to_response('add_tossups.html',
+                 {'form': TossupForm(qset_id=qset.id),
+                 'message': message,
+                 'message_class': message_class,
+                 'read_only': read_only},
+                 context_instance=RequestContext(request))
+
+    else:
+        return render_to_response('failure.html',
+            {'message': 'The request cannot be completed as specified',
+             'message-class': 'alert alert-error'},
+            context_instance=RequestContext(request))
+
+@login_required
+def add_bonuses(request, qset_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'GET':
+        if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
+            form = BonusForm(qset_id=qset.id)
+            read_only = False
+        else:
+            form = None
+            message = 'You are not authorized to add questions to this tournament!'
+            message_class = 'alert alert-warning'
+            read_only = True
+
+        return render_to_response('add_bonuses.html',
+            {'form': form,
+             'message': message,
+             'message_class': message_class,
+             'read_only': read_only},
+            context_instance=RequestContext(request))
+
+    elif request.method == 'POST':
+        if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
+            form = BonusForm(request.POST, qset_id=qset.id)
+
+            if form.is_valid():
+                bonus = form.save(commit=False)
+                bonus.author = user
+                bonus.question_set = qset
+                bonus.save()
+                message = 'Your bonus has been successfully added to the set! Write more questions!'
+                message_class = 'alert alert-success'
+            else:
+                print request.POST
+                print form.as_p()
+            read_only = False
+        else:
+            message = 'You are not authorized to add questions to this tournament!'
+            message_class = 'alert alert-warning'
+            tossup_form = []
+            read_only = True
+
+        return render_to_response('add_bonuses.html',
+                 {'form': BonusForm(qset_id=qset.id),
+                 'message': message,
+                 'message_class': message_class,
+                 'read_only': read_only},
+                 context_instance=RequestContext(request))
+
+    else:
+        return render_to_response('failure.html',
+            {'message': 'The request cannot be completed as specified',
+             'message-class': 'alert alert-error'},
+            context_instance=RequestContext(request))
+
+@login_required
+def edit_tossup(request, tossup_id):
+    user = request.user.writer
+    tossup = Tossup.objects.get(id=tossup_id)
+    qset = tossup.question_set
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'GET':
+        if user == tossup.author or user == qset.owner or user in qset.editor.all():
+            form = TossupForm(instance=tossup, qset_id=qset.id)
+            read_only = False
+
+        elif user in qset.writer.all():
+            read_only = True
+            form = None
+            message = 'You are only authorized to view, not to edit, this question!'
+            message_class = 'alert alert-warning'
+        else:
+            tossup = None
+            form = None
+            message = 'You are not authorized to view or edit this question!'
+            message_class = 'alert alert-danger'
+
+        return render_to_response('edit_tossup.html',
+            {'tossup': tossup,
+             'form': form,
+             'message': message,
+             'message_class': message_class,
+             'read_only': read_only},
+            context_instance=RequestContext(request))
+
+    elif request.method == 'POST':
+        if user == tossup.author or user == qset.owner or user in qset.editor.all():
+            form = TossupForm(request.POST, qset_id=qset.id)
+            if form.is_valid():
+                tossup.tossup_text = sanitize_html(form.cleaned_data['tossup_text'])
+                tossup.tossup_answer = sanitize_html(form.cleaned_data['tossup_answer'])
+                tossup.category = form.cleaned_data['category']
+                tossup.save()
+            read_only = False
+        elif user in qset.writer.all():
+            read_only = True
+            message = 'You are only authorized to view, not to edit, this question!'
+            message_class = 'alert alert-warning'
+        else:
+            tossup = None
+            message = 'You are not authorized to view or edit this question!'
+            message_class = 'alert alert-error'
+
+        return render_to_response('edit_tossup.html',
+            {'tossup': tossup,
+             'form': form,
+             'message': message,
+             'message_class': message_class,
+             'read_only': read_only},
+            context_instance=RequestContext(request))
+
+@login_required
+def edit_bonus(request, bonus_id):
+    user = request.user.writer
+    bonus = Bonus.objects.get(id=bonus_id)
+    qset = bonus.question_set
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'GET':
+        if user == bonus.author or user == qset.owner or user in qset.editor.all():
+            form = BonusForm(instance=bonus, qset_id=qset.id)
+            read_only = False
+
+        elif user in qset.writer.all():
+            read_only = True
+            message = 'You are only authorized to view, not to edit, this question!'
+            message_class = 'alert alert-warning'
+        else:
+            bonus = None
+            message = 'You are not authorized to view or edit this question!'
+            message_class = 'alert alert-error'
+
+        return render_to_response('edit_bonus.html',
+            {'bonus': bonus,
+             'form': form,
+             'message': message,
+             'message_class': message_class,
+             'read_only': read_only},
+            context_instance=RequestContext(request))
+
+    elif request.method == 'POST':
+        if user == bonus.author or user == qset.owner or user in qset.editor.all():
+            form = BonusForm(request.POST, qset_id=qset.id)
+            if form.is_valid():
+                bonus.leadin = sanitize_html(form.cleaned_data['leadin'])
+                bonus.part1_text = sanitize_html(form.cleaned_data['part1_text'])
+                bonus.part1_answer = sanitize_html(form.cleaned_data['part1_answer'])
+                bonus.part2_text = sanitize_html(form.cleaned_data['part2_text'])
+                bonus.part2_answer = sanitize_html(form.cleaned_data['part2_answer'])
+                bonus.part3_text = sanitize_html(form.cleaned_data['part3_text'])
+                bonus.part3_answer = sanitize_html(form.cleaned_data['part3_answer'])
+                bonus.category = form.cleaned_data['category']
+                bonus.save()
+            read_only = False
+        elif user in qset.writer.all():
+            read_only = True
+            message = 'You are only authorized to view, not to edit, this question!'
+            message_class = 'alert alert-warning'
+        else:
+            tossup = None
+            message = 'You are not authorized to view or edit this question!'
+            message_class = 'alert alert-error'
+
+        return render_to_response('edit_tossup.html',
+            {'bonus': bonus,
+             'form': form,
+             'message': message,
+             'message_class': message_class,
+             'read_only': read_only},
+            context_instance=RequestContext(request))
+
+@login_required
+def delete_tossup(request, tossup_id):
+    user = request.user.writer
+    tossup = Tossup.objects.get(id=tossup_id)
+    qset = tossup.question_set
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'GET':
+        if user == tossup.author or user == qset.owner or user in qset.editor.all():
+            tossup.delete()
+            message = 'Tossup deleted'
+            message_class = 'alert alert-success'
+            read_only = False
+        else:
+            message = 'You are not authorized to delete questions from this set!'
+            message_class = 'alert alert-warning'
+
+    return edit_question_set(request, qset.id)
+
+@login_required
+def delete_bonus(request, bonus_id):
+    user = request.user.writer
+    bonus = Bonus.objects.get(id=bonus_id)
+    qset = bonus.question_set
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'GET':
+        if user == bonus.author or user == qset.owner or user in qset.editor.all():
+            bonus.delete()
+            message = 'Bonus deleted'
+            message_class = 'alert alert-success'
+            read_only = False
+        else:
+            message = 'You are not authorized to delete questions from this set!'
+            message_class = 'alert alert-warning'
+
+    return edit_question_set(request, qset.id)
 
 def add_question(request, type, packet_id):
     

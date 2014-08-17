@@ -10,9 +10,11 @@
 
 {% block content %}
 {% load static %}
+{% load filters %}
 
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
     <h2 class="page-header">Question Set Management</h2>
+
     <div class="tabbable">
 		<ul class="nav nav-tabs">
 			<li class="active">
@@ -121,6 +123,74 @@
                 <a href="/add_bonuses/{{ qset.id }}" class="btn btn-primary" title="Add bonuses">
                     <i class="fa fa-plus-circle"></i> Add bonuses
                 </a>
+                <table class="table table-striped table-hover">
+                    <caption class="alert alert-info">
+                        <strong>
+                            Current Tossups
+                        </strong>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th>Tossup Text</th>
+                        <th>Answer</th>
+                        <th>Category</th>
+                        <th>Packet</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for tossup in tossups %}
+                    <tr>
+                        <td>{{ tossup.tossup_text|preview }}</td>
+                        <td>{{ tossup.tossup_answer|preview }}</td>
+                        <td>{{ tossup.category }}</td>
+                        <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
+                        <td>
+                            <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit tossup">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ tossup.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <table class="table table-striped table-hover">
+                    <caption class="alert alert-info">
+                        <strong>
+                            Current Bonuses
+                        </strong>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th>Leadin</th>
+                        <th>Answers</th>
+                        <th>Category</th>
+                        <th>Packet</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for bonus in bonuses %}
+                    <tr>
+                        <td>{{ bonus.leadin|preview }}</td>
+                        <td>{{ bonus|bonus_answers }}</td>
+                        <td>{{ bonus.category }}</td>
+                        <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                        <td>
+                            <a href="/edit_bonus/{{ bonus.id }}" rel="tooltip" title="Edit tossup">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ bonus.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
             </div>
 			<div class="tab-pane" id="packets">
 				<table class="table table-striped table-hover">

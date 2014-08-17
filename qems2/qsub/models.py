@@ -122,6 +122,7 @@ class QuestionSet (models.Model):
     #public = models.BooleanField()
     distribution = models.ForeignKey('Distribution')
     #teams = models.ForeignKey('Team')
+    num_packets = models.IntegerField()
 
     class Admin: pass
 
@@ -179,7 +180,7 @@ class Tossup (models.Model):
     tossup_text = models.TextField()
     tossup_answer = models.TextField()
     
-    category = models.CharField(max_length=500, choices=CATEGORIES)
+    category = models.ForeignKey(DistributionEntry)
     subtype = models.CharField(max_length=500)
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)
@@ -199,7 +200,7 @@ class Bonus(models.Model):
     part3_text = models.TextField()
     part3_answer = models.TextField()
     
-    category = models.CharField(max_length=500, choices=CATEGORIES)
+    category = models.ForeignKey(DistributionEntry)
     subtype = models.CharField(max_length=500)
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)

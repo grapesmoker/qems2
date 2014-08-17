@@ -28,8 +28,8 @@
             <th>Subcategory</th>
             <th>Tossups (per packet)</th>
             <th>Bonuses (per packet)</th>
-            <th>Final tossups (per set)</th>
-            <th>Final bonuses (per set)</th>
+            <!--<th>Final tossups (per set)</th>
+            <th>Final bonuses (per set)</th>-->
             <th>Delete?</th>
             </thead>
             <tbody>
@@ -40,8 +40,8 @@
                 <td>{{ entry.subcategory }}</td>
                 <td>{{ entry.num_tossups }}</td>
                 <td>{{ entry.num_bonuses }}</td>
-                <td>{{ entry.fin_tossups }}</td>
-                <td>{{ entry.fin_bonuses }}</td>
+                <!--<td>{{ entry.fin_tossups }}</td>
+                <td>{{ entry.fin_bonuses }}</td>-->
                 {% if formset.can_delete %}
                 <td>{{ entry.DELETE }}</td>
                 {% endif %}

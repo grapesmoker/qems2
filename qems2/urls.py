@@ -33,5 +33,10 @@ urlpatterns = patterns('',
     (r'^add_writer/(?P<qset_id>[0-9]+)/$', add_writer),
     (r'^edit_distribution/(?P<dist_id>[0-9]+)/$', edit_distribution),
     (r'^edit_distribution/$', edit_distribution),
-    (r'^add_tossups/(?P<qset_id>[0-9]+)/$', add_tossups)
+    (r'^add_tossups/(?P<qset_id>[0-9]+)/$', add_tossups),
+    (r'^edit_tossup/(?P<tossup_id>[0-9]+)/$', edit_tossup),
+    (r'^delete_tossup/(?P<tossup_id>[0-9]+)/$', delete_tossup),
+    (r'^add_bonuses/(?P<qset_id>[0-9]+)/$', add_bonuses),
+    (r'^edit_bonus/(?P<bonus_id>[0-9]+)/$', edit_bonus),
+    (r'^delete_bonus/(?P<bonus_id>[0-9]+)/$', delete_bonus),
 )

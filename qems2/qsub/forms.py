@@ -59,20 +59,18 @@ class RoleAssignmentForm(forms.ModelForm):
     #can_view_others = forms.BooleanField(required=False)
     #can_edit_others = forms.BooleanField(required=False)
     
-class TossupForm(forms.Form):
+class TossupForm(forms.ModelForm):
     
-    #subtype = forms.CharField(max_length=500, required=False)
-    #time_period = forms.CharField(max_length=500, required=False)
-    #location = forms.CharField(max_length=500, required=False)
-    
-    tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 80, 'rows': 12}))
-    tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 80, 'rows': 5}))
-    
-    #class Meta:
-    #    model = Tossup
-    #    exclude = ['packet', 'author', 'locked', 'question_set', 'category']
+    tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 40, 'rows': 12}))
+    tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 40, 'rows': 5}))
+    category = forms.ModelChoiceField([])
 
-    def __init__(self, qset_id=None, *args, **kwargs):
+    class Meta:
+        model = Tossup
+        exclude = ['packet', 'author', 'locked', 'question_set', 'subtype', 'time_period', 'location']
+
+    def __init__(self, *args, **kwargs):
+        qset_id = kwargs.pop('qset_id', None)
         super(TossupForm, self).__init__(*args, **kwargs)
 
         if qset_id:
@@ -80,17 +78,14 @@ class TossupForm(forms.Form):
                 qset = QuestionSet.objects.get(id=qset_id)
                 dist = qset.distribution
                 dist_entries = dist.distributionentry_set.all()
-                categories = [(d.category, d.subcategory) for d in dist_entries]
-                self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries)
-            except qset.DoesNotExist:
-                self.fields['category'] = forms.MultipleChoiceField(widget=forms.Select())
+                categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]
+                self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
 
+            except QuestionSet.DoesNotExist:
+                print 'Non-existent question set!'
+                self.fields['category'] = forms.ModelChoiceField([], empty_label=None)
         
 class BonusForm(forms.ModelForm):
-    
-    subtype = forms.CharField(max_length=500, required=False)
-    time_period = forms.CharField(max_length=500, required=False)
-    location = forms.CharField(max_length=500, required=False)
     
     leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
     part1_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
@@ -102,7 +97,23 @@ class BonusForm(forms.ModelForm):
     
     class Meta:
         model = Bonus
-        exclude = ['packet', 'author', 'locked']
+        exclude = ['packet', 'author', 'locked', 'question_set', 'subtype', 'time_period', 'location']
+
+    def __init__(self, *args, **kwargs):
+        qset_id = kwargs.pop('qset_id', None)
+        super(BonusForm, self).__init__(*args, **kwargs)
+
+        if qset_id:
+            try:
+                qset = QuestionSet.objects.get(id=qset_id)
+                dist = qset.distribution
+                dist_entries = dist.distributionentry_set.all()
+                categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]
+                self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
+
+            except QuestionSet.DoesNotExist:
+                print 'Non-existent question set!'
+                self.fields['category'] = forms.ModelChoiceField([], empty_label=None)
 
 class DistributionForm(forms.ModelForm):
     
@@ -118,8 +129,8 @@ class DistributionEntryForm(forms.ModelForm):
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
     num_tossups = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
     num_bonuses = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
-    fin_tossups = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
-    fin_bonuses = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
+    fin_tossups = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), required=False)
+    fin_bonuses = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), required=False)
     
     delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     

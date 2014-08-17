@@ -33,3 +33,13 @@ def get_editor_categories(editor, tour):
         cat_list = []
     
     return mark_safe('<p>' + '<br>'.join(cat_list) + '</p>')
+
+@register.filter(name='preview')
+def preview(text):
+    return mark_safe(text[0:81] + '...')
+
+@register.filter(name='bonus_answers')
+def bonus_answers(bonus):
+    return mark_safe(bonus.part1_answer[0:80] + '<br>'
+    + bonus.part2_answer[0:80] + '<br>'
+    + bonus.part3_answer[0:80] + '<br>')

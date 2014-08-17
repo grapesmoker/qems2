@@ -182,4 +182,5 @@ BOWER_INSTALLED_APPS = (
     'backbone',
     'jquery-ui',
     'fontawesome',
+    'tinymce',
 )

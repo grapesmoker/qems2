@@ -115,7 +115,12 @@
 				{% endif %}
 			</div>
             <div class="tab-pane" id="questions">
-
+                <a href="/add_tossups/{{ qset.id }}" class="btn btn-primary" title="Add tossups">
+                    <i class="fa fa-plus-circle"></i> Add tossups
+                </a>
+                <a href="/add_bonuses/{{ qset.id }}" class="btn btn-primary" title="Add bonuses">
+                    <i class="fa fa-plus-circle"></i> Add bonuses
+                </a>
             </div>
 			<div class="tab-pane" id="packets">
 				<table class="table table-striped table-hover">

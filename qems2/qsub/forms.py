@@ -26,7 +26,7 @@ class QuestionSetForm(forms.ModelForm):
     
     class Meta:
         model = QuestionSet
-        exclude = ['owner', 'public', 'distribution', 'address', 'host']
+        exclude = ['owner', 'public', 'address', 'host']
     
     def __init__(self, read_only=False, *args, **kwargs):
         super(QuestionSetForm, self).__init__(*args, **kwargs)
@@ -59,18 +59,32 @@ class RoleAssignmentForm(forms.ModelForm):
     #can_view_others = forms.BooleanField(required=False)
     #can_edit_others = forms.BooleanField(required=False)
     
-class TossupForm(forms.ModelForm):
+class TossupForm(forms.Form):
     
-    subtype = forms.CharField(max_length=500, required=False)
-    time_period = forms.CharField(max_length=500, required=False)
-    location = forms.CharField(max_length=500, required=False)
+    #subtype = forms.CharField(max_length=500, required=False)
+    #time_period = forms.CharField(max_length=500, required=False)
+    #location = forms.CharField(max_length=500, required=False)
     
     tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 80, 'rows': 12}))
     tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 80, 'rows': 5}))
     
-    class Meta:
-        model = Tossup
-        exclude = ['packet', 'author', 'locked']
+    #class Meta:
+    #    model = Tossup
+    #    exclude = ['packet', 'author', 'locked', 'question_set', 'category']
+
+    def __init__(self, qset_id=None, *args, **kwargs):
+        super(TossupForm, self).__init__(*args, **kwargs)
+
+        if qset_id:
+            try:
+                qset = QuestionSet.objects.get(id=qset_id)
+                dist = qset.distribution
+                dist_entries = dist.distributionentry_set.all()
+                categories = [(d.category, d.subcategory) for d in dist_entries]
+                self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries)
+            except qset.DoesNotExist:
+                self.fields['category'] = forms.MultipleChoiceField(widget=forms.Select())
+
         
 class BonusForm(forms.ModelForm):
     

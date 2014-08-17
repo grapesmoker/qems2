@@ -169,10 +169,13 @@ class DistributionEntry(models.Model):
     num_bonuses = models.CharField(max_length=500)
     fin_tossups = models.CharField(max_length=500)
     fin_bonuses = models.CharField(max_length=500)
-    
+
+    def __str__(self):
+        return '{0!s} - {1!s}'.format(self.category, self.subcategory)
     
 class Tossup (models.Model):
     packet = models.ForeignKey(Packet)
+    question_set = models.ForeignKey(QuestionSet)
     tossup_text = models.TextField()
     tossup_answer = models.TextField()
     
@@ -187,6 +190,7 @@ class Tossup (models.Model):
 
 class Bonus(models.Model):
     packet = models.ForeignKey(Packet)
+    question_set = models.ForeignKey(QuestionSet)
     leadin = models.CharField(max_length=500)
     part1_text = models.TextField()
     part1_answer = models.TextField()

@@ -132,6 +132,8 @@ def edit_question_set(request, qset_id):
     print qset_id
     read_only = False
     message = ''
+    tossups = []
+    bonuses = []
 
     qset = QuestionSet.objects.get(id=qset_id)
     qset_editors = qset.editor.all()
@@ -145,14 +147,21 @@ def edit_question_set(request, qset_id):
             qset = QuestionSet.objects.get(id=qset_id)
             qset.name = form.cleaned_data['name']
             qset.date = form.cleaned_data['date']
+            qset.distribution = form.cleaned_data['distribution']
 
             qset.save()
+
+            if user == qset.owner:
+                tossups = Tossup.objects.filter(question_set=qset)
+                bonuses = Tossup.objects.filter(question_set=qset)
             
             return render_to_response('edit_question_set.html',
                                       {'form': form,
                                        'qset': qset,
                                        'editors': [ed for ed in qset_editors if ed != qset.owner],
                                        'writers': qset.writer.all(),
+                                       'tossups': tossups,
+                                       'bonuses': bonuses,
                                        'packets': qset.packet_set.all(),
                                        'message': 'Your changes have been successfully saved.',
                                        'message_class': 'alert-success'},
@@ -165,6 +174,9 @@ def edit_question_set(request, qset_id):
             read_only = True
             message = 'You are not authorized to edit this tournament.'
         else:
+            if user == qset.owner:
+                tossups = Tossup.objects.filter(question_set=qset)
+                bonuses = Tossup.objects.filter(question_set=qset)
             form = QuestionSetForm(instance=qset)
         
         
@@ -172,6 +184,8 @@ def edit_question_set(request, qset_id):
                               {'form': form,
                                'editors': [ed for ed in qset_editors if ed != qset.owner],
                                'writers': [wr for wr in qset_writers if wr != qset.owner],
+                               'tossups': tossups,
+                               'bonuses': bonuses,
                                'packets': qset.packet_set.all(),
                                'qset': qset,
                                'read_only': read_only,
@@ -383,6 +397,26 @@ def edit_tossups(request, packet_id):
 
 def edit_bonuses(request, packet_id):
     pass
+
+@login_required
+def add_tossups(request, qset_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+    message = ''
+
+    if request.method == 'GET':
+        if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
+            tossup_form = TossupForm(qset_id=qset_id)
+        else:
+            tossup_form = None
+            message = 'You are not authorized to add questions to this tournament!'
+
+        return render_to_response('add_tossups.html',
+            {'form': tossup_form,
+             'message': message},
+            context_instance=RequestContext(request))
+
+
 
 
 def add_question(request, type, packet_id):
@@ -670,7 +704,7 @@ def edit_distribution(request, dist_id=None):
                     dist_form = DistributionForm(instance=dist)
                     formset = DistributionEntryFormset(data=request.POST, prefix='distentry')
                     
-            return render_to_response('editdistribution.html',
+            return render_to_response('edit_distribution.html',
                                       {'form': dist_form,
                                        'formset': formset},
                                        context_instance=RequestContext(request))
@@ -693,7 +727,7 @@ def edit_distribution(request, dist_id=None):
                 dist_form = DistributionForm()
                 formset = DistributionEntryFormset(prefix='distentry')
             
-            return render_to_response('editdistribution.html',
+            return render_to_response('edit_distribution.html',
                                       {'form': dist_form,
                                        'formset': formset},
                                        context_instance=RequestContext(request))

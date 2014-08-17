@@ -17,11 +17,10 @@ function add_row_to_cat_table() {
 
 $(function () {
 	
-	tinyMCE.init({
-		mode: "specific_textareas",
-		editor_selector: 'question_text',
-		theme: "simple",
-		content_css : "/static/css/custom_content.css",
+	tinymce.init({
+		selector: 'textarea.question_text',
+		menubar: false,
+		toolbar: 'undo redo | bold italic underline',
 		theme_advanced_font_sizes: "10px,12px,13px,14px,16px,18px,20px",
 		font_size_style_values : "10px,12px,13px,14px,16px,18px,20px",
 	});
@@ -48,7 +47,7 @@ $(function () {
 	
 	$(document).tooltip();
 	
-	$('.spinner').width(10).spinner({'min': 0})
+	$('.spinner').width(25).spinner({'min': 0})
 	$('#add-row').click(add_row_to_cat_table)
 		
 })

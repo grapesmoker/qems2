@@ -31,4 +31,7 @@ urlpatterns = patterns('',
     (r'^distributions/$', distributions),
     (r'^add_editor/(?P<qset_id>[0-9]+)/$', add_editor),
     (r'^add_writer/(?P<qset_id>[0-9]+)/$', add_writer),
+    (r'^edit_distribution/(?P<dist_id>[0-9]+)/$', edit_distribution),
+    (r'^edit_distribution/$', edit_distribution),
+    (r'^add_tossups/(?P<qset_id>[0-9]+)/$', add_tossups)
 )

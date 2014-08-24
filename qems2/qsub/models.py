@@ -146,6 +146,9 @@ class Packet (models.Model):
     
     created_by = models.ForeignKey(Writer, related_name='packet_creator')
 
+    def __str__(self):
+        return '{0!s}'.format(self.packet_name)
+
 class DistributionPerPacket(models.Model):
     
     question_set = models.ManyToManyField(QuestionSet)
@@ -175,7 +178,7 @@ class DistributionEntry(models.Model):
         return '{0!s} - {1!s}'.format(self.category, self.subcategory)
     
 class Tossup (models.Model):
-    packet = models.ForeignKey(Packet)
+    packet = models.ForeignKey(Packet, null=True)
     question_set = models.ForeignKey(QuestionSet)
     tossup_text = models.TextField()
     tossup_answer = models.TextField()
@@ -190,7 +193,7 @@ class Tossup (models.Model):
     locked = models.BooleanField()
 
 class Bonus(models.Model):
-    packet = models.ForeignKey(Packet)
+    packet = models.ForeignKey(Packet, null=True)
     question_set = models.ForeignKey(QuestionSet)
     leadin = models.CharField(max_length=500)
     part1_text = models.TextField()

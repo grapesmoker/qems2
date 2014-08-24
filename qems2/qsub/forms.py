@@ -67,7 +67,7 @@ class TossupForm(forms.ModelForm):
 
     class Meta:
         model = Tossup
-        exclude = ['packet', 'author', 'locked', 'question_set', 'subtype', 'time_period', 'location']
+        exclude = ['author', 'locked', 'question_set', 'subtype', 'time_period', 'location']
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
@@ -78,9 +78,10 @@ class TossupForm(forms.ModelForm):
                 qset = QuestionSet.objects.get(id=qset_id)
                 dist = qset.distribution
                 dist_entries = dist.distributionentry_set.all()
-                categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]
+                # categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]
+                packets = qset.packet_set.all()
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
-
+                self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False)
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'
                 self.fields['category'] = forms.ModelChoiceField([], empty_label=None)
@@ -97,7 +98,7 @@ class BonusForm(forms.ModelForm):
     
     class Meta:
         model = Bonus
-        exclude = ['packet', 'author', 'locked', 'question_set', 'subtype', 'time_period', 'location']
+        exclude = ['author', 'locked', 'question_set', 'subtype', 'time_period', 'location']
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
@@ -108,8 +109,10 @@ class BonusForm(forms.ModelForm):
                 qset = QuestionSet.objects.get(id=qset_id)
                 dist = qset.distribution
                 dist_entries = dist.distributionentry_set.all()
-                categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]
+                # categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]
+                packets = qset.packet_set.all()
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
+                self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False)
 
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'

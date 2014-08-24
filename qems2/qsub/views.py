@@ -552,6 +552,7 @@ def edit_tossup(request, tossup_id):
                 tossup.tossup_text = sanitize_html(form.cleaned_data['tossup_text'])
                 tossup.tossup_answer = sanitize_html(form.cleaned_data['tossup_answer'])
                 tossup.category = form.cleaned_data['category']
+                tossup.packet = form.cleaned_data['packet']
                 tossup.save()
             read_only = False
         elif user in qset.writer.all():
@@ -614,6 +615,7 @@ def edit_bonus(request, bonus_id):
                 bonus.part3_text = sanitize_html(form.cleaned_data['part3_text'])
                 bonus.part3_answer = sanitize_html(form.cleaned_data['part3_answer'])
                 bonus.category = form.cleaned_data['category']
+                bonus.packet = form.cleaned_data['packet']
                 bonus.save()
             read_only = False
         elif user in qset.writer.all():

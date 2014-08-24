@@ -40,4 +40,5 @@ urlpatterns = patterns('',
     (r'^edit_bonus/(?P<bonus_id>[0-9]+)/$', edit_bonus),
     (r'^delete_bonus/(?P<bonus_id>[0-9]+)/$', delete_bonus),
     (r'^add_packets/(?P<qset_id>[0-9]+)/$', add_packets),
+    (r'^delete_packet/(?P<packet_id>[0-9]+)/$', delete_packet),
 )

@@ -733,6 +733,26 @@ def add_packets(request, qset_id):
          'form': form},
         context_instance=RequestContext(request))
 
+@login_required
+def delete_packet(request, packet_id):
+    user = request.user.writer
+    packet = Packet.objects.get(id=packet_id)
+    qset = packet.question_set
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'GET':
+        if user == qset.owner:
+            packet.delete()
+            message = 'Packet deleted'
+            message_class = 'alert alert-success'
+            read_only = False
+        else:
+            message = 'You are not authorized to delete packets from this set!'
+            message_class = 'alert alert-warning'
+
+    return edit_question_set(request, qset.id)
 
 def add_question(request, type, packet_id):
     

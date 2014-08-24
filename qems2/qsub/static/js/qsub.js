@@ -76,5 +76,13 @@ $(function () {
             window.location = $(this).attr('href');
         }
     });
+
+    $('.delete_packet').click(function(e) {
+        e.preventDefault();
+        var result = confirm("You are about to delete this packet! If you do so, you will not be able to recover it! 99% of the time this is a terrible idea and you should not do it! Are you ABSOLUTELY SURE you want to do that?!");
+        if (result == true) {
+            window.location = $(this).attr('href');
+        }
+    });
 });
 

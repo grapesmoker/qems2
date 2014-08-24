@@ -114,20 +114,6 @@ def create_question_set (request):
     return render_to_response('create_question_set.html',
                               {'form': form},
                               context_instance=RequestContext(request))
-    
-def editor_create_packet(request, tour_id):
-    if request.user.is_authenticated():
-        player = request.user.get_profile()
-        tour = Tournament.objects.get(id=tour_id)
-        
-        if player != tour.owner:
-            return render_to_response('failure.html',
-                                      {'message': 'You cannot create a packet unless you are the tournament owner!'},
-                                      context_instance=RequestContext(request))
-        
-        packet = Packet()
-        packet.tournament = tour
-        packet.created_by = player
 
 @login_required
 def edit_question_set(request, qset_id):
@@ -688,6 +674,65 @@ def delete_bonus(request, bonus_id):
             message_class = 'alert alert-warning'
 
     return edit_question_set(request, qset.id)
+
+@login_required
+def add_packets(request, qset_id):
+
+    qset = QuestionSet.objects.get(id=qset_id)
+    user = request.user.writer
+    message = ''
+    message_class = ''
+
+    if user == qset.owner:
+        if request.method == 'GET':
+            form = NewPacketsForm()
+        elif request.method == 'POST':
+            form = NewPacketsForm(data=request.POST)
+            if form.is_valid():
+                packet_name = form.cleaned_data['packet_name']
+                name_base = form.cleaned_data['name_base']
+                num_packets = form.cleaned_data['num_packets']
+                if packet_name is not None and (name_base is None or num_packets is None):
+                    new_packet = Packet()
+                    new_packet.packet_name = packet_name
+                    new_packet.created_by = user
+                    new_packet.question_set = qset
+                    new_packet.save()
+                    message = 'Your packet named {0} has been created!'.format(name_base)
+                    message_class = 'alert alert-success'
+
+                elif name_base is not None and num_packets is not None:
+                    for i in range(1, num_packets + 1):
+                        new_packet = Packet()
+                        new_packet.packet_name = '{0!s} {1:02}'.format(name_base, i)
+                        new_packet.created_by = user
+                        new_packet.question_set = qset
+                        new_packet.save()
+                    message = 'Your {0} packets with the base name {1} have been created!'.format(num_packets, name_base)
+                    message_class = 'alert alert-success'
+                else:
+                    message = 'You must enter either the name for an individual packet or a base name and the number of packets to create!'
+                    message_class = 'alert alert-warning'
+
+            else:
+                message = 'Invalid information entered into form!'
+                message_class = 'alert alert-danger'
+        else:
+            message = 'Invalid method!'
+            message_class = 'alert alert-danger'
+            form = None
+
+    else:
+        message = 'You are not authorized to add packets to this set!'
+        message_class = 'alert alert-danger'
+        form = None
+
+    return render_to_response('add_packets.html',
+        {'message': message,
+         'message_class': message_class,
+         'form': form},
+        context_instance=RequestContext(request))
+
 
 def add_question(request, type, packet_id):
     

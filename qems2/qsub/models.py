@@ -138,7 +138,7 @@ class Role(models.Model):
     can_edit_others = models.BooleanField()
 
 class Packet (models.Model):
-    team_name = models.CharField(max_length=200)
+    packet_name = models.CharField(max_length=200)
     date_submitted = models.DateField()
     # authors = models.ManyToManyField(Player)
     question_set = models.ForeignKey(QuestionSet)

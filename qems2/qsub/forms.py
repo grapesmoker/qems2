@@ -137,20 +137,14 @@ class DistributionEntryForm(forms.ModelForm):
     class Meta:
         model = DistributionEntry
         exclude = ['distribution']
-#    class Meta:
-#        model = Distribution
-#            
-#    def __init__(self, instance=None):
-#        super(DistributionForm, self).__init__()
-            
-#    def clean(self):
-#        
-#        cleaned_data = {}
-#
-#        for field in self.data:
-#            if field == 'name':
-#                cleaned_data[filed] = str(self.data[field])
-#            else:
-#                cleaned_data[field] = [str(value) for value in self.data.getlist(field)]
-#                
-#        return cleaned_data
+
+class PacketForm(forms.Form):
+
+    packet_name = forms.CharField(max_length=200)
+
+class NewPacketsForm(forms.Form):
+
+    packet_name = forms.CharField(max_length=200, required=False)
+
+    name_base = forms.CharField(max_length=190, required=False)
+    num_packets = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}), required=False)

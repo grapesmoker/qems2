@@ -289,96 +289,55 @@ def add_writer(request, qset_id):
              'message': message},
             context_instance=RequestContext(request))
 
+@login_required
 def edit_packet(request, packet_id):
-    
-    print "editing ", packet_id
-    
-    if request.user.is_authenticated():
-        player = request.user.get_profile()
-        packet = Packet.objects.get(id=packet_id)
-        team = packet.team
-        teammates = team.player_set.all()
-        
-        all_teammates = chain([player], teammates)
-        
-        tossups = packet.tossup_set.all()
-        bonuses = packet.bonus_set.all()
-        
-        tu_cat_table = {}
-        b_cat_table = {}
-        cat_names = {'S': 'Science',
-                     'L': 'Literature',
-                     'H': 'History',
-                     'R': 'Religion',
-                     'M': 'Myth',
-                     'P': 'Philosophy',
-                     'FA': 'Fine Arts',
-                     'SS': 'Social Science',
-                     'G': 'Geography',
-                     'PC': 'Pop culture/Current events'}
-        
-        # right now the ACF distro is hard-coded in
-        
-        for cat in ACF_DISTRO:
-            tu_cat_table.setdefault(cat, 0)
-            b_cat_table.setdefault(cat, 0)
-            
-        for tossup in tossups:
-            cat = tossup.category.split('-')[0]
-            if cat in ACF_DISTRO:
-                tu_cat_table[cat] += 1
-                
-        for bonus in bonuses:
-            cat = bonus.category.split('-')[0]
-            if cat in ACF_DISTRO:
-                b_cat_table[cat] += 1
-        
-        teammate_questions = []
-        
-        class TeammateQInfo:
-            name = ''
-            tu_cat_table = {}
-            b_cat_table = {}
-            
-            def __init__(self):
-                for cat in ACF_DISTRO:
-                    self.tu_cat_table.setdefault(cat, 0)
-                    self.b_cat_table.setdefault(cat, 0)
-        
-        for teammate in all_teammates:
-            tq = TeammateQInfo()
-            tq.name = teammate.user.username
-            
-            tm_tus = teammate.tossup_set.filter(packet=packet)
-            tm_bns = teammate.bonus_set.filter(packet=packet)
-            
-            print tq.name, len(tm_tus), len(tm_bns)
-            for tm_tu in tm_tus:
-                cat = tm_tu.category.split('-')[0]
-                if cat in ACF_DISTRO:
-                    tq.tu_cat_table[cat] += 1
-            for tm_bn in tm_bns:
-                cat = tm_tu.category.split('-')[0]
-                if cat in ACF_DISTRO:
-                    tq.b_cat_table[cat] += 1
-                    
-            print tq.tu_cat_table
-            teammate_questions.append(tq)
-        
-        
-        return render_to_response('packetedit.html',
-                                  {'player': player,
-                                   'tu_cat_table': tu_cat_table,
-                                   'b_cat_table': b_cat_table,
-                                   'categories': ACF_DISTRO.keys(),
-                                   'distribution': ACF_DISTRO,
-                                   'cat_names': cat_names,
-                                   'packet': packet,
-                                   'teammate_questions': teammate_questions},
-                                  context_instance=RequestContext(request))
-        
-    else:
-        return HttpResponseRedirect('/accounts/login/')
+    user = request.user.writer
+    packet = Packet.objects.get(id=packet_id)
+    qset = packet.question_set
+    message = ''
+    message_class = ''
+    read_only = True
+    tossup_status = {}
+    bonus_status = {}
+
+    if request.method == 'GET':
+        if user == qset.owner or user in qset.editor.all() or user in qset.writer.all():
+            tossups = packet.tossup_set.all()
+            bonuses = packet.bonus_set.all()
+            if user not in qset.writer.all():
+                read_only = False
+
+            dist = qset.distribution
+            dist_entries = dist.distributionentry_set.all()
+
+            for dist_entry in dist_entries:
+                tossups_required = dist_entry.num_tossups
+                bonuses_required = dist_entry.num_bonuses
+                tu_in_cat = Tossup.objects.filter(packet=packet, category=dist_entry).count()
+                bs_in_cat = Bonus.objects.filter(packet=packet, category=dist_entry).count()
+                tossup_status[str(dist_entry)] = {'tu_req': tossups_required,
+                                                  'tu_in_cat': tu_in_cat}
+                bonus_status[str(dist_entry)] = {'bs_req': bonuses_required,
+                                                  'bs_in_cat': bs_in_cat}
+
+
+        else:
+            message = 'You are not authorized to view or edit this packet!'
+            message_class = 'alert alert-danger'
+            tossups = None
+            bonuses = None
+
+    return render_to_response('edit_packet.html',
+        {'qset': qset,
+         'packet': packet,
+         'message': message,
+         'message_class': message_class,
+         'tossups': tossups,
+         'bonuses': bonuses,
+         'tossup_status': tossup_status,
+         'bonus_status': bonus_status,
+         'read_only': read_only},
+        context_instance=RequestContext(request))
 
 
 def edit_tossups(request, packet_id):

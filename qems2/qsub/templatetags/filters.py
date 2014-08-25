@@ -43,3 +43,15 @@ def bonus_answers(bonus):
     return mark_safe(bonus.part1_answer[0:80] + '<br>'
     + bonus.part2_answer[0:80] + '<br>'
     + bonus.part3_answer[0:80] + '<br>')
+
+@register.filter(name='percent')
+def percent(x, y):
+    print x, y
+    print type(x), type(y)
+    try:
+        if float(y) != 0:
+            return str(100 * float(x) / float(y))
+        else:
+            return None
+    except Exception as ex:
+        return None

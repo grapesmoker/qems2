@@ -1,10 +1,19 @@
 {% extends "base.html" %}
 
-{% block content %}
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
 
-<div id="content">
-	<div class="alert alert-error">
-		{{ message }}
-	</div>
+{% block sidebar %}
+{% include "sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
+    <h2 class="page-header">Error!</h2>
+    {% if message %}
+    <p class="{{ message_class }}">{{ message }}</p>
+    {% endif %}
 </div>
+
 {% endblock %}

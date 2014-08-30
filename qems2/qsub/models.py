@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
+import json
+
 from collections import OrderedDict
 
 # Create your models here.
@@ -118,7 +120,7 @@ class QuestionSet (models.Model):
     date = models.DateField()
     host = models.CharField(max_length=200)
     address = models.TextField(max_length=200)
-    owner = models.OneToOneField('Writer', related_name='owner')
+    owner = models.ForeignKey('Writer', related_name='owner')
     #public = models.BooleanField()
     distribution = models.ForeignKey('Distribution')
     #teams = models.ForeignKey('Team')
@@ -150,7 +152,10 @@ class Packet (models.Model):
         return '{0!s}'.format(self.packet_name)
 
 class DistributionPerPacket(models.Model):
-    
+
+    #packet = models.ManyToManyField(Packet)
+
+
     question_set = models.ManyToManyField(QuestionSet)
     category = models.CharField(max_length=10, choices=CATEGORIES)
     subcategory = models.CharField(max_length=10)
@@ -169,13 +174,26 @@ class DistributionEntry(models.Model):
     distribution = models.ForeignKey(Distribution)
     category = models.TextField()
     subcategory = models.TextField()
-    num_tossups = models.CharField(max_length=500)
-    num_bonuses = models.CharField(max_length=500)
-    fin_tossups = models.CharField(max_length=500)
-    fin_bonuses = models.CharField(max_length=500)
+    min_tossups = models.IntegerField(null=True)
+    min_bonuses = models.IntegerField(null=True)
+    max_tossups = models.IntegerField(null=True)
+    max_bonuses = models.IntegerField(null=True)
+
+    #fin_tossups = models.CharField(max_length=500, null=True)
+    #fin_bonuses = models.CharField(max_length=500, null=True)
 
     def __str__(self):
         return '{0!s} - {1!s}'.format(self.category, self.subcategory)
+
+class SetWideDistributionEntry(models.Model):
+
+    question_set = models.ForeignKey(QuestionSet)
+    dist_entry = models.ForeignKey(DistributionEntry)
+    num_tossups = models.IntegerField()
+    num_bonuses = models.IntegerField()
+
+    def __str__(self):
+        return '{0!s} - {1!s}'.format(self.dist_entry.category, self.dist_entry.subcategory)
     
 class Tossup (models.Model):
     packet = models.ForeignKey(Packet, null=True)
@@ -191,6 +209,23 @@ class Tossup (models.Model):
     author = models.ForeignKey(Writer)
     
     locked = models.BooleanField()
+
+    def __str__(self):
+        return '{0!s}'.format(self.tossup_answer[0:40])
+
+    def to_json(self):
+        category_name = str(DistributionEntry.objects.get(id=self.category.id))
+        if self.packet is None:
+            packet_id = None
+        else:
+            packet_id = self.packet.id
+        return json.dumps({'id': self.id,
+                           'packet': packet_id,
+                           'tossup_text': self.tossup_text,
+                           'tossup_answer': self.tossup_answer,
+                           'category': self.category.id,
+                           'category_name': category_name,
+                           'author': self.author.id})
 
 class Bonus(models.Model):
     packet = models.ForeignKey(Packet, null=True)
@@ -211,14 +246,25 @@ class Bonus(models.Model):
     author = models.ForeignKey(Writer)
     
     locked = models.BooleanField()
-    
-class Category(models.Model):
 
-    category = models.CharField(max_length=100, choices=CATEGORIES)
-    
-
-class Test(models.Model):
-    blah = models.CharField(max_length=50)
+    def to_json(self):
+        category_name = str(DistributionEntry.objects.get(id=self.category.id))
+        if self.packet is None:
+            packet_id = None
+        else:
+            packet_id = self.packet.id
+        return json.dumps({'id': self.id,
+                           'packet': packet_id,
+                           'leadin': self.leadin,
+                           'part1_text': self.part1_text,
+                           'part1_answer': self.part1_answer,
+                           'part2_text': self.part2_text,
+                           'part2_answer': self.part2_answer,
+                           'part3_text': self.part3_text,
+                           'part3_answer': self.part3_answer,
+                           'category': self.category.id,
+                           'category_name': category_name,
+                           'author': self.author.id})
 
 
 def create_user_profile(sender, instance, created, **kwargs):

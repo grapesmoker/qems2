@@ -84,5 +84,23 @@ $(function () {
             window.location = $(this).attr('href');
         }
     });
+
+    $('#upload-dialog').dialog({
+        autoOpen: false,
+        width: 600,
+        height: 400,
+        buttons: {
+            Cancel: function() {
+                $(this).dialog('close');
+            },
+            Ok: function() {
+                $(this).find('form').submit();
+            }
+        }
+    })
+
+    $('#upload-questions').click(function () {
+        $('#upload-dialog').dialog('open');
+    })
 });
 

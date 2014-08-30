@@ -71,6 +71,7 @@ class TossupForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
+        packet_id = kwargs.pop('packet_id', None)
         super(TossupForm, self).__init__(*args, **kwargs)
 
         if qset_id:
@@ -79,9 +80,14 @@ class TossupForm(forms.ModelForm):
                 dist = qset.distribution
                 dist_entries = dist.distributionentry_set.all()
                 # categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]
-                packets = qset.packet_set.all()
+                if packet_id is not None:
+                    pack_label = None
+                    packets = qset.packet_set.filter(id=packet_id)
+                else:
+                    pack_label = '---------'
+                    packets = qset.packet_set.all()
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
-                self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False)
+                self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'
                 self.fields['category'] = forms.ModelChoiceField([], empty_label=None)
@@ -130,10 +136,10 @@ class DistributionEntryForm(forms.ModelForm):
     entry_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}))
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
-    num_tossups = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
-    num_bonuses = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
-    fin_tossups = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), required=False)
-    fin_bonuses = forms.IntegerField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), required=False)
+    min_tossups = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
+    min_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
+    max_tossups = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
+    max_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
     
     delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     
@@ -141,9 +147,28 @@ class DistributionEntryForm(forms.ModelForm):
         model = DistributionEntry
         exclude = ['distribution']
 
+class SetWideDistributionEntryForm(forms.Form):
+
+    entry_id = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'display: none'}))
+    #dist_entry = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'display: none'}))
+
+    num_tossups = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}))
+    num_bonuses = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}))
+
+    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}), required=False)
+    subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}), required=False)
+
+    #class Meta:
+    #    model = SetWideDistributionEntry
+    #    exclude = ['min_tossups', 'max_tossups', 'min_bonuses', 'max_bonuses', 'question_set']
+
 class PacketForm(forms.Form):
 
     packet_name = forms.CharField(max_length=200)
+
+class QuestionUploadForm(forms.Form):
+
+    questions_file = forms.FileField()
 
 class NewPacketsForm(forms.Form):
 

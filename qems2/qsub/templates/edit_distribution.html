@@ -18,7 +18,9 @@
 {% endif %}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <h2 class="page-header">Question Sets</h2>
-
+    {% if message %}
+    <div class="alert {{ message_class }}">{{ message }}</div>
+    {% endif %}
     <form action="" method="post">
         {% csrf_token %}
         <label for="id_name">Distribution name:</label> {{ form.name}}
@@ -26,10 +28,10 @@
             <thead>
             <th>Category</th>
             <th>Subcategory</th>
-            <th>Tossups (per packet)</th>
-            <th>Bonuses (per packet)</th>
-            <!--<th>Final tossups (per set)</th>
-            <th>Final bonuses (per set)</th>-->
+            <th>Minimum tossups (per packet)</th>
+            <th>Minimum bonuses (per packet)</th>
+            <th>Maximum tossups (per packet)</th>
+            <th>Maximum bonuses (per packet)</th>
             <th>Delete?</th>
             </thead>
             <tbody>
@@ -38,10 +40,10 @@
                 {{ entry.entry_id }}
                 <td>{{ entry.category }}</td>
                 <td>{{ entry.subcategory }}</td>
-                <td>{{ entry.num_tossups }}</td>
-                <td>{{ entry.num_bonuses }}</td>
-                <!--<td>{{ entry.fin_tossups }}</td>
-                <td>{{ entry.fin_bonuses }}</td>-->
+                <td>{{ entry.min_tossups }}</td>
+                <td>{{ entry.min_bonuses }}</td>
+                <td>{{ entry.max_tossups }}</td>
+                <td>{{ entry.max_bonuses }}</td>
                 {% if formset.can_delete %}
                 <td>{{ entry.DELETE }}</td>
                 {% endif %}
@@ -58,8 +60,6 @@
         </div>
 
     </form>
-    {% if message %}
-    <div class="alert {{ message_class }}">{{ message }}</div>
-    {% endif %}
+
 </div>
 {% endblock %}

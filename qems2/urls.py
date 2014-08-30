@@ -33,7 +33,9 @@ urlpatterns = patterns('',
     (r'^add_writer/(?P<qset_id>[0-9]+)/$', add_writer),
     (r'^edit_distribution/(?P<dist_id>[0-9]+)/$', edit_distribution),
     (r'^edit_distribution/$', edit_distribution),
+    (r'^edit_set_distribution/(?P<qset_id>[0-9]+)/$', edit_set_distribution),
     (r'^add_tossups/(?P<qset_id>[0-9]+)/$', add_tossups),
+    (r'^add_tossups/(?P<qset_id>[0-9]+)/(?P<packet_id>[0-9]+)/$', add_tossups),
     (r'^edit_tossup/(?P<tossup_id>[0-9]+)/$', edit_tossup),
     (r'^delete_tossup/(?P<tossup_id>[0-9]+)/$', delete_tossup),
     (r'^add_bonuses/(?P<qset_id>[0-9]+)/$', add_bonuses),
@@ -42,4 +44,16 @@ urlpatterns = patterns('',
     (r'^add_packets/(?P<qset_id>[0-9]+)/$', add_packets),
     (r'^edit_packet/(?P<packet_id>[0-9]+)/$', edit_packet),
     (r'^delete_packet/(?P<packet_id>[0-9]+)/$', delete_packet),
+
+    (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
+
+    # json calls
+    (r'^get_unassigned_tossups/$', get_unassigned_tossups),
+    (r'^get_unassigned_bonuses/$', get_unassigned_bonuses),
+    (r'^assign_tossups_to_packet/$', assign_tossups_to_packet),
+    (r'^assign_bonuses_to_packet/$', assign_bonuses_to_packet),
+    (r'^add_comment/$', add_comment),
+
+    # commenting framework
+    (r'^comments/', include('django_comments.urls')),
 )

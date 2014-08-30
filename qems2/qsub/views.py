@@ -5,6 +5,7 @@ from django.template import Context, RequestContext
 from django.shortcuts import render_to_response
 from django import forms
 from django.forms.formsets import formset_factory
+from django.forms.models import modelformset_factory
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView
@@ -14,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from models import *
 from forms import *
 from utils import *
+from packet_parser import handle_uploaded_packet
 
 from collections import OrderedDict
 from itertools import chain
@@ -89,30 +91,58 @@ def create_question_set (request):
     if request.method == 'POST':
         form = QuestionSetForm(data=request.POST)
         if form.is_valid():
-            writer = request.user.writer
+            user = request.user.writer
             # for the moment, just use the default ACF Distribution
-            dist = Distribution.objects.get(id=1)
+            #dist = Distribution.objects.get(id=1)
             question_set = form.save(commit=False)
-            question_set.owner = writer
-            question_set.distribution = dist
+            question_set.owner = user
+            #question_set.distribution = dist
             question_set.save()
             form.save_m2m()
-            writer.question_set_editor.add(question_set)
-            writer.save()
-            
-            return render_to_response('success.html',
-                                      {'message': 'Your question set has been successfully created!'},
+            user.question_set_editor.add(question_set)
+            user.save()
+
+            dist = question_set.distribution
+            dist_entries = dist.distributionentry_set.all()
+            for entry in dist_entries:
+                set_wide_entry = SetWideDistributionEntry()
+                set_wide_entry.num_bonuses = question_set.num_packets * entry.min_tossups
+                set_wide_entry.num_tossups = question_set.num_packets * entry.min_bonuses
+                set_wide_entry.question_set = question_set
+                set_wide_entry.dist_entry = entry
+                set_wide_entry.save()
+
+            set_distro_formset = create_set_distro_formset(question_set)
+
+            return render_to_response('edit_question_set.html',
+                                      {'message': 'Your question set has been successfully created!',
+                                       'message_class': 'alert alert-success',
+                                       'qset': question_set,
+                                       'user': user,
+                                       'form': form,
+                                       'set_distro_formset': set_distro_formset,
+                                       'editors': [ed for ed in question_set.editor.all() if ed != question_set.owner],
+                                       'writers': question_set.writer.all(),
+                                       'tossups': Tossup.objects.filter(question_set=question_set),
+                                       'bonuses': Bonus.objects.filter(question_set=question_set),
+                                       'packets': question_set.packet_set.all(),},
                                       context_instance=RequestContext(request))
         else:
             print form.errors
-            return render_to_response('failure.html',
-                                      {'message': 'There was an error in creating your question set!'},
+            distributions = Distribution.objects.all()
+            return render_to_response('create_question_set.html',
+                                      {'message': 'There was an error in creating your question set!',
+                                       'message_class': 'alert alert-warning',
+                                       'form': form,
+                                       'distributions': distributions},
                                       context_instance=RequestContext(request))
     else:
         form = QuestionSetForm()
+        distributions = Distribution.objects.all()
         
     return render_to_response('create_question_set.html',
-                              {'form': form},
+                              {'form': form,
+                               'distributions': distributions},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -127,9 +157,10 @@ def edit_question_set(request, qset_id):
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
     user = request.user.writer
+    set_distro_formset = None
 
     if request.method == 'POST' and (user == qset.owner or user in qset_editors):
-        print request.POST
+
         form = QuestionSetForm(data=request.POST)
         if form.is_valid():
             qset = QuestionSet.objects.get(id=qset_id)
@@ -137,18 +168,21 @@ def edit_question_set(request, qset_id):
             qset.date = form.cleaned_data['date']
             qset.distribution = form.cleaned_data['distribution']
             qset.num_packets = form.cleaned_data['num_packets']
-
             qset.save()
 
             if user == qset.owner:
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
-            
+                set_distro_formset = create_set_distro_formset(qset)
+
             return render_to_response('edit_question_set.html',
                                       {'form': form,
                                        'qset': qset,
+                                       'user': user,
                                        'editors': [ed for ed in qset_editors if ed != qset.owner],
                                        'writers': qset.writer.all(),
+                                       'set_distro_formset': set_distro_formset,
+                                       'upload_form': QuestionUploadForm(),
                                        'tossups': tossups,
                                        'bonuses': bonuses,
                                        'packets': qset.packet_set.all(),
@@ -167,12 +201,15 @@ def edit_question_set(request, qset_id):
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
             form = QuestionSetForm(instance=qset)
-        
+            set_distro_formset = create_set_distro_formset(qset)
         
     return render_to_response('edit_question_set.html',
                               {'form': form,
+                               'user': user,
                                'editors': [ed for ed in qset_editors if ed != qset.owner],
                                'writers': [wr for wr in qset_writers if wr != qset.owner],
+                               'set_distro_formset': set_distro_formset,
+                               'upload_form': QuestionUploadForm(),
                                'tossups': tossups,
                                'bonuses': bonuses,
                                'packets': qset.packet_set.all(),
@@ -180,6 +217,32 @@ def edit_question_set(request, qset_id):
                                'read_only': read_only,
                                'message': message},
                               context_instance=RequestContext(request))
+
+@login_required
+def edit_set_distribution(request, qset_id):
+
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+
+    if request.method == 'POST':
+
+        DistributionEntryFormset = formset_factory(SetWideDistributionEntryForm, can_delete=False, extra=0)
+        formset = DistributionEntryFormset(data=request.POST, prefix='distentry')
+
+        if formset.is_valid() and user == qset.owner:
+            for dist_form in formset.forms:
+                entry_id = int(dist_form.cleaned_data['entry_id'])
+                num_tossups = int(dist_form.cleaned_data['num_tossups'])
+                num_bonuses = int(dist_form.cleaned_data['num_bonuses'])
+
+                entry = SetWideDistributionEntry.objects.get(id=entry_id)
+                entry.num_tossups = num_tossups
+                entry.num_bonuses = num_bonuses
+                entry.save()
+
+            return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
+        else:
+            print formset
 
 @login_required
 def find_editor(request):
@@ -311,8 +374,8 @@ def edit_packet(request, packet_id):
             dist_entries = dist.distributionentry_set.all()
 
             for dist_entry in dist_entries:
-                tossups_required = dist_entry.num_tossups
-                bonuses_required = dist_entry.num_bonuses
+                tossups_required = dist_entry.min_tossups
+                bonuses_required = dist_entry.min_bonuses
                 tu_in_cat = Tossup.objects.filter(packet=packet, category=dist_entry).count()
                 bs_in_cat = Bonus.objects.filter(packet=packet, category=dist_entry).count()
                 tossup_status[str(dist_entry)] = {'tu_req': tossups_required,
@@ -347,7 +410,7 @@ def edit_bonuses(request, packet_id):
     pass
 
 @login_required
-def add_tossups(request, qset_id):
+def add_tossups(request, qset_id, packet_id=None):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
     message = ''
@@ -356,7 +419,7 @@ def add_tossups(request, qset_id):
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            tossup_form = TossupForm(qset_id=qset.id)
+            tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id)
             #dist = qset.distribution
             #dist_entries = dist.distributionentry_set.all()
             #tossup_form.fields['category'].queryset = dist_entries
@@ -376,7 +439,7 @@ def add_tossups(request, qset_id):
 
     elif request.method == 'POST':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            tossup_form = TossupForm(request.POST, qset_id=qset.id)
+            tossup_form = TossupForm(request.POST, qset_id=qset.id, packet_id=packet_id)
             #dist = qset.distribution
             #dist_entries = dist.distributionentry_set.all()
             #tossup_form.fields['category'].queryset = dist_entries
@@ -387,6 +450,8 @@ def add_tossups(request, qset_id):
                 tossup = tossup_form.save(commit=False)
                 tossup.author = user
                 tossup.question_set = qset
+                tossup.tossup_text = sanitize_html(tossup.tossup_text)
+                tossup.tossup_answer = sanitize_html(tossup.tossup_answer)
                 tossup.save()
                 message = 'Your tossup has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
@@ -400,7 +465,7 @@ def add_tossups(request, qset_id):
             read_only = True
 
         return render_to_response('add_tossups.html',
-                 {'form': TossupForm(qset_id=qset.id),
+                 {'form': TossupForm(qset_id=qset.id, packet_id=packet_id),
                  'message': message,
                  'message_class': message_class,
                  'read_only': read_only},
@@ -445,6 +510,13 @@ def add_bonuses(request, qset_id):
                 bonus = form.save(commit=False)
                 bonus.author = user
                 bonus.question_set = qset
+                bonus.leadin = sanitize_html(bonus.leadin)
+                bonus.part1_text = sanitize_html(bonus.part1_text)
+                bonus.part1_answer = sanitize_html(bonus.part1_answer)
+                bonus.part2_text = sanitize_html(bonus.part2_text)
+                bonus.part2_answer = sanitize_html(bonus.part2_answer)
+                bonus.part3_text = sanitize_html(bonus.part3_text)
+                bonus.part3_answer = sanitize_html(bonus.part3_answer)
                 bonus.save()
                 message = 'Your bonus has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
@@ -715,6 +787,133 @@ def delete_packet(request, packet_id):
 
     return edit_question_set(request, qset.id)
 
+@login_required
+def get_unassigned_tossups(request):
+    user = request.user.writer
+    qset_id = request.GET['qset_id']
+    message = ''
+    message_class = ''
+    data = []
+
+    try:
+        qset = QuestionSet.objects.get(id=qset_id)
+
+        if request.method == 'GET':
+            if user == qset.owner:
+                available_tossups = Tossup.objects.filter(question_set=qset, packet=None)
+                for tu in available_tossups:
+                    data.append(tu.to_json())
+            else:
+                available_tossups = []
+                message = 'Only the set owner has the power to add questions to it!'
+                message_class = 'alert alert-danger'
+
+        else:
+            message = 'Invalid request!'
+            message_class = 'alert alert-danger'
+    except Exception as ex:
+        print ex
+        message = 'Unable to retrieve question set; qset_id either missing or incorrect!'
+        message_class = 'alert alert-danger'
+
+    return HttpResponse(json.dumps(data))
+
+@login_required
+def get_unassigned_bonuses(request):
+    user = request.user.writer
+    qset_id = request.GET['qset_id']
+    message = ''
+    message_class = ''
+    data = []
+
+    try:
+        qset = QuestionSet.objects.get(id=qset_id)
+
+        if request.method == 'GET':
+            if user == qset.owner:
+                available_bonuses= Bonus.objects.filter(question_set=qset, packet=None)
+                for bs in available_bonuses:
+                    data.append(bs.to_json())
+            else:
+                available_tossups = []
+                message = 'Only the set owner has the power to add questions to it!'
+                message_class = 'alert alert-danger'
+
+        else:
+            message = 'Invalid request!'
+            message_class = 'alert alert-danger'
+    except Exception as ex:
+        print ex
+        message = 'Unable to retrieve question set; qset_id either missing or incorrect!'
+        message_class = 'alert alert-danger'
+
+    return HttpResponse(json.dumps(data))
+
+@login_required
+def assign_tossups_to_packet(request):
+
+    user = request.user.writer
+    packet_id = int(request.GET['packet_id'])
+    tossup_ids = request.GET.getlist('tossup_ids[]')
+    packet = Packet.objects.get(id=packet_id)
+    qset = packet.question_set
+    message = ''
+    message_class = ''
+
+    print request.GET
+
+    if request.method == 'GET':
+        if user == qset.owner:
+            for tu_id in tossup_ids:
+                tossup = Tossup.objects.get(id=tu_id)
+                tossup.packet = packet
+                message = 'Your tossups have been added to the set!'
+                message_class = 'alert alert-success'
+                tossup.save()
+        else:
+            message = 'Only the set owner is authorized to add questions to the set!'
+            message_class = 'alert alert-warning'
+
+    else:
+        message = 'Invalid request!'
+        message_class = 'alert alert-danger'
+
+    return HttpResponse(json.dumps({'message': message,
+                                    'message_class': message_class}))
+
+@login_required
+def assign_bonuses_to_packet(request):
+
+    user = request.user.writer
+    packet_id = int(request.GET['packet_id'])
+    bonus_ids = request.GET.getlist('bonus_ids[]')
+    packet = Packet.objects.get(id=packet_id)
+    qset = packet.question_set
+    message = ''
+    message_class = ''
+
+    print request.GET
+
+    if request.method == 'GET':
+        if user == qset.owner:
+            for bs_id in bonus_ids:
+                bonus = Bonus.objects.get(id=bs_id)
+                bonus.packet = packet
+                message = 'Your tossups have been added to the set!'
+                message_class = 'alert alert-success'
+                bonus.save()
+        else:
+            message = 'Only the set owner is authorized to add questions to the set!'
+            message_class = 'alert alert-warning'
+
+    else:
+        message = 'Invalid request!'
+        message_class = 'alert alert-danger'
+
+    return HttpResponse(json.dumps({'message': message,
+                                    'message_class': message_class}))
+
+
 def add_question(request, type, packet_id):
     
     # need some role checking here to make sure user is authorized to do this
@@ -876,43 +1075,7 @@ def edit_question(request, type, question_id):
 def add_bonus(request, packet_id):
     pass
 
-    
 
-'''
-TossupFormset = formset_factory(TossupForm)
-        BonusFormset = formset_factory(BonusForm)
-        player = request.user.get_profile()
-        print "asdfasdfsadf"
-        if request.method == 'POST':
-            tu_formset = TossupFormset(request.POST, prefix='tossups')
-            b_formset = BonusFormset(request.POST, prefix='bonuses')
-            
-            # save the tossups
-            if tu_formset.is_valid():
-                
-                pass
-            else:
-                pass
-            
-            # save the bonuses
-            if b_formset.is_valid():
-                pass
-            else:
-                pass
-            
-            return render_to_response('packetedit.html',
-                                          {'tu_formset': tu_formset,
-                                           'b_formset': b_formset},
-                                          context_instance=RequestContext(request))
-        else:
-             tu_formset = TossupFormset(prefix='tossups')
-             b_formset = BonusFormset(prefix='bonuses')
-             
-        return render_to_response('packetedit.html',
-                                  {'tu_formset': tu_formset,
-                                   'b_formset': b_formset},
-                                  context_instance=RequestContext(request))
-                                  '''
 @login_required
 def distributions (request):
     
@@ -935,10 +1098,6 @@ def edit_distribution(request, dist_id=None):
                 formset = DistributionEntryFormset(data=request.POST, prefix='distentry')
                 dist_form = DistributionForm(data=request.POST)
                 if dist_form.is_valid() and formset.is_valid():
-                    print dist_form.cleaned_data
-                    for form in formset:
-                        print form.cleaned_data
-                        
                     new_dist = Distribution()
                     new_dist.name = dist_form.cleaned_data['name']
                     new_dist.save()
@@ -947,12 +1106,13 @@ def edit_distribution(request, dist_id=None):
                         new_entry = DistributionEntry()
                         new_entry.category = form.cleaned_data['category']
                         new_entry.subcategory = form.cleaned_data['subcategory']
-                        new_entry.num_bonuses = form.cleaned_data['num_bonuses']
-                        new_entry.num_tossups = form.cleaned_data['num_tossups']
-                        new_entry.fin_bonuses = form.cleaned_data['fin_bonuses']
-                        new_entry.fin_tossups = form.cleaned_data['fin_tossups']
+                        new_entry.min_bonuses = form.cleaned_data['min_bonuses']
+                        new_entry.min_tossups = form.cleaned_data['min_tossups']
+                        new_entry.max_bonuses = form.cleaned_data['max_bonuses']
+                        new_entry.max_tossups = form.cleaned_data['max_tossups']
                         new_entry.distribution = new_dist
                         new_entry.save()
+
                         
             else:
                 formset = DistributionEntryFormset(data=request.POST, prefix='distentry')
@@ -964,6 +1124,7 @@ def edit_distribution(request, dist_id=None):
                     
                     dist = Distribution.objects.get(id=dist_id)
                     dist.name = dist_form.cleaned_data['name']
+                    qsets = dist.questionset_set.all()
                     for form in formset:
                         if form.cleaned_data != {}:
                             if form.cleaned_data['entry_id'] is not None:
@@ -971,17 +1132,32 @@ def edit_distribution(request, dist_id=None):
                                 entry = DistributionEntry.objects.get(id=entry_id)
                                 if form.cleaned_data['DELETE']:
                                     entry.delete()
+                                    entry = None
                                 else:
+                                    entry.category = form.cleaned_data['category']
                                     entry.subcategory = form.cleaned_data['subcategory']
-                                    entry.num_bonuses = form.cleaned_data['num_bonuses']
-                                    entry.num_tossups = form.cleaned_data['num_tossups']
-                                    entry.fin_bonuses = form.cleaned_data['fin_bonuses']
-                                    entry.fin_tossups = form.cleaned_data['fin_tossups']
+                                    entry.min_bonuses = form.cleaned_data['min_bonuses']
+                                    entry.min_tossups = form.cleaned_data['min_tossups']
+                                    entry.max_bonuses = form.cleaned_data['max_bonuses']
+                                    entry.max_tossups = form.cleaned_data['max_tossups']
                                     entry.save()
                             else:
                                 entry = form.save(commit=False)
                                 entry.distribution = dist
                                 entry.save()
+
+                            if entry is not None:
+                                for qset in qsets:
+                                    set_wide_entry = qset.setwidedistributionentry_set.filter(dist_entry=entry)
+                                    print set_wide_entry
+                                    if set_wide_entry.count() == 0:
+                                        print 'here'
+                                        new_set_wide_entry = SetWideDistributionEntry()
+                                        new_set_wide_entry.dist_entry = entry
+                                        new_set_wide_entry.question_set = qset
+                                        new_set_wide_entry.num_tossups = qset.num_packets * entry.min_tossups
+                                        new_set_wide_entry.num_bonuses = qset.num_packets * entry.min_bonuses
+                                        new_set_wide_entry.save()
                             
                     entries = dist.distributionentry_set.all()
                     initial_data = []
@@ -989,10 +1165,10 @@ def edit_distribution(request, dist_id=None):
                         initial_data.append({'entry_id': entry.id,
                                              'category': entry.category,
                                              'subcategory': entry.subcategory,
-                                             'num_tossups': entry.num_tossups,
-                                             'num_bonuses': entry.num_bonuses,
-                                             'fin_tossups': entry.fin_tossups,
-                                             'fin_bonuses': entry.fin_bonuses})
+                                             'min_tossups': entry.min_tossups,
+                                             'min_bonuses': entry.min_bonuses,
+                                             'max_tossups': entry.max_tossups,
+                                             'max_bonuses': entry.max_bonuses})
                     formset = DistributionEntryFormset(initial=initial_data, prefix='distentry')
                     
                 else:
@@ -1013,10 +1189,10 @@ def edit_distribution(request, dist_id=None):
                     initial_data.append({'entry_id': entry.id,
                                          'category': entry.category,
                                          'subcategory': entry.subcategory,
-                                         'num_tossups': entry.num_tossups,
-                                         'num_bonuses': entry.num_bonuses,
-                                         'fin_tossups': entry.fin_tossups,
-                                         'fin_bonuses': entry.fin_bonuses})
+                                         'min_tossups': entry.min_tossups,
+                                         'min_bonuses': entry.min_bonuses,
+                                         'max_tossups': entry.max_tossups,
+                                         'max_bonuses': entry.max_bonuses})
                 dist_form = DistributionForm(instance=dist)
                 formset = DistributionEntryFormset(initial=initial_data, prefix='distentry')
             else:
@@ -1027,86 +1203,27 @@ def edit_distribution(request, dist_id=None):
                                       {'form': dist_form,
                                        'formset': formset},
                                        context_instance=RequestContext(request))
-            
-def role_assign(request, editor_id, tour_id):
+
+@login_required
+def add_comment(request):
+
+    print request.GET
+    print request.POST
+    user = request.user.writer
+    qset_id = request.POST['qset-id']
+    qset = QuestionSet.objects.get(id=qset_id)
 
     if request.method == 'POST':
-        form = RoleAssignmentForm(data=request.POST)
-        if form.is_valid():
-            #editor_id = form.cleaned_data['editor']
-            #tour_id = form.cleaned_data['tournament']
-            categories = form.cleaned_data['category']
-            can_edit_others = form.cleaned_data['can_edit_others']
-            can_view_others = form.cleaned_data['can_view_others']
-            
-            categories = ';'.join(categories)
-            editor = Writer.objects.get(id=editor_id)
-            tournament = Tournament.objects.get(id=tour_id)
-            
-            role, created = Role.objects.get_or_create(player=editor,
-                                                       tournament=tournament)
-            role.category = categories
-            role.can_edit_others = can_edit_others
-            role.can_view_others = can_view_others
-            role.save() 
-            
-            form = RoleAssignmentForm(instance=role, categories=categories.split(';'))
-            
-            return render_to_response('roleassign.html',
-                                      {'form': form,
-                                       'editor': editor,
-                                       'message': 'Your changes have been successfully saved!',
-                                       'message_class': 'alert-success'},
-                                      context_instance=RequestContext(request))
-        else:
-            editor = Writer.objects.get(id=editor_id)
-            
-    else:
-        editor = Writer.objects.get(id=editor_id)
-        tour = Tournament.objects.get(id=tour_id)
-        if Role.objects.filter(player=editor, tournament=tour).exists():
-            role = Role.objects.get(player=editor, tournament=tour)
-            categories = role.category.split(';')
-            form = RoleAssignmentForm(instance=role, categories=categories)
-        else:
-            form = RoleAssignmentForm()
-            print form.as_p()
-        
-    return render_to_response('roleassign.html',
-                            {'form': form,
-                             'editor': editor},
-                              context_instance=RequestContext(request))
+        comment_text = request.POST['comment-text']
+        print comment_text
 
-    
-def remove_editor(request, tournament_id, editor_id):
-    if request.user.is_authenticated():
-        player = request.user.get_profile()
-        editor = Writer.objects.get(id=editor_id)
-        tournament = Tournament.objects.get(id=tournament_id)
-        
-        if player == tournament.owner:
-            if editor in tournament.player_set.all():
-                tournament.player_set.remove(editor)
-                tournament.save()
-                if editor.role_set.filter(tournament=tournament).exists():
-                    editor_role = editor.role_set.get(tournament=tournament, player=editor)
-                    editor_role.delete()
-                message = 'You have removed {0!s} from your tournament.'.format(editor)
-            else:
-                message = '{0!s} is not an editor for this tournament.'.format(editor)
+
+@login_required
+def upload_questions(request, qset_id):
+    if request.method == 'POST':
+        form = QuestionUploadForm(request.POST, request.FILES)
+        print form
+        if form.is_valid():
+            handle_uploaded_packet(request.FILES['questions_file'])
         else:
-            message = 'You are not the tournament owner and are not allowed to remove editors.'
-            
-        form = TournamentForm(instance=tournament)
-        editors = tournament.player_set.all()
-        
-        return HttpResponseRedirect('/touredit/{0!s}/'.format(tournament.id))
-    else:
-        return HttpResponseRedirect('/accounts/login/')
-'''
-    packet editing flow: packetedit.html renders the view that gives you the overall packet
-    state of completion. that shows you what questions have been written and allows you
-    to click on individual questions to edit and comment on them. there are several tabs:
-    your tossups, your bonuses, others' tossups, others' bonuses, you can click on those
-    to edit/comment
-    '''
+            print form

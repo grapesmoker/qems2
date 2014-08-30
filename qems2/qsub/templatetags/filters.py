@@ -46,8 +46,6 @@ def bonus_answers(bonus):
 
 @register.filter(name='percent')
 def percent(x, y):
-    print x, y
-    print type(x), type(y)
     try:
         if float(y) != 0:
             return str(100 * float(x) / float(y))
@@ -55,3 +53,10 @@ def percent(x, y):
             return None
     except Exception as ex:
         return None
+
+@register.filter(name='check_mark_if_100_pct')
+def check_mark_if_100_pct(x, y):
+    if percent(x, y) == '100.0':
+        return mark_safe('<i class="fa fa-check" style="color:green"></i>')
+    else:
+        return mark_safe('<i class="fa fa-times" style="color:red"></i>')

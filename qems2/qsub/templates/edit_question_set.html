@@ -11,18 +11,22 @@
 {% block content %}
 {% load static %}
 {% load filters %}
+{% load comments %}
 
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
     <h2 class="page-header">Question Set Management</h2>
 
     <div class="tabbable">
 		<ul class="nav nav-tabs">
-			<li class="active">
+			<li class="active dropdown">
 				<a href="#qset-info" data-toggle="tab">Question set info</a>
 			</li>
 			<li>
 				<a href="#editors" data-toggle="tab">Editor assignments</a>
 			</li>
+            <li>
+                <a href="#set-wide-distribution" data-toggle="tab">Set-wide distribution</a>
+            </li>
             <li>
                 <a href="#questions" data-toggle="tab">Questions</a>
             </li>
@@ -32,6 +36,13 @@
 		</ul>
 		<div class="tab-content">
 			<div class="tab-pane active" id="qset-info">
+                {% if message %}
+				<p>
+					<div class="alert {{ message_class }}">
+						{{ message }}
+					</div>
+				</p>
+				{% endif %}
 				<div class="alert alert-info" style="text-align: center;"><strong>Set information</strong></div>
 				<form action="" method="post">
 					{% csrf_token %}
@@ -40,16 +51,43 @@
 					<input type="submit" value="Submit changes"/>
 					{% endif %}
 				</form>
-				{% if message %}
-				<p>
-					<div class="alert {{ message_class }}">
-						{{ message }}
-					</div>
-				</p>
-				{% endif %}
+                <a id="#qset-status"></a>
+                <div class="alert alert-info" style="text-align: center"><strong>Set Status</strong></div>
+
+                <a id="#qset-comments"></a>
+                <div class="alert alert-info" style="text-align: center"><strong>Comments</strong></div>
+                <div class="comments col-md-6">
+                    {% render_comment_list for qset %}
+                    {% get_comment_form for qset as cform %}
+                    <form action="{% comment_form_target %}" method="POST">
+                        {% csrf_token %}
+                        {{ cform.comment.label_tag }}
+                        <textarea cols="40" rows="10" id="{{ cform.comment.id_for_label }}"
+                                  name="{{ cform.comment.html_name }}" class="form-control">
+                        </textarea>
+                        {{ cform.honeypot }}
+                        {{ cform.content_type }}
+                        {{ cform.object_pk }}
+                        {{ cform.timestamp }}
+                        {{ cform.security_hash }}
+                        <input type="submit" name="submit" value="Post" class="btn btn-primary">
+                        <!--<input type="submit" name="preview" value="Preview" class="btn btn-primary">-->
+                        <input type="hidden" name="next" value="/edit_question_set/{{ qset.id }}/">
+                    </form>
+                </div>
+
+
+                <!--<button class="btn btn-primary comment-button" title="Leave Comment">Comment</button>-->
+
 			</div>
 			<div class="tab-pane" id="editors">
 				{% if not read_only %}
+                <a href="/add_editor/{{ qset.id }}" class="btn btn-primary" title="Add set editor" id="btn-add-editor">
+					<i class="fa fa-plus-circle"></i> Add set editor
+				</a>
+                <a href="/add_writer/{{ qset.id }}" class="btn btn-primary" title="Add set writer">
+					<i class="fa fa-plus-circle"></i> Add set writer
+				</a>
 				<table class="table table-striped table-hover">
 					<caption class="alert alert-info">
 						<strong>Current set editors</strong>
@@ -102,13 +140,6 @@
 						{% endfor %}
 					</tbody>
 				</table>
-
-                <a href="/add_editor/{{ qset.id }}" class="btn btn-primary" title="Add set editor" id="btn-add-editor">
-					<i class="fa fa-plus-circle"></i> Add set editor
-				</a>
-                <a href="/add_writer/{{ qset.id }}" class="btn btn-primary" title="Add set writer">
-					<i class="fa fa-plus-circle"></i> Add set writer
-				</a>
 				{% else %}
 				<div class="alert alert-info">
 					You are not authorized to view this information
@@ -116,12 +147,56 @@
 
 				{% endif %}
 			</div>
+            <div class="tab-pane" id="set-wide-distribution">
+                <div class="alert alert-warning">
+                    <i class="fa fa-exclamation-triangle" style="font-size: 24px"></i>
+                    The set-wide distribution controls the total number of questions of each kind that your set
+                    will contain. It is distinct from the "template" distribution; you cannot change the categories
+                    this way, only the <em>total</em> number of questions in those categories that will appear in
+                    this set. For example, if the ACF distribution calls for a minimum of 1 and a maximum of 2
+                    social science questions per packet, and you have 10 packets in your set, then any number
+                    between 10 and 20 social science questions might appear in your set unless you restrict it here,
+                    e.g. by setting the maximum allowed number of such questions to 15. Setting these values is
+                    crucial for the packet-level and set-level verification algorithms to work, so don't skip this section!
+
+                </div>
+                <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
+                    {% csrf_token %}
+                    <table class="table table-striped table-hover">
+                        <caption class="alert alert-info">
+                            <strong>Set-wide Requirements</strong>
+                        </caption>
+                        <thead>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Total Tossups (per set)</th>
+                        <th>Total Bonuses (per set)</th>
+                        </thead>
+                        <tbody>
+                        {% for entry in set_distro_formset %}
+                        <tr>
+                            <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
+                            <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
+                            <td>{{ entry.category.value }}</td>
+                            <td>{{ entry.subcategory.value }}</td>
+                            <td>{{ entry.num_tossups }}</td>
+                            <td>{{ entry.num_bonuses }}</td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                    <input type="submit" class="btn btn-primary">
+                    {{ set_distro_formset.management_form }}
+                </form>
+            </div>
             <div class="tab-pane" id="questions">
                 <a href="/add_tossups/{{ qset.id }}" class="btn btn-primary" title="Add tossups">
                     <i class="fa fa-plus-circle"></i> Add tossups
                 </a>
                 <a href="/add_bonuses/{{ qset.id }}" class="btn btn-primary" title="Add bonuses">
                     <i class="fa fa-plus-circle"></i> Add bonuses
+                </a>
+                <a href="#" class="btn btn-primary" title="Upload questions" id="upload-questions">
+                    <i class="fa fa-upload"></i> Upload questions from file
                 </a>
                 <table class="table table-striped table-hover">
                     <caption class="alert alert-info">
@@ -236,6 +311,28 @@
 	</div>
 </div>
 
+<!--<input type="hidden" id="qset-id" value="{{ qset.id }}">-->
+<script type="text/javascript" src="{% static 'js/comments.js' %}"></script>
 
-<input type="hidden" id="tour_id" value={{ tour.id }} />
+<div id="comment-dialog">
+    <div class="comment-header">
+
+    </div>
+    <div class="comment-content">
+        <form action="/add_comment/" method="post" class="form-horizontal">
+            {% csrf_token %}
+            <input type="hidden" id="reply-to" name="reply-to" value="">
+            <input type="hidden" id="qset-id" name="qset-id" value="{{ qset.id }}">
+            <textarea rows="10" cols="64" id="comment-text" name="comment-text"></textarea>
+        </form>
+    </div>
+</div>
+
+
+<div id="upload-dialog">
+    <form action="/upload_questions/{{ qset.id }}/" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ upload_form }}
+    </form>
+</div>
 {% endblock %}

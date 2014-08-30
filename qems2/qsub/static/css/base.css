@@ -71,3 +71,7 @@ background-color: #eee;
   padding: 15px;
   margin: 0 auto;
 }
+
+#id_honeypot {
+  display: none;
+}

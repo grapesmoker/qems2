@@ -16,23 +16,39 @@
 	<form action="" method="post" role="form" class="form-horizontal form-standard">
         {% csrf_token %}
         <div class="form-group">
+            {{ form.name.errors }}
             <label for="id_name" class="col-sm-2 control-label">Name</label>
             <div class="col-sm-10">
                 <input class="form-control" id="id_name" name="name" maxlength="200" type="text">
             </div>
         </div>
         <div class="form-group">
+            {{ form.date.errors }}
             <label for="id_date" class="col-sm-2 control-label">Date</label>
             <div class="col-sm-10">
                 <input class="form-control" id="id_date" name="date" maxlength="200" type="datetime">
             </div>
         </div>
-        <!--<div class="form-group">
-            <label for="id_address" class="col-sm-2 control-label">Address</label>
+        <div class="form-group">
+            {{ form.num_packets.errors }}
+            <label for="id_num_packets" class="col-sm-2 control-label">Number of packets</label>
             <div class="col-sm-10">
-                <textarea class="form-control" id="id_address" name="address" rows="10"></textarea>
+                <input class="form-control" id="id_num_packets" name="num_packets" type="text">
             </div>
-        </div>-->
+        </div>
+        <div class="form-group">
+            {{ form.distribution.errors }}
+            <label for="id_distribution" class="col-sm-2 control-label">Distribution</label>
+            <div class="col-sm-10">
+                <select class="form-control" id="id_distribution" name="distribution">
+                    {% for dist in distributions %}
+                    <option value="{{ dist.id }}">
+                        {{ dist }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
         <button class="btn btn-lg btn-primary pull-right" type="submit">Create Question Set</button>
     </form>
 

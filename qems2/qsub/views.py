@@ -1117,6 +1117,7 @@ def edit_distribution(request, dist_id=None):
                         new_entry.distribution = new_dist
                         new_entry.save()
 
+                    return HttpResponseRedirect('/edit_distribution/' + str(new_dist.id))
                         
             else:
                 formset = DistributionEntryFormset(data=request.POST, prefix='distentry')

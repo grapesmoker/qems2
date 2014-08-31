@@ -11,7 +11,7 @@
 {% block content %}
 {% load static %}
 
-{% if formset.errors %}
+{% if formset.total_error_count > 0 %}
 <div class="alert alert-error">
     Errors in your form! All question numbers are required!
 </div>

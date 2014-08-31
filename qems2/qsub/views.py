@@ -452,6 +452,8 @@ def add_tossups(request, qset_id, packet_id=None):
                 tossup.question_set = qset
                 tossup.tossup_text = sanitize_html(tossup.tossup_text)
                 tossup.tossup_answer = sanitize_html(tossup.tossup_answer)
+                # New questions should not be auto-locked. Also, the user has no way to currently change this setting.
+                tossup.locked = False
                 tossup.save()
                 message = 'Your tossup has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
@@ -517,6 +519,8 @@ def add_bonuses(request, qset_id):
                 bonus.part2_answer = sanitize_html(bonus.part2_answer)
                 bonus.part3_text = sanitize_html(bonus.part3_text)
                 bonus.part3_answer = sanitize_html(bonus.part3_answer)
+                # New questions should not be auto-locked. Also, the user has no way to currently change this setting.
+                bonus.locked = False
                 bonus.save()
                 message = 'Your bonus has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
@@ -654,11 +658,11 @@ def edit_bonus(request, bonus_id):
             message = 'You are only authorized to view, not to edit, this question!'
             message_class = 'alert alert-warning'
         else:
-            tossup = None
+            bonus = None
             message = 'You are not authorized to view or edit this question!'
             message_class = 'alert alert-error'
 
-        return render_to_response('edit_tossup.html',
+        return render_to_response('edit_bonus.html',
             {'bonus': bonus,
              'form': form,
              'message': message,

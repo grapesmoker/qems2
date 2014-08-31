@@ -124,7 +124,7 @@ class QuestionSet (models.Model):
     #public = models.BooleanField()
     distribution = models.ForeignKey('Distribution')
     #teams = models.ForeignKey('Team')
-    num_packets = models.IntegerField()
+    num_packets = models.PositiveIntegerField()
 
     class Admin: pass
 
@@ -141,7 +141,7 @@ class Role(models.Model):
 
 class Packet (models.Model):
     packet_name = models.CharField(max_length=200)
-    date_submitted = models.DateField()
+    date_submitted = models.DateField(auto_now_add=True)
     # authors = models.ManyToManyField(Player)
     question_set = models.ForeignKey(QuestionSet)
     #team = models.ForeignKey(Team)

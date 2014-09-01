@@ -159,8 +159,8 @@ class DistributionPerPacket(models.Model):
     question_set = models.ManyToManyField(QuestionSet)
     category = models.CharField(max_length=10, choices=CATEGORIES)
     subcategory = models.CharField(max_length=10)
-    num_tossups = models.IntegerField()
-    num_bonuses = models.IntegerField()
+    num_tossups = models.PositiveIntegerField()
+    num_bonuses = models.PositiveIntegerField()
     
 class Distribution(models.Model):
     
@@ -174,10 +174,10 @@ class DistributionEntry(models.Model):
     distribution = models.ForeignKey(Distribution)
     category = models.TextField()
     subcategory = models.TextField()
-    min_tossups = models.IntegerField(null=True)
-    min_bonuses = models.IntegerField(null=True)
-    max_tossups = models.IntegerField(null=True)
-    max_bonuses = models.IntegerField(null=True)
+    min_tossups = models.PositiveIntegerField(null=True)
+    min_bonuses = models.PositiveIntegerField(null=True)
+    max_tossups = models.PositiveIntegerField(null=True)
+    max_bonuses = models.PositiveIntegerField(null=True)
 
     #fin_tossups = models.CharField(max_length=500, null=True)
     #fin_bonuses = models.CharField(max_length=500, null=True)
@@ -189,8 +189,8 @@ class SetWideDistributionEntry(models.Model):
 
     question_set = models.ForeignKey(QuestionSet)
     dist_entry = models.ForeignKey(DistributionEntry)
-    num_tossups = models.IntegerField()
-    num_bonuses = models.IntegerField()
+    num_tossups = models.PositiveIntegerField()
+    num_bonuses = models.PositiveIntegerField()
 
     def __str__(self):
         return '{0!s} - {1!s}'.format(self.dist_entry.category, self.dist_entry.subcategory)

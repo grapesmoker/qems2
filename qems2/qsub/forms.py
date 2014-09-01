@@ -136,10 +136,10 @@ class DistributionEntryForm(forms.ModelForm):
     entry_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}))
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
-    min_tossups = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
-    min_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
-    max_tossups = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
-    max_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}))
+    min_tossups = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
+    min_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
+    max_tossups = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
+    max_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
     
     delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     
@@ -152,8 +152,8 @@ class SetWideDistributionEntryForm(forms.Form):
     entry_id = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'display: none'}))
     #dist_entry = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'display: none'}))
 
-    num_tossups = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}))
-    num_bonuses = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}))
+    num_tossups = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}), min_value=0)
+    num_bonuses = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}), min_value=0)
 
     category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}), required=False)
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}), required=False)
@@ -175,4 +175,4 @@ class NewPacketsForm(forms.Form):
     packet_name = forms.CharField(max_length=200, required=False)
 
     name_base = forms.CharField(max_length=190, required=False)
-    num_packets = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}), required=False)
+    num_packets = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}), required=False, min_value=0)

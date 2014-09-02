@@ -56,7 +56,8 @@ def percent(x, y):
 
 @register.filter(name='check_mark_if_100_pct')
 def check_mark_if_100_pct(x, y):
-    if percent(x, y) == '100.0':
+    percentage = percent(x, y)
+    if percentage == '100.0' or percentage == None:
         return mark_safe('<i class="fa fa-check" style="color:green"></i>')
     else:
         return mark_safe('<i class="fa fa-times" style="color:red"></i>')

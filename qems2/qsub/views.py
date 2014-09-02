@@ -671,15 +671,16 @@ def edit_bonus(request, bonus_id):
             context_instance=RequestContext(request))
 
 @login_required
-def delete_tossup(request, tossup_id):
+def delete_tossup(request):
     user = request.user.writer
-    tossup = Tossup.objects.get(id=tossup_id)
-    qset = tossup.question_set
     message = ''
     message_class = ''
     read_only = True
 
-    if request.method == 'GET':
+    if request.method == 'POST':
+        tossup_id = int(request.POST['tossup_id'])
+        tossup = Tossup.objects.get(id=tossup_id)
+        qset = tossup.question_set
         if user == tossup.author or user == qset.owner or user in qset.editor.all():
             tossup.delete()
             message = 'Tossup deleted'
@@ -689,18 +690,19 @@ def delete_tossup(request, tossup_id):
             message = 'You are not authorized to delete questions from this set!'
             message_class = 'alert alert-warning'
 
-    return edit_question_set(request, qset.id)
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
-def delete_bonus(request, bonus_id):
+def delete_bonus(request):
     user = request.user.writer
-    bonus = Bonus.objects.get(id=bonus_id)
-    qset = bonus.question_set
     message = ''
     message_class = ''
     read_only = True
 
-    if request.method == 'GET':
+    if request.method == 'POST':
+        bonus_id = int(request.POST['bonus_id'])
+        bonus = Bonus.objects.get(id=bonus_id)
+        qset = bonus.question_set
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
             bonus.delete()
             message = 'Bonus deleted'
@@ -710,7 +712,7 @@ def delete_bonus(request, bonus_id):
             message = 'You are not authorized to delete questions from this set!'
             message_class = 'alert alert-warning'
 
-    return edit_question_set(request, qset.id)
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
 def add_packets(request, qset_id):
@@ -771,17 +773,19 @@ def add_packets(request, qset_id):
         context_instance=RequestContext(request))
 
 @login_required
-def delete_packet(request, packet_id):
+def delete_packet(request):
     user = request.user.writer
-    packet = Packet.objects.get(id=packet_id)
-    qset = packet.question_set
+
     message = ''
     message_class = ''
     read_only = True
 
-    if request.method == 'GET':
+    if request.method == 'POST':
+        packet_id = request.POST['packet_id']
+        packet = Packet.objects.get(id=packet_id)
+        qset = packet.question_set
         if user == qset.owner:
-            packet.delete()
+            #packet.delete()
             message = 'Packet deleted'
             message_class = 'alert alert-success'
             read_only = False
@@ -789,7 +793,7 @@ def delete_packet(request, packet_id):
             message = 'You are not authorized to delete packets from this set!'
             message_class = 'alert alert-warning'
 
-    return edit_question_set(request, qset.id)
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
 def get_unassigned_tossups(request):

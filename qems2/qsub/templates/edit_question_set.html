@@ -12,7 +12,7 @@
 {% load static %}
 {% load filters %}
 {% load comments %}
-
+{% if active_tab == 'qset_info' %} {{ 'active' }} {% endif %}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
     <h2 class="page-header">Question Set Management</h2>
 
@@ -311,10 +311,12 @@
 	</div>
 </div>
 
-<!--<input type="hidden" id="qset-id" value="{{ qset.id }}">-->
+<input type="hidden" id="qset-id" value="{{ qset.id }}">
 <script type="text/javascript" src="{% static 'js/comments.js' %}"></script>
 
-<div id="comment-dialog">
+{% include "dialog.html" %}
+
+<!--<div id="comment-dialog" style="display: none">
     <div class="comment-header">
 
     </div>
@@ -326,13 +328,14 @@
             <textarea rows="10" cols="64" id="comment-text" name="comment-text"></textarea>
         </form>
     </div>
-</div>
+</div>-->
 
 
-<div id="upload-dialog">
+<div id="upload-dialog" >
     <form action="/upload_questions/{{ qset.id }}/" method="POST" enctype="multipart/form-data">
         {% csrf_token %}
         {{ upload_form }}
     </form>
 </div>
+
 {% endblock %}

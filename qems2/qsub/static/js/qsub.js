@@ -16,7 +16,22 @@ function add_row_to_cat_table() {
 
 
 $(function () {
-    
+
+    var csrftoken = $.cookie('csrftoken');
+
+    function csrfSafeMethod(method) {
+        // these HTTP methods do not require CSRF protection
+        return (/^(GET|HEAD|OPTIONS|TRACE)$/.test(method));
+    }
+
+    $.ajaxSetup({
+        beforeSend: function(xhr, settings) {
+            if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
+            }
+        }
+    });
+
     tinymce.init({
 	selector: 'textarea.question_text',
 	menubar: false,
@@ -65,7 +80,20 @@ $(function () {
         e.preventDefault();
         var result = confirm("You are about to delete this tossup! If you do so, you will not be able to recover it! Are you ABSOLUTELY SURE you want to do that?!");
         if (result == true) {
-            window.location = $(this).attr('href');
+            $.post('/delete_tossup/', {tossup_id: $(this).attr('value')}, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $(this).dialog('close');
+                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
         }
     });
 
@@ -73,7 +101,20 @@ $(function () {
         e.preventDefault();
         var result = confirm("You are about to delete this bonus! If you do so, you will not be able to recover it! Are you ABSOLUTELY SURE you want to do that?!");
         if (result == true) {
-            window.location = $(this).attr('href');
+            $.post('/delete_bonus/', {bonus_id: $(this).attr('value')}, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $(this).dialog('close');
+                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
         }
     });
 
@@ -81,7 +122,20 @@ $(function () {
         e.preventDefault();
         var result = confirm("You are about to delete this packet! If you do so, you will not be able to recover it! 99% of the time this is a terrible idea and you should not do it! Are you ABSOLUTELY SURE you want to do that?!");
         if (result == true) {
-            window.location = $(this).attr('href');
+            $.post('/delete_packet/', {packet_id: $(this).attr('value')}, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $(this).dialog('close');
+                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
         }
     });
 

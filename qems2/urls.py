@@ -46,13 +46,13 @@ urlpatterns = patterns('',
     (r'^delete_packet/$', delete_packet),
 
     (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
+    (r'^complete_upload/$', complete_upload),
 
     # json calls
     (r'^get_unassigned_tossups/$', get_unassigned_tossups),
     (r'^get_unassigned_bonuses/$', get_unassigned_bonuses),
     (r'^assign_tossups_to_packet/$', assign_tossups_to_packet),
     (r'^assign_bonuses_to_packet/$', assign_bonuses_to_packet),
-    (r'^add_comment/$', add_comment),
 
     # commenting framework
     (r'^comments/', include('django_comments.urls')),

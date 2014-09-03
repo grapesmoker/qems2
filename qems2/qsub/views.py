@@ -12,10 +12,12 @@ from django.views.generic import ListView
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 from models import *
 from forms import *
 from utils import *
 from packet_parser import handle_uploaded_packet
+from django.utils.safestring import mark_safe
 
 from collections import OrderedDict
 from itertools import chain
@@ -1229,10 +1231,82 @@ def add_comment(request):
 
 @login_required
 def upload_questions(request, qset_id):
+    qset = QuestionSet.objects.get(id=qset_id)
+    user = request.user.writer
+
     if request.method == 'POST':
-        form = QuestionUploadForm(request.POST, request.FILES)
-        print form
-        if form.is_valid():
-            handle_uploaded_packet(request.FILES['questions_file'])
-        else:
+        if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
+            form = QuestionUploadForm(request.POST, request.FILES)
             print form
+            if form.is_valid():
+                uploaded_tossups, uploaded_bonuses = handle_uploaded_packet(request.FILES['questions_file'])
+
+                return render_to_response('upload_preview.html',
+                {'tossups': uploaded_tossups,
+                'bonuses': uploaded_bonuses,
+                'message': mark_safe('Please verify that this data is correct. Hitting "Submit" will upload these questions '\
+                'If you see any mistakes in the submissions, please correct them in the <strong><em>original file</em></strong> and reupload.'),
+                'message_class': 'alert alert-warning',
+                'qset': qset},
+                context_instance=RequestContext(request))
+            else:
+                messages.error(request, form.questions_file.errors)
+                return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
+        else:
+            messages.error(request, 'You do not have permission to upload ')
+
+@login_required
+def complete_upload(request):
+    user = request.user.writer
+
+    if request.method == 'POST':
+        qset_id = request.POST['qset-id']
+        qset = QuestionSet.objects.get(id=qset_id)
+
+        num_tossups = int(request.POST['num-tossups'])
+        num_bonuses = int(request.POST['num-bonuses'])
+
+        for tu_num in range(num_tossups):
+            tu_text_name = 'tossup-text-{0}'.format(tu_num)
+            tu_ans_name = 'tossup-answer-{0}'.format(tu_num)
+
+            tu_text = request.POST[tu_text_name]
+            tu_ans = request.POST[tu_ans_name]
+
+            new_tossup = Tossup()
+            new_tossup.tossup_text = tu_text
+            new_tossup.tossup_answer = tu_ans
+            new_tossup.author = user
+            new_tossup.question_set = qset
+
+            new_tossup.save()
+
+        for bs_num in range(num_bonuses):
+            bs_leadin_name = 'bonus-leadin-{0}'.format(bs_num)
+
+            bs_part1_name = 'bonus-part1-{0}'.format(bs_num)
+            bs_ans1_name = 'bonus-answer1-{0}'.format(bs_num)
+            bs_part2_name = 'bonus-part2-{0}'.format(bs_num)
+            bs_ans2_name = 'bonus-answer2-{0}'.format(bs_num)
+            bs_part3_name = 'bonus-part3-{0}'.format(bs_num)
+            bs_ans3_name = 'bonus-answer3-{0}'.format(bs_num)
+
+            new_bonus = Bonus()
+            new_bonus.question_set = qset
+            new_bonus.author = user
+            new_bonus.leadin = request.POST[bs_leadin_name]
+            new_bonus.part1_text = request.POST[bs_part1_name]
+            new_bonus.part1_answer = request.POST[bs_ans1_name]
+            new_bonus.part2_text = request.POST[bs_part2_name]
+            new_bonus.part2_answer = request.POST[bs_ans2_name]
+            new_bonus.part3_text = request.POST[bs_part3_name]
+            new_bonus.part3_answer = request.POST[bs_ans3_name]
+
+            new_bonus.save()
+
+        messages.success(request, 'Your questions have been uploaded!')
+        return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
+
+    else:
+        messages.error(request, 'Invalid request!')
+        return render_to_response('failure.html')

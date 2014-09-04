@@ -39,7 +39,7 @@ $(function () {
 	fontsize_formats: '12px 14px 16px',
 	setup: function(ed) {
 	    ed.on('init', function() {
-		this.getDoc().body.style.fontSize='18px';
+                this.getDoc().body.style.fontSize='18px';
 	    });
 	},
         width: 900,

@@ -201,7 +201,7 @@ class Tossup (models.Model):
     tossup_text = models.TextField()
     tossup_answer = models.TextField()
     
-    category = models.ForeignKey(DistributionEntry)
+    category = models.ForeignKey(DistributionEntry, null=True)
     subtype = models.CharField(max_length=500)
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)
@@ -238,7 +238,7 @@ class Bonus(models.Model):
     part3_text = models.TextField()
     part3_answer = models.TextField()
     
-    category = models.ForeignKey(DistributionEntry)
+    category = models.ForeignKey(DistributionEntry, null=True)
     subtype = models.CharField(max_length=500)
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)

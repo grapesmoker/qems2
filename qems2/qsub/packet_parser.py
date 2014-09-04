@@ -18,11 +18,29 @@ def handle_uploaded_packet(uploaded_file):
     first_tossup = find_first_tossup(file_data)
     first_bonus = find_first_bonus(file_data)
 
-    last_tossup = find_last_tossup(file_data, first_bonus)
-    last_bonus = find_last_bonus(file_data)
+    try:
+        last_tossup = find_last_tossup(file_data, first_bonus)
+    except:
+        last_tossup = None
+        first_tossup = None
 
-    tossups = file_data[first_tossup:last_tossup]
-    bonuses = file_data[first_bonus:last_bonus]
+    try:
+        last_bonus = find_last_bonus(file_data)
+    except:
+        last_bonus = None
+        first_bonus = None
+
+    print first_tossup, last_tossup
+
+    if first_tossup is not None and last_tossup is not None:
+        tossups = file_data[first_tossup:last_tossup]
+    else:
+        tossups = []
+
+    if first_bonus is not None and last_bonus is not None:
+        bonuses = file_data[first_bonus:last_bonus]
+    else:
+        bonuses = []
 
     #print last_bonus
 
@@ -36,11 +54,7 @@ def handle_uploaded_packet(uploaded_file):
 
     #print final_tossups
 
-    for tossup in final_tossups:
-        print tossup
-
-    for bonus in final_bonuses:
-        print bonus
+    return final_tossups, final_bonuses
 
 
 def find_first_tossup (text):

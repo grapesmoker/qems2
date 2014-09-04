@@ -136,7 +136,7 @@
                     </thead>
                     <tbody>
                     {% for tossup in tossups %}
-                    <tr>
+                    <tr class="tossup_row">
                         <td>{{ tossup.tossup_text|preview }}</td>
                         <td>{{ tossup.tossup_answer|preview }}</td>
                         <td>{{ tossup.category }}</td>
@@ -178,7 +178,7 @@
                     </thead>
                     <tbody>
                     {% for bonus in bonuses %}
-                    <tr>
+                    <tr class="bonus_row">
                         <td>{{ bonus.leadin|preview }}</td>
                         <td>{{ bonus|bonus_answers }}</td>
                         <td>{{ bonus.category }}</td>

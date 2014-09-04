@@ -139,6 +139,11 @@ $(function () {
         }
     });
 
+    // delay? revert?
+    var draggableOptions = { axis: "y" };//, containment: "parent" };
+    $(".tosusp_row").draggable(draggableOptions);
+    $(".bonus_row").draggable(draggableOptions);
+
     $('#upload-dialog').dialog({
         autoOpen: false,
         width: 600,

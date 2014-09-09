@@ -159,7 +159,12 @@ def edit_question_set(request, qset_id):
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
     user = request.user.writer
+    set_status = {}
     set_distro_formset = None
+
+    if user != qset.owner and user not in qset_editors and user not in qset_writers:
+        messages.error(request, 'You are not authorized to view information about this tournament!')
+        return HttpResponseRedirect('/failure.html/')
 
     if request.method == 'POST' and (user == qset.owner or user in qset_editors):
 
@@ -176,6 +181,8 @@ def edit_question_set(request, qset_id):
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
                 set_distro_formset = create_set_distro_formset(qset)
+            else:
+                read_only = True
 
             return render_to_response('edit_question_set.html',
                                       {'form': form,
@@ -202,8 +209,22 @@ def edit_question_set(request, qset_id):
             if user == qset.owner:
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
+            elif user in qset.writer.all() or user in qset.editor.all():
+                read_only = True
             form = QuestionSetForm(instance=qset)
             set_distro_formset = create_set_distro_formset(qset)
+
+        entries = qset.setwidedistributionentry_set.all()
+        for entry in entries:
+            tu_required = entry.num_tossups
+            bs_required = entry.num_bonuses
+            tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
+            bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+            set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
+                                                     'tu_in_cat': tu_written,
+                                                     'bs_req': bs_required,
+                                                     'bs_in_cat': bs_written}
+
         
     return render_to_response('edit_question_set.html',
                               {'form': form,
@@ -211,6 +232,7 @@ def edit_question_set(request, qset_id):
                                'editors': [ed for ed in qset_editors if ed != qset.owner],
                                'writers': [wr for wr in qset_writers if wr != qset.owner],
                                'set_distro_formset': set_distro_formset,
+                               'set_status': set_status,
                                'upload_form': QuestionUploadForm(),
                                'tossups': tossups,
                                'bonuses': bonuses,

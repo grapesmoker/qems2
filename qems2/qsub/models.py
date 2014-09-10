@@ -214,18 +214,24 @@ class Tossup (models.Model):
         return '{0!s}'.format(self.tossup_answer[0:40])
 
     def to_json(self):
-        category_name = str(DistributionEntry.objects.get(id=self.category.id))
+
         if self.packet is None:
             packet_id = None
         else:
             packet_id = self.packet.id
-        return json.dumps({'id': self.id,
+        if self.category is None:
+            category_id = None
+            category_name = ''
+        else:
+            category_id = self.category.id
+            category_name = str(DistributionEntry.objects.get(id=self.category.id))
+        return {'id': self.id,
                            'packet': packet_id,
-                           'tossup_text': self.tossup_text,
-                           'tossup_answer': self.tossup_answer,
-                           'category': self.category.id,
-                           'category_name': category_name,
-                           'author': self.author.id})
+                           'tossup_text': self.tossup_text.strip(),
+                           'tossup_answer': self.tossup_answer.strip(),
+                           'category': category_id,
+                           'category_name': category_name.strip(),
+                           'author': self.author.id}
 
 class Bonus(models.Model):
     packet = models.ForeignKey(Packet, null=True)
@@ -248,23 +254,30 @@ class Bonus(models.Model):
     locked = models.BooleanField()
 
     def to_json(self):
-        category_name = str(DistributionEntry.objects.get(id=self.category.id))
+
         if self.packet is None:
             packet_id = None
         else:
             packet_id = self.packet.id
-        return json.dumps({'id': self.id,
+        if self.category is None:
+            category_id = None
+            category_name = ''
+        else:
+            category_id = self.category.id
+            category_name = str(DistributionEntry.objects.get(id=self.category.id))
+
+        return {'id': self.id,
                            'packet': packet_id,
-                           'leadin': self.leadin,
+                           'leadin': self.leadin.strip(),
                            'part1_text': self.part1_text,
                            'part1_answer': self.part1_answer,
                            'part2_text': self.part2_text,
                            'part2_answer': self.part2_answer,
                            'part3_text': self.part3_text,
                            'part3_answer': self.part3_answer,
-                           'category': self.category.id,
-                           'category_name': category_name,
-                           'author': self.author.id})
+                           'category': category_id,
+                           'category_name': category_name.strip(),
+                           'author': self.author.id}
 
 
 def create_user_profile(sender, instance, created, **kwargs):

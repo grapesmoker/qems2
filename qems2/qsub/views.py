@@ -827,6 +827,8 @@ def get_unassigned_tossups(request):
     message_class = ''
     data = []
 
+    print request.GET['qset_id']
+
     try:
         qset = QuestionSet.objects.get(id=qset_id)
 

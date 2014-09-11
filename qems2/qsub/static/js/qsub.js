@@ -2,8 +2,8 @@ function add_row_to_cat_table() {
     var current_forms = parseInt($('#id_distentry-INITIAL_FORMS')[0].value);
     var next_form = current_forms + 1;
     $('#dist-table > tbody > tr:last').
-	after(sprintf(
-	    '<tr><td><input id="id_distentry-%d-category" width="100" type="text" name="categories" maxlength="100" /></td> \
+    after(sprintf(
+        '<tr><td><input id="id_distentry-%d-category" width="100" type="text" name="categories" maxlength="100" /></td> \
 <td><input id="id_distentry-%d-subcategory" type="text" name="subcategories" maxlength="100" /></td> \
 <td><input id="id_distentry-%d-num_tossups" width="10" type="text" class="spinner" name="num_tossups" /></td> \
 <td><input id="id_distentry-%d-num_bonuses" width="10" type="text" class="spinner" name="num_bonuses" /></td> \
@@ -33,15 +33,15 @@ $(function () {
     });
 
     tinymce.init({
-	selector: 'textarea.question_text',
-	menubar: false,
-	toolbar: 'undo redo | bold italic underline',
-	fontsize_formats: '12px 14px 16px',
-	setup: function(ed) {
-	    ed.on('init', function() {
+    selector: 'textarea.question_text',
+    menubar: false,
+    toolbar: 'undo redo | bold italic underline',
+    fontsize_formats: '12px 14px 16px',
+    setup: function(ed) {
+        ed.on('init', function() {
                 this.getDoc().body.style.fontSize='18px';
-	    });
-	},
+        });
+    },
         width: 900,
         // inline: true,
         formats: {
@@ -52,23 +52,23 @@ $(function () {
     });
     
     $('#id_player_to_add').autocomplete({
-	source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),
-	select: function(event, ui) {
-	    $('#id_player_to_add').val(ui.item.label);
-	    $('#id_hd_player_to_add').val(ui.item.value);
-	    
-	    return false;
-	}
+    source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),
+    select: function(event, ui) {
+        $('#id_player_to_add').val(ui.item.label);
+        $('#id_hd_player_to_add').val(ui.item.value);
+        
+        return false;
+    }
     }),
     
     $('#id_teammate_to_add').autocomplete({
-	source: "/find_teammate/?team_id=" + $('#team_id').val() + $(this).val(),
-	select: function(event, ui) {
-	    $('#id_teammate_to_add').val(ui.item.label);
-	    $('#id_hd_teammate_to_add').val(ui.item.value);
-	    
-	    return false;
-	}
+    source: "/find_teammate/?team_id=" + $('#team_id').val() + $(this).val(),
+    select: function(event, ui) {
+        $('#id_teammate_to_add').val(ui.item.label);
+        $('#id_hd_teammate_to_add').val(ui.item.value);
+        
+        return false;
+    }
     })
     
     $(document).tooltip();
@@ -140,9 +140,41 @@ $(function () {
     });
 
     // delay? revert?
-    var draggableOptions = { axis: "y" };//, containment: "parent" };
-    $(".tosusp_row").draggable(draggableOptions);
-    $(".bonus_row").draggable(draggableOptions);
+    var draggableOptionsTossups = { axis: "y", containment: "parent", snap: true, snapTolerance: 5 };//, containment: "parent" };
+    var draggableOptionsBonuses = { axis: "y" };
+    var sortableOptionsTossups = { axis: "y", containment: "#tossups_table" };
+    var sortableOptionsBonuses = { axis: "y", containment: "#bonuses_table" };
+
+    // Works around an IE bug. See http://stackoverflow.com/questions/2845459/jquery-how-to-make-post-use-contenttype-application-json
+    var postJson = function(url, data) {
+        $.ajax ({
+            url: url,
+            type: "POST",
+            data: data,
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+        });
+    };
+
+    //$(".tossup_row").draggable(draggableOptionsTossups);
+    var tossupTable = $(".tossup_table_body");
+    tossupTable.sortable(sortableOptionsTossups);
+    tossupTable.on("sortstart", function (event, ui) {
+        ui.item.data("initialIndex", ui.item.index());
+    });
+    tossupTable.on("sortupdate", function (event, ui) {
+        // Send a request to the server to update the index
+        //var index = $("#id_object_pk").val();
+        //if (isNaN(parseInt(index))) {
+        //    return;
+        //}
+        //postJson("/change_tossup_position/" + index, { newIndex: ui.item.index() });  // No success callback? Placeholder index or item index?
+        $.post("change_tossup_position/" + ui.item.data("initialIndex") + "/" + ui.item.index());  // No success callback? Placeholder index or item index?
+    });
+
+    //$(".bonus_row").draggable(draggableOptionsBonuses);
+    $(".bonus_table_body").sortable(sortableOptionsBonuses);
+    // Add an update event. We need to either store the new order somewhere or save on update
 
     $('#upload-dialog').dialog({
         autoOpen: false,

@@ -923,6 +923,36 @@ def assign_bonuses_to_packet(request):
     return HttpResponse(json.dumps({'message': message,
                                     'message_class': message_class}))
 
+@login_required
+def change_tossup_order(request, packet_id, old_index, new_index):
+    user = request.user.writer
+    packet = Packet.objects.get(id=packet_id)
+    qset = packet.question_set
+
+    if request.method == 'POST':
+        if user == qset.owner:
+            #tossup = Tossup.objects.get(id=)
+            #Packet
+            oldIndex = int(old_index)
+            newIndex = int(new_index)
+            tossups = Tossup.objects.filter(packet=packet)
+            tempTossup = tossups[newIndex]
+            tossups[newIndex] = tossups[oldIndex]
+            tossups[oldIndex] = tempTossup
+            tossups[newIndex].save()
+            tossups[oldIndex].save()
+        else:
+            message = 'Only the set owner is authorized to change question order'
+            message_class = 'alert alert-warning'
+    else:
+        message = 'Invalid request!'
+        message_class = 'alert alert-danger'
+    return HttpResponse(json.dumps({'message': message,
+                                    'message_class': message_class}))
+
+@login_required
+def change_bonus_order(request, packet_id):
+    change_tossup_order(request, packetId)
 
 def add_question(request, type, packet_id):
     
@@ -1227,7 +1257,6 @@ def add_comment(request):
     if request.method == 'POST':
         comment_text = request.POST['comment-text']
         print comment_text
-
 
 @login_required
 def upload_questions(request, qset_id):

@@ -43,6 +43,7 @@ urlpatterns = patterns('',
     (r'^delete_bonus/$', delete_bonus),
     (r'^add_packets/(?P<qset_id>[0-9]+)/$', add_packets),
     (r'^edit_packet/(?P<packet_id>[0-9]+)/$', edit_packet),
+    (r'^edit_packet/(?P<packet_id>[0-9]+)/change_tossup_position/(?P<old_index>[0-9]+)/(?P<new_index>[0-9]+)$', change_tossup_order),
     (r'^delete_packet/$', delete_packet),
 
     (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
@@ -53,6 +54,8 @@ urlpatterns = patterns('',
     (r'^get_unassigned_bonuses/$', get_unassigned_bonuses),
     (r'^assign_tossups_to_packet/$', assign_tossups_to_packet),
     (r'^assign_bonuses_to_packet/$', assign_bonuses_to_packet),
+    #(r'^change_tossup_position/(?P<packet_id>[0-9]+)$', change_tossup_order),
+    #(r'^change_bonus_position/(?P<packet_id>[0-9]+)$', change_bonus_order),
 
     # commenting framework
     (r'^comments/', include('django_comments.urls')),

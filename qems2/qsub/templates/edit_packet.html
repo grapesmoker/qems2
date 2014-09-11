@@ -120,7 +120,7 @@
                 <button class="btn btn-primary" title="Add existing tossups" id="add-existing-tossups">
                     <i class="fa fa-plus-circle"></i> Add existing tossups
                 </button>
-                <table class="table table-striped table-hover">
+                <table class="table table-striped table-hover" id="tossups_table">
                     <caption class="alert alert-info">
                         <strong>
                             Current Tossups
@@ -134,22 +134,22 @@
                         <th>Actions</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="tossup_table_body">
                     {% for tossup in tossups %}
                     <tr class="tossup_row">
-                        <td>{{ tossup.tossup_text|preview }}</td>
-                        <td>{{ tossup.tossup_answer|preview }}</td>
-                        <td>{{ tossup.category }}</td>
-                        <td>
-                            <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit tossup">
-                                <i class="fa fa-edit"></i>
-                            </a>
-                            <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete tossup"
-                               class="delete_tossup"
-                               value="{{ tossup.id }}">
-                                <i class="fa fa-minus-circle"></i>
-                            </a>
-                        </td>
+                            <td>{{ tossup.tossup_text|preview }}</td>
+                            <td>{{ tossup.tossup_answer|preview }}</td>
+                            <td>{{ tossup.category }}</td>
+                            <td>
+                                <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit tossup">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete tossup"
+                                   class="delete_tossup"
+                                   value="{{ tossup.id }}">
+                                    <i class="fa fa-minus-circle"></i>
+                                </a>
+                            </td>
                     </tr>
                     {% endfor %}
                     </tbody>
@@ -162,7 +162,7 @@
                 <button class="btn btn-primary" title="Add existing bonuses" id="add-existing-bonuses">
                     <i class="fa fa-plus-circle"></i> Add existing bonuses
                 </button>
-                <table class="table table-striped table-hover">
+                <table class="table table-striped table-hover" id="bonuses_table">
                     <caption class="alert alert-info">
                         <strong>
                             Current Bonuses
@@ -176,7 +176,7 @@
                         <th>Actions</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="bonus_table_body">
                     {% for bonus in bonuses %}
                     <tr class="bonus_row">
                         <td>{{ bonus.leadin|preview }}</td>

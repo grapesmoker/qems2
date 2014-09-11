@@ -48,7 +48,7 @@ def bonus_answers(bonus):
 def percent(x, y):
     try:
         if float(y) != 0:
-            return str(100 * float(x) / float(y))
+            return '{0:0.2f}'.format(100 * float(x) / float(y))
         else:
             return None
     except Exception as ex:

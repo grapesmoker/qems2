@@ -173,8 +173,14 @@ $(function () {
     });
 
     //$(".bonus_row").draggable(draggableOptionsBonuses);
-    $(".bonus_table_body").sortable(sortableOptionsBonuses);
-    // Add an update event. We need to either store the new order somewhere or save on update
+    var bonusTable = $(".bonus_table_body");
+    bonusTable.sortable(sortableOptionsBonuses);
+    bonusTable.on("sortstart", function (event, ui) {
+        ui.item.data("initialIndex", ui.item.index());
+    });
+    bonusTable.on("sortupdate", function (event, ui) {
+        $.post("change_bonus_position/" + ui.item.data("initialIndex") + "/" + ui.item.index());
+    });
 
     $('#upload-dialog').dialog({
         autoOpen: false,

@@ -210,6 +210,8 @@ class Tossup (models.Model):
     
     locked = models.BooleanField()
 
+    question_number = models.IntegerField()
+
     def __str__(self):
         return '{0!s}'.format(self.tossup_answer[0:40])
 
@@ -231,7 +233,8 @@ class Tossup (models.Model):
                            'tossup_answer': self.tossup_answer.strip(),
                            'category': category_id,
                            'category_name': category_name.strip(),
-                           'author': self.author.id}
+                           'author': self.author.id,
+                           'question_number': self.question_number}
 
 class Bonus(models.Model):
     packet = models.ForeignKey(Packet, null=True)
@@ -252,6 +255,8 @@ class Bonus(models.Model):
     author = models.ForeignKey(Writer)
     
     locked = models.BooleanField()
+
+    question_number = models.IntegerField()
 
     def to_json(self):
 
@@ -277,7 +282,8 @@ class Bonus(models.Model):
                            'part3_answer': self.part3_answer,
                            'category': category_id,
                            'category_name': category_name.strip(),
-                           'author': self.author.id}
+                           'author': self.author.id,
+                           'question_number': self.question_number}
 
 
 def create_user_profile(sender, instance, created, **kwargs):

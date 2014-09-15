@@ -389,8 +389,8 @@ def edit_packet(request, packet_id):
 
     if request.method == 'GET':
         if user == qset.owner or user in qset.editor.all() or user in qset.writer.all():
-            tossups = packet.tossup_set.all()
-            bonuses = packet.bonus_set.all()
+            tossups = packet.tossup_set.order_by('question_number').all()
+            bonuses = packet.bonus_set.order_by('question_number').all()
             if user not in qset.writer.all():
                 read_only = False
 
@@ -463,6 +463,9 @@ def add_tossups(request, qset_id, packet_id=None):
 
     elif request.method == 'POST':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
+            # The user may have set the packet ID through the POST body, so check for it there
+            if packet_id == None and 'packet' in request.POST and request.POST['packet'] != '':
+                packet_id = int(request.POST['packet'])
             tossup_form = TossupForm(request.POST, qset_id=qset.id, packet_id=packet_id)
             #dist = qset.distribution
             #dist_entries = dist.distributionentry_set.all()
@@ -478,6 +481,10 @@ def add_tossups(request, qset_id, packet_id=None):
                 tossup.tossup_answer = sanitize_html(tossup.tossup_answer)
                 # New questions should not be auto-locked. Also, the user has no way to currently change this setting.
                 tossup.locked = False
+                if packet_id is None or packet_id == '':
+                    tossup.question_number = -1 # Tossups have no order until they are assigned to a packet
+                else:
+                    tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
                 tossup.save()
                 message = 'Your tossup has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
@@ -504,7 +511,7 @@ def add_tossups(request, qset_id, packet_id=None):
             context_instance=RequestContext(request))
 
 @login_required
-def add_bonuses(request, qset_id):
+def add_bonuses(request, qset_id, packet_id=None):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
     message = ''
@@ -545,6 +552,11 @@ def add_bonuses(request, qset_id):
                 bonus.part3_answer = sanitize_html(bonus.part3_answer)
                 # New questions should not be auto-locked. Also, the user has no way to currently change this setting.
                 bonus.locked = False
+                if packet_id is None or packet_id == '':
+                    bonus.question_number = -1 # Bonuses have no order until they are assigned to a packet
+                else:
+                    bonus.packet_id = packet_id
+                    bonus.question_number = Bonus.objects.filter(packet_id=packet_id).count()
                 bonus.save()
                 message = 'Your bonus has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
@@ -901,6 +913,8 @@ def assign_tossups_to_packet(request):
             for tu_id in tossup_ids:
                 tossup = Tossup.objects.get(id=tu_id)
                 tossup.packet = packet
+                # Potential race condition?
+                tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
                 message = 'Your tossups have been added to the set!'
                 message_class = 'alert alert-success'
                 tossup.save()
@@ -955,16 +969,9 @@ def change_tossup_order(request, packet_id, old_index, new_index):
 
     if request.method == 'POST':
         if user == qset.owner:
-            #tossup = Tossup.objects.get(id=)
-            #Packet
-            oldIndex = int(old_index)
-            newIndex = int(new_index)
-            tossups = Tossup.objects.filter(packet=packet)
-            tempTossup = tossups[newIndex]
-            tossups[newIndex] = tossups[oldIndex]
-            tossups[oldIndex] = tempTossup
-            tossups[newIndex].save()
-            tossups[oldIndex].save()
+            change_question_order(packet, int(old_index), int(new_index), Tossup)
+            message = ''
+            message_class = ''
         else:
             message = 'Only the set owner is authorized to change question order'
             message_class = 'alert alert-warning'
@@ -974,9 +981,48 @@ def change_tossup_order(request, packet_id, old_index, new_index):
     return HttpResponse(json.dumps({'message': message,
                                     'message_class': message_class}))
 
+
 @login_required
-def change_bonus_order(request, packet_id):
-    change_tossup_order(request, packetId)
+def change_bonus_order(request, packet_id, old_index, new_index):
+    user = request.user.writer
+    packet = Packet.objects.get(id=packet_id)
+    qset = packet.question_set
+
+    if request.method == 'POST':
+        if user == qset.owner:
+            change_question_order(packet, int(old_index), int(new_index), Bonus)
+            message = ''
+            message_class = ''
+        else:
+            message = 'Only the set owner is authorized to change question order'
+            message_class = 'alert alert-warning'
+    else:
+        message = 'Invalid request!'
+        message_class = 'alert alert-danger'
+    return HttpResponse(json.dumps({'message': message,
+                                    'message_class': message_class}))
+
+# Not a URL action, just a helper method. old_index and new_index should be integers
+def change_question_order(packet, old_index, new_index, model_class):
+    if old_index != new_index and old_index >= 0 and new_index >= 0:
+        # If oldIndex < newIndex, decrease question_number for questions [oldIndex + 1, newIndex]
+        # Otherwise, increase question_number for questions [newIndex, oldIndex - 1]
+        lowerIndex = old_index + 1 if old_index < new_index else new_index
+        higherIndex = old_index - 1 if old_index > new_index else new_index
+
+        selected_question = model_class.objects.get(packet=packet, question_number=old_index)
+        selected_id = selected_question.id
+        reordered_questions = model_class.objects.filter(packet=packet, question_number__range=(lowerIndex, higherIndex))
+        # This prevents a race condition where selected_question's question_number is set to something in the range
+        # before this QuerySet is evaluated.
+        reordered_questions = reordered_questions.exclude(id=selected_id)
+        selected_question.question_number = new_index
+        selected_question.save()
+
+        direction = -1 if old_index < new_index else 1
+        for question in reordered_questions:
+            question.question_number += direction
+            question.save()
 
 def add_question(request, type, packet_id):
     

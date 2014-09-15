@@ -67,7 +67,7 @@ class TossupForm(forms.ModelForm):
 
     class Meta:
         model = Tossup
-        exclude = ['author', 'locked', 'question_set', 'subtype', 'time_period', 'location']
+        exclude = ['author', 'locked', 'question_set', 'subtype', 'time_period', 'location', 'question_number']
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
@@ -104,7 +104,7 @@ class BonusForm(forms.ModelForm):
     
     class Meta:
         model = Bonus
-        exclude = ['author', 'locked', 'question_set', 'subtype', 'time_period', 'location']
+        exclude = ['author', 'locked', 'question_set', 'subtype', 'time_period', 'location', 'question_number']
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)

@@ -140,10 +140,10 @@ $(function () {
     });
 
     // delay? revert?
-    var draggableOptionsTossups = { axis: "y", containment: "parent", snap: true, snapTolerance: 5 };//, containment: "parent" };
-    var draggableOptionsBonuses = { axis: "y" };
-    var sortableOptionsTossups = { axis: "y", containment: "#tossups_table" };
-    var sortableOptionsBonuses = { axis: "y", containment: "#bonuses_table" };
+    // var draggableOptionsTossups = { axis: "y", containment: "parent", snap: true, snapTolerance: 5 };//, containment: "parent" };
+    // var draggableOptionsBonuses = { axis: "y" };
+    var sortableOptionsTossups = { axis: "y", containment: "#tossup-table" };
+    var sortableOptionsBonuses = { axis: "y", containment: "#bonus-table" };
 
     // Works around an IE bug. See http://stackoverflow.com/questions/2845459/jquery-how-to-make-post-use-contenttype-application-json
     var postJson = function(url, data) {
@@ -157,29 +157,88 @@ $(function () {
     };
 
     //$(".tossup_row").draggable(draggableOptionsTossups);
-    var tossupTable = $(".tossup_table_body");
+    var tossupTable = $("#tossup-table tbody");
     tossupTable.sortable(sortableOptionsTossups);
     tossupTable.on("sortstart", function (event, ui) {
         ui.item.data("initialIndex", ui.item.index());
     });
+
     tossupTable.on("sortupdate", function (event, ui) {
-        // Send a request to the server to update the index
-        //var index = $("#id_object_pk").val();
-        //if (isNaN(parseInt(index))) {
-        //    return;
-        //}
-        //postJson("/change_tossup_position/" + index, { newIndex: ui.item.index() });  // No success callback? Placeholder index or item index?
-        $.post("change_tossup_position/" + ui.item.data("initialIndex") + "/" + ui.item.index());  // No success callback? Placeholder index or item index?
+        var order_data = []
+        var packet_id = $("#packet-id").val();
+        $("#tossup-table tr").each(function(index, row) {
+            if (index > 0) {
+                $(this).children('td').first().text(index);
+                $(this).attr('value', index);
+                order_data.push({id: $(this).attr('tossup-id'),
+                                 order: index})
+            }
+        });
+        $.post("/change_question_order/", {packet_id: $('#packet-id').attr('value'),
+                                      order_data: order_data,
+                                      num_questions: order_data.length,
+                                      question_type: 'tossup'},
+               function(response, status) {
+                   if (status == 'success') {
+                       var resp_data = $.parseJSON(response);
+                       var message = resp_data.message
+                       var message_class = resp_data.message_class
+                       if (message != '') {
+                           var dialog = $('#info-dialog').dialog({
+                               modal: true,
+                               buttons: {
+                                   Ok: function() {
+                                       $(this).dialog('close');
+                                   }
+                               }
+                           });
+                           dialog.append('<div class="' + message_class + '">' + message + '</div>');
+                           dialog.dialog('open');
+                       }
+                   }
+               });
     });
 
     //$(".bonus_row").draggable(draggableOptionsBonuses);
-    var bonusTable = $(".bonus_table_body");
+    var bonusTable = $("#bonus-table tbody");
     bonusTable.sortable(sortableOptionsBonuses);
     bonusTable.on("sortstart", function (event, ui) {
         ui.item.data("initialIndex", ui.item.index());
     });
     bonusTable.on("sortupdate", function (event, ui) {
-        $.post("change_bonus_position/" + ui.item.data("initialIndex") + "/" + ui.item.index());
+        var order_data = []
+        var packet_id = $("#packet-id").val();
+        $("#bonus-table tr").each(function(index, row) {
+            if (index > 0) {
+                $(this).children('td').first().text(index);
+                $(this).attr('value', index);
+                order_data.push({id: $(this).attr('bonus-id'),
+                                 order: index})
+            }
+        });
+        $.post("/change_question_order/", {packet_id: $('#packet-id').attr('value'),
+                                      order_data: order_data,
+                                      num_questions: order_data.length,
+                                      question_type: 'bonus'},
+               function(response, status) {
+                   if (status == 'success') {
+                       var resp_data = $.parseJSON(response);
+                       var message = resp_data.message
+                       var message_class = resp_data.message_class
+                       if (message != '') {
+                           var dialog = $('#info-dialog').dialog({
+                               modal: true,
+                               buttons: {
+                                   Ok: function() {
+                                       $(this).dialog('close');
+                                   }
+                               }
+                           });
+                           dialog.append('<div class="' + message_class + '">' + message + '</div>');
+                           dialog.dialog('open');
+                       }
+                   }
+               });
     });
 
     $('#upload-dialog').dialog({

@@ -899,16 +899,15 @@ def get_unassigned_bonuses(request):
 def assign_tossups_to_packet(request):
 
     user = request.user.writer
-    packet_id = int(request.GET['packet_id'])
-    tossup_ids = request.GET.getlist('tossup_ids[]')
+    packet_id = int(request.POST['packet_id'])
+    tossup_ids = request.POST.getlist('tossup_ids[]')
     packet = Packet.objects.get(id=packet_id)
     qset = packet.question_set
     message = ''
     message_class = ''
 
-    print request.GET
 
-    if request.method == 'GET':
+    if request.method == 'POST':
         if user == qset.owner:
             for tu_id in tossup_ids:
                 tossup = Tossup.objects.get(id=tu_id)
@@ -933,21 +932,20 @@ def assign_tossups_to_packet(request):
 def assign_bonuses_to_packet(request):
 
     user = request.user.writer
-    packet_id = int(request.GET['packet_id'])
-    bonus_ids = request.GET.getlist('bonus_ids[]')
+    packet_id = int(request.POST['packet_id'])
+    bonus_ids = request.POST.getlist('bonus_ids[]')
     packet = Packet.objects.get(id=packet_id)
     qset = packet.question_set
     message = ''
     message_class = ''
 
-    print request.GET
-
-    if request.method == 'GET':
+    if request.method == 'POST':
         if user == qset.owner:
             for bs_id in bonus_ids:
                 bonus = Bonus.objects.get(id=bs_id)
                 bonus.packet = packet
-                message = 'Your tossups have been added to the set!'
+                print packet, bonus
+                message = 'Your bonuses have been added to the set!'
                 message_class = 'alert alert-success'
                 bonus.save()
         else:
@@ -962,67 +960,114 @@ def assign_bonuses_to_packet(request):
                                     'message_class': message_class}))
 
 @login_required
-def change_tossup_order(request, packet_id, old_index, new_index):
+def change_question_order(request):
+
     user = request.user.writer
+    packet_id = int(request.POST['packet_id'])
+    num_questions = int(request.POST['num_questions'])
+    question_type = request.POST['question_type']
     packet = Packet.objects.get(id=packet_id)
     qset = packet.question_set
 
     if request.method == 'POST':
         if user == qset.owner:
-            change_question_order(packet, int(old_index), int(new_index), Tossup)
-            message = ''
-            message_class = ''
+            try:
+                for i in range(num_questions):
+                    id_key = 'order_data[{0}][id]'.format(i)
+                    order_key = 'order_data[{0}][order]'.format(i)
+                    id = int(request.POST[id_key])
+                    order = int(request.POST[order_key])
+                    if question_type == 'tossup':
+                        question = Tossup.objects.get(id=id)
+                    elif question_type == 'bonus':
+                        question = Bonus.objects.get(id=id)
+                    question.question_number = order
+                    question.save()
+                message = ''
+                message_class = ''
+
+            except Exception as ex:
+                print ex
+                message = 'Something went terribly wrong!'
+                message_class = 'alert alert-danger'
+
         else:
-            message = 'Only the set owner is authorized to change question order'
+            message = 'Only the owner of the set is allowed to change the order of questions!'
             message_class = 'alert alert-warning'
     else:
         message = 'Invalid request!'
-        message_class = 'alert alert-danger'
-    return HttpResponse(json.dumps({'message': message,
-                                    'message_class': message_class}))
+        message_class = 'alert alert-warning'
+
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
+# @login_required
+# def change_tossup_order(request):
+#     # packet_id, old_index, new_index
+#     packet_id = int(request.POST['packet_id'])
+#     user = request.user.writer
+#     packet = Packet.objects.get(id=packet_id)
+#     qset = packet.question_set
+#
+#     old_index = int(request.POST['old_index'])
+#     new_index = int(request.POST['new_index'])
+#
+#     if request.method == 'POST':
+#         if user == qset.owner:
+#             change_question_order(packet, int(old_index), int(new_index), Tossup)
+#             message = ''
+#             message_class = ''
+#         else:
+#             message = 'Only the set owner is authorized to change question order'
+#             message_class = 'alert alert-warning'
+#     else:
+#         message = 'Invalid request!'
+#         message_class = 'alert alert-danger'
+#
+#     return HttpResponse(json.dumps({'message': message,
+#                                     'message_class': message_class}))
 
 
-@login_required
-def change_bonus_order(request, packet_id, old_index, new_index):
-    user = request.user.writer
-    packet = Packet.objects.get(id=packet_id)
-    qset = packet.question_set
-
-    if request.method == 'POST':
-        if user == qset.owner:
-            change_question_order(packet, int(old_index), int(new_index), Bonus)
-            message = ''
-            message_class = ''
-        else:
-            message = 'Only the set owner is authorized to change question order'
-            message_class = 'alert alert-warning'
-    else:
-        message = 'Invalid request!'
-        message_class = 'alert alert-danger'
-    return HttpResponse(json.dumps({'message': message,
-                                    'message_class': message_class}))
-
-# Not a URL action, just a helper method. old_index and new_index should be integers
-def change_question_order(packet, old_index, new_index, model_class):
-    if old_index != new_index and old_index >= 0 and new_index >= 0:
-        # If oldIndex < newIndex, decrease question_number for questions [oldIndex + 1, newIndex]
-        # Otherwise, increase question_number for questions [newIndex, oldIndex - 1]
-        lowerIndex = old_index + 1 if old_index < new_index else new_index
-        higherIndex = old_index - 1 if old_index > new_index else new_index
-
-        selected_question = model_class.objects.get(packet=packet, question_number=old_index)
-        selected_id = selected_question.id
-        reordered_questions = model_class.objects.filter(packet=packet, question_number__range=(lowerIndex, higherIndex))
-        # This prevents a race condition where selected_question's question_number is set to something in the range
-        # before this QuerySet is evaluated.
-        reordered_questions = reordered_questions.exclude(id=selected_id)
-        selected_question.question_number = new_index
-        selected_question.save()
-
-        direction = -1 if old_index < new_index else 1
-        for question in reordered_questions:
-            question.question_number += direction
-            question.save()
+# @login_required
+# def change_bonus_order(request):
+#     user = request.user.writer
+#     packet = Packet.objects.get(id=packet_id)
+#     qset = packet.question_set
+#
+#     if request.method == 'POST':
+#         if user == qset.owner:
+#             change_question_order(packet, int(old_index), int(new_index), Bonus)
+#             message = ''
+#             message_class = ''
+#         else:
+#             message = 'Only the set owner is authorized to change question order'
+#             message_class = 'alert alert-warning'
+#     else:
+#         message = 'Invalid request!'
+#         message_class = 'alert alert-danger'
+#     return HttpResponse(json.dumps({'message': message,
+#                                     'message_class': message_class}))
+#
+# # Not a URL action, just a helper method. old_index and new_index should be integers
+# def change_question_order(packet, old_index, new_index, model_class):
+#     if old_index != new_index and old_index >= 0 and new_index >= 0:
+#         # If oldIndex < newIndex, decrease question_number for questions [oldIndex + 1, newIndex]
+#         # Otherwise, increase question_number for questions [newIndex, oldIndex - 1]
+#         lowerIndex = old_index + 1 if old_index < new_index else new_index
+#         higherIndex = old_index - 1 if old_index > new_index else new_index
+#
+#         selected_question = model_class.objects.get(packet=packet, question_number=old_index)
+#         selected_id = selected_question.id
+#         reordered_questions = model_class.objects.filter(packet=packet, question_number__range=(lowerIndex, higherIndex))
+#         # This prevents a race condition where selected_question's question_number is set to something in the range
+#         # before this QuerySet is evaluated.
+#         reordered_questions = reordered_questions.exclude(id=selected_id)
+#         selected_question.question_number = new_index
+#         selected_question.save()
+#
+#         direction = -1 if old_index < new_index else 1
+#         for question in reordered_questions:
+#             question.question_number += direction
+#             question.save()
 
 def add_question(request, type, packet_id):
     
@@ -1328,6 +1373,7 @@ def add_comment(request):
         comment_text = request.POST['comment-text']
         print comment_text
 
+
 @login_required
 def upload_questions(request, qset_id):
     qset = QuestionSet.objects.get(id=qset_id)
@@ -1377,6 +1423,7 @@ def complete_upload(request):
             new_tossup.tossup_answer = tu_ans
             new_tossup.author = user
             new_tossup.question_set = qset
+            new_tossup.edited = False
 
             new_tossup.save()
 
@@ -1393,6 +1440,7 @@ def complete_upload(request):
             new_bonus = Bonus()
             new_bonus.question_set = qset
             new_bonus.author = user
+            new_bonus.edited = False
             new_bonus.leadin = request.POST[bs_leadin_name]
             new_bonus.part1_text = request.POST[bs_part1_name]
             new_bonus.part1_answer = request.POST[bs_ans1_name]

@@ -209,7 +209,9 @@ class Tossup (models.Model):
     author = models.ForeignKey(Writer)
     
     locked = models.BooleanField()
+    edited = models.BooleanField()
 
+    #order = models.PositiveIntegerField(null=True)
     question_number = models.IntegerField()
 
     def __str__(self):
@@ -255,7 +257,9 @@ class Bonus(models.Model):
     author = models.ForeignKey(Writer)
     
     locked = models.BooleanField()
+    edited = models.BooleanField()
 
+    #order = models.PositiveIntegerField(null=True)
     question_number = models.IntegerField()
 
     def to_json(self):

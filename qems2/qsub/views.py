@@ -354,8 +354,8 @@ def add_writer(request, qset_id):
             if all([x.isdigit() for x in writers_to_add]):
                 for writer_id in writers_to_add:
                     print writer_id
-                    editor = Writer.objects.get(id=writer_id)
-                    qset.editor.add(editor)
+                    writer = Writer.objects.get(id=writer_id)
+                    qset.writer.add(writer)
                 qset.save()
                 current_writers = qset.writer.all()
                 current_editors = qset.editor.all()

@@ -28,7 +28,6 @@ def register (request):
         form = WriterCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
-            print form.cleaned_data
             auth_user = authenticate(username=form.cleaned_data['username'],
                                      password=form.cleaned_data['password1'])
             if auth_user.is_active:

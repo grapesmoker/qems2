@@ -1,8 +1,10 @@
 # Django settings for QuEST project.
 import os
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
+
+ALLOWED_HOSTS = ['.grapesmoker.net']
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),

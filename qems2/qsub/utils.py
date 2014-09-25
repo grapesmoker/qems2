@@ -7,6 +7,7 @@ from django.forms.models import modelformset_factory
 DEFAULT_ALLOWED_TAGS = ['b', 'i', 'u', 'strong', 'emph']
 
 def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
+    return html
     soup = BeautifulSoup(html)
     for tag in soup.find_all(True):
         if tag.name not in allowed_tags:

@@ -207,12 +207,14 @@ def edit_question_set(request, qset_id):
             message = 'You are not authorized to edit this tournament.'
         else:
             if user == qset.owner:
-                tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Bonus.objects.filter(question_set=qset)
+                read_only = False
             elif user in qset.writer.all() or user in qset.editor.all():
                 read_only = True
             form = QuestionSetForm(instance=qset)
-            set_distro_formset = create_set_distro_formset(qset)
+
+        tossups = Tossup.objects.filter(question_set=qset)
+        bonuses = Bonus.objects.filter(question_set=qset)
+        set_distro_formset = create_set_distro_formset(qset)
 
         entries = qset.setwidedistributionentry_set.all()
         for entry in entries:

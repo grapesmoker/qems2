@@ -33,17 +33,23 @@ $(function () {
     });
 
     tinymce.init({
-    selector: 'textarea.question_text',
-    menubar: false,
-    toolbar: 'undo redo | bold italic underline',
-    fontsize_formats: '12px 14px 16px',
-    setup: function(ed) {
-        ed.on('init', function() {
-                this.getDoc().body.style.fontSize='18px';
-        });
-    },
+        selector: 'textarea.question_text',
+        menubar: false,
+        toolbar: 'undo redo | bold italic underline',
+        fontsize_formats: '12px 14px 16px',
+        setup: function(ed) {
+            ed.on('init', function() {
+                this.getDoc().body.style.fontSize = '18px';
+
+                // Needed so that what we write to the text area isn't overwritten
+                this.settings.add_form_submit_trigger = false;
+                this.on('submit', function (ed, e) {
+                    var jqueryId = "#" + this.id;
+                    $(jqueryId).val($(this.getBody()).html());
+                });
+            });
+        },
         width: 900,
-        // inline: true,
         formats: {
             underline: {inline: 'u', exact: true},
             italic: {inline: 'i', exact: true},
@@ -138,11 +144,6 @@ $(function () {
             });
         }
     });
-
-    // delay? revert?
-    // var draggableOptionsTossups = { axis: "y", containment: "parent", snap: true, snapTolerance: 5 };//, containment: "parent" };
-    // var draggableOptionsBonuses = { axis: "y" };
-   
 
     $('#upload-dialog').dialog({
         autoOpen: false,

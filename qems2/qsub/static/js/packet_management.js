@@ -138,18 +138,6 @@ $(function () {
     var sortableOptionsTossups = { axis: "y", containment: "#tossup-table" };
     var sortableOptionsBonuses = { axis: "y", containment: "#bonus-table" };
 
-    // Works around an IE bug. See http://stackoverflow.com/questions/2845459/jquery-how-to-make-post-use-contenttype-application-json
-    var postJson = function(url, data) {
-        $.ajax ({
-            url: url,
-            type: "POST",
-            data: data,
-            dataType: "json",
-            contentType: "application/json; charset=utf-8",
-        });
-    };
-
-    //$(".tossup_row").draggable(draggableOptionsTossups);
     var tossupTable = $("#tossup-table tbody");
     tossupTable.sortable(sortableOptionsTossups);
     tossupTable.on("sortstart", function (event, ui) {
@@ -192,7 +180,6 @@ $(function () {
                });
     });
 
-    //$(".bonus_row").draggable(draggableOptionsBonuses);
     var bonusTable = $("#bonus-table tbody");
     bonusTable.sortable(sortableOptionsBonuses);
     bonusTable.on("sortstart", function (event, ui) {

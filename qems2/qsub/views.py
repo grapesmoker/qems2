@@ -693,10 +693,11 @@ def edit_bonus(request, bonus_id):
     message = ''
     message_class = ''
     read_only = True
+    role = get_role(user, qset)
 
     if request.method == 'GET':
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
-            form = BonusForm(instance=bonus, qset_id=qset.id)
+            form = BonusForm(instance=bonus, qset_id=qset.id, role=role)
             if user == bonus.author and not user == qset.owner and not user in qset.editor.all() and bonus.locked:
                 read_only = True
                 message = 'This bonus has been locked by an editor. It cannot be changed except by another editor.'
@@ -727,7 +728,7 @@ def edit_bonus(request, bonus_id):
 
     elif request.method == 'POST':
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
-            form = BonusForm(request.POST, qset_id=qset.id)
+            form = BonusForm(request.POST, qset_id=qset.id, role=role)
             can_change = True
             if user == bonus.author and bonus.locked:
                 can_change = False

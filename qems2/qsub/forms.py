@@ -117,7 +117,7 @@ class BonusForm(forms.ModelForm):
     
     class Meta:
         model = Bonus
-        exclude = ['author', 'locked', 'question_set', 'subtype', 'time_period', 'location', 'question_number']
+        exclude = ['author', 'question_set', 'subtype', 'time_period', 'location', 'question_number']
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
@@ -125,6 +125,8 @@ class BonusForm(forms.ModelForm):
         role = kwargs.pop('role', None)
 
         super(BonusForm, self).__init__(*args, **kwargs)
+
+        self.fields['question_type'].required = False
 
         if qset_id:
             try:

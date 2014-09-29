@@ -14,7 +14,7 @@
     <h2 class="page-header">Add a Bonus</h2>
     {% if message %}
     <div class="{{ message_class }}">
-        {{ message }}
+        {{ message }} {% if bonus %} - or see your <a href="/edit_tossup/{{ tossup.id }}">submitted bonus</a> {% endif %}
     </div>
 
     {% endif %}

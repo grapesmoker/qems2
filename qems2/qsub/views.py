@@ -480,11 +480,6 @@ def add_tossups(request, qset_id, packet_id=None):
             if packet_id == None and 'packet' in request.POST and request.POST['packet'] != '':
                 packet_id = int(request.POST['packet'])
             tossup_form = TossupForm(request.POST, qset_id=qset.id, packet_id=packet_id)
-            #dist = qset.distribution
-            #dist_entries = dist.distributionentry_set.all()
-            #tossup_form.fields['category'].queryset = dist_entries
-            #tossup_form.data = request.POST.copy()
-            #tossup_form.is_bound = True
 
             if tossup_form.is_valid():
                 tossup = tossup_form.save(commit=False)
@@ -504,6 +499,7 @@ def add_tossups(request, qset_id, packet_id=None):
 
             read_only = False
         else:
+            tossup = None
             message = 'You are not authorized to add questions to this tournament!'
             message_class = 'alert alert-warning'
             tossup_form = []
@@ -513,6 +509,7 @@ def add_tossups(request, qset_id, packet_id=None):
                  {'form': TossupForm(qset_id=qset.id, packet_id=packet_id),
                  'message': message,
                  'message_class': message_class,
+                 'tossup': tossup,
                  'read_only': read_only},
                  context_instance=RequestContext(request))
 
@@ -578,13 +575,15 @@ def add_bonuses(request, qset_id, packet_id=None):
         else:
             message = 'You are not authorized to add questions to this tournament!'
             message_class = 'alert alert-warning'
-            tossup_form = []
+            bonus_form = []
+            bonus = None
             read_only = True
 
         return render_to_response('add_bonuses.html',
                  {'form': BonusForm(qset_id=qset.id, packet_id=packet_id),
                  'message': message,
                  'message_class': message_class,
+                 'bonus': bonus,
                  'read_only': read_only},
                  context_instance=RequestContext(request))
 
@@ -652,6 +651,7 @@ def edit_tossup(request, tossup_id):
                 tossup.packet = form.cleaned_data['packet']
                 tossup.locked = form.cleaned_data['locked']
                 tossup.edited = form.cleaned_data['edited']
+                tossup.question_type = form.cleaned_data['question_type']
                 tossup.save()
                 message = 'Your changes have been saved!'
                 message_class = 'alert alert-success'
@@ -746,6 +746,7 @@ def edit_bonus(request, bonus_id):
                 bonus.packet = form.cleaned_data['packet']
                 bonus.locked = form.cleaned_data['locked']
                 bonus.edited = form.cleaned_data['edited']
+                bonus.question_type = form.cleaned_data['question_type']
                 bonus.save()
 
                 message = 'Your changes have been saved!'

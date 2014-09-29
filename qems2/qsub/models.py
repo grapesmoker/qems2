@@ -7,7 +7,7 @@ from django.db.models.signals import post_save
 import json
 
 from collections import OrderedDict
-from utils import sanitize_html, strip_markup
+from utils import sanitize_html, strip_markup, html_to_latex
 
 # Create your models here.
 
@@ -249,6 +249,16 @@ class Tossup (models.Model):
                            'author': self.author.id,
                            'question_number': self.question_number}
 
+    def to_latex(self):
+
+        html_to_latex_dict = {'u': 'uline', 'b': 'bf', 'strong': 'bf', 'i': 'it'}
+
+        tossup_text = html_to_latex(self.tossup_text, html_to_latex_dict)
+        tossup_answer = html_to_latex(self.tossup_answer, html_to_latex_dict)
+
+        return r'\tossup{{{0}}}{{{1}}}'.format(tossup_text, tossup_answer) + '\n'
+
+
 class Bonus(models.Model):
     packet = models.ForeignKey(Packet, null=True)
     question_set = models.ForeignKey(QuestionSet)
@@ -303,6 +313,25 @@ class Bonus(models.Model):
                            'category_name': category_name.strip(),
                            'author': self.author.id,
                            'question_number': self.question_number}
+
+    def to_latex(self):
+
+        html_to_latex_dict = {'u': 'uline', 'b': 'bf', 'strong': 'bf', 'i': 'it'}
+
+        leadin = html_to_latex(self.leadin, html_to_latex_dict)
+        leadin = r'\begin{{bonus}}{{{0}}}'.format(leadin) + '\n'
+
+        parts = [self.part1_text, self.part2_text, self.part3_text]
+        answers = [self.part1_answer, self.part2_answer, self.part3_answer]
+
+        parts_latex = ''
+
+        for part, answer in zip(parts, answers):
+            answer = html_to_latex(answer, html_to_latex_dict)
+            part = html_to_latex(part, html_to_latex_dict)
+            parts_latex += r'\bonuspart{{{0}}}{{{1}}}{{{2}}}'.format(10, part, answer) + '\n'
+
+        return leadin + parts_latex + r'\end{bonus}' + '\n'
 
 
 def create_user_profile(sender, instance, created, **kwargs):

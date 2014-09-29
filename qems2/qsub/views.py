@@ -1531,3 +1531,5 @@ def complete_upload(request):
     else:
         messages.error(request, 'Invalid request!')
         return render_to_response('failure.html')
+
+#@login_required

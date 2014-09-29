@@ -13,3 +13,18 @@ def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
 def strip_markup(html):
     soup = BeautifulSoup(html)
     return soup.get_text()
+
+def html_to_latex(html, replacement_dict):
+    # replace the html tags with the appropriate latex markup
+    # dict takes the form {'tag': 'latex_command'}, e.g. applying
+    # {'b': 'bf'} to <b>answer</b> will produce \bf{answer}
+
+    for h, l in replacement_dict.items():
+        open_tag = '<{0}>'.format(h)
+        close_tag = '</{0}>'.format(h)
+        start_cmd = r'''\{0}{{'''.format(l)
+        end_cmd = '}'
+        html = html.replace(open_tag, start_cmd)
+        html = html.replace(close_tag, end_cmd)
+
+    return html

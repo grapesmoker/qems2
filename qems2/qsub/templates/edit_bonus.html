@@ -12,6 +12,13 @@
 
 {% block content %}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
+    <ol class="breadcrumb">
+        <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
+        {% if packet %}
+        <li><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
+        {% endif %}
+        <li><a href="/edit_bonus/{{ bonus.id }}">{{ bonus }}</a></li>
+    </ol>
     <h2 class="page-header">Edit Bonus</h2>
     {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>

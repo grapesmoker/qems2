@@ -15,7 +15,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from models import *
 from forms import *
-from utils import *
+from model_utils import *
+from utils import sanitize_html
 from packet_parser import handle_uploaded_packet
 from django.utils.safestring import mark_safe
 
@@ -597,6 +598,7 @@ def edit_tossup(request, tossup_id):
     user = request.user.writer
     tossup = Tossup.objects.get(id=tossup_id)
     qset = tossup.question_set
+    packet = tossup.packet
     message = ''
     message_class = ''
     read_only = True
@@ -622,6 +624,8 @@ def edit_tossup(request, tossup_id):
         return render_to_response('edit_tossup.html',
             {'tossup': tossup,
              'form': form,
+             'qset': qset,
+             'packet': packet,
              'message': message,
              'message_class': message_class,
              'read_only': read_only},
@@ -652,6 +656,8 @@ def edit_tossup(request, tossup_id):
             {'tossup': tossup,
              'form': form,
              'role': role,
+             'qset': qset,
+             'packet': packet,
              'message': message,
              'message_class': message_class,
              'read_only': read_only},
@@ -662,6 +668,7 @@ def edit_bonus(request, bonus_id):
     user = request.user.writer
     bonus = Bonus.objects.get(id=bonus_id)
     qset = bonus.question_set
+    packet = bonus.packet
     message = ''
     message_class = ''
     read_only = True
@@ -685,6 +692,8 @@ def edit_bonus(request, bonus_id):
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
              'form': form,
+             'qset': qset,
+             'packet': packet,
              'message': message,
              'message_class': message_class,
              'read_only': read_only},
@@ -720,6 +729,8 @@ def edit_bonus(request, bonus_id):
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
              'form': form,
+             'qset': qset,
+             'packet': packet,
              'message': message,
              'message_class': message_class,
              'read_only': read_only},

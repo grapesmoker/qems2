@@ -5,6 +5,7 @@ from django.db.models.signals import post_save
 import json
 
 from collections import OrderedDict
+from utils import sanitize_html, strip_markup
 
 # Create your models here.
 
@@ -215,7 +216,7 @@ class Tossup (models.Model):
     question_number = models.IntegerField()
 
     def __str__(self):
-        return '{0!s}'.format(self.tossup_answer[0:40])
+        return '{0!s}...'.format(strip_markup(self.tossup_answer)[0:40])
 
     def to_json(self):
 
@@ -261,6 +262,9 @@ class Bonus(models.Model):
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.IntegerField()
+
+    def __str__(self):
+        return '{0!s}...'.format(strip_markup(self.leadin)[0:40])
 
     def to_json(self):
 

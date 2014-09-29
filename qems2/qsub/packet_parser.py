@@ -4,7 +4,7 @@ import re
 import json
 import string
 
-from qems2.qsub.utils import sanitize_html
+from qems2.qsub.model_utils import sanitize_html
 
 ansregex = '(?i)a..?wers?:'
 

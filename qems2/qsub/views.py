@@ -453,7 +453,10 @@ def add_tossups(request, qset_id, packet_id=None):
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id)
+            if user in qset.writer.all() and user not in qset.editor.all() and user != qset.owner:
+                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, role='writer')
+            else:
+                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id)
             #dist = qset.distribution
             #dist_entries = dist.distributionentry_set.all()
             #tossup_form.fields['category'].queryset = dist_entries
@@ -498,8 +501,7 @@ def add_tossups(request, qset_id, packet_id=None):
                 tossup.save()
                 message = 'Your tossup has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
-            else:
-                print request.POST
+
             read_only = False
         else:
             message = 'You are not authorized to add questions to this tournament!'
@@ -527,10 +529,11 @@ def add_bonuses(request, qset_id, packet_id=None):
     message = ''
     message_class = ''
     read_only = True
+    role = get_role(user, qset)
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            form = BonusForm(qset_id=qset.id)
+            form = BonusForm(qset_id=qset.id, packet_id=packet_id, role=role)
             read_only = False
         else:
             form = None
@@ -547,7 +550,7 @@ def add_bonuses(request, qset_id, packet_id=None):
 
     elif request.method == 'POST':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            form = BonusForm(request.POST, qset_id=qset.id)
+            form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id)
 
             if form.is_valid():
                 bonus = form.save(commit=False)
@@ -570,9 +573,7 @@ def add_bonuses(request, qset_id, packet_id=None):
                 bonus.save()
                 message = 'Your bonus has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
-            else:
-                print request.POST
-                print form.as_p()
+
             read_only = False
         else:
             message = 'You are not authorized to add questions to this tournament!'
@@ -581,7 +582,7 @@ def add_bonuses(request, qset_id, packet_id=None):
             read_only = True
 
         return render_to_response('add_bonuses.html',
-                 {'form': BonusForm(qset_id=qset.id),
+                 {'form': BonusForm(qset_id=qset.id, packet_id=packet_id),
                  'message': message,
                  'message_class': message_class,
                  'read_only': read_only},
@@ -606,8 +607,13 @@ def edit_tossup(request, tossup_id):
 
     if request.method == 'GET':
         if user == tossup.author or user == qset.owner or user in qset.editor.all():
-            form = TossupForm(instance=tossup, qset_id=qset.id)
-            read_only = False
+            form = TossupForm(instance=tossup, qset_id=qset.id, role=role)
+            if user == tossup.author and not user == qset.owner and not user in qset.editor.all() and tossup.locked:
+                read_only = True
+                message = 'This tossup has been locked by an editor. It cannot be changed except by another editor.'
+                message_class = 'alert alert-warning'
+            else:
+                read_only = False
 
         elif user in qset.writer.all():
             read_only = True
@@ -633,14 +639,29 @@ def edit_tossup(request, tossup_id):
 
     elif request.method == 'POST':
         if user == tossup.author or user == qset.owner or user in qset.editor.all():
-            form = TossupForm(request.POST, qset_id=qset.id)
-            if form.is_valid():
+
+            form = TossupForm(request.POST, qset_id=qset.id, role=role)
+            can_change = True
+            if user == tossup.author and tossup.locked:
+                can_change = False
+
+            if form.is_valid() and can_change:
                 tossup.tossup_text = sanitize_html(form.cleaned_data['tossup_text'])
                 tossup.tossup_answer = sanitize_html(form.cleaned_data['tossup_answer'])
                 tossup.category = form.cleaned_data['category']
                 tossup.packet = form.cleaned_data['packet']
+                tossup.locked = form.cleaned_data['locked']
+                tossup.edited = form.cleaned_data['edited']
                 tossup.save()
-            read_only = False
+                message = 'Your changes have been saved!'
+                message_class = 'alert alert-success'
+
+                read_only = False
+            elif form.is_valid() and not can_change:
+                message = 'This tossup is locked and can only be changed by an editor!'
+                message_class = 'alert alert-warning'
+                read_only = True
+
         elif user in qset.writer.all():
             read_only = True
             form = None
@@ -676,7 +697,12 @@ def edit_bonus(request, bonus_id):
     if request.method == 'GET':
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
             form = BonusForm(instance=bonus, qset_id=qset.id)
-            read_only = False
+            if user == bonus.author and not user == qset.owner and not user in qset.editor.all() and bonus.locked:
+                read_only = True
+                message = 'This bonus has been locked by an editor. It cannot be changed except by another editor.'
+                message_class = 'alert alert-warning'
+            else:
+                read_only = False
 
         elif user in qset.writer.all():
             read_only = True
@@ -702,7 +728,11 @@ def edit_bonus(request, bonus_id):
     elif request.method == 'POST':
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
             form = BonusForm(request.POST, qset_id=qset.id)
-            if form.is_valid():
+            can_change = True
+            if user == bonus.author and bonus.locked:
+                can_change = False
+
+            if form.is_valid() and can_change:
                 bonus.leadin = sanitize_html(form.cleaned_data['leadin'])
                 bonus.part1_text = sanitize_html(form.cleaned_data['part1_text'])
                 bonus.part1_answer = sanitize_html(form.cleaned_data['part1_answer'])
@@ -712,8 +742,19 @@ def edit_bonus(request, bonus_id):
                 bonus.part3_answer = sanitize_html(form.cleaned_data['part3_answer'])
                 bonus.category = form.cleaned_data['category']
                 bonus.packet = form.cleaned_data['packet']
+                bonus.locked = form.cleaned_data['locked']
+                bonus.edited = form.cleaned_data['edited']
                 bonus.save()
-            read_only = False
+
+                message = 'Your changes have been saved!'
+                message_class = 'alert alert-success'
+                read_only = False
+
+            elif form.is_valid() and not can_change:
+                message = 'This bonus is locked and can only be changed by an editor!'
+                message_class = 'alert alert-warning'
+                read_only = True
+
         elif user in qset.writer.all():
             form = None
             read_only = True

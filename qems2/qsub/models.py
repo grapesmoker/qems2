@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
@@ -195,6 +197,10 @@ class SetWideDistributionEntry(models.Model):
 
     def __str__(self):
         return '{0!s} - {1!s}'.format(self.dist_entry.category, self.dist_entry.subcategory)
+
+class QuestionType(models.Model):
+
+    question_type = models.CharField(max_length=500)
     
 class Tossup (models.Model):
     packet = models.ForeignKey(Packet, null=True)
@@ -206,7 +212,7 @@ class Tossup (models.Model):
     subtype = models.CharField(max_length=500)
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)
-    
+    question_type = models.ForeignKey(QuestionType, null=True)
     author = models.ForeignKey(Writer)
     
     locked = models.BooleanField()
@@ -215,8 +221,9 @@ class Tossup (models.Model):
     #order = models.PositiveIntegerField(null=True)
     question_number = models.IntegerField()
 
-    def __str__(self):
-        return '{0!s}...'.format(strip_markup(self.tossup_answer)[0:40])
+    def __unicode__(self):
+        #return 'butts'
+        return '{0!s}...'.format(strip_markup(self.tossup_answer)[0:40]) #.decode('utf-8')
 
     def to_json(self):
 
@@ -254,7 +261,8 @@ class Bonus(models.Model):
     subtype = models.CharField(max_length=500)
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)
-    
+    question_type = models.ForeignKey(QuestionType, null=True)
+
     author = models.ForeignKey(Writer)
     
     locked = models.BooleanField()

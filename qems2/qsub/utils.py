@@ -12,6 +12,4 @@ def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
 
 def strip_markup(html):
     soup = BeautifulSoup(html)
-    print html
-    print 'no markup: ', ' '.join(soup.stripped_strings)
-    return ' '.join(soup.stripped_strings)
+    return soup.get_text()

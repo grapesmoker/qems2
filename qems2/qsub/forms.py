@@ -67,12 +67,16 @@ class TossupForm(forms.ModelForm):
 
     class Meta:
         model = Tossup
-        exclude = ['author', 'locked', 'question_set', 'subtype', 'time_period', 'location', 'question_number']
+        exclude = ['author', 'question_set', 'subtype', 'time_period', 'location', 'question_number']
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
         packet_id = kwargs.pop('packet_id', None)
+        role = kwargs.pop('role', None)
+
         super(TossupForm, self).__init__(*args, **kwargs)
+
+        self.fields['question_type'].required = False
 
         if qset_id:
             try:
@@ -91,6 +95,15 @@ class TossupForm(forms.ModelForm):
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'
                 self.fields['category'] = forms.ModelChoiceField([], empty_label=None)
+
+        if role and role == 'writer':
+            # if this tossup is being submitted by a writer we don't need to show them the edited/locked checkboxes
+            self.fields['locked'].widget.attrs['readonly'] = 'readonly'
+            self.fields['locked'].widget.attrs['style'] = 'display:none'
+            self.fields['locked'].label = ''
+            self.fields['edited'].widget.attrs['readonly'] = 'readonly'
+            self.fields['edited'].widget.attrs['style'] = 'display:none'
+            self.fields['edited'].label = ''
         
 class BonusForm(forms.ModelForm):
     
@@ -108,6 +121,9 @@ class BonusForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
+        packet_id = kwargs.pop('packet_id', None)
+        role = kwargs.pop('role', None)
+
         super(BonusForm, self).__init__(*args, **kwargs)
 
         if qset_id:
@@ -116,13 +132,27 @@ class BonusForm(forms.ModelForm):
                 dist = qset.distribution
                 dist_entries = dist.distributionentry_set.all()
                 # categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]
-                packets = qset.packet_set.all()
+                if packet_id is not None:
+                    pack_label = None
+                    packets = qset.packet_set.filter(id=packet_id)
+                else:
+                    pack_label = '---------'
+                    packets = qset.packet_set.all()
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
-                self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False)
+                self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)
 
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'
                 self.fields['category'] = forms.ModelChoiceField([], empty_label=None)
+
+        if role and role == 'writer':
+            # if this tossup is being submitted by a writer we don't need to show them the edited/locked checkboxes
+            self.fields['locked'].widget.attrs['readonly'] = 'readonly'
+            self.fields['locked'].widget.attrs['style'] = 'display:none'
+            self.fields['locked'].label = ''
+            self.fields['edited'].widget.attrs['readonly'] = 'readonly'
+            self.fields['edited'].widget.attrs['style'] = 'display:none'
+            self.fields['edited'].label = ''
 
 class DistributionForm(forms.ModelForm):
     

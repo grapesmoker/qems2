@@ -133,6 +133,7 @@
                     <thead>
                     <tr>
                         <th>Order in Packet</th>
+                        <th>Author</th>
                         <th>Tossup Text</th>
                         <th>Answer</th>
                         <th>Category</th>
@@ -143,6 +144,7 @@
                     {% for tossup in tossups %}
                     <tr class="tossup-row" id="tossup-order-{{ tossup.id }}" value="{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}" tossup-id="{{ tossup.id }}">
                         <td>{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}</td>
+                        <td>{{ tossup.author }}</td>
                         <td>{{ tossup.tossup_text|preview }}</td>
                         <td>{{ tossup.tossup_answer|preview }}</td>
                         <td>{{ tossup.category }}</td>
@@ -178,10 +180,10 @@
                     <thead>
                     <tr>
                         <th>Order in Packet</th>
+                        <th>Author</th>
                         <th>Leadin</th>
                         <th>Answers</th>
                         <th>Category</th>
-                        <th>Order in Packet</th>
                         <th>Actions</th>
                     </tr>
                     </thead>
@@ -189,6 +191,7 @@
                     {% for bonus in bonuses %}
                     <tr class="bonus_row" id="bonus-order-{{ bonus.id }}" value="{% if bonus.question_number %} {{ bonus.question_number}} {% endif %}" bonus-id="{{ bonus.id }}">
                         <td>{% if bonus.question_number %} {{ bonus.question_number }} {% endif %}</td>
+                        <td>{{ bonus.author }}</td>
                         <td>{{ bonus.leadin|preview }}</td>
                         <td>{{ bonus|bonus_answers }}</td>
                         <td>{{ bonus.category }}</td>

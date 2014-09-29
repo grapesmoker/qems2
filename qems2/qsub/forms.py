@@ -76,7 +76,7 @@ class TossupForm(forms.ModelForm):
 
         super(TossupForm, self).__init__(*args, **kwargs)
 
-        self.fields['question_type'].required = False
+        self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
 
         if qset_id:
             try:
@@ -126,7 +126,7 @@ class BonusForm(forms.ModelForm):
 
         super(BonusForm, self).__init__(*args, **kwargs)
 
-        self.fields['question_type'].required = False
+        self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
 
         if qset_id:
             try:

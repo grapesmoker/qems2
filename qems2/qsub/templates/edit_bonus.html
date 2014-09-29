@@ -17,7 +17,9 @@
         {% if packet %}
         <li><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
         {% endif %}
+        {% if bonus %}
         <li><a href="/edit_bonus/{{ bonus.id }}">{{ bonus }}</a></li>
+        {% endif %}
     </ol>
     <h2 class="page-header">Edit Bonus</h2>
     {% if message %}
@@ -26,9 +28,12 @@
 	<form action="" method="post">
         {% csrf_token %}
         {% if not read_only %}
+        {% if form %}
         {{ form.as_p }}
+        {% endif %}
         <input type="submit" value="Save"/>
         {% else %}
+        {% if bonus %}
         <p>{{ bonus.leadin | safe }}</p>
         <p>[10] {{ bonus.part1_text | safe }}</p>
         <p>ANSWER: {{ bonus.part1_answer | safe }}</p>
@@ -37,7 +42,9 @@
         <p>[10] {{ bonus.part3_text | safe }}</p>
         <p>ANSWER: {{ bonus.part3_answer | safe }}</p>
         {% endif %}
+        {% endif %}
     </form>
+    {% if bonus %}
     <div class="alert alert-info" style="text-align: center"><strong>Comments</strong></div>
     <div class="comments col-md-6">
         {% render_comment_list for bonus %}
@@ -58,6 +65,7 @@
             <input type="hidden" name="next" value="/edit_bonus/{{ bonus.id }}/">
         </form>
     </div>
+    {% endif %}
 </div>
 
 {% endblock %}

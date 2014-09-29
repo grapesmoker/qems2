@@ -201,6 +201,9 @@ class SetWideDistributionEntry(models.Model):
 class QuestionType(models.Model):
 
     question_type = models.CharField(max_length=500)
+
+    def __unicode__(self):
+        return '{0!s}'.format(self.question_type)
     
 class Tossup (models.Model):
     packet = models.ForeignKey(Packet, null=True)

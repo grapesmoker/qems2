@@ -713,8 +713,9 @@ def edit_bonus(request, bonus_id):
         else:
             read_only = True
             bonus = None
+            form = None
             message = 'You are not authorized to view or edit this question!'
-            message_class = 'alert alert-error'
+            message_class = 'alert alert-danger'
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
@@ -766,7 +767,7 @@ def edit_bonus(request, bonus_id):
             bonus = None
             read_only = True
             message = 'You are not authorized to view or edit this question!'
-            message_class = 'alert alert-error'
+            message_class = 'alert alert-danger'
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,

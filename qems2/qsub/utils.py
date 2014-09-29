@@ -54,3 +54,18 @@ def create_set_distro_formset(qset):
         'num_tossups': entry.num_tossups,
         'num_bonuses': entry.num_bonuses})
     return DistributionEntryFormset(initial=initial_data, prefix='distentry')
+
+def get_role(user, qset):
+
+    role = 'viewer'
+    qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()
+
+    if user in qset_editors and user != qset.owner:
+        role = 'editor'
+    elif user in qset_writers:
+        role = 'writer'
+    elif user == qset.owner:
+        role = 'owner'
+
+    return role

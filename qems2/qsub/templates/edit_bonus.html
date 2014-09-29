@@ -18,9 +18,17 @@
     {% endif %}
 	<form action="" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
         {% if not read_only %}
+        {{ form.as_p }}
         <input type="submit" value="Save"/>
+        {% else %}
+        <p>{{ bonus.leadin | safe }}</p>
+        <p>[10] {{ bonus.part1_text | safe }}</p>
+        <p>ANSWER: {{ bonus.part1_answer | safe }}</p>
+        <p>[10] {{ bonus.part2_text | safe }}</p>
+        <p>ANSWER: {{ bonus.part2_answer | safe }}</p>
+        <p>[10] {{ bonus.part3_text | safe }}</p>
+        <p>ANSWER: {{ bonus.part3_answer | safe }}</p>
         {% endif %}
     </form>
     <div class="alert alert-info" style="text-align: center"><strong>Comments</strong></div>

@@ -18,9 +18,12 @@
     {% endif %}
 	<form action="" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
         {% if not read_only %}
+        {{ form.as_p }}
         <input type="submit" value="Save"/>
+        {% else %}
+        <p>{{ tossup.tossup_text|safe }}</p>
+        <p>ANSWER: {{ tossup.tossup_answer|safe }}</p>
         {% endif %}
     </form>
     <div class="alert alert-info" style="text-align: center"><strong>Comments</strong></div>

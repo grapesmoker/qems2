@@ -161,6 +161,8 @@ def edit_question_set(request, qset_id):
     set_status = {}
     set_distro_formset = None
 
+    role = get_role(user, qset)
+
     if user != qset.owner and user not in qset_editors and user not in qset_writers:
         messages.error(request, 'You are not authorized to view information about this tournament!')
         return HttpResponseRedirect('/failure.html/')
@@ -204,16 +206,22 @@ def edit_question_set(request, qset_id):
             form = QuestionSetForm(instance=qset, read_only=True)
             read_only = True
             message = 'You are not authorized to edit this tournament.'
+            if user in qset.writer.all():
+                tossups = Tossup.objects.filter(question_set=qset)
+                bonuses = Bonus.objects.filter(question_set=qset)
+                set_distro_formset = create_set_distro_formset(qset)
         else:
             if user == qset.owner:
                 read_only = False
+                tossups = Tossup.objects.filter(question_set=qset)
+                bonuses = Bonus.objects.filter(question_set=qset)
+                set_distro_formset = create_set_distro_formset(qset)
             elif user in qset.writer.all() or user in qset.editor.all():
                 read_only = True
+                tossups = Tossup.objects.filter(question_set=qset)
+                bonuses = Bonus.objects.filter(question_set=qset)
+                set_distro_formset = create_set_distro_formset(qset)
             form = QuestionSetForm(instance=qset)
-
-        tossups = Tossup.objects.filter(question_set=qset)
-        bonuses = Bonus.objects.filter(question_set=qset)
-        set_distro_formset = create_set_distro_formset(qset)
 
         entries = qset.setwidedistributionentry_set.all()
         for entry in entries:
@@ -592,6 +600,7 @@ def edit_tossup(request, tossup_id):
     message = ''
     message_class = ''
     read_only = True
+    role = get_role(user, qset)
 
     if request.method == 'GET':
         if user == tossup.author or user == qset.owner or user in qset.editor.all():
@@ -604,6 +613,7 @@ def edit_tossup(request, tossup_id):
             message = 'You are only authorized to view, not to edit, this question!'
             message_class = 'alert alert-warning'
         else:
+            read_only = True
             tossup = None
             form = None
             message = 'You are not authorized to view or edit this question!'
@@ -629,9 +639,11 @@ def edit_tossup(request, tossup_id):
             read_only = False
         elif user in qset.writer.all():
             read_only = True
+            form = None
             message = 'You are only authorized to view, not to edit, this question!'
             message_class = 'alert alert-warning'
         else:
+            read_only = True
             tossup = None
             message = 'You are not authorized to view or edit this question!'
             message_class = 'alert alert-error'
@@ -639,6 +651,7 @@ def edit_tossup(request, tossup_id):
         return render_to_response('edit_tossup.html',
             {'tossup': tossup,
              'form': form,
+             'role': role,
              'message': message,
              'message_class': message_class,
              'read_only': read_only},
@@ -660,9 +673,11 @@ def edit_bonus(request, bonus_id):
 
         elif user in qset.writer.all():
             read_only = True
+            form = None
             message = 'You are only authorized to view, not to edit, this question!'
             message_class = 'alert alert-warning'
         else:
+            read_only = True
             bonus = None
             message = 'You are not authorized to view or edit this question!'
             message_class = 'alert alert-error'
@@ -691,11 +706,14 @@ def edit_bonus(request, bonus_id):
                 bonus.save()
             read_only = False
         elif user in qset.writer.all():
+            form = None
             read_only = True
             message = 'You are only authorized to view, not to edit, this question!'
             message_class = 'alert alert-warning'
         else:
+            form = None
             bonus = None
+            read_only = True
             message = 'You are not authorized to view or edit this question!'
             message_class = 'alert alert-error'
 

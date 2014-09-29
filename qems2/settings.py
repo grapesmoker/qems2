@@ -1,7 +1,7 @@
 # Django settings for QuEST project.
 import os
 
-DEBUG = False
+DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = ['.grapesmoker.net']

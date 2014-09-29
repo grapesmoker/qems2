@@ -244,8 +244,8 @@
                             <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
                             <td>{{ entry.category.value }}</td>
                             <td>{{ entry.subcategory.value }}</td>
-                            <td>{{ entry.num_tossups }}</td>
-                            <td>{{ entry.num_bonuses }}</td>
+                            <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                            <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
                         </tr>
                         {% endfor %}
                     </table>

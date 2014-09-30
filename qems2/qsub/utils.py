@@ -16,7 +16,7 @@ def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
                 new_tag = soup.new_tag('em')
 
             if new_tag is not None:
-                new_tag.string = tag.text
+                new_tag.contents = tag.contents
                 tag.replace_with(new_tag)
         elif tag.name not in allowed_tags:
             tag.hidden = True

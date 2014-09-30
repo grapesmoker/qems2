@@ -1,6 +1,8 @@
+from __future__ import unicode_literals
+
 from bs4 import BeautifulSoup
 
-DEFAULT_ALLOWED_TAGS = ['b', 'i', 'u', 'strong', 'emph']
+DEFAULT_ALLOWED_TAGS = ['b', 'i', 'u', 'strong', 'em']
 
 def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
     soup = BeautifulSoup(html)

@@ -131,5 +131,5 @@ def export_packet(packet_id):
     print packet_latex
 
     f = open(output_file, 'w')
-    f.write(packet_latex)
+    f.write(packet_latex.encode('utf-8'))
     f.close()

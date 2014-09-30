@@ -749,6 +749,8 @@ def edit_bonus(request, bonus_id):
                 bonus.question_type = form.cleaned_data['question_type']
                 bonus.save()
 
+                #print bonus.part1_text
+
                 message = 'Your changes have been saved!'
                 message_class = 'alert alert-success'
                 read_only = False

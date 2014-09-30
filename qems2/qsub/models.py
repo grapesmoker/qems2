@@ -284,7 +284,7 @@ class Bonus(models.Model):
     #order = models.PositiveIntegerField(null=True)
     question_number = models.IntegerField()
 
-    def __str__(self):
+    def __unicode__(self):
         return '{0!s}...'.format(strip_markup(self.leadin)[0:40])
 
     def to_json(self):

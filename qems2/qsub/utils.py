@@ -7,7 +7,18 @@ DEFAULT_ALLOWED_TAGS = ['b', 'i', 'u', 'strong', 'em']
 def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
     soup = BeautifulSoup(html)
     for tag in soup.find_all(True):
-        if tag.name not in allowed_tags:
+        if tag.name == 'span':
+            new_tag = None
+
+            if tag['style'].find('text-decoration: underline') > -1:
+                new_tag = soup.new_tag('u')
+            elif tag['style'].find('text-decoration: italic') > -1:
+                new_tag = soup.new_tag('em')
+
+            if new_tag is not None:
+                new_tag.string = tag.text
+                tag.replace_with(new_tag)
+        elif tag.name not in allowed_tags:
             tag.hidden = True
 
     return soup.renderContents()

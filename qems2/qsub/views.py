@@ -162,6 +162,11 @@ def edit_question_set(request, qset_id):
     set_status = {}
     set_distro_formset = None
 
+    total_tu_req = 0
+    total_bs_req = 0
+    total_tu_written = 0
+    total_bs_written = 0
+
     role = get_role(user, qset)
 
     if user != qset.owner and user not in qset_editors and user not in qset_writers:
@@ -186,6 +191,23 @@ def edit_question_set(request, qset_id):
             else:
                 read_only = True
 
+            entries = qset.setwidedistributionentry_set.all()
+            for entry in entries:
+                tu_required = entry.num_tossups
+                bs_required = entry.num_bonuses
+                tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
+                bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+                total_tu_req += tu_required
+                total_bs_req += bs_required
+                total_bs_written += bs_written
+                total_tu_written += tu_written
+
+                set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
+                                                     'tu_in_cat': tu_written,
+                                                     'bs_req': bs_required,
+                                                     'bs_in_cat': bs_written}
+            set_pct_complete = float(total_tu_written + total_bs_written) / float(total_tu_req + total_bs_req)
+
             return render_to_response('edit_question_set.html',
                                       {'form': form,
                                        'qset': qset,
@@ -194,6 +216,10 @@ def edit_question_set(request, qset_id):
                                        'writers': qset.writer.all(),
                                        'set_distro_formset': set_distro_formset,
                                        'upload_form': QuestionUploadForm(),
+                                       'set_status': set_status,
+                                       'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
+                                       'tu_needed': total_tu_req - total_tu_written,
+                                       'bs_needed': total_bs_req - total_bs_written,
                                        'tossups': tossups,
                                        'bonuses': bonuses,
                                        'packets': qset.packet_set.all(),
@@ -230,10 +256,15 @@ def edit_question_set(request, qset_id):
             bs_required = entry.num_bonuses
             tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
             bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+            total_tu_req += tu_required
+            total_bs_req += bs_required
+            total_bs_written += bs_written
+            total_tu_written += tu_written
             set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
                                                      'tu_in_cat': tu_written,
                                                      'bs_req': bs_required,
                                                      'bs_in_cat': bs_written}
+        set_pct_complete = float(total_tu_written + total_bs_written) / float(total_tu_req + total_bs_req)
 
         
     return render_to_response('edit_question_set.html',
@@ -243,6 +274,9 @@ def edit_question_set(request, qset_id):
                                'writers': [wr for wr in qset_writers if wr != qset.owner],
                                'set_distro_formset': set_distro_formset,
                                'set_status': set_status,
+                               'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
+                               'tu_needed': total_tu_req - total_tu_written,
+                               'bs_needed': total_bs_req - total_bs_written,
                                'upload_form': QuestionUploadForm(),
                                'tossups': tossups,
                                'bonuses': bonuses,

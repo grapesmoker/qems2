@@ -1,4 +1,4 @@
-1;3406;0cfunction add_row_to_cat_table() {
+function add_row_to_cat_table() {
     var current_forms = parseInt($('#id_distentry-INITIAL_FORMS')[0].value);
     var next_form = current_forms + 1;
     $('#dist-table > tbody > tr:last').

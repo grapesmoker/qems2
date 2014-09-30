@@ -645,8 +645,15 @@ def edit_tossup(request, tossup_id):
                 can_change = False
 
             if form.is_valid() and can_change:
+                #print form.cleaned_data['tossup_text']
+                print form.cleaned_data['tossup_answer']
+
                 tossup.tossup_text = sanitize_html(form.cleaned_data['tossup_text'])
                 tossup.tossup_answer = sanitize_html(form.cleaned_data['tossup_answer'])
+
+                #print tossup.tossup_text
+                print tossup.tossup_answer
+
                 tossup.category = form.cleaned_data['category']
                 tossup.packet = form.cleaned_data['packet']
                 tossup.locked = form.cleaned_data['locked']

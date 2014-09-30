@@ -41,9 +41,9 @@ def preview(text):
 
 @register.filter(name='bonus_answers')
 def bonus_answers(bonus):
-    return mark_safe(bonus.part1_answer[0:80] + '<br>'
-    + bonus.part2_answer[0:80] + '<br>'
-    + bonus.part3_answer[0:80] + '<br>')
+    return mark_safe('<p>' + bonus.part1_answer[0:80].encode('utf-8') + '</p><p>'
+    + bonus.part2_answer[0:80].encode('utf-8') + '</p><p>'
+    + bonus.part3_answer[0:80].encode('utf-8') + '</p>')
 
 @register.filter(name='percent')
 def percent(x, y):

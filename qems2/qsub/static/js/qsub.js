@@ -1,4 +1,4 @@
-function add_row_to_cat_table() {
+1;3406;0cfunction add_row_to_cat_table() {
     var current_forms = parseInt($('#id_distentry-INITIAL_FORMS')[0].value);
     var next_form = current_forms + 1;
     $('#dist-table > tbody > tr:last').
@@ -50,11 +50,11 @@ $(function () {
             });
         },
         width: 900,
-        formats: {
+        /*formats: {
             underline: {inline: 'u', exact: true},
             italic: {inline: 'i', exact: true},
             bold: {inline: 'b', exact: true}
-        }
+        }*/
     });
     
     $('#id_player_to_add').autocomplete({

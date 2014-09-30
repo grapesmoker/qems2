@@ -1,8 +1,9 @@
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm, ReadOnlyPasswordHashField, PasswordChangeForm
 from django.contrib.auth.models import User
 from django.db import models
 from models import *
 from django import forms
+from django.utils.translation import ugettext, ugettext_lazy as _
 
 class WriterCreationForm(UserCreationForm):
 
@@ -11,8 +12,11 @@ class WriterCreationForm(UserCreationForm):
         fields = ['username', 'first_name', 'last_name', 'email']
 
     def __init__(self, *args, **kwargs):
+
         super(WriterCreationForm, self).__init__(*args, **kwargs)
+
         self.fields['username'].widget.attrs.update({'class': 'form-control'})
+
         self.fields['first_name'].widget.attrs.update({'class': 'form-control'})
         self.fields['last_name'].widget.attrs.update({'class': 'form-control'})
         self.fields['email'].widget.attrs.update({'class': 'form-control'})
@@ -21,6 +25,23 @@ class WriterCreationForm(UserCreationForm):
         self.fields['password1'].widget.attrs.update({'class': 'form-control'})
         self.fields['password2'].widget.attrs.update({'class': 'form-control'})
         self.fields['username'].widget.attrs.update({'class': 'form-control'})
+
+class WriterChangeForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+
+        super(WriterChangeForm, self).__init__(*args, **kwargs)
+
+        self.fields['username'] = forms.CharField(max_length=200)
+        self.fields['first_name'] = forms.CharField(max_length=200)
+        self.fields['last_name'] = forms.CharField(max_length=200)
+        self.fields['email'] = forms.EmailField(max_length=200)
+
+        self.fields['username'].widget.attrs.update({'class': 'form-control', 'readonly': 'readonly'})
+        self.fields['first_name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['last_name'].widget.attrs.update({'class': 'form-control'})
+        self.fields['email'].widget.attrs.update({'class': 'form-control'})
+
 
 class QuestionSetForm(forms.ModelForm):
     

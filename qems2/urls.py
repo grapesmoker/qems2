@@ -1,5 +1,5 @@
 from django.conf.urls import patterns, include, url
-from django.contrib.auth.views import logout, login
+from django.contrib.auth.views import logout, login, password_change, password_change_done
 from django.views.generic import ListView
 from qsub.views import *
 from qsub.models import *
@@ -25,6 +25,11 @@ urlpatterns = patterns('',
     (r'^register/$', register),
     (r'^accounts/login/$', django.contrib.auth.views.login),
     (r'^accounts/logout/$', logout),
+    (r'^profile/$', profile),
+    (r'^password_change_done/$', django.contrib.auth.views.password_change_done),
+    (r'^password_change/$', django.contrib.auth.views.password_change, {'post_change_redirect': '/profile/',
+                                                                        'template_name': 'registration/password.html'}),
+    #(r'^password_change/$', password_change),
     (r'^question_sets/$', question_sets),
     (r'^create_question_set/$', create_question_set),
     (r'^edit_question_set/(?P<qset_id>[0-9]+)/$', edit_question_set),
@@ -47,6 +52,7 @@ urlpatterns = patterns('',
     #(r'^edit_packet/(?P<packet_id>[0-9]+)/change_tossup_position/(?P<old_index>[0-9]+)/(?P<new_index>[0-9]+)$', change_tossup_order),
     #(r'^edit_packet/(?P<packet_id>[0-9]+)/change_bonus_position/(?P<old_index>[0-9]+)/(?P<new_index>[0-9]+)$', change_bonus_order),
     (r'^delete_packet/$', delete_packet),
+    (r'^settings/$', settings),
 
     (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
     (r'^complete_upload/$', complete_upload),

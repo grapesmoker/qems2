@@ -1575,4 +1575,59 @@ def complete_upload(request):
         messages.error(request, 'Invalid request!')
         return render_to_response('failure.html')
 
-#@login_required
+@login_required
+def settings(request):
+
+    if request.method == 'GET':
+        return render_to_response('settings.html', {}, context_instance=RequestContext(request))
+
+    else:
+        messages.error(request, 'Invalid request!')
+        return render_to_response('failure.html', {}, context_instance=RequestContext(request))
+
+@login_required
+def profile(request):
+
+    user = request.user
+
+    if request.method == 'GET':
+        initial_data = {'username': user.username,
+                        'first_name': user.first_name,
+                        'last_name': user.last_name,
+                        'email': user.email}
+
+        form = WriterChangeForm(initial=initial_data)
+
+    elif request.method == 'POST':
+
+        print request.POST
+        form = WriterChangeForm(request.POST)
+
+        if form.is_valid():
+            print 'valid'
+            user.username = form.cleaned_data['username']
+            user.first_name = form.cleaned_data['first_name']
+            user.last_name = form.cleaned_data['last_name']
+            user.email = form.cleaned_data['email']
+            user.save()
+
+    return render_to_response('profile.html',
+            {'form': form,
+             'user': user},
+            context_instance=RequestContext(request))
+
+# @login_required
+# def password(request):
+#
+#     user = request.user
+#
+#     if request.method == 'GET':
+#         form = PasswordChangeForm(user)
+#
+#         return render_to_response('password.html',
+#             {'form': form,
+#              'user': user},
+#             context_instance=RequestContext(request))
+#
+#     elif request.method == 'POST':
+#         pass

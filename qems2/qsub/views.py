@@ -45,8 +45,8 @@ def register (request):
 
 @login_required
 def main (request):
-    print request.user.is_authenticated()
-    return render_to_response('main.html', {'user': request.user},
+
+    return render_to_response('main.html', {'user': request.user.writer},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -68,7 +68,7 @@ def question_sets (request):
                  {'header': 'Question sets you are writing for', 'qsets': writer_sets, 'id': 'qsets-write'}]
 
     print all_sets
-    return render_to_response('question_sets.html', {'question_set_list': all_sets},
+    return render_to_response('question_sets.html', {'question_set_list': all_sets, 'user': writer},
                               context_instance=RequestContext(request))
 
 
@@ -90,10 +90,11 @@ def packet(request):
 
 @login_required
 def create_question_set (request):
+    user = request.user.writer
+
     if request.method == 'POST':
         form = QuestionSetForm(data=request.POST)
         if form.is_valid():
-            user = request.user.writer
             # for the moment, just use the default ACF Distribution
             #dist = Distribution.objects.get(id=1)
             question_set = form.save(commit=False)
@@ -136,7 +137,8 @@ def create_question_set (request):
                                       {'message': 'There was an error in creating your question set!',
                                        'message_class': 'alert alert-warning',
                                        'form': form,
-                                       'distributions': distributions},
+                                       'distributions': distributions,
+                                       'user': user},
                                       context_instance=RequestContext(request))
     else:
         form = QuestionSetForm()
@@ -144,7 +146,8 @@ def create_question_set (request):
         
     return render_to_response('create_question_set.html',
                               {'form': form,
-                               'distributions': distributions},
+                               'distributions': distributions,
+                               'user': user},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -334,7 +337,8 @@ def add_editor(request, qset_id):
         return render_to_response('add_editor.html',
                                  {'qset': qset,
                                   'available_editors': available_editors,
-                                  'message': message},
+                                  'message': message,
+                                  'user': user},
                                   context_instance=RequestContext(request))
 
 
@@ -362,7 +366,8 @@ def add_editor(request, qset_id):
         return render_to_response('add_editor.html',
             {'qset': qset,
              'available_editors': available_editors,
-             'message': message},
+             'message': message,
+             'user': user},
             context_instance=RequestContext(request))
 
 @login_required
@@ -386,7 +391,8 @@ def add_writer(request, qset_id):
         return render_to_response('add_writer.html',
                                  {'qset': qset,
                                   'available_writers': available_writers,
-                                  'message': message},
+                                  'message': message,
+                                  'user': user},
                                   context_instance=RequestContext(request))
 
 
@@ -417,7 +423,8 @@ def add_writer(request, qset_id):
         return render_to_response('add_writer.html',
             {'qset': qset,
              'available_editors': available_writers,
-             'message': message},
+             'message': message,
+             'user': user},
             context_instance=RequestContext(request))
 
 @login_required
@@ -467,7 +474,8 @@ def edit_packet(request, packet_id):
          'bonuses': bonuses,
          'tossup_status': tossup_status,
          'bonus_status': bonus_status,
-         'read_only': read_only},
+         'read_only': read_only,
+         'user': user},
         context_instance=RequestContext(request))
 
 
@@ -505,7 +513,8 @@ def add_tossups(request, qset_id, packet_id=None):
             {'form': tossup_form,
              'message': message,
              'message_class': message_class,
-             'read_only': read_only},
+             'read_only': read_only,
+             'user': user},
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
@@ -544,7 +553,8 @@ def add_tossups(request, qset_id, packet_id=None):
                  'message': message,
                  'message_class': message_class,
                  'tossup': tossup,
-                 'read_only': read_only},
+                 'read_only': read_only,
+                 'user': user},
                  context_instance=RequestContext(request))
 
     else:
@@ -576,7 +586,8 @@ def add_bonuses(request, qset_id, packet_id=None):
             {'form': form,
              'message': message,
              'message_class': message_class,
-             'read_only': read_only},
+             'read_only': read_only,
+             'user': user},
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
@@ -618,7 +629,8 @@ def add_bonuses(request, qset_id, packet_id=None):
                  'message': message,
                  'message_class': message_class,
                  'bonus': bonus,
-                 'read_only': read_only},
+                 'read_only': read_only,
+                 'user': user},
                  context_instance=RequestContext(request))
 
     else:
@@ -667,7 +679,8 @@ def edit_tossup(request, tossup_id):
              'packet': packet,
              'message': message,
              'message_class': message_class,
-             'read_only': read_only},
+             'read_only': read_only,
+             'user': user},
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
@@ -722,7 +735,8 @@ def edit_tossup(request, tossup_id):
              'packet': packet,
              'message': message,
              'message_class': message_class,
-             'read_only': read_only},
+             'read_only': read_only,
+             'user': user},
             context_instance=RequestContext(request))
 
 @login_required
@@ -765,7 +779,8 @@ def edit_bonus(request, bonus_id):
              'packet': packet,
              'message': message,
              'message_class': message_class,
-             'read_only': read_only},
+             'read_only': read_only,
+             'user': user},
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
@@ -820,7 +835,8 @@ def edit_bonus(request, bonus_id):
              'packet': packet,
              'message': message,
              'message_class': message_class,
-             'read_only': read_only},
+             'read_only': read_only,
+             'user': user},
             context_instance=RequestContext(request))
 
 @login_required
@@ -922,7 +938,8 @@ def add_packets(request, qset_id):
     return render_to_response('add_packets.html',
         {'message': message,
          'message_class': message_class,
-         'form': form},
+         'form': form,
+         'user': user},
         context_instance=RequestContext(request))
 
 @login_required
@@ -1355,7 +1372,7 @@ def distributions (request):
     all_dists = Distribution.objects.all()
         
     return render_to_response('distributions.html',
-                              {'dists': all_dists},
+                              {'dists': all_dists, 'user': request.user.writer},
                               context_instance=RequestContext(request))
 
 def edit_distribution(request, dist_id=None):
@@ -1474,7 +1491,7 @@ def edit_distribution(request, dist_id=None):
             
             return render_to_response('edit_distribution.html',
                                       {'form': dist_form,
-                                       'formset': formset},
+                                       'formset': formset,},
                                        context_instance=RequestContext(request))
 
 @login_required

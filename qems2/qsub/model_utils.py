@@ -133,3 +133,15 @@ def export_packet(packet_id):
     f = open(output_file, 'w')
     f.write(packet_latex.encode('utf-8'))
     f.close()
+
+def export_packet_reportlab(packet_id):
+
+    import pdfdocument as pdf
+    import io
+
+    packet = Packet.objects.get(id=packet_id)
+    qset = packet.question_set
+
+    pdf_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "pdf"),)
+
+

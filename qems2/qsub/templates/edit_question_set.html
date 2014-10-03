@@ -277,6 +277,7 @@
                     </caption>
                     <thead>
                     <tr>
+                        <th>Author</th>
                         <th>Tossup Text</th>
                         <th>Answer</th>
                         <th>Category</th>
@@ -287,6 +288,7 @@
                     <tbody>
                     {% for tossup in tossups %}
                     <tr>
+                        <td>{{ tossup.author }}</td>
                         <td>{{ tossup.tossup_text|preview }}</td>
                         <td>{{ tossup.tossup_answer|preview }}</td>
                         <td>{{ tossup.category }}</td>
@@ -311,6 +313,7 @@
                     </caption>
                     <thead>
                     <tr>
+                        <th>Author</th>
                         <th>Leadin</th>
                         <th>Answers</th>
                         <th>Category</th>
@@ -321,6 +324,7 @@
                     <tbody>
                     {% for bonus in bonuses %}
                     <tr>
+                        <td>{{ bonus.author }}</td>
                         <td>{{ bonus.leadin|preview }}</td>
                         <td>{{ bonus|bonus_answers }}</td>
                         <td>{{ bonus.category }}</td>

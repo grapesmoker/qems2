@@ -74,5 +74,23 @@ The question set is the basic unit of operation in QEMS2. Question sets are crea
 - Editor assignments: this tab allows the owner to add writers and editors to a set. Clicking on either `Add Editor` or `Add Writer` brings up a screen with a list of users who can be added to the set. Users can only be either writers or editors.
 - Set-wide distribution: this is one of the most important tabs. The set-wide distribution controls the _total_ number of questions in each category/subcategory entry. You cannot change the categories themselves (that is only possible via the `Distributions` screen); you can only change the _total_ number of tossups and bonuses in each. This number covers the _entire set_ as opposed to the main distribution which applies at the packet level. For example, the a distribution may call for a maximum of 1 tossup and 1 bonus and a minimum of 0 of each in the category/subcategory `Science/Math`. Those constraints apply on a _per packet_ basis. If you have 10 packets in your set, you may only want 5 tossups and 5 bonuses in `Science/Math`, in which case you would set the numbers for the set-wide distribution 5 each.
 - Tiebreaker distribution: the tiebreaker distribution functions exactly like the set-wide distribution, but only applies to tiebreaker questions. The numbers indicate the _total_ number of tiebreakers in each category/subcategory entry on a _per set_ basis.
-- Questions: this tab gives users access to 
+- Questions: this tab gives users access to the questions that are part of the set. From here, a user can either add tossups and bonuses to the set manually or by uploading a file. It also shows users the questions that are part of the set. From here, an editor can click on the `Edit` link under the `Actions` column to edit the questions. The editorial workflow will be covered in a different section.
+- Packets: questions are collected into packets. This tab allows the owner to create a packet, or multiple packets to be part of the set. Clicking on a packet link will bring up a page that indicates the completion status of the packet, which is similar to the completion status page of the set. The completion status of a packet is controlled by distribution assigned to the set. This tab also allows the owner to add questions either manually or from an existing stock of questions that are part of the set but have not been assigned to a packet.
 
+### Editing Workflow
+
+The editing workflow of QEMS2 starts with writers and editors being assigned to a question set by the set owner. After that, writers and editors are free to start writing questions; they can do so either by adding questions manually or uploading questions in a text file. Once a writer has submitted a question, it can be edited by an editor. Usually, once the editor has completed their editing, they can lock a question from further editing by a writer. This does not prevent the editor or the set owner from editing these questions; it only locks out the original question writer. At any point, a question may be moved by an editor or the set owner into a packet.
+
+The submission/editing cycle continues until both the set-level constraints and the packet-level constraints have been satisfied. Once the constraints have been satisfied and the questions have been assigned to packets, the packets may be exported to PDF form. At that point, the set is ready to be played.
+
+### Format for Question Uploads
+
+If you are uploading questions, they have to be formatted in a certain way. An uploaded file must be in plain text, and the questions must have this form:
+
+##### Tosups:
+        
+        This scientist noted the difference between Asiatic and Oceanic fauna, hypothesizing that their geographical isolation played a role in their different developments; the boundary between the two types of fauna is now known as his namesake line. For 10 points, identify this scientist who proposed a theory of evolution contemporaneously with Charles Darwin.
+
+## Upcoming Features
+
+QEMS2 is evolving fairly rapidly. Features are being added frequently at the request of the users. There are a number of 

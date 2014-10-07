@@ -62,3 +62,17 @@ QEMS2 is structured around the concept of roles. There are three types of roles 
 
 In addition, any user can leave comments on packets, individual questions, or the set as a whole.
 
+### Distributions
+
+The number and type of questions that a question set requires is controlled by assigning a distribution to a set. You can create a distribution by clicking on the `Distributions` link on the sidebar, giving your distribution a name, and adding category/subcategory entries, in addition to numbers specifying both maximum and minimum tossups and bonuses in that category _per packet_.
+
+### Question Sets
+
+The question set is the basic unit of operation in QEMS2. Question sets are created by clicking on the `Question Sets` link on the sidebar and then `Create Question Set`. Question sets are required to have _some_ distribution, but picking a distribution does not preclude you from editing that distribution later. Once a question set is created, you can manage that question set through various tabs:
+
+- Question set info: this tab contains the basic information about the set (name, date, and distribution), as well as a status report on the set's completion. The status screen lets you know how many questions of each kind have been written and how many still remain to be written. Green check marks indicate that the minimum number of questions in each category/subcategory entry have been written.
+- Editor assignments: this tab allows the owner to add writers and editors to a set. Clicking on either `Add Editor` or `Add Writer` brings up a screen with a list of users who can be added to the set. Users can only be either writers or editors.
+- Set-wide distribution: this is one of the most important tabs. The set-wide distribution controls the _total_ number of questions in each category/subcategory entry. You cannot change the categories themselves (that is only possible via the `Distributions` screen); you can only change the _total_ number of tossups and bonuses in each. This number covers the _entire set_ as opposed to the main distribution which applies at the packet level. For example, the a distribution may call for a maximum of 1 tossup and 1 bonus and a minimum of 0 of each in the category/subcategory `Science/Math`. Those constraints apply on a _per packet_ basis. If you have 10 packets in your set, you may only want 5 tossups and 5 bonuses in `Science/Math`, in which case you would set the numbers for the set-wide distribution 5 each.
+- Tiebreaker distribution: the tiebreaker distribution functions exactly like the set-wide distribution, but only applies to tiebreaker questions. The numbers indicate the _total_ number of tiebreakers in each category/subcategory entry on a _per set_ basis.
+- Questions: this tab gives users access to 
+

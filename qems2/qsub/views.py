@@ -115,6 +115,13 @@ def create_question_set (request):
                 set_wide_entry.dist_entry = entry
                 set_wide_entry.save()
 
+                tiebreak_entry = TieBreakDistributionEntry()
+                tiebreak_entry.num_bonuses = 1
+                tiebreak_entry.num_tossups = 1
+                tiebreak_entry.question_set = question_set
+                tiebreak_entry.dist_entry = entry
+                tiebreak_entry.save()
+
             set_distro_formset = create_set_distro_formset(question_set)
             tiebreak_formset = create_tiebreak_formset(question_set)
 
@@ -276,7 +283,7 @@ def edit_question_set(request, qset_id):
                                                      'bs_in_cat': bs_written}
         set_pct_complete = float(total_tu_written + total_bs_written) / float(total_tu_req + total_bs_req)
 
-    print tiebreak_formset
+    #print tiebreak_formset
         
     return render_to_response('edit_question_set.html',
                               {'form': form,

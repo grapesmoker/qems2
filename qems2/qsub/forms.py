@@ -219,19 +219,19 @@ class DistributionEntryForm(forms.ModelForm):
         model = DistributionEntry
         exclude = ['distribution']
 
-class TieBreakDistributionEntryForm(forms.ModelForm):
+class TieBreakDistributionEntryForm(forms.Form):
 
     entry_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
-    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}))
+    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}), required=False)
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
-    min_tossups = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
-    min_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
+    num_tossups = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
+    num_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
    
     delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
-    class Meta:
-        model = DistributionEntry
-        exclude = ['distribution']
+    #class Meta:
+    #    model = DistributionEntry
+    #    exclude = ['distribution']
 
 class SetWideDistributionEntryForm(forms.Form):
 

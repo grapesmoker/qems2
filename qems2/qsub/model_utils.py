@@ -63,6 +63,24 @@ def create_tiebreak_formset(qset):
         'num_bonuses': entry.num_bonuses})
     return DistributionEntryFormset(initial=initial_data, prefix='tiebreak')
 
+def reset_tiebreak_distro(qset):
+
+    dist = qset.distribution
+    dist_entries = dist.distributionentry_set.all()
+
+    old_tiebreakers = TieBreakDistributionEntry.objects.filter(question_set=qset)
+    for tb in old_tiebreakers:
+        tb.delete()
+
+    for entry in dist_entries:
+
+        tiebreak_entry = TieBreakDistributionEntry()
+        tiebreak_entry.num_bonuses = 1
+        tiebreak_entry.num_tossups = 1
+        tiebreak_entry.question_set = qset
+        tiebreak_entry.dist_entry = entry
+        tiebreak_entry.save()
+
 def get_role(user, qset):
 
     role = 'viewer'

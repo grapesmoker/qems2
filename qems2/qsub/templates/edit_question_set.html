@@ -271,7 +271,7 @@
                     set. Keep in mind that in order for a question to be picked up as a tiebreaker, it must be
                     <em>explicitly</em> designated as such.
                 </div>
-                <form action="/edit_set_tiebreak/{{ qset.id }}" method="POST">
+                <form action="/edit_set_tiebreak/{{ qset.id }}/" method="POST">
                     {% csrf_token %}
                     <table class="table table-striped table-hover">
                         <caption class="alert alert-info">

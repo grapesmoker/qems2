@@ -47,3 +47,18 @@ Finally, use `manage.py` to populate the database, install the front-end package
         python manage.py runserver
 
 As with any Django project, you should now be able to access the website at http://localhost:8000.
+
+## Usage
+
+QEMS2 is currently in heavy development. Although the core parts of the application are stable, features are being added all the time, so it's hard to give an exhaustive description of them all here. The foregoing will summarize the basic concepts involved in the question submission and editing workflow.
+
+### Roles
+
+QEMS2 is structured around the concept of roles. There are three types of roles in the system: owners, editors, and writers (there are also administrators who can access the admin site, but that is not strictly speaking a part of the application itself). The hierarchy of powers is strictly inclusive from the top down, i.e. anything that an editor can do, an owner can do, and anything that a writer can do, an editor can do.
+
+1. Owners: Anyone who creates a tournament is automatically the owner of that tournament and has complete freedom to do anything they would like to it. This includes assigning other users to be editors or writers of their tournament, modifying the tournament distribution, and editing any question in the system.
+2. Editors: these users have the power to edit or delete any question in the system. They do not have the power to change the distribution or the core information about the set. Editors can also lock questions to prevent writers from editing those questions.
+3. Writers: these users are empowered only to submit questions, edit (unlocked) questions that they have submitted, and see (but not edit) questions submitted by others.
+
+In addition, any user can leave comments on packets, individual questions, or the set as a whole.
+

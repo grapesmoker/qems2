@@ -48,12 +48,11 @@
             </tbody>
         </table>
         {{ formset.management_form }}
+	{% if not read_only %}
         <div class="row">
             <div class="span4" style="text-align: left"><input type="submit" value="Submit changes"/></div>
-            <div class="offset5 span2" style="text-align: right">
-                <a href="javscript:void(0);" id="add-row" title="Add category"><i class="icon-plus-sign"></i></a>
-            </div>
         </div>
+	{% endif %}
 
     </form>
 

@@ -17,7 +17,7 @@ from models import *
 from forms import *
 from model_utils import *
 from utils import sanitize_html
-from packet_parser import handle_uploaded_packet
+from packet_parser import handle_uploaded_packet, parse_uploaded_packet, parse_packet_data
 from django.utils.safestring import mark_safe
 
 from collections import OrderedDict
@@ -1688,7 +1688,7 @@ def upload_questions(request, qset_id):
             form = QuestionUploadForm(request.POST, request.FILES)
             print form
             if form.is_valid():
-                uploaded_tossups, uploaded_bonuses = handle_uploaded_packet(request.FILES['questions_file'])
+                uploaded_tossups, uploaded_bonuses = parse_uploaded_packet(request.FILES['questions_file'])
 
                 return render_to_response('upload_preview.html',
                 {'tossups': uploaded_tossups,
@@ -1727,6 +1727,7 @@ def complete_upload(request):
             new_tossup.tossup_answer = tu_ans
             new_tossup.author = user
             new_tossup.question_set = qset
+            new_tossup.locked = False
             new_tossup.edited = False
 
             new_tossup.save()
@@ -1745,6 +1746,7 @@ def complete_upload(request):
             new_bonus.question_set = qset
             new_bonus.author = user
             new_bonus.edited = False
+            new_bonus.locked = False
             new_bonus.leadin = request.POST[bs_leadin_name]
             new_bonus.part1_text = request.POST[bs_part1_name]
             new_bonus.part1_answer = request.POST[bs_ans1_name]

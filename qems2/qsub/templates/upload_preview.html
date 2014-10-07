@@ -25,7 +25,7 @@
             <h3>Uploaded Tossups</h3>
             {% for tossup in tossups %}
             <p>{{ tossup.question|safe }}<br>
-                ANSWER: {{ tossup.answer|safe }}</p>
+                {{ tossup.answer|safe }}</p>
             <textarea name="tossup-text-{{ forloop.counter0 }}" style="display: none">
                 {{ tossup.question|safe }}
             </textarea>
@@ -39,13 +39,13 @@
             <p>{{ bonus.leadin|safe }}<br>
                 [{{ bonus.values.0 }}]
                 {{ bonus.parts.0|safe }}<br>
-                ANSWER: {{ bonus.answers.0|safe }}<br>
+                {{ bonus.answers.0|safe }}<br>
                 [{{ bonus.values.1 }}]
                 {{ bonus.parts.1|safe }}<br>
-                ANSWER: {{ bonus.answers.1|safe }}<br>
+                {{ bonus.answers.1|safe }}<br>
                 [{{ bonus.values.2 }}]
                 {{ bonus.parts.2|safe }}<br>
-                ANSWER: {{ bonus.answers.2|safe }}<br>
+                {{ bonus.answers.2|safe }}<br>
             </p>
 
             <textarea name="bonus-leadin-{{ forloop.counter0 }}" style="display: none">

@@ -7,7 +7,24 @@ import string
 from qems2.qsub.model_utils import sanitize_html
 
 ansregex = '(?i)a..?wers?:'
+bpart_regex = '^\[\w*\]|^\(\w*\)'
 
+def is_answer(line):
+
+    return re.search(ansregex, line) is not None
+
+def is_bpart(line):
+    
+    return re.search(bpart_regex, line) is not None
+
+def parse_uploaded_packet(uploaded_file):
+
+    print uploaded_file.name
+    file_data = uploaded_file.read().split('\n')
+
+    tossups, bonuses = parse_packet_data(file_data)
+
+    return tossups, bonuses
 
 def handle_uploaded_packet(uploaded_file):
 
@@ -153,10 +170,6 @@ def bonuses_structured(bonuses, mode='json'):
             current_bonus = bonuses[leadin_markers[b_index] + 1:]
 
 
-
-        #print i, leadin_markers[i], b_index, leadin_markers[b_index]
-
-
         #print current_bonus
         for element in current_bonus:
             element = string.strip(element)
@@ -194,6 +207,89 @@ def bonuses_structured(bonuses, mode='json'):
 
     return bonus_objects, errors
 
+def parse_packet_data(data):
+
+    data = [line for line in data if line.strip() != '']
+
+    tossups = []
+    bonuses = []
+
+    tossup_flag = False
+    bonus_flag = False
+    
+    question_stack = []
+
+    for i in range(len(data)):
+
+        this_line = data[i].strip()
+        
+        # push current line onto the stack
+        question_stack.append(this_line)
+
+        if not tossup_flag and not bonus_flag:
+            if is_answer(this_line):
+                # if no flags have been set, and we encounter an ANSWER: then we
+                # know that this is a tossup
+                tossup_flag = True
+            elif is_bpart(this_line):
+                # if no flags have been set and we encounter a [10] then we
+                # know that this is a bonus
+                bonus_flag = True
+
+        #print this_line
+        #print tossup_flag, bonus_flag
+
+        # if there are two items on the stack and the second one is an ANSWER:
+        # pop the stack and create a tossup
+        if (len(question_stack) == 2 or i == len(data) - 1) and tossup_flag:
+            tossup_answer = question_stack.pop()
+            tossup_text = question_stack.pop()
+            tossup = Tossup(tossup_text, tossup_answer, i)
+            try:
+                tossup.is_valid()
+                tossups.append(tossup)
+            except InvalidTossup as ex:
+                print ex
+            tossup_flag = False
+            
+        # if we are in bonus mode and the line is not an answer or a bonus part
+        # then pop the stack until it's empty and form a bonus
+        elif bonus_flag and ((not is_answer(this_line) and not is_bpart(this_line)) or i == len(data) - 1):
+            next_question_line = question_stack.pop()
+            parts = []
+            values = []
+            answers = []
+            leadin = ''
+            while question_stack != []:
+                bonus_line = question_stack.pop()
+                #print bonus_line
+                if is_bpart(bonus_line):
+                    match = re.search(bpart_regex, bonus_line)
+                    val = re.sub('\[|\]|\(|\)', '', match.group(0))
+                    question = string.strip(re.sub(bpart_regex, '', bonus_line))
+                    values.append(val)
+                    parts.append(question)
+                elif is_answer(bonus_line):
+                    #answer = string.strip(re.sub(ansregex, '', bonus_line))
+                    answer = bonus_line
+                    answers.append(answer)
+                else:
+                    leadin = bonus_line
+            #print leadin
+            parts.reverse()
+            values.reverse()
+            answers.reverse()
+            
+            question_stack.append(next_question_line)
+            bonus = Bonus(leadin, parts, answers, values, i)
+            try:
+                bonus.is_valid()
+                bonuses.append(bonus)
+            except InvalidBonus as ex:
+                print ex
+            bonus_flag = False
+ 
+    return tossups, bonuses
 
 class InvalidPacket(Exception):
 

@@ -239,7 +239,7 @@ class Tossup (models.Model):
     edited = models.BooleanField()
 
     #order = models.PositiveIntegerField(null=True)
-    question_number = models.IntegerField()
+    question_number = models.PositiveIntegerField(null=True)
 
     def __unicode__(self):
         #return 'butts'
@@ -299,7 +299,7 @@ class Bonus(models.Model):
     edited = models.BooleanField()
 
     #order = models.PositiveIntegerField(null=True)
-    question_number = models.IntegerField()
+    question_number = models.PositiveIntegerField(null=True)
 
     def __unicode__(self):
         return '{0!s}...'.format(strip_markup(self.leadin)[0:40])

@@ -47,8 +47,8 @@
             {% endfor %}
             </tbody>
         </table>
-        {{ formset.management_form }}
 	{% if not read_only %}
+	{{ formset.management_form }}
         <div class="row">
             <div class="span4" style="text-align: left"><input type="submit" value="Submit changes"/></div>
         </div>

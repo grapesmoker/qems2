@@ -355,7 +355,10 @@ def edit_set_tiebreak(request, qset_id):
 
             return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
         else:
-            print formset
+            return render_to_response('failure.html',
+                                      {'message': 'Something went wrong. We\'re working on it.',
+                                       'message-class': 'alert alert-error'},
+                                      context_instance=RequestContext(request))
 
 
 @login_required

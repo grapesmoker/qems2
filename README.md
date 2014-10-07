@@ -89,8 +89,31 @@ If you are uploading questions, they have to be formatted in a certain way. An u
 
 ##### Tosups:
         
-        This scientist noted the difference between Asiatic and Oceanic fauna, hypothesizing that their geographical isolation played a role in their different developments; the boundary between the two types of fauna is now known as his namesake line. For 10 points, identify this scientist who proposed a theory of evolution contemporaneously with Charles Darwin.
+> This scientist noted the difference between Asiatic and Oceanic fauna, hypothesizing that their geographical isolation played a role in their different developments; the boundary between the two types of fauna is now known as his namesake line. For 10 points, identify this scientist who proposed a theory of evolution contemporaneously with Charles Darwin.
+> ANSWER: Alfred Russell \_Wallace\_
+
+Note that the question text must be all on a single line, followed by a carriage return, with the answer prefaced by the word `"ANSWER:"` and the required parts of the answer set off by the underscore marks.
+
+##### Bonuses:
+
+> At one point in this film, two characters are arrested after they mistake dust-covered Union soldiers for Confederates. For 10 points each:
+
+> [10] Identify this film in which those two characters later help a Union colonel blow up a bridge across a river that they need to cross, while searching for Bill Carson's gold.
+
+> ANSWER: The \_Good, the Bad, and the Ugly\_
+
+> [10] _The Good, the Bad, and the Ugly_ is probably the most famous of the spaghetti westerns of Sergio Leone, starring this man as "Blondie."
+
+> ANSWER: Clint \_Eastwood\_
+
+> [10] Eastwood's other quasi-historical roles include this role in _Unforgiven_, in which he kills the Sherrif played by Gene Hackman, as revenge for Hackman's killing of his companion, played by Morgan Freeman.
+
+> ANSWER: \_William\_ [or \_Bill\_] \_Munny\_ [accept either name]
+
+The leadin must be on a single line, followed by a newline. Each part must be prefaced with the value in square brackets, e.g. `[10]`, followed by the text of the bonus part, followed by a newline. As with tossups, the answer must be set off with `"ANSWER:"` followed by the answer. In the prompt, emphasis can be applied using underscores (or asterisks), while in the answer, underscores are used to indicate required parts. You do not need blank lines between question parts and answers; those are just here for readability and will be ignored.
 
 ## Upcoming Features
 
-QEMS2 is evolving fairly rapidly. Features are being added frequently at the request of the users. There are a number of 
+QEMS2 is evolving fairly rapidly. Features are being added frequently at the request of the users. There are a number of upcoming additions that will be made to QEMS2 in the next few months:
+
+1. Bulk question writing will allow users to write directly into a text-box instead of having to upload

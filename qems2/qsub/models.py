@@ -128,6 +128,7 @@ class QuestionSet (models.Model):
     distribution = models.ForeignKey('Distribution')
     #teams = models.ForeignKey('Team')
     num_packets = models.PositiveIntegerField()
+    #tiebreak_dist = models.ForeignKey('TieBreakDistribution')
 
     class Admin: pass
 
@@ -158,7 +159,6 @@ class DistributionPerPacket(models.Model):
 
     #packet = models.ManyToManyField(Packet)
 
-
     question_set = models.ManyToManyField(QuestionSet)
     category = models.CharField(max_length=10, choices=CATEGORIES)
     subcategory = models.CharField(max_length=10)
@@ -169,6 +169,13 @@ class Distribution(models.Model):
     
     name = models.CharField(max_length=100)
     
+    def __str__(self):
+        return '{0!s}'.format(self.name)
+
+class TieBreakDistribution(models.Model):
+
+    name = models.CharField(max_length=100)
+
     def __str__(self):
         return '{0!s}'.format(self.name)
     
@@ -187,6 +194,16 @@ class DistributionEntry(models.Model):
 
     def __str__(self):
         return '{0!s} - {1!s}'.format(self.category, self.subcategory)
+
+class TieBreakDistributionEntry(models.Model):
+
+    question_set = models.ForeignKey(QuestionSet)
+    dist_entry = models.ForeignKey(DistributionEntry)
+    num_tossups = models.PositiveIntegerField(null=True)
+    num_bonuses = models.PositiveIntegerField(null=True)
+
+    def __str__(self):
+        return '{0!s} - {1!s}'.format(self.dist_entry.category, self.dist_entry.subcategory)
 
 class SetWideDistributionEntry(models.Model):
 

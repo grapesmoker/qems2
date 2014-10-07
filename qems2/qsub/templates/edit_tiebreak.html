@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block sidebar %}
+{% include "sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+{% load static %}
+
+{% if formset.total_error_count > 0 %}
+<div class="alert alert-error">
+    Errors in your form! All question numbers are required!
+</div>
+{% endif %}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <h2 class="page-header">Tiebreaker Distributions</h2>
+    {% if message %}
+    <div class="alert {{ message_class }}">{{ message }}</div>
+    {% endif %}
+    <form action="" method="post">
+        {% csrf_token %}
+        <label for="id_name">Distribution name:</label> {{ form.name}}
+        <table class="table table-striped" id="dist-table">
+            <thead>
+            <th>Category</th>
+            <th>Subcategory</th>
+            <th>Tossups</th>
+            <th>Bonuses</th>
+            <th>Delete?</th>
+            </thead>
+            <tbody>
+            {% for entry in formset %}
+            <tr>
+                {{ entry.entry_id }}
+                <td>{{ entry.category }}</td>
+                <td>{{ entry.subcategory }}</td>
+                <td>{{ entry.num_tossups }}</td>
+                <td>{{ entry.num_bonuses }}</td>
+                {% if formset.can_delete %}
+                <td>{{ entry.DELETE }}</td>
+                {% endif %}
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {{ formset.management_form }}
+        <div class="row">
+            <div class="span4" style="text-align: left"><input type="submit" value="Submit changes"/></div>
+            <div class="offset5 span2" style="text-align: right">
+                <a href="javscript:void(0);" id="add-row" title="Add category"><i class="icon-plus-sign"></i></a>
+            </div>
+        </div>
+
+    </form>
+
+</div>
+{% endblock %}

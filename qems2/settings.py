@@ -186,4 +186,5 @@ BOWER_INSTALLED_APPS = (
     'jquery-ui',
     'fontawesome',
     'tinymce',
+    'quill',
 )

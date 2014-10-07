@@ -32,7 +32,95 @@ $(function () {
         }
     });
 
-    tinymce.init({
+    try {
+        var tu_text_quill = new Quill('#tossup-editor', {
+            formats: ['bold', 'italic', 'underline']
+        });
+        var tu_ans_quill = new Quill('#answer-editor', {
+            formats: ['bold', 'italic', 'underline']
+        });
+
+        tu_text_quill.addModule('toolbar', {container: '#toolbar'})
+        tu_ans_quill.addModule('toolbar', {container: '#toolbar'})
+
+        $('#submit-tossup').click(function(e) {
+            // e.preventDefault();
+            var tu_text = $(tu_text_quill.getHTML()).html();
+            var tu_ans = $(tu_ans_quill.getHTML()).html();
+            $('#id_tossup_text').val(tu_text);
+            $('#id_tossup_answer').val(tu_ans);
+        })
+    }
+    catch (error) {
+        console.log(error);
+    }
+
+    try {
+
+        var bs_leadin_quill = new Quill('#bonus-leadin', {
+            formats: ['bold', 'italic', 'underline']
+        });
+
+        var bs_part1_quill = new Quill('#part-1-text', {
+            formats: ['bold', 'italic', 'underline']
+        })
+
+        var bs_ans1_quill = new Quill('#part-1-answer', {
+            formats: ['bold', 'italic', 'underline']
+        })
+
+        var bs_part2_quill = new Quill('#part-2-text', {
+            formats: ['bold', 'italic', 'underline']
+        })
+
+        var bs_ans2_quill = new Quill('#part-2-answer', {
+            formats: ['bold', 'italic', 'underline']
+        })
+
+        var bs_part3_quill = new Quill('#part-3-text', {
+            formats: ['bold', 'italic', 'underline']
+        })
+
+        var bs_ans3_quill = new Quill('#part-3-answer', {
+            formats: ['bold', 'italic', 'underline']
+        })
+
+        bs_leadin_quill.addModule('toolbar', {container: '#toolbar'})
+        bs_part1_quill.addModule('toolbar', {container: '#toolbar'})
+        bs_ans1_quill.addModule('toolbar', {container: '#toolbar'})
+        bs_part2_quill.addModule('toolbar', {container: '#toolbar'})
+
+        bs_ans2_quill.addModule('toolbar', {container: '#toolbar'})
+        bs_part3_quill.addModule('toolbar', {container: '#toolbar'})
+        bs_ans3_quill.addModule('toolbar', {container: '#toolbar'})
+
+        $('#submit-bonus').click(function(e) {
+            //e.preventDefault();
+
+            var bs_leadin = $(bs_leadin_quill.getHTML()).html();
+            var bs_part1_text = $(bs_part1_quill.getHTML()).html();
+            var bs_ans1_text = $(bs_ans1_quill.getHTML()).html();
+            var bs_part2_text = $(bs_part2_quill.getHTML()).html();
+            var bs_ans2_text = $(bs_ans2_quill.getHTML()).html();
+            var bs_part3_text = $(bs_part3_quill.getHTML()).html();
+            var bs_ans3_text = $(bs_ans3_quill.getHTML()).html();
+
+            // console.log($(bs_leadin_quill.getHTML()))
+
+            $('#id_leadin').val(bs_leadin);
+            $('#id_part1_text').val(bs_part1_text);
+            $('#id_part1_answer').val(bs_ans1_text);
+            $('#id_part2_text').val(bs_part2_text);
+            $('#id_part2_answer').val(bs_ans2_text);
+            $('#id_part3_text').val(bs_part3_text);
+            $('#id_part3_answer').val(bs_ans3_text);
+        })
+    }
+    catch (error) {
+        console.log(error);
+    }
+
+    /*tinymce.init({
         selector: 'textarea.question_text',
         menubar: false,
         toolbar: 'undo redo | bold italic underline',
@@ -54,8 +142,8 @@ $(function () {
             underline: {inline: 'u', exact: true},
             italic: {inline: 'i', exact: true},
             bold: {inline: 'b', exact: true}
-        }*/
-    });
+        }
+    });*/
     
     $('#id_player_to_add').autocomplete({
     source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),

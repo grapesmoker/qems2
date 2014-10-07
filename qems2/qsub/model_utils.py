@@ -49,6 +49,20 @@ def create_set_distro_formset(qset):
         'num_bonuses': entry.num_bonuses})
     return DistributionEntryFormset(initial=initial_data, prefix='distentry')
 
+def create_tiebreak_formset(qset):
+
+    DistributionEntryFormset = formset_factory(TieBreakDistributionEntryForm, can_delete=False, extra=0)
+    entries = qset.tiebreakdistributionentry_set.all()
+    initial_data = []
+    for entry in entries:
+        initial_data.append({'entry_id': entry.id,
+        'dist_entry': entry.dist_entry,
+        'category': entry.dist_entry.category,
+        'subcategory': entry.dist_entry.subcategory,
+        'num_tossups': entry.num_tossups,
+        'num_bonuses': entry.num_bonuses})
+    return DistributionEntryFormset(initial=initial_data, prefix='tiebreak')
+
 def get_role(user, qset):
 
     role = 'viewer'

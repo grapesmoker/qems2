@@ -116,6 +116,7 @@ def create_question_set (request):
                 set_wide_entry.save()
 
             set_distro_formset = create_set_distro_formset(question_set)
+            tiebreak_formset = create_tiebreak_formset(question_set)
 
             return render_to_response('edit_question_set.html',
                                       {'message': 'Your question set has been successfully created!',
@@ -124,6 +125,7 @@ def create_question_set (request):
                                        'user': user,
                                        'form': form,
                                        'set_distro_formset': set_distro_formset,
+                                       'tiebreak_formset': tiebreak_formset,
                                        'editors': [ed for ed in question_set.editor.all() if ed != question_set.owner],
                                        'writers': question_set.writer.all(),
                                        'tossups': Tossup.objects.filter(question_set=question_set),
@@ -191,6 +193,7 @@ def edit_question_set(request, qset_id):
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
                 set_distro_formset = create_set_distro_formset(qset)
+                tiebreak_formset = create_tiebreak_formset(qset)
             else:
                 read_only = True
 
@@ -218,6 +221,7 @@ def edit_question_set(request, qset_id):
                                        'editors': [ed for ed in qset_editors if ed != qset.owner],
                                        'writers': qset.writer.all(),
                                        'set_distro_formset': set_distro_formset,
+                                       'tiebreak_formset': tiebreak_formset,
                                        'upload_form': QuestionUploadForm(),
                                        'set_status': set_status,
                                        'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
@@ -240,17 +244,20 @@ def edit_question_set(request, qset_id):
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
                 set_distro_formset = create_set_distro_formset(qset)
+                tiebreak_formset = create_tiebreak_formset(qset)
         else:
             if user == qset.owner:
                 read_only = False
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
                 set_distro_formset = create_set_distro_formset(qset)
+                tiebreak_formset = create_tiebreak_formset(qset)
             elif user in qset.writer.all() or user in qset.editor.all():
                 read_only = True
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
                 set_distro_formset = create_set_distro_formset(qset)
+                tiebreak_formset = create_tiebreak_formset(qset)
             form = QuestionSetForm(instance=qset)
 
         entries = qset.setwidedistributionentry_set.all()
@@ -269,6 +276,7 @@ def edit_question_set(request, qset_id):
                                                      'bs_in_cat': bs_written}
         set_pct_complete = float(total_tu_written + total_bs_written) / float(total_tu_req + total_bs_req)
 
+    print tiebreak_formset
         
     return render_to_response('edit_question_set.html',
                               {'form': form,
@@ -276,6 +284,7 @@ def edit_question_set(request, qset_id):
                                'editors': [ed for ed in qset_editors if ed != qset.owner],
                                'writers': [wr for wr in qset_writers if wr != qset.owner],
                                'set_distro_formset': set_distro_formset,
+                               'tiebreak_formset': tiebreak_formset,
                                'set_status': set_status,
                                'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
                                'tu_needed': total_tu_req - total_tu_written,
@@ -314,6 +323,33 @@ def edit_set_distribution(request, qset_id):
             return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
         else:
             print formset
+
+@login_required
+def edit_set_tiebreak(request, qset_id):
+
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+
+    if request.method == 'POST':
+
+        TiebreakDistributionEntryFormset = formset_factory(TieBreakDistributionEntryForm, can_delete=False, extra=0)
+        formset = TiebreakDistributionEntryFormset(data=request.POST, prefix='tiebreak')
+
+        if formset.is_valid() and user == qset.owner:
+            for dist_form in formset.forms:
+                entry_id = int(dist_form.cleaned_data['entry_id'])
+                num_tossups = int(dist_form.cleaned_data['num_tossups'])
+                num_bonuses = int(dist_form.cleaned_data['num_bonuses'])
+
+                entry = TieBreakDistributionEntry.objects.get(id=entry_id)
+                entry.num_tossups = num_tossups
+                entry.num_bonuses = num_bonuses
+                entry.save()
+
+            return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
+        else:
+            print formset
+
 
 @login_required
 def find_editor(request):
@@ -491,6 +527,7 @@ def add_tossups(request, qset_id, packet_id=None):
     qset = QuestionSet.objects.get(id=qset_id)
     message = ''
     message_class = ''
+    tossup = None
     read_only = True
 
     if request.method == 'GET':
@@ -539,6 +576,11 @@ def add_tossups(request, qset_id, packet_id=None):
                 tossup.save()
                 message = 'Your tossup has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
+
+            else:
+                for field in tossup_form:
+                    print field
+                    print field.errors
 
             read_only = False
         else:
@@ -615,6 +657,11 @@ def add_bonuses(request, qset_id, packet_id=None):
                 bonus.save()
                 message = 'Your bonus has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
+
+            else:
+                for field in form:
+                    print field
+                    print field.errors
 
             read_only = False
         else:
@@ -1392,15 +1439,16 @@ def edit_distribution(request, dist_id=None):
                     new_dist.save()
                     
                     for form in formset:
-                        new_entry = DistributionEntry()
-                        new_entry.category = form.cleaned_data['category']
-                        new_entry.subcategory = form.cleaned_data['subcategory']
-                        new_entry.min_bonuses = form.cleaned_data['min_bonuses']
-                        new_entry.min_tossups = form.cleaned_data['min_tossups']
-                        new_entry.max_bonuses = form.cleaned_data['max_bonuses']
-                        new_entry.max_tossups = form.cleaned_data['max_tossups']
-                        new_entry.distribution = new_dist
-                        new_entry.save()
+                        if form.cleaned_data != {}:
+                            new_entry = DistributionEntry()
+                            new_entry.category = form.cleaned_data['category']
+                            new_entry.subcategory = form.cleaned_data['subcategory']
+                            new_entry.min_bonuses = form.cleaned_data['min_bonuses']
+                            new_entry.min_tossups = form.cleaned_data['min_tossups']
+                            new_entry.max_bonuses = form.cleaned_data['max_bonuses']
+                            new_entry.max_tossups = form.cleaned_data['max_tossups']
+                            new_entry.distribution = new_dist
+                            new_entry.save()
 
                     return HttpResponseRedirect('/edit_distribution/' + str(new_dist.id))
                         
@@ -1493,6 +1541,121 @@ def edit_distribution(request, dist_id=None):
                                       {'form': dist_form,
                                        'formset': formset,},
                                        context_instance=RequestContext(request))
+
+@login_required()
+def edit_tiebreak(request, dist_id=None):
+
+    user = request.user.writer
+    data = []
+
+
+    TiebreakDistributionEntryFormset = formset_factory(TieBreakDistributionEntryForm, can_delete=True)
+    if request.method == 'POST':
+        # no dist_id supplied means new dist
+        if dist_id is None:
+            formset = TiebreakDistributionEntryFormset(data=request.POST, prefix='tiebreak')
+            dist_form = TieBreakDistributionForm(data=request.POST)
+            if dist_form.is_valid() and formset.is_valid():
+                new_dist = TieBreakDistribution()
+                new_dist.name = dist_form.cleaned_data['name']
+                new_dist.save()
+
+                for form in formset:
+                    if form.cleaned_data != {}:
+                        new_entry = DistributionEntry()
+                        new_entry.category = form.cleaned_data['category']
+                        new_entry.subcategory = form.cleaned_data['subcategory']
+                        new_entry.bonuses = form.cleaned_data['num_bonuses']
+                        new_entry.tossups = form.cleaned_data['num_tossups']
+                        new_entry.distribution = new_dist
+                        new_entry.save()
+
+                return HttpResponseRedirect('/edit_tiebreak/' + str(new_dist.id))
+        else:
+            formset = TiebreakDistributionEntryFormset(data=request.POST, prefix='tiebreak')
+            dist_form = TieBreakDistributionForm(data=request.POST)
+            print dist_form.is_valid()
+            print formset.is_valid()
+            print formset.errors
+            if dist_form.is_valid() and formset.is_valid():
+
+                dist = TieBreakDistribution.objects.get(id=dist_id)
+                dist.name = dist_form.cleaned_data['name']
+                qsets = dist.questionset_set.all()
+                for form in formset:
+                    if form.cleaned_data != {}:
+                        if form.cleaned_data['entry_id'] is not None:
+                            entry_id = int(form.cleaned_data['entry_id'])
+                            entry = DistributionEntry.objects.get(id=entry_id)
+                            if form.cleaned_data['DELETE']:
+                                entry.delete()
+                                entry = None
+                            else:
+                                entry.category = form.cleaned_data['category']
+                                entry.subcategory = form.cleaned_data['subcategory']
+                                entry.bonuses = form.cleaned_data['num_bonuses']
+                                entry.tossups = form.cleaned_data['num_tossups']
+                                entry.save()
+                        else:
+                            entry = form.save(commit=False)
+                            entry.distribution = dist
+                            entry.save()
+
+                        if entry is not None:
+                            for qset in qsets:
+                                set_wide_entry = qset.tiebreakdistributionentry_set.filter(dist_entry=entry)
+                                print set_wide_entry
+                                if set_wide_entry.count() == 0:
+                                    print 'here'
+                                    new_set_wide_entry = DistributionEntry()
+                                    new_set_wide_entry.dist_entry = entry
+                                    new_set_wide_entry.question_set = qset
+                                    new_set_wide_entry.num_tossups = qset.num_packets * entry.min_tossups
+                                    new_set_wide_entry.num_bonuses = qset.num_packets * entry.min_bonuses
+                                    new_set_wide_entry.save()
+
+                entries = dist.distributionentry_set.all()
+                initial_data = []
+                for entry in entries:
+                    initial_data.append({'entry_id': entry.id,
+                                         'category': entry.category,
+                                         'subcategory': entry.subcategory,
+                                         'num_bonuses': entry.min_bonuses,
+                                         'num_tossups': entry.max_tossups,})
+                formset = TiebreakDistributionEntryFormset(initial=initial_data, prefix='tiebreak')
+
+            else:
+                dist = Distribution.objects.get(id=dist_id)
+                dist_form = DistributionForm(instance=dist)
+                formset = TiebreakDistributionEntryFormset(data=request.POST, prefix='tiebreak')
+
+        return render_to_response('edit_tiebreak.html',
+                                  {'form': dist_form,
+                                   'formset': formset},
+                                   context_instance=RequestContext(request))
+
+    else:
+        if dist_id is not None:
+            dist = TieBreakDistribution.objects.get(id=dist_id)
+            entries = dist.distributionentry_set.all()
+            initial_data = []
+            for entry in entries:
+                initial_data.append({'entry_id': entry.id,
+                                     'category': entry.category,
+                                     'subcategory': entry.subcategory,
+                                     'num_tossups': entry.min_tossups,
+                                     'num_bonuses': entry.min_bonuses,})
+            dist_form = TieBreakDistributionForm(instance=dist)
+            formset = TiebreakDistributionEntryFormset(initial=initial_data, prefix='tiebreak')
+        else:
+            dist_form = TieBreakDistributionForm()
+            formset = TiebreakDistributionEntryFormset(prefix='tiebreak')
+            
+        return render_to_response('edit_tiebreak.html',
+        {'form': dist_form,
+        'formset': formset,},
+        context_instance=RequestContext(request))
+
 
 @login_required
 def add_comment(request):

@@ -25,13 +25,32 @@
     {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}
+    <div id="toolbar" class="ql-toolbar-container quill-wrapper">
+        <button class="ql-bold"><b>B</b></button>
+        <button class="ql-italic"><i>I</i></button>
+        <button class="ql-underline"><u>U</u></button>
+    </div>
+
 	<form action="" method="post">
         {% csrf_token %}
         {% if not read_only %}
         {% if form %}
+        <strong>Tossup Text:</strong>
+        <div class="quill-wrapper">
+            <div id="tossup-editor" class="tossup-text">
+                <div>{{ tossup.tossup_text|safe }}</div>
+            </div>
+        </div>
+        <strong>Tossup Answer:</strong>
+        <div class="quill-wrapper" style="height: 50px;">
+            <div id="answer-editor" class="answer-text">
+                <div>{{ tossup.tossup_answer|safe }}</div>
+            </div>
+        </div>
+        <br>
         {{ form.as_p }}
         {% endif %}
-        <input type="submit" value="Save"/>
+        <input type="submit" id="submit-tossup" value="Save"/>
         {% else %}
         {% if tossup %}
         <p>{{ tossup.tossup_text|safe }}</p>

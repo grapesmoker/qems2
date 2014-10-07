@@ -82,8 +82,10 @@ class RoleAssignmentForm(forms.ModelForm):
     
 class TossupForm(forms.ModelForm):
     
-    tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 40, 'rows': 12}))
-    tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 40, 'rows': 5}))
+    #tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 40, 'rows': 12}))
+    #tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 40, 'rows': 5}))
+    tossup_text = forms.CharField(widget=forms.HiddenInput())
+    tossup_answer = forms.CharField(widget=forms.HiddenInput())
     category = forms.ModelChoiceField([])
 
     class Meta:
@@ -98,6 +100,7 @@ class TossupForm(forms.ModelForm):
         super(TossupForm, self).__init__(*args, **kwargs)
 
         self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
+        #self.fields['locked'].required = False
 
         if qset_id:
             try:
@@ -128,14 +131,22 @@ class TossupForm(forms.ModelForm):
         
 class BonusForm(forms.ModelForm):
     
-    leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    part1_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    part1_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    part2_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    
+    #leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
+    #part1_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
+    #part1_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
+    #part2_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
+    #part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
+    #part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
+    #part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
+
+    leadin = forms.CharField(widget=forms.HiddenInput())
+    part1_text = forms.CharField(widget=forms.HiddenInput())
+    part1_answer = forms.CharField(widget=forms.HiddenInput())
+    part2_text = forms.CharField(widget=forms.HiddenInput())
+    part2_answer = forms.CharField(widget=forms.HiddenInput())
+    part3_text = forms.CharField(widget=forms.HiddenInput())
+    part3_answer = forms.CharField(widget=forms.HiddenInput())
+
     class Meta:
         model = Bonus
         exclude = ['author', 'question_set', 'subtype', 'time_period', 'location', 'question_number']
@@ -183,7 +194,15 @@ class DistributionForm(forms.ModelForm):
     
     class Meta:
         model = Distribution
-    
+
+class TieBreakDistributionForm(forms.ModelForm):
+
+    name = forms.CharField(max_length=100)
+
+    class Meta:
+        model = TieBreakDistribution
+
+
 class DistributionEntryForm(forms.ModelForm):
     
     entry_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
@@ -196,6 +215,20 @@ class DistributionEntryForm(forms.ModelForm):
     
     delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     
+    class Meta:
+        model = DistributionEntry
+        exclude = ['distribution']
+
+class TieBreakDistributionEntryForm(forms.ModelForm):
+
+    entry_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
+    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}))
+    subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
+    min_tossups = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
+    min_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'width': 20, 'class': 'spinner'}), min_value=0)
+   
+    delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
+
     class Meta:
         model = DistributionEntry
         exclude = ['distribution']

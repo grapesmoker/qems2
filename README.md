@@ -87,7 +87,7 @@ The submission/editing cycle continues until both the set-level constraints and 
 
 If you are uploading questions, they have to be formatted in a certain way. An uploaded file must be in plain text, and the questions must have this form:
 
-##### Tosups:
+##### Tossups:
         
 > This scientist noted the difference between Asiatic and Oceanic fauna, hypothesizing that their geographical isolation played a role in their different developments; the boundary between the two types of fauna is now known as his namesake line. For 10 points, identify this scientist who proposed a theory of evolution contemporaneously with Charles Darwin.
 

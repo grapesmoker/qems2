@@ -90,6 +90,7 @@ If you are uploading questions, they have to be formatted in a certain way. An u
 ##### Tosups:
         
 > This scientist noted the difference between Asiatic and Oceanic fauna, hypothesizing that their geographical isolation played a role in their different developments; the boundary between the two types of fauna is now known as his namesake line. For 10 points, identify this scientist who proposed a theory of evolution contemporaneously with Charles Darwin.
+
 > ANSWER: Alfred Russell \_Wallace\_
 
 Note that the question text must be all on a single line, followed by a carriage return, with the answer prefaced by the word `"ANSWER:"` and the required parts of the answer set off by the underscore marks.

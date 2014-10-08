@@ -3,7 +3,7 @@ QEMS2 - a question submission and editing system
 
 ## What is it?
 
-QEMS2 is a successor to a system called, intuitively enough, QEMS, which was used by [High School Academic Pyramidal Questions](www.hsapq.com) to produce quizbowl questions for various high school quizbowl competitions. The original QEMS was written in PHP and broke down after the maintainer stopped working on it; it was also completely hand-coded and made no use of modern web development frameworks or standards. QEMS2 is an attempt to remedy all that, by rebuilding the system from the ground up using modern tools.
+QEMS2 is a successor to a system called, intuitively enough, QEMS, which was used by [High School Academic Pyramidal Questions](http://www.hsapq.com) to produce quizbowl questions for various high school quizbowl competitions. The original QEMS was written in PHP and broke down after the maintainer stopped working on it; it was also completely hand-coded and made no use of modern web development frameworks or standards. QEMS2 is an attempt to remedy all that, by rebuilding the system from the ground up using modern tools.
 
 ## Stack
 

@@ -116,4 +116,8 @@ The leadin must be on a single line, followed by a newline. Each part must be pr
 
 QEMS2 is evolving fairly rapidly. Features are being added frequently at the request of the users. There are a number of upcoming additions that will be made to QEMS2 in the next few months:
 
-1. Bulk question writing will allow users to write directly into a text-box instead of having to upload
+1. Bulk question writing will allow users to write directly into a text-box instead of having to upload a file.
+2. Question set status that takes tiebreakers into account.
+3. Customizable PDF generation.
+4. Pagination in long lists
+5. Full-text search

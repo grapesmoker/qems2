@@ -27,7 +27,7 @@ Once you have those installed, you should use `pip` to get the necessary Python 
         sudo pip install django-bower
         sudo pip install django-contrib-comments
 
-It's generally recommended that you user `virtualenv` to set up a virtual environment for your project. 
+It's generally recommended that you use `virtualenv` to set up a virtual environment for your project. 
 
 Next, grab `bower` using `npm` for front-end package management:
 

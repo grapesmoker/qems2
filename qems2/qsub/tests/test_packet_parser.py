@@ -1,7 +1,8 @@
+import unittest
 import django.test
 from qems2.qsub.packet_parser import is_answer
 
-class PacketParserTestCase(django.test.TestCase):
+class PacketParserTestCase(unittest.TestCase):
     def test_is_answer(self):
         answers = ["answer:", "Answer:", "ANSWER:"]
         for answer in answers:

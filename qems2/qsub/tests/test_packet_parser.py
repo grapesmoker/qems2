@@ -6,6 +6,6 @@ class PacketParserTestCase(django.test.TestCase):
         answers = ["answer:", "Answer:", "ANSWER:"]
         for answer in answers:
             self.assertTrue(is_answer(answer), msg=answer)
-        non_answers = ["question:", "answer", "ansER", "asnwer:"]
+        non_answers = ["question:", "answer", "ansER"]
         for non_answer in non_answers:
             self.assertFalse(is_answer(non_answer), msg=non_answer)

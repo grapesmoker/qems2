@@ -1708,6 +1708,41 @@ def upload_questions(request, qset_id):
             messages.error(request, 'You do not have permission to upload ')
 
 @login_required
+def type_questions(request, qset_id):
+    qset = QuestionSet.objects.get(id=qset_id)
+    user = request.user.writer
+    
+    if request.method == 'POST':
+        if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
+            form = TypeQuestionsForm(request.POST)
+            if form.is_valid():
+                question_data = request.POST['questions']
+                tossups, bonuses = parse_packet_data(question_data)
+                
+                return render_to_response({'type_questions_preview.html',
+                                           'tossups': tossups,
+                                           'bonuses': bonuses,
+                                           'message': 'Please verify that these questions have been correctly parsed. Hitting "Submit" will '\
+                                           'commit these questions to the database. If you see any mistakes, hit "Cancel" and correct your mistakes.',
+                                           'qset': qset},
+                                          context_instance=RequestContext(request))
+            else:
+                question_data = request.POST['questions']
+                tossups, bonuses = parse_packet_data(question_data)
+                messages.error(request, form.questions.errors)
+                
+        else:
+            messages.error(request, 'You do not have permission to add questions to this set')
+            return render_to_response({'type_questions.html',
+                                       'tossups': tossups,
+                                       'bonuses': bonuses,
+                                       'qset': qset},
+                                      context_instance=RequestContext(request))
+
+
+            
+
+@login_required
 def complete_upload(request):
     user = request.user.writer
 

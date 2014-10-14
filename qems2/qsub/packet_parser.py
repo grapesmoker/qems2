@@ -22,7 +22,7 @@ def parse_uploaded_packet(uploaded_file):
     print uploaded_file.name
     file_data = uploaded_file.read().split('\n')
 
-    tossups, bonuses = parse_packet_data(file_data)
+    tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(file_data)
 
     return tossups, bonuses
 
@@ -214,6 +214,9 @@ def parse_packet_data(data):
     tossups = []
     bonuses = []
 
+    tossup_errors = []
+    bonus_errors = []
+
     tossup_flag = False
     bonus_flag = False
     
@@ -250,6 +253,7 @@ def parse_packet_data(data):
                 tossups.append(tossup)
             except InvalidTossup as ex:
                 print ex
+                tossup_errors.append(tossup)
             tossup_flag = False
             
         # if we are in bonus mode and the line is not an answer or a bonus part
@@ -287,9 +291,10 @@ def parse_packet_data(data):
                 bonuses.append(bonus)
             except InvalidBonus as ex:
                 print ex
+                bonus_errors.append(bonus)
             bonus_flag = False
  
-    return tossups, bonuses
+    return tossups, bonuses, tossup_errors, bonus_errors
 
 class InvalidPacket(Exception):
 

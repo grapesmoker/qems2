@@ -1708,8 +1708,12 @@ def upload_questions(request, qset_id):
             messages.error(request, 'You do not have permission to upload ')
 
 @login_required
-def type_questions(request, qset_id):
-    qset = QuestionSet.objects.get(id=qset_id)
+def type_questions(request, qset_id=None):
+    if qset_id is not None:
+        qset = QuestionSet.objects.get(id=qset_id)
+    else:
+        qset = QuestionSet.objects.get(id=request.POST['qset_id'])
+
     user = request.user.writer
     
     if request.method == 'POST':
@@ -1717,14 +1721,15 @@ def type_questions(request, qset_id):
             form = TypeQuestionsForm(request.POST)
             if form.is_valid():
                 question_data = request.POST['questions']
-                tossups, bonuses = parse_packet_data(question_data)
+                tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(question_data)
                 
-                return render_to_response({'type_questions_preview.html',
-                                           'tossups': tossups,
+                return render_to_response('type_questions_preview.html',
+                                          {'tossups': tossups,
                                            'bonuses': bonuses,
                                            'message': 'Please verify that these questions have been correctly parsed. Hitting "Submit" will '\
                                            'commit these questions to the database. If you see any mistakes, hit "Cancel" and correct your mistakes.',
-                                           'qset': qset},
+                                           'qset': qset,
+                                           'user': user},
                                           context_instance=RequestContext(request))
             else:
                 question_data = request.POST['questions']
@@ -1732,11 +1737,29 @@ def type_questions(request, qset_id):
                 messages.error(request, form.questions.errors)
                 
         else:
+            tossups = None
+            bonuses = None
             messages.error(request, 'You do not have permission to add questions to this set')
-            return render_to_response({'type_questions.html',
-                                       'tossups': tossups,
+            return render_to_response('type_questions.html',
+                                      {'tossups': tossups,
                                        'bonuses': bonuses,
-                                       'qset': qset},
+                                       'qset': qset,
+                                       'user': user},
+                                      context_instance=RequestContext(request))
+    elif request.method == 'GET':
+        if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
+            form = TypeQuestionsForm(request.POST)
+
+            messages.error(request, 'You do not have permission to add questions to this set')
+            return render_to_response('type_questions.html',
+                                      {'user': user,
+                                       'qset': qset,
+                                       'form': form},
+                                      context_instance=RequestContext(request))
+        else:
+            return render_to_response('type_questions.html',
+                                      {'qset': qset,
+                                       'user': user},
                                       context_instance=RequestContext(request))
 
 

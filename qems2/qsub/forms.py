@@ -263,6 +263,6 @@ class NewPacketsForm(forms.Form):
     name_base = forms.CharField(max_length=190, required=False)
     num_packets = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}), required=False, min_value=0)
 
-class TypeQuestionsFom(forms.Form):
+class TypeQuestionsForm(forms.Form):
 
-    questions = forms.CharField(widget=forms.Textarea(attrs={'cols': 80, 'rows': 80}), required=False)
+    questions = forms.CharField(label='', widget=forms.Textarea(attrs={'cols': 120, 'rows': 40}), required=False)

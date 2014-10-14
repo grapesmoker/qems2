@@ -187,4 +187,5 @@ BOWER_INSTALLED_APPS = (
     'fontawesome',
     'tinymce',
     'quill',
+    'paging',
 )

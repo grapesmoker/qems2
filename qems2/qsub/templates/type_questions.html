@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block sidebar %}
+{% include "sidebar.html" %}
+{% endblock %}
+
+{% load filters %}
+{% block content %}
+
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
+    <h2 class="page-header">Type Questions</h2>
+    {% if message %}
+    <div class="{{ message_class }}">
+        {{ message }}
+    </div>
+    <ol class="breadcrumb">
+        <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
+        {% if packet %}
+        <li><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
+        {% endif %}
+        {% if tossup %}
+        <li><a href="/edit_tossup/{{ tossup.id }}">{{ tossup }}</a></li>
+        {% endif %}
+    </ol>
+    {% endif %}
+    <form action="/type_questions/" method="post">
+        {% csrf_token %}
+        <div class="alert alert-info">
+            Type questions into the box below. Questions must be formatted properly or the parser will reject them.
+        </div>
+        {{ form.as_p }}
+        <input type="hidden" name="qset_id" value="{{ qset.id }}">
+        <input type="submit" class="btn btn-primary" value="Submit">
+    </form>
+</div>
+
+{% endblock %}

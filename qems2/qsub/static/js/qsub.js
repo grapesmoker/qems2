@@ -14,8 +14,16 @@ function add_row_to_cat_table() {
     $('.spinner').width(10).spinner({'min': 0})
 }
 
+$.browser = {}
 
 $(function () {
+
+    $.browser.msie = false;
+    /*$.browser.version = 0;
+    if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
+        jQuery.browser.msie = true;
+        jQuery.browser.version = RegExp.$1;
+    }*/
 
     var csrftoken = $.cookie('csrftoken');
 
@@ -119,6 +127,12 @@ $(function () {
     catch (error) {
         console.log(error);
     }
+
+    $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
+    $('#tossup-pager').css({position: "relative"});
+
+    $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});
+    $('#bonus-pager').css({position: "relative"});
 
     /*tinymce.init({
         selector: 'textarea.question_text',

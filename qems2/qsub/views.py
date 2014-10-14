@@ -1720,12 +1720,14 @@ def type_questions(request, qset_id=None):
         if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
             form = TypeQuestionsForm(request.POST)
             if form.is_valid():
-                question_data = request.POST['questions']
+                question_data = request.POST['questions'].splitlines()
                 tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(question_data)
                 
                 return render_to_response('type_questions_preview.html',
                                           {'tossups': tossups,
                                            'bonuses': bonuses,
+                                           'tossup_errors': tossup_errors,
+                                           'bonus_errors': bonus_errors,
                                            'message': 'Please verify that these questions have been correctly parsed. Hitting "Submit" will '\
                                            'commit these questions to the database. If you see any mistakes, hit "Cancel" and correct your mistakes.',
                                            'qset': qset,
@@ -1749,21 +1751,17 @@ def type_questions(request, qset_id=None):
     elif request.method == 'GET':
         if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
             form = TypeQuestionsForm(request.POST)
-
-            messages.error(request, 'You do not have permission to add questions to this set')
             return render_to_response('type_questions.html',
                                       {'user': user,
                                        'qset': qset,
                                        'form': form},
                                       context_instance=RequestContext(request))
         else:
+            messages.error(request, 'You do not have permission to add questions to this set')
             return render_to_response('type_questions.html',
                                       {'qset': qset,
                                        'user': user},
                                       context_instance=RequestContext(request))
-
-
-            
 
 @login_required
 def complete_upload(request):

@@ -92,7 +92,12 @@ STATICFILES_FINDERS = (
 BOWER_COMPONENTS_ROOT = os.path.join(PROJECT_ROOT, 'components')
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = '%&amp;5&amp;wmrx-g8zpk8=m*kttzkxfy^38ziedy$1kf-4uwme8bksba'
+# Read secret from disk
+f = open(os.path.join(PROJECT_ROOT, 'secret'), 'r')
+SECRET_KEY = f.read().strip()
+f.close()
+
+#SECRET_KEY = '%&amp;5&amp;wmrx-g8zpk8=m*kttzkxfy^38ziedy$1kf-4uwme8bksba'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -187,5 +192,5 @@ BOWER_INSTALLED_APPS = (
     'fontawesome',
     'tinymce',
     'quill',
-    'paging',
+    'tablesorter',
 )

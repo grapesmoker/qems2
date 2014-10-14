@@ -315,10 +315,10 @@ class InvalidTossup(Exception):
         self.args = [a for a in args]
 
     def __str__(self):
-        s = '*' * 50 + '\n'
-        s += 'Invalid tossup {0}!\n'.format(self.args[2])
-        s += 'The problem is in field: {0}, which has value: {1}\n'.format(self.args[0], self.args[1])
-        s += '*' * 50 + '\n'
+        s = '*' * 50 + '<br>'
+        s += 'Invalid tossup {0}!<br>'.format(self.args[2])
+        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
+        s += '*' * 50 + '<br>'
 
         return s
 
@@ -329,10 +329,10 @@ class InvalidBonus(Exception):
         self.args = [a for a in args]
 
     def __str__(self):
-        s = '*' * 50 + '\n'
-        s += 'Invalid bonus {0}!\n'.format(self.args[2])
-        s += 'The problem is in field: {0}, which has value: {1}\n'.format(self.args[0], self.args[1])
-        s += '*' * 50 + '\n'
+        s = '*' * 50 + '<br>'
+        s += 'Invalid bonus {0}!<br>'.format(self.args[2])
+        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
+        s += '*' * 50 + '<br>'
 
         return s
 

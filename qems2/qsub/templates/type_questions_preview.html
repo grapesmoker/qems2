@@ -22,6 +22,22 @@
     <form action="/complete_upload/" method="post">
         {% csrf_token %}
         <div class="col-md-8 col-md-offset-1 text-left">
+            {% if tossup_errors %}
+            {% for tu_error in tossup_errors %}
+            <div class="alert alert-danger">
+                {{ tu_error }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
+            {% if bonus_errors %}
+            {% for bs_error in bonus_errors %}
+            <div class="alert alert-danger">
+                {{ bs_error }}
+            </div>
+            {% endfor %}
+            {% endif %}
+
             <h3>Submitted Tossups</h3>
             {% for tossup in tossups %}
             <p>{{ tossup.question|safe }}<br>

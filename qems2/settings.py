@@ -137,12 +137,14 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Uncomment the next line to enable the admin:
+    'haystack',
     'django.contrib.admin',
     'django_comments',
     'djangobower',
     # 'debug_toolbar',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+
     'qems2.qsub',
 )
 
@@ -194,3 +196,10 @@ BOWER_INSTALLED_APPS = (
     'quill',
     'tablesorter',
 )
+
+HAYSTACK_CONNECTIONS = {
+    'default': {
+        'ENGINE': 'haystack.backends.whoosh_backend.WhooshEngine',
+        'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index')
+    },
+}

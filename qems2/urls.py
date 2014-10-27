@@ -73,4 +73,7 @@ urlpatterns = patterns('',
 
     # commenting framework
     (r'^comments/', include('django_comments.urls')),
+
+    # search
+    (r'^search/', include('haystack.urls')),
 )

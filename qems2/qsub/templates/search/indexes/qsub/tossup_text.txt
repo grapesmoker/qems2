@@ -1,0 +1,2 @@
+{{ object.tossup_text }}
+{{ object.tossup_answer }}

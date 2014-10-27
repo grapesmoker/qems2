@@ -62,3 +62,7 @@ def check_mark_if_100_pct(x, y):
         return mark_safe('<i class="fa fa-check" style="color:green"></i>')
     else:
         return mark_safe('<i class="fa fa-times" style="color:red"></i>')
+
+@register.filter(name='class_name')
+def class_name(obj):
+    return obj.__class__.__name__

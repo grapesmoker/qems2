@@ -293,6 +293,20 @@ def parse_packet_data(data):
                 print ex
                 bonus_errors.append(bonus)
             bonus_flag = False
+
+        # special case for vhsl bonuses
+        elif bonus_flag and (is_answer(this_line) or i == len(data) - 1):
+            bonus_line = question_stack.pop()
+            question = re.sub(bpart_regex, '', bonus_line)
+            answer = string.strip(re.sub(ansregex, '', this_line))
+            bonus = Bonus('', [question], [answer], [], i, type='vhsl')
+            try:
+                bonus.is_valid()
+                bonuses.append(bonus)
+            except InvalidBonus as ex:
+                print ex
+                bonus_errors.append(bonus)
+            bonus_flag = False
  
     return tossups, bonuses, tossup_errors, bonus_errors
 
@@ -339,12 +353,13 @@ class InvalidBonus(Exception):
 
 class Bonus:
 
-    def __init__(self, leadin='', parts=[], answers=[], values=[], number=''):
+    def __init__(self, leadin='', parts=[], answers=[], values=[], number='', type='acf'):
         self.leadin = leadin
         self.parts = parts
         self.answers = answers
         self.number = number
         self.values = values
+        self.type = type
 
     def add_part(self, part):
         self.parts.append(part)
@@ -385,35 +400,48 @@ class Bonus:
 
         self.valid = False
 
-        if self.leadin == '':
-            raise InvalidBonus('leadin', self.leadin, self.number)
-        if self.parts == []:
-            raise InvalidBonus('parts', self.parts, self.number)
-        if self.answers == []:
-            raise InvalidBonus('answers', self.answers, self.number)
-        if self.values == []:
-            raise InvalidBonus('values', self.values, self.number)
+        if self.type == 'acf':
 
-        # for ans in self.answers:
-        #    if re.match('answer:', ans) is None:
-        #        raise InvalidBonus('answers', self.answers)
-        #    if ans == '':
-        #        raise Invalidbonus('answers', self.answers)
-
-        for part in self.parts:
-            if part == '':
+            if self.leadin == '':
+                raise InvalidBonus('leadin', self.leadin, self.number)
+            if self.parts == []:
                 raise InvalidBonus('parts', self.parts, self.number)
-
-        for val in self.values:
-            if val == '':
-                raise InvalidBonus('values', self.values, self.number)
-            try:
-                int(val)
-            except ValueError:
+            if self.answers == []:
+                raise InvalidBonus('answers', self.answers, self.number)
+            if self.values == []:
                 raise InvalidBonus('values', self.values, self.number)
 
-        self.valid = True
-        return True
+            # for ans in self.answers:
+            #    if re.match('answer:', ans) is None:
+            #        raise InvalidBonus('answers', self.answers)
+            #    if ans == '':
+            #        raise Invalidbonus('answers', self.answers)
+
+            for part in self.parts:
+                if part == '':
+                    raise InvalidBonus('parts', self.parts, self.number)
+
+            for val in self.values:
+                if val == '':
+                    raise InvalidBonus('values', self.values, self.number)
+                try:
+                    int(val)
+                except ValueError:
+                    raise InvalidBonus('values', self.values, self.number)
+
+            self.valid = True
+            return True
+
+        elif self.type == 'vhsl':
+
+            if self.parts == []:
+                raise InvalidBonus('parts', self.parts, self.number)
+            if self.answers == []:
+                raise InvalidBonus('answers', self.answers, self.number)
+
+            for part in self.parts:
+                if part == '':
+                    raise InvalidBonus('parts', self.parts, self.number)
 
     def __str__(self):
 

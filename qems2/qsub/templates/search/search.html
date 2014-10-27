@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block sidebar %}
+{% include "sidebar.html" %}
+{% endblock %}
+
+{% block content %}
+{% load static %}
+{% load filters %}
+
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
+    <h2 class="page-header">Question Search</h2>
+
+    <form role="form" method="get" action=".">
+        <div class="form-group">
+            <label for="id_q">Search: </label>
+            <input type="search" id="id_q" name="q" class="form-control">
+        </div>
+        <div class="checkbox">
+            <label for="id_models_0">Search in:
+                <label for="id_models_0">
+                    <input checked="checked" id="id_models_0" name="models" type="checkbox" value="qsub.tossup"/>
+                    Tossups
+                </label>
+                <label for="id_models_1">
+                    <input checked="checked" id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>
+                    Bonuses
+                </label>
+            </label>
+        </div>
+        <input type="submit" value="Search" class="btn btn-primary">
+    </form>
+    <p></p>
+
+    {% if query %}
+
+    <table class="table table-striped table-hover tablesorter">
+        <caption class="alert alert-info">
+            <strong>
+                Results
+            </strong>
+        </caption>
+        <thead>
+        <tr>
+            <th>Author</th>
+            <th>Question</th>
+            <th>Category</th>
+            <th>Packet</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for result in page.object_list %}
+        <tr>
+            <td>{{ result.object.author }}</td>
+            {% if result.object|class_name == "Tossup" %}
+            <td>{{ result.object.tossup_text|safe}}<br>
+                ANSWER: {{ result.tossup_answer|safe }}</td>
+            {% elif result.object|class_name == "Bonus" %}
+            <td>
+                {{ result.object.leadin|safe }}<br>
+                {{ result.object.part1_text|safe }}<br>
+                ANSWER: {{ result.object.part1_answer|safe }}<br>
+                {{ result.object.part2_text|safe }}<br>
+                ANSWER: {{ result.object.part2_answer|safe }}<br>
+                {{ result.object.part3_text|safe }}<br>
+                ANSWER: {{ result.object.part3_answer|safe }}<br>
+            {% endif %}
+            </td>
+            <td>{{ result.category }}</td>
+            <td>{% if result.object.packet %} {{ result.object.packet }} {% else %} Not in packet {% endif %}</td>
+            <td>
+                <a href="/edit_tossup/{{ result.object.id }}" rel="tooltip" title="Edit tossup">
+                    <i class="fa fa-edit"></i>
+                </a>
+                <a href="/delete_tossup/{{ result.object.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ result.object.id }}">
+                    <i class="fa fa-minus-circle"></i>
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No results found.</p>
+    {% endif %}
+</div>
+{% endblock %}

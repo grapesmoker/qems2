@@ -1,0 +1,7 @@
+{{ object.leadin }}
+{{ object.part1_text }}
+{{ object.part1_answer }}
+{{ object.part2_text }}
+{{ object.part2_answer }}
+{{ object.part3_text }}
+{{ object.part3_answer }}

@@ -350,6 +350,10 @@ class Bonus(models.Model):
 
         return leadin + parts_latex + r'\end{bonus}' + '\n'
 
+class Tag(models.Model):
+
+    pass
+
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

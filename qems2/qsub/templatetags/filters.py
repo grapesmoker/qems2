@@ -66,3 +66,6 @@ def check_mark_if_100_pct(x, y):
 @register.filter(name='class_name')
 def class_name(obj):
     return obj.__class__.__name__
+
+#@register.filter(name='compare_categories'):
+#def compare_categories(cat1, cat2):

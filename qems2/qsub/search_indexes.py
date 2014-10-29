@@ -11,6 +11,7 @@ class TossupIndex(indexes.SearchIndex, indexes.Indexable):
     tossup_text = indexes.CharField(model_attr='tossup_text')
     tossup_answer = indexes.CharField(model_attr='tossup_answer')
     author = indexes.CharField(model_attr='author')
+    question_set = indexes.CharField(model_attr='question_set')
 
     def get_model(self):
         return Tossup
@@ -30,6 +31,10 @@ class BonusIndex(indexes.SearchIndex, indexes.Indexable):
     part1_answer = indexes.CharField(model_attr='part1_answer')
     part2_answer = indexes.CharField(model_attr='part2_answer')
     part3_answer = indexes.CharField(model_attr='part3_answer')
+    author = indexes.CharField(model_attr='author')
+    question_set = indexes.CharField(model_attr='question_set')
+
+
 
     def get_model(self):
         return Bonus

@@ -75,5 +75,6 @@ urlpatterns = patterns('',
     (r'^comments/', include('django_comments.urls')),
 
     # search
-    (r'^search/', include('haystack.urls')),
+    # (r'^search/', include('haystack.urls')),
+    (r'^search/', search),
 )

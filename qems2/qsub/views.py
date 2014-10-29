@@ -19,9 +19,10 @@ from model_utils import *
 from utils import sanitize_html
 from packet_parser import handle_uploaded_packet, parse_uploaded_packet, parse_packet_data
 from django.utils.safestring import mark_safe
+from haystack.query import SearchQuerySet
 
 from collections import OrderedDict
-from itertools import chain
+from itertools import chain, ifilter
 
 
 def register (request):
@@ -1863,6 +1864,86 @@ def profile(request):
             {'form': form,
              'user': user},
             context_instance=RequestContext(request))
+
+@login_required()
+def search(request):
+
+    user = request.user.writer
+
+    if request.method == 'GET':
+
+        print request.GET
+
+        question_sets = QuestionSet.objects.all()
+        all_categories = [(cat.category, cat.subcategory) for cat in DistributionEntry.objects.all()]
+        categories = []
+        for cat in all_categories:
+            if cat not in categories:
+                categories.append(cat)
+
+        if request.GET.dict() == {}:
+
+            return render_to_response('search/search.html',
+                                      {'user': user,
+                                       'categories': categories,
+                                       'q_sets': question_sets},
+                                      context_instance=RequestContext(request))
+
+        else:
+            print request.GET
+            query = request.GET.get('q')
+            search_models = request.GET.getlist('models')
+            qset_id = request.GET.get('qset')
+            qset = QuestionSet.objects.get(id=qset_id)
+            search_category = request.GET.get('category')
+
+            if user in qset.writer.all() or user in qset.editor.all() or user == qset.owner:
+
+                if 'qsub.tossup' in search_models and 'qsub.bonus' not in search_models:
+                    result_ids = [r.id for r in SearchQuerySet().filter(content=query).models(Tossup)]
+                elif 'qsub.bonus' in search_models and 'qsub.tossup' not in search_models:
+                    result_ids = [r.id for r in SearchQuerySet().filter(content=query).models(Bonus)]
+                elif 'qsub.tossup' in search_models and 'qsub.bonus' in search_models:
+                    result_ids = [r.id for r in SearchQuerySet().filter(content=query).models(Tossup, Bonus)]
+
+                print search_category
+
+                questions = []
+                for q_id in result_ids:
+                    fields = q_id.split('.')
+                    question_type = fields[1]
+                    question_id = int(fields[2])
+                    if question_type == 'tossup':
+                        question = Tossup.objects.get(id=question_id)
+                    elif question_type == 'bonus':
+                        question = Bonus.objects.get(id=question_id)
+
+                    if question.question_set == qset and (str(question.category) == search_category or search_category == 'All'):
+                        questions.append(question)
+
+                result = questions
+                message = ''
+                message_class = ''
+
+            else:
+                result = []
+                message = 'You are not authorized to view questions from this set.'
+                message_class = 'alert alert-danger'
+
+            print result
+            return render_to_response('search/search.html',
+                                      {'user': user,
+                                       'categories': categories,
+                                       'q_sets': question_sets,
+                                       'result': result,
+                                       'search_term': query,
+                                       'search_category': search_category,
+                                       'search_qset': qset,
+                                       'message': message,
+                                       'message_class': message_class},
+                                      context_instance=RequestContext(request))
+
+
 
 # @login_required
 # def password(request):

@@ -1918,7 +1918,7 @@ def search(request):
                     elif question_type == 'bonus':
                         question = Bonus.objects.get(id=question_id)
 
-                    if question.question_set == qset and (str(question.category) == search_category or search_category == 'All'):
+                    if question.question_set == qset and (str(question.category) == search_category or search_category == 'All') and question not in questions:
                         questions.append(question)
 
                 result = questions

@@ -26,6 +26,7 @@ Once you have those installed, you should use `pip` to get the necessary Python 
     sudo pip install beautifulsoup4
     sudo pip install django-bower
     sudo pip install django-contrib-comments
+    sudo pip install whoosh
 
 It's generally recommended that you use `virtualenv` to set up a virtual environment for your project. 
 

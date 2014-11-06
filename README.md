@@ -26,6 +26,9 @@ Once you have those installed, you should use `pip` to get the necessary Python 
     sudo pip install beautifulsoup4
     sudo pip install django-bower
     sudo pip install django-contrib-comments
+    sudo pip install django-haystack
+    sudo pip install whoosh
+    sudo pip install mysql-python
 
 It's generally recommended that you use `virtualenv` to set up a virtual environment for your project. 
 
@@ -46,6 +49,8 @@ Finally, use `manage.py` to populate the database, install the front-end package
     python manage.py bower install
     python manage.py collectstatic
     python manage.py runserver
+
+If the bower install command is failing because node can't be found, you may need to install nodejs-legacy.
 
 As with any Django project, you should now be able to access the website at http://localhost:8000.
 

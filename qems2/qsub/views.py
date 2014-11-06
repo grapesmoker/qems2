@@ -220,7 +220,7 @@ def edit_question_set(request, qset_id):
                                                      'tu_in_cat': tu_written,
                                                      'bs_req': bs_required,
                                                      'bs_in_cat': bs_written}
-            set_pct_complete = float(total_tu_written + total_bs_written) / float(total_tu_req + total_bs_req)
+            set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
 
             return render_to_response('edit_question_set.html',
                                       {'form': form,
@@ -282,7 +282,7 @@ def edit_question_set(request, qset_id):
                                                      'tu_in_cat': tu_written,
                                                      'bs_req': bs_required,
                                                      'bs_in_cat': bs_written}
-        set_pct_complete = float(total_tu_written + total_bs_written) / float(total_tu_req + total_bs_req)
+        set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
 
     #print tiebreak_formset
         

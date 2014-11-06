@@ -746,7 +746,7 @@ def edit_tossup(request, tossup_id):
 
             form = TossupForm(request.POST, qset_id=qset.id, role=role)
             can_change = True
-            if user == tossup.author and tossup.locked:
+            if user == tossup.author and tossup.locked and not user in qset.editor.all():
                 can_change = False
 
             if form.is_valid() and can_change:
@@ -1678,6 +1678,7 @@ def add_comment(request):
     qset = QuestionSet.objects.get(id=qset_id)
 
     if request.method == 'POST':
+
         comment_text = request.POST['comment-text']
         print comment_text
 

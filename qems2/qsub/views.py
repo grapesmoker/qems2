@@ -54,19 +54,19 @@ def main (request):
 def question_sets (request):
     writer = request.user.writer
 
+    # the tournaments for which this user is a writer
+    writer_sets = writer.question_set_writer.all()
     # all the tournaments owned by this user
     owned_sets = QuestionSet.objects.filter(owner=writer)
     # the tournaments for which this user is an editor
     editor_sets = writer.question_set_editor.all()
-    # the tournaments for which this user is a writer
-    writer_sets = writer.question_set_writer.all()
 
     print writer
     print owned_sets
 
-    all_sets  = [{'header': 'Question sets you own', 'qsets': owned_sets, 'id': 'qsets-owned'},
+    all_sets  = [{'header': 'Question sets you are writing for', 'qsets': writer_sets, 'id': 'qsets-write'},
                  {'header': 'Question sets you are editing', 'qsets': editor_sets, 'id': 'qsets-edit'},
-                 {'header': 'Question sets you are writing for', 'qsets': writer_sets, 'id': 'qsets-write'}]
+                 {'header': 'Question sets you own', 'qsets': owned_sets, 'id': 'qsets-owned'}]
 
     print all_sets
     return render_to_response('question_sets.html', {'question_set_list': all_sets, 'user': writer},

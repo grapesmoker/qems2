@@ -24,7 +24,10 @@
 
     <div class="tabbable">
 		<ul class="nav nav-tabs">
-			<li class="active dropdown">
+            <li class="active dropdown">
+                <a href="#questions" data-toggle="tab">All Questions</a>
+            </li>
+			<li>
 				<a href="#qset-info" data-toggle="tab">Question set info</a>
 			</li>
 			<li>
@@ -37,14 +40,11 @@
                 <a href="#tiebreak-distribution" data-toggle="tab">Tiebreaker distribution</a>
             </li>
             <li>
-                <a href="#questions" data-toggle="tab">Questions</a>
-            </li>
-            <li>
 				<a href="#packets" data-toggle="tab">Packets</a>
 			</li>
 		</ul>
 		<div class="tab-content">
-			<div class="tab-pane active" id="qset-info">
+			<div id="qset-info" class="tab-pane">
                 {% if message %}
 				<p>
 					<div class="alert {{ message_class }}">
@@ -297,7 +297,7 @@
                     {{ tiebreak_formset.management_form }}
                 </form>
             </div>
-            <div class="tab-pane" id="questions">
+            <div class="tab-pane active" id="questions">
                 <a href="/add_tossups/{{ qset.id }}" class="btn btn-primary" title="Add tossups">
                     <i class="fa fa-plus-circle"></i> Add tossups
                 </a>
@@ -325,6 +325,7 @@
                         <th>Category</th>
                         <th>Packet</th>
                         <th>Actions</th>
+                        <th>Comments</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -342,6 +343,14 @@
                             <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ tossup.id }}">
                                 <i class="fa fa-minus-circle"></i>
                             </a>
+                        </td>
+                        <td>
+{% get_comment_list for tossup as comment_list %}
+{% for comment in comment_list %}
+	{% if not comment.is_removed %}
+		{{user}}: {{ comment.comment }}<br>
+	{% endif %}
+{% endfor %}
                         </td>
                     </tr>
                     {% endfor %}

@@ -30,7 +30,16 @@
     <form action="/type_questions/" method="post">
         {% csrf_token %}
         <div class="alert alert-info">
-            Type questions into the box below. Questions must be formatted properly or the parser will reject them.
+            Type questions into the box below. Questions must be formatted properly or the parser will reject them.  
+            Answers should be wrapped with &lt;b&gt;&lt;u&gt;bold and underline tags&lt;&#47;b&gt;&lt;&#47;u&gt;.  Italicize titles with &lt;i&gt;i wrappers&lt;&#47;i&gt;.<br><br>
+            Example Bonus:<br>
+A recurring character in this play is the herald Talthybius, who bears the crushed body of Astyanax on his father’s shield. For 10 points each:<br>
+[10] Identify this play that ends as Andromache, Hecuba, Cassandra, and Helen are led onto Greek ships.<br>
+ANSWER: &lt;b&gt;&lt;u&gt;&lt;i&gt;The Trojan Women&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt; [or &lt;b&gt;&lt;u&gt;&lt;i&gt;Troiades&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt;]<br>
+[10] &lt;i&gt;The Trojan Women&lt;&#47;i&gt; was written by this ancient Greek playwright who also wrote &lt;i&gt;Medea&lt;&#47;i&gt;, &lt;i&gt;Alcestis&lt;&#47;i&gt;, and &lt;i&gt;Cyclops&lt;&#47;i&gt;, the only extant complete satyr play.<br>
+ANSWER: &lt;b&gt;&lt;u&gt;Euripides&lt;&#47;b&gt;&lt;&#47;u&gt;<br>
+[10] Euripides and Aeschylus engage in a contest to determine which is the best tragic poet in this play, which opens as Dionysus and his slave Xanthias travel to Hades to fetch Euripides.<br>
+ANSWER: &lt;b&gt;&lt;u&gt;&lt;i&gt;The Frogs&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt; [or &lt;b&gt;&lt;u&gt;&lt;i&gt;Batrachoi&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt;]
         </div>
         {{ form.as_p }}
         <input type="hidden" name="qset_id" value="{{ qset.id }}">

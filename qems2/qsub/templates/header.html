@@ -8,8 +8,12 @@
                 <li><a href="/search/">Search</a></li>
                 <li><a href="/settings/">Settings</a></li>
                 <li><a href="/profile/">Profile</a></li>
+                {% if user %}
+                <li><a href="/logout/">Log Out</a></li>
+                {% endif %}             
                 <li><a href="/help/">Help</a></li>
             </ul>
         </div>
     </div>
 </div>
+

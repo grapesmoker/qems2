@@ -10,7 +10,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic import ListView
 from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from models import *
@@ -569,7 +569,7 @@ def add_tossups(request, qset_id, packet_id=None):
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
             # The user may have set the packet ID through the POST body, so check for it there
             if packet_id == None and 'packet' in request.POST and request.POST['packet'] != '':
-                packet_id = int(request.POST['packet'])
+                packet_id = int(request.POST['packet'])                
             tossup_form = TossupForm(request.POST, qset_id=qset.id, packet_id=packet_id)
 
             if tossup_form.is_valid():
@@ -581,9 +581,15 @@ def add_tossups(request, qset_id, packet_id=None):
                 # New questions should not be auto-locked. Also, the user has no way to currently change this setting.
                 tossup.locked = False
                 if packet_id is None or packet_id == '':
-                    tossup.question_number = -1 # Tossups have no order until they are assigned to a packet
+                    # If the tossup doesn't have a packet, set its number to be the magic number
+                    # of 999, meaning that it's unassigned.  Can't assign -1 because this is outside
+                    # of the legal range of tossup numbers and it ends up getting set to 1 for some
+                    # reason, except in the case where there are no packets in the system in which
+                    # case there's an error adding the question
+                    tossup.question_number = 999                    
                 else:
                     tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
+                 
                 tossup.save()
                 message = 'Your tossup has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
@@ -785,6 +791,9 @@ def edit_tossup(request, tossup_id):
             message = 'You are not authorized to view or edit this question!'
             message_class = 'alert alert-error'
 
+        # Clear the tossup info for when you're brought back to the new question entry screen
+        # tossup.tossup_text = ''
+        # tossup.tossup_answer = ''
         return render_to_response('edit_tossup.html',
             {'tossup': tossup,
              'form': form,
@@ -1944,7 +1953,10 @@ def search(request):
                                        'message_class': message_class},
                                       context_instance=RequestContext(request))
 
-
+@login_required
+def logout_view(request):
+	logout(request)
+	return HttpResponseRedirect("/main/")
 
 # @login_required
 # def password(request):
@@ -1961,3 +1973,4 @@ def search(request):
 #
 #     elif request.method == 'POST':
 #         pass
+

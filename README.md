@@ -15,6 +15,9 @@ Grab the code:
 
     git clone https://github.com/grapesmoker/qems2
 
+Because the Django secret key is not checked in, you will need to create a new file called "secret" in the root directory that you cloned.  This file will look something like this:
+
+    SECRET_KEY = 'your secret key'
 
 To run QEMS2 on a generic *nix (including OS X), you'll need the following prerequisites.
 

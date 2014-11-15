@@ -588,6 +588,7 @@ def add_tossups(request, qset_id, packet_id=None):
                     # case there's an error adding the question
                     tossup.question_number = 999                    
                 else:
+                    tossup.packet_id = packet_id
                     tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
                  
                 tossup.save()
@@ -666,11 +667,18 @@ def add_bonuses(request, qset_id, packet_id=None):
                 bonus.part3_answer = sanitize_html(bonus.part3_answer)
                 # New questions should not be auto-locked. Also, the user has no way to currently change this setting.
                 bonus.locked = False
+                
                 if packet_id is None or packet_id == '':
-                    bonus.question_number = -1 # Bonuses have no order until they are assigned to a packet
+                    # If the bonus doesn't have a packet, set its number to be the magic number
+                    # of 999, meaning that it's unassigned.  Can't assign -1 because this is outside
+                    # of the legal range of bonus numbers and it ends up getting set to 1 for some
+                    # reason, except in the case where there are no packets in the system in which
+                    # case there's an error adding the question
+                    bonus.question_number = 999
                 else:
                     bonus.packet_id = packet_id
                     bonus.question_number = Bonus.objects.filter(packet_id=packet_id).count()
+
                 bonus.save()
                 message = 'Your bonus has been successfully added to the set! Write more questions!'
                 message_class = 'alert alert-success'
@@ -1973,4 +1981,3 @@ def logout_view(request):
 #
 #     elif request.method == 'POST':
 #         pass
-

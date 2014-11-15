@@ -345,12 +345,12 @@
                             </a>
                         </td>
                         <td>
-{% get_comment_list for tossup as comment_list %}
-{% for comment in comment_list %}
-	{% if not comment.is_removed %}
-		{{user}}: {{ comment.comment }}<br>
-	{% endif %}
-{% endfor %}
+						{% get_comment_list for tossup as comment_list %}
+						{% for comment in comment_list %}
+							{% if not comment.is_removed %}
+								{{user}}: {{ comment.comment }}<br>
+							{% endif %}
+						{% endfor %}
                         </td>
                     </tr>
                     {% endfor %}
@@ -386,6 +386,7 @@
                         <th>Category</th>
                         <th>Packet</th>
                         <th>Actions</th>
+                        <th>Comments</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -403,6 +404,14 @@
                             <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ bonus.id }}">
                                 <i class="fa fa-minus-circle"></i>
                             </a>
+                        </td>
+                        <td>
+						{% get_comment_list for bonus as comment_list %}
+						{% for comment in comment_list %}
+							{% if not comment.is_removed %}
+								{{user}}: {{ comment.comment }}<br>
+							{% endif %}
+						{% endfor %}
                         </td>
                     </tr>
                     {% endfor %}

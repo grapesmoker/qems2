@@ -594,6 +594,7 @@ def add_tossups(request, qset_id, packet_id=None):
     message_class = ''
     tossup = None
     read_only = True
+    question_type_id = QuestionType.objects.get(question_type="ACF-style tossup")
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
@@ -606,17 +607,18 @@ def add_tossups(request, qset_id, packet_id=None):
             #tossup_form.fields['category'].queryset = dist_entries
             read_only = False
         else:
-            tossup_form = None
+            tossup_form = []
             message = 'You are not authorized to add questions to this tournament!'
             message_class = 'alert alert-warning'
             read_only = True
 
         return render_to_response('add_tossups.html',
-            {'form': tossup_form,
+            {'form': TossupForm(qset_id=qset.id, initial={'question_type': question_type_id}),
              'message': message,
              'message_class': message_class,
              'read_only': read_only,
-             'user': user},
+             'user': user,
+             'qset_id': qset.id},
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
@@ -663,12 +665,13 @@ def add_tossups(request, qset_id, packet_id=None):
             read_only = True
 
         return render_to_response('add_tossups.html',
-                 {'form': TossupForm(qset_id=qset.id, packet_id=packet_id),
+                 {'form': TossupForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
                  'message': message,
                  'message_class': message_class,
-                 'tossup': tossup,
+                 'tossup_id': tossup.id, # Don't send the whole tossup object or else the old text won't get cleared
                  'read_only': read_only,
-                 'user': user},
+                 'user': user,
+                 'qset_id': qset.id},
                  context_instance=RequestContext(request))
 
     else:
@@ -701,7 +704,8 @@ def add_bonuses(request, qset_id, packet_id=None):
              'message': message,
              'message_class': message_class,
              'read_only': read_only,
-             'user': user},
+             'user': user,
+             'qset_id': qset.id},
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
@@ -754,9 +758,10 @@ def add_bonuses(request, qset_id, packet_id=None):
                  {'form': BonusForm(qset_id=qset.id, packet_id=packet_id),
                  'message': message,
                  'message_class': message_class,
-                 'bonus': bonus,
+                 'bonus_id': bonus.id, # Don't send the whole bonus object or else the old text won't get cleared
                  'read_only': read_only,
-                 'user': user},
+                 'user': user,
+                 'qset_id': qset_id},
                  context_instance=RequestContext(request))
 
     else:

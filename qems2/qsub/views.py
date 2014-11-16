@@ -224,7 +224,7 @@ def edit_question_set(request, qset_id):
                 read_only = True
 
             entries = qset.setwidedistributionentry_set.all()
-            for entry in entries:
+            for entry in sorted(entries):
                 tu_required = entry.num_tossups
                 bs_required = entry.num_bonuses
                 tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
@@ -292,7 +292,7 @@ def edit_question_set(request, qset_id):
             form = QuestionSetForm(instance=qset)
 
         entries = qset.setwidedistributionentry_set.all()
-        for entry in entries:
+        for entry in sorted(entries):
             tu_required = entry.num_tossups
             bs_required = entry.num_bonuses
             tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
@@ -307,8 +307,6 @@ def edit_question_set(request, qset_id):
                                                      'bs_in_cat': bs_written,
                                                      'category_id': entry.dist_entry.id}
         set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
-
-    #print tiebreak_formset
         
     return render_to_response('edit_question_set.html',
                               {'form': form,

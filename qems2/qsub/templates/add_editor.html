@@ -25,7 +25,7 @@
             <tbody>
             {% for editor in available_editors %}
             <tr>
-                <td>{{ editor.user.first_name }} {{ editor.user.last_name }}</td>
+                <td>{{ editor }}</td>
                 <td><input type="checkbox" value="{{ editor.id }}" name="editors_to_add"></td>
             </tr>
             {% endfor %}

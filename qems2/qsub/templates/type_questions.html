@@ -31,19 +31,28 @@
         {% csrf_token %}
         <div class="alert alert-info">
             Type questions into the box below. Questions must be formatted properly or the parser will reject them.  
-            Answers should be wrapped with &lt;b&gt;&lt;u&gt;bold and underline tags&lt;&#47;b&gt;&lt;&#47;u&gt;.  Italicize titles with &lt;i&gt;i wrappers&lt;&#47;i&gt;.<br><br>
-            Example Bonus:<br>
+            Answers should be wrapped with _underscores_ or &lt;b&gt;&lt;u&gt;bold and underline tags&lt;&#47;b&gt;&lt;&#47;u&gt;.  Italicize titles with &lt;i&gt;i tags&lt;&#47;i&gt;.  You may type multiple questions at once.<br><br>
+            See below for examples.
+        </div>
+        {{ form.as_p }}
+        <input type="hidden" name="qset_id" value="{{ qset.id }}">
+        <input type="submit" class="btn btn-primary" value="Submit">
+        <div class="alert alert-info">
+Example Tossup:<br>
+The only man from the House of Hesse to hold this title gained the throne when his wife abdicated in his favor in 1715; that man nominally ruled during the so-called Age of Freedom and was named Frederick I. A man who tried to hold this title simultaneously with King of Poland and Lithuania lost the title in 1599 due to his Catholicism. That man in this position was Sigismund, who was a member of the (*) Vasa Dynasty started by the “father of the nation” who broke his country away from the Kalmar Union. Another man to hold this title saw his country’s army defeated in the Battle of Poltava, part of the Great Northern War. For 10 points, give this title held by monarchs like Charles XII and Gustavus Adolphus.<br>
+ANSWER: _King_ of _Sweden_ [accept equivalents]<br><br>
+Example Bonus:<br>
 A recurring character in this play is the herald Talthybius, who bears the crushed body of Astyanax on his father’s shield. For 10 points each:<br>
 [10] Identify this play that ends as Andromache, Hecuba, Cassandra, and Helen are led onto Greek ships.<br>
 ANSWER: &lt;b&gt;&lt;u&gt;&lt;i&gt;The Trojan Women&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt; [or &lt;b&gt;&lt;u&gt;&lt;i&gt;Troiades&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt;]<br>
 [10] &lt;i&gt;The Trojan Women&lt;&#47;i&gt; was written by this ancient Greek playwright who also wrote &lt;i&gt;Medea&lt;&#47;i&gt;, &lt;i&gt;Alcestis&lt;&#47;i&gt;, and &lt;i&gt;Cyclops&lt;&#47;i&gt;, the only extant complete satyr play.<br>
 ANSWER: &lt;b&gt;&lt;u&gt;Euripides&lt;&#47;b&gt;&lt;&#47;u&gt;<br>
 [10] Euripides and Aeschylus engage in a contest to determine which is the best tragic poet in this play, which opens as Dionysus and his slave Xanthias travel to Hades to fetch Euripides.<br>
-ANSWER: &lt;b&gt;&lt;u&gt;&lt;i&gt;The Frogs&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt; [or &lt;b&gt;&lt;u&gt;&lt;i&gt;Batrachoi&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt;]
+ANSWER: &lt;b&gt;&lt;u&gt;&lt;i&gt;The Frogs&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt; [or &lt;b&gt;&lt;u&gt;&lt;i&gt;Batrachoi&lt;&#47;b&gt;&lt;&#47;u&gt;&lt;&#47;i&gt;]<br><br>
+Example VHSL Bonus:<br>
+[V10] Name the character from <i>Their Eyes Were Watching God</i> who shoots her husband Tea Cake after he develops rabies.<br>
+ANSWER: _Janie_ Crawford [or Janie _Crawford_]<br>
         </div>
-        {{ form.as_p }}
-        <input type="hidden" name="qset_id" value="{{ qset.id }}">
-        <input type="submit" class="btn btn-primary" value="Submit">
     </form>
 </div>
 

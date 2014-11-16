@@ -116,7 +116,7 @@ class Writer (models.Model):
     administrator = models.BooleanField(default=False)
 
     def __str__(self):
-        return '{0!s}'.format(self.user.username)
+        return '{0!s} {1!s} ({2!s})'.format(self.user.first_name, self.user.last_name, self.user.username)
 
 class QuestionSet (models.Model):
     name = models.CharField(max_length=200)
@@ -140,8 +140,8 @@ class Role(models.Model):
     writer = models.ForeignKey(Writer)
     question_set = models.ForeignKey(QuestionSet)
     category = models.CharField(max_length=500)
-    can_view_others = models.BooleanField()
-    can_edit_others = models.BooleanField()
+    can_view_others = models.BooleanField(default=False)
+    can_edit_others = models.BooleanField(default=False)
 
 class Packet (models.Model):
     packet_name = models.CharField(max_length=200)
@@ -235,8 +235,8 @@ class Tossup (models.Model):
     question_type = models.ForeignKey(QuestionType, null=True)
     author = models.ForeignKey(Writer)
     
-    locked = models.BooleanField()
-    edited = models.BooleanField()
+    locked = models.BooleanField(default=False)
+    edited = models.BooleanField(default=False)
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
@@ -295,8 +295,8 @@ class Bonus(models.Model):
 
     author = models.ForeignKey(Writer)
     
-    locked = models.BooleanField()
-    edited = models.BooleanField()
+    locked = models.BooleanField(default=False)
+    edited = models.BooleanField(default=False)
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)

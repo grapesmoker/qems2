@@ -6,8 +6,11 @@ import string
 
 from qems2.qsub.model_utils import sanitize_html
 
-ansregex = '(?i)a..?wers?:'
-bpart_regex = '^\[\w*\]|^\(\w*\)'
+ansregex = '(?i)a..?wers?:\s*'
+bpart_regex = '^\[\d+\]|^\(\d+\)'
+vhsl_bpart_regex = '^\[V\d+\]|^\(V\d+\)'
+category_regex = '\{(.+)}'
+bonus_value_regex = '\[|\]|\(|\)'
 
 def is_answer(line):
 
@@ -16,6 +19,55 @@ def is_answer(line):
 def is_bpart(line):
     
     return re.search(bpart_regex, line) is not None
+    
+def is_vhsl_bpart(line):
+    
+    return re.search(vhsl_bpart_regex, line) is not None
+
+def is_category(line):
+    
+    return re.search(category_regex, line) is not None
+
+def get_category(line):
+    
+    if (is_category(line)):
+        return re.search(category_regex, line).group(1)
+    else:
+        return ''
+
+def remove_category(line):
+    
+    return re.sub(category_regex, '', line)
+    
+def remove_answer_label(line):
+    
+    return re.sub(ansregex, '', line)
+
+def get_bonus_part_value(line):
+    
+    match = re.search(bpart_regex, line)
+    return re.sub(bonus_value_regex, '', match.group(0))     
+
+def format_answerline_underscores(line):
+    
+    output = ''
+    underlineFlag = False
+    for c in line:
+        if (c == '_'):
+            if (underlineFlag):
+                underlineFlag = False
+                output = output + '</b></u>'
+            else:
+                underlineFlag = True
+                output = output + '<b><u>'
+        else:
+            output = output + c
+    
+    # If we're at the end of the string and there isn't a closing flag, add it
+    if (underlineFlag):
+        output = output + '</b></u>'
+    
+    return output
 
 def parse_uploaded_packet(uploaded_file):
 
@@ -81,7 +133,7 @@ def find_first_tossup (text):
 
 
 def find_first_bonus (text):
-    first_index = next((i for i in range(len(text)) if re.search('^\[\w*\]|^\(\w*\)', text[i], re.I)), None)
+    first_index = next((i for i in range(len(text)) if re.search(bpart_regex, text[i], re.I)), None)
     #this actually finds the first bonus part
     #so return that index - 1 to get the first bonus leadin
     return first_index - 1
@@ -219,6 +271,7 @@ def parse_packet_data(data):
 
     tossup_flag = False
     bonus_flag = False
+    vhsl_bonus_flag = False
     
     question_stack = []
 
@@ -229,7 +282,7 @@ def parse_packet_data(data):
         # push current line onto the stack
         question_stack.append(this_line)
 
-        if not tossup_flag and not bonus_flag:
+        if not tossup_flag and not bonus_flag and not vhsl_bonus_flag:
             if is_answer(this_line):
                 # if no flags have been set, and we encounter an ANSWER: then we
                 # know that this is a tossup
@@ -238,54 +291,85 @@ def parse_packet_data(data):
                 # if no flags have been set and we encounter a [10] then we
                 # know that this is a bonus
                 bonus_flag = True
+            elif is_vhsl_bpart(this_line):
+                # if not flags have been set and we encounter a [V10] then we
+                # know that this is a VHSL bonus
+                vhsl_bonus_flag = True
 
-        #print this_line
-        #print tossup_flag, bonus_flag
+        print this_line
+        print tossup_flag, bonus_flag, vhsl_bonus_flag
 
         # if there are two items on the stack and the second one is an ANSWER:
         # pop the stack and create a tossup
         if (len(question_stack) == 2 or i == len(data) - 1) and tossup_flag:
-            tossup_answer = question_stack.pop()
-            tossup_text = question_stack.pop()
-            tossup = Tossup(tossup_text, tossup_answer, i)
-            try:
-                tossup.is_valid()
-                tossups.append(tossup)
-            except InvalidTossup as ex:
-                print ex
+            if (len(question_stack) < 2):
+                print "Tossups required both a question and answer, but only one item found on stack."
+                tossup = Tossup('', question_stack.pop(), i, '')
                 tossup_errors.append(tossup)
-            tossup_flag = False
+            else:
+                tossup_answer = question_stack.pop()
+                tossup_category = get_category(tossup_answer)
+                tossup_answer = remove_category(tossup_answer)
+
+                tossup_text = question_stack.pop()            
+                tossup = Tossup(tossup_text, tossup_answer, i, tossup_category)
+                try:
+                    tossup.is_valid()
+                    tossups.append(tossup)
+                except InvalidTossup as ex:
+                    print ex
+                    tossup_errors.append(tossup)
+                tossup_flag = False
             
         # if we are in bonus mode and the line is not an answer or a bonus part
         # then pop the stack until it's empty and form a bonus
         elif bonus_flag and ((not is_answer(this_line) and not is_bpart(this_line)) or i == len(data) - 1):
-            next_question_line = question_stack.pop()
+            
+            # If there are still lines to read, the top of the stack represents the first line
+            # in the next question.  Otherwise, it's the last part of the bonus and we don't
+            # want to pop it
+            next_question_line = ''
+            if (i < len(data) - 1):
+                next_question_line = question_stack.pop()
+                
             parts = []
             values = []
             answers = []
             leadin = ''
+            category = ''
             while question_stack != []:
                 bonus_line = question_stack.pop()
-                #print bonus_line
+                print "Bonus Line from question stack: " + bonus_line
                 if is_bpart(bonus_line):
-                    match = re.search(bpart_regex, bonus_line)
-                    val = re.sub('\[|\]|\(|\)', '', match.group(0))
+                    print "Is BPart"
+                    val = get_bonus_part_value(bonus_line)
                     question = string.strip(re.sub(bpart_regex, '', bonus_line))
                     values.append(val)
                     parts.append(question)
                 elif is_answer(bonus_line):
-                    #answer = string.strip(re.sub(ansregex, '', bonus_line))
+                    print "Is Answer"
                     answer = bonus_line
+                    tempCategory = get_category(answer)
+                    if (tempCategory != ''):
+                        category = tempCategory
+                        answer = remove_category(answer)
+                    
                     answers.append(answer)
                 else:
+                    print "Is Leadin"
                     leadin = bonus_line
-            #print leadin
             parts.reverse()
             values.reverse()
             answers.reverse()
             
-            question_stack.append(next_question_line)
-            bonus = Bonus(leadin, parts, answers, values, i)
+            print leadin
+            print parts
+            print answers
+            
+            if (i < len(data) - 1):
+                question_stack.append(next_question_line)
+                
+            bonus = Bonus(leadin, parts, answers, values, i)            
             try:
                 bonus.is_valid()
                 bonuses.append(bonus)
@@ -295,18 +379,27 @@ def parse_packet_data(data):
             bonus_flag = False
 
         # special case for vhsl bonuses
-        elif bonus_flag and (is_answer(this_line) or i == len(data) - 1):
-            bonus_line = question_stack.pop()
-            question = re.sub(bpart_regex, '', bonus_line)
-            answer = string.strip(re.sub(ansregex, '', this_line))
-            bonus = Bonus('', [question], [answer], [], i, type='vhsl')
+        # There isn't a great way to tell VHSL bonuses from other bonuses, so need to require a special
+        # bonus part flag of [V10] rahter than just [10]
+        elif vhsl_bonus_flag and (is_answer(this_line) or i == len(data) - 1):
+            #print 'In VHSL'            
+            answer = question_stack.pop()
+            question = question_stack.pop()
+            question = string.strip(re.sub(vhsl_bpart_regex, '', question))
+            #print 'Question: ' + question
+            answer = string.strip(re.sub(ansregex, '', answer))
+            #print 'Answer: ' + answer
+            category = get_category(answer)
+            answer = remove_category(answer)
+            
+            bonus = Bonus('', [question], [answer], [], i, type='vhsl', category=category)
             try:
                 bonus.is_valid()
                 bonuses.append(bonus)
             except InvalidBonus as ex:
                 print ex
                 bonus_errors.append(bonus)
-            bonus_flag = False
+            vhsl_bonus_flag = False
  
     return tossups, bonuses, tossup_errors, bonus_errors
 
@@ -353,13 +446,20 @@ class InvalidBonus(Exception):
 
 class Bonus:
 
-    def __init__(self, leadin='', parts=[], answers=[], values=[], number='', type='acf'):
+    def __init__(self, leadin='', parts=[], answers=[], values=[], number='', type='acf', category=''):
         self.leadin = leadin
         self.parts = parts
-        self.answers = answers
         self.number = number
         self.values = values
         self.type = type
+        self.category = category
+        
+        modifiedAnswers = []
+        for answer in answers:
+            formattedAnswer = remove_answer_label(answer)
+            formattedAnswer = format_answerline_underscores(formattedAnswer)
+            modifiedAnswers.append(formattedAnswer)
+        self.answers = modifiedAnswers
 
     def add_part(self, part):
         self.parts.append(part)
@@ -372,7 +472,9 @@ class Bonus:
                            'parts': self.parts,
                            'answers': self.answers,
                            'number': self.number,
-                           'values': self.values}) + '\n'
+                           'values': self.values,
+                           'type': self.type,                           
+                           'category': self.category}) + '\n'
 
     def to_latex(self):
         leadin = self.leadin.replace('&ldquo;', '``')
@@ -388,6 +490,7 @@ class Bonus:
             answer = answer.replace('</b>', '}')
             answer = answer.replace('&ldquo;', '``')
             answer = answer.replace('&rdquo;', "''")
+            
             part = part.replace('<i>', r'{\it ')
             part = part.replace('</i>', '}')
             part = part.replace('&ldquo;', '``')
@@ -442,6 +545,9 @@ class Bonus:
             for part in self.parts:
                 if part == '':
                     raise InvalidBonus('parts', self.parts, self.number)
+                    
+        else:
+            raise InvalidBonus('type', self.type, self.number)
 
     def __str__(self):
 
@@ -456,15 +562,18 @@ class Bonus:
         return s
 
 class Tossup:
-    def __init__(self, question='', answer='', number=''):
+    def __init__(self, question='', answer='', number='', category=''):
         self.question = question
-        self.answer = answer
+        self.answer = remove_answer_label(answer)
+        self.answer = format_answerline_underscores(self.answer)     
         self.number = number
+        self.category = category
 
     def to_json(self):
         return json.dumps({'question': self.question,
                            'answer': self.answer,
-                           'number': self.number}) + '\n'
+                           'number': self.number,
+                           'category': self.category}) + '\n'
 
     def to_latex(self):
         answer = self.answer.replace('<req>', r'\ans{')

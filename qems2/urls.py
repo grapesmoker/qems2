@@ -58,7 +58,9 @@ urlpatterns = patterns('',
     #(r'^edit_packet/(?P<packet_id>[0-9]+)/change_bonus_position/(?P<old_index>[0-9]+)/(?P<new_index>[0-9]+)$', change_bonus_order),
     (r'^delete_packet/$', delete_packet),
     (r'^settings/$', settings),
-    (r'^logout/$', logout_view),    
+    (r'^logout/$', logout_view),   
+    (r'^categories/(?P<qset_id>[0-9]+)/(?P<category_id>[0-9]+)/$', categories),
+    
 
     (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
     (r'^complete_upload/$', complete_upload),

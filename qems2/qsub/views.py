@@ -49,17 +49,35 @@ def main (request):
 
     return render_to_response('main.html', {'user': request.user.writer},
                               context_instance=RequestContext(request))
-
 @login_required
-def question_sets (request):
+def sidebar (request):
     writer = request.user.writer
-
     # the tournaments for which this user is a writer
     writer_sets = writer.question_set_writer.all()
     # all the tournaments owned by this user
     owned_sets = QuestionSet.objects.filter(owner=writer)
     # the tournaments for which this user is an editor
     editor_sets = writer.question_set_editor.all()
+    
+    # all_sets = list(set(writer_sets + editors_sets + owned_sets))
+    all_sets = editor_sets
+    print 'All sets object:'
+    print all_sets
+    	
+    return render_to_response('sidebar.html', {'question_sets': all_sets, 'user': writer},
+           context_instance=RequestContext(request))
+
+@login_required
+def question_sets (request):
+    writer = request.user.writer
+
+    # all the tournaments owned by this user
+    owned_sets = QuestionSet.objects.filter(owner=writer)
+    # the tournaments for which this user is an editor
+    editor_sets = writer.question_set_editor.all()
+    # the tournaments for which this user is a writer
+    # by definition this includes sets you're editing and owning
+    writer_sets = owned_sets | editor_sets | writer.question_set_writer.all()
 
     print writer
     print owned_sets
@@ -215,11 +233,13 @@ def edit_question_set(request, qset_id):
                 total_bs_req += bs_required
                 total_bs_written += bs_written
                 total_tu_written += tu_written
-
+                
                 set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
                                                      'tu_in_cat': tu_written,
                                                      'bs_req': bs_required,
-                                                     'bs_in_cat': bs_written}
+                                                     'bs_in_cat': bs_written,
+                                                     'category_id': entry.dist_entry.id
+                                                     }
             set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
 
             return render_to_response('edit_question_set.html',
@@ -244,6 +264,9 @@ def edit_question_set(request, qset_id):
         else:
             qset_editors = []
     else:
+        if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
+			# TODO: Should not display anything about the set
+            print 'TODO about user security'
         if user not in qset_editors and user != qset.owner:
             form = QuestionSetForm(instance=qset, read_only=True)
             read_only = True
@@ -281,7 +304,8 @@ def edit_question_set(request, qset_id):
             set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
                                                      'tu_in_cat': tu_written,
                                                      'bs_req': bs_required,
-                                                     'bs_in_cat': bs_written}
+                                                     'bs_in_cat': bs_written,
+                                                     'category_id': entry.dist_entry.id}
         set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
 
     #print tiebreak_formset
@@ -305,6 +329,36 @@ def edit_question_set(request, qset_id):
                                'read_only': read_only,
                                'message': message},
                               context_instance=RequestContext(request))
+
+@login_required
+def categories(request, qset_id, category_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id) # TODO: It might be dangerous to set this here without authorizing users first
+    qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()
+    
+    category_object = DistributionEntry.objects.get(id=category_id)
+    
+    message = category_object.category
+    tossups = []
+    bonuses = []
+    if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
+        message = 'You are not authorized to view this set'
+    else:
+        tossups = Tossup.objects.filter(question_set=qset).filter(category=category_id)
+        
+        # tossups = Tossup.objects.filter(question_set=qset).filter(category__category=category_object.category)
+        # bonuses = Bonus.objects.filter(question_set=qset) #.filter(category=category_id)	
+	
+    return render_to_response('categories.html',
+        {
+        'user': user,
+        'tossups': tossups,
+        'bonuses': bonuses,
+        'qset': qset,
+        'message': message,
+        'category': category_object},
+        context_instance=RequestContext(request))	
 
 @login_required
 def edit_set_distribution(request, qset_id):

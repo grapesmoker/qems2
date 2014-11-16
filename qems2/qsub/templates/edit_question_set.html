@@ -85,7 +85,7 @@
                     {% for cat, entry in set_status.items %}
                     <tr>
                         <td>
-                            {{ cat }}
+                            <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
                         </td>
                         <td>
                             {{ entry.tu_req }}
@@ -112,7 +112,7 @@
                     {% for cat, entry in set_status.items %}
                     <tr>
                         <td>
-                            {{ cat }}
+                            <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
                         </td>
                         <td>
                             {{ entry.bs_req }}

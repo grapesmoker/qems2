@@ -72,7 +72,12 @@ class PacketParserTests(TestCase):
         self.assertEqual(bonuses[0].parts[1], 'Prompt 2.')
         self.assertEqual(bonuses[0].answers[1], '<b><u>Answer 2</b></u>')
         self.assertEqual(bonuses[0].parts[2], 'Prompt 3.')
-        self.assertEqual(bonuses[0].answers[2], '<b><u>Answer 3</b></u>')        
+        self.assertEqual(bonuses[0].answers[2], '<b><u>Answer 3</b></u>') 
+        
+        validBonusWithCategory = validBonus + " {History - American}"
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validBonusWithCategory.splitlines())
+        self.assertEqual(len(bonuses), 1)
+        self.assertEqual(bonuses[0].category, "History - American");    
         
         validVHSLBonus = '[V10] This is a valid VHSL bonus.\nANSWER: <b><u>VHSL Answer</b></u>'
         tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validVHSLBonus.splitlines())

@@ -350,6 +350,8 @@ def parse_packet_data(data):
                     print "Is Answer"
                     answer = bonus_line
                     tempCategory = get_category(answer)
+                    print "Answer Line: " + answer
+                    print "TempCategory: " + tempCategory
                     if (tempCategory != ''):
                         category = tempCategory
                         answer = remove_category(answer)
@@ -369,7 +371,7 @@ def parse_packet_data(data):
             if (i < len(data) - 1):
                 question_stack.append(next_question_line)
                 
-            bonus = Bonus(leadin, parts, answers, values, i)            
+            bonus = Bonus(leadin, parts, answers, values, i, type="acf", category=category)            
             try:
                 bonus.is_valid()
                 bonuses.append(bonus)
@@ -382,13 +384,10 @@ def parse_packet_data(data):
         # There isn't a great way to tell VHSL bonuses from other bonuses, so need to require a special
         # bonus part flag of [V10] rahter than just [10]
         elif vhsl_bonus_flag and (is_answer(this_line) or i == len(data) - 1):
-            #print 'In VHSL'            
             answer = question_stack.pop()
             question = question_stack.pop()
             question = string.strip(re.sub(vhsl_bpart_regex, '', question))
-            #print 'Question: ' + question
             answer = string.strip(re.sub(ansregex, '', answer))
-            #print 'Answer: ' + answer
             category = get_category(answer)
             answer = remove_category(answer)
             

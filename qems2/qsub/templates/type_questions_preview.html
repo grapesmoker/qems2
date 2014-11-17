@@ -46,16 +46,9 @@
                     &#123;{{ tossup.category|safe}}&#125;
                 {% endif %}
                 </p>
-            <textarea name="tossup-text-{{ forloop.counter0 }}" style="display: none">
-                {{ tossup.question|safe }}
-            </textarea>
-            <textarea name="tossup-answer-{{ forloop.counter0 }}" style="display: none">
-                {{ tossup.answer|safe }}
-            </textarea>
-            <textarea name="tossup-category-{{ forloop.counter0 }}" style="display: none">
-                {{ tossup.category|safe }}
-            </textarea>
-
+            <input type="hidden" name="tossup-text-{{ forloop.counter0 }}" value="{{ tossup.question|safe }}">
+            <input type="hidden" name="tossup-answer-{{ forloop.counter0 }}" value="{{ tossup.answer|safe }}"> 
+            <input type="hidden" name="tossup-category-{{ forloop.counter0 }}" value="{{ tossup.category|safe }}">
             {% endfor %}
             <h3>Submitted Bonuses</h3>
             {% for bonus in bonuses %}
@@ -75,33 +68,15 @@
                 {% endif %}
             </p>
 
-            <textarea name="bonus-leadin-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.leadin|safe }}
-            </textarea>
-            <textarea name="bonus-part1-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.parts.0|safe }}
-            </textarea>
-            <textarea name="bonus-answer1-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.answers.0|safe }}
-            </textarea>
-            <textarea name="bonus-part2-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.parts.1|safe }}
-            </textarea>
-            <textarea name="bonus-answer2-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.answers.1|safe }}
-            </textarea>
-            <textarea name="bonus-part3-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.parts.2|safe }}
-            </textarea>
-            <textarea name="bonus-answer3-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.answers.2|safe }}
-            </textarea>
-            <textarea name="bonus-category-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.category|safe }}
-            </textarea>
-            <textarea name="bonus-type-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.type|safe }}
-            </textarea>
+            <input type="hidden" name="bonus-leadin-{{ forloop.counter0 }}" value="{{ bonus.leadin|safe }}">
+            <input type="hidden" name="bonus-category-{{ forloop.counter0 }}" value="{{ bonus.category|safe }}">
+            <input type="hidden" name="bonus-type-{{ forloop.counter0 }}" value="{{ bonus.type|safe }}">            
+            <input type="hidden" name="bonus-part1-{{ forloop.counter0 }}" value="{{ bonus.parts.0|safe }}">
+            <input type="hidden" name="bonus-answer1-{{ forloop.counter0 }}" value="{{ bonus.answers.0|safe }}">
+            <input type="hidden" name="bonus-part2-{{ forloop.counter0 }}" value="{{ bonus.parts.1|safe }}">
+            <input type="hidden" name="bonus-answer2-{{ forloop.counter0 }}" value="{{ bonus.answers.1|safe }}">
+            <input type="hidden" name="bonus-part3-{{ forloop.counter0 }}" value="{{ bonus.parts.2|safe }}">
+            <input type="hidden" name="bonus-answer3-{{ forloop.counter0 }}" value="{{ bonus.answers.2|safe }}">
 
             {% endfor %}
 

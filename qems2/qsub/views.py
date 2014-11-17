@@ -604,9 +604,6 @@ def add_tossups(request, qset_id, packet_id=None):
                 tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, role='writer')
             else:
                 tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id)
-            #dist = qset.distribution
-            #dist_entries = dist.distributionentry_set.all()
-            #tossup_form.fields['category'].queryset = dist_entries
             read_only = False
         else:
             tossup_form = []
@@ -690,10 +687,11 @@ def add_bonuses(request, qset_id, packet_id=None):
     message_class = ''
     read_only = True
     role = get_role(user, qset)
+    question_type_id = QuestionType.objects.get(question_type="ACF-style bonus")
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            form = BonusForm(qset_id=qset.id, packet_id=packet_id, role=role)
+            form = BonusForm(qset_id=qset.id, packet_id=packet_id, role=role, initial={'question_type': question_type_id})
             read_only = False
         else:
             form = None
@@ -712,7 +710,7 @@ def add_bonuses(request, qset_id, packet_id=None):
 
     elif request.method == 'POST':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id)
+            form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id})
 
             if form.is_valid():
                 bonus = form.save(commit=False)
@@ -757,7 +755,7 @@ def add_bonuses(request, qset_id, packet_id=None):
             read_only = True
 
         return render_to_response('add_bonuses.html',
-                 {'form': BonusForm(qset_id=qset.id, packet_id=packet_id),
+                 {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
                  'message': message,
                  'message_class': message_class,
                  'bonus_id': bonus.id, # Don't send the whole bonus object or else the old text won't get cleared
@@ -1802,6 +1800,9 @@ def type_questions(request, qset_id=None):
             if form.is_valid():
                 question_data = request.POST['questions'].splitlines()
                 tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(question_data)
+                print "type questions post"
+                for tossup in tossups:
+                    print tossup.answer
                 
                 return render_to_response('type_questions_preview.html',
                                           {'tossups': tossups,
@@ -1853,15 +1854,17 @@ def complete_upload(request):
 
         num_tossups = int(request.POST['num-tossups'])
         num_bonuses = int(request.POST['num-bonuses'])
+        categories = DistributionEntry.objects.all()            
 
         for tu_num in range(num_tossups):
+            data="UTF-8 DATA"
             tu_text_name = 'tossup-text-{0}'.format(tu_num)
             tu_ans_name = 'tossup-answer-{0}'.format(tu_num)
             tu_cat_name = 'tossup-category-{0}'.format(tu_num)
 
             tu_text = request.POST[tu_text_name]
-            tu_ans = request.POST[tu_ans_name]
-            tu_cat_name = request.POST[tu_cat_name]
+            tu_ans = request.POST[tu_ans_name]            
+            tu_cat = request.POST[tu_cat_name]
 
             new_tossup = Tossup()
             new_tossup.tossup_text = tu_text
@@ -1869,10 +1872,10 @@ def complete_upload(request):
             new_tossup.author = user
             new_tossup.question_set = qset
             
-            # TODO: Need to validate this category
-            new_tossup.category_name = tu_cat_name
-            
-            
+            for category in categories:
+                formattedCategory = category.category + " - " + category.subcategory
+                if (formattedCategory == tu_cat):
+                    new_tossup.category = category
             
             new_tossup.locked = False
             new_tossup.edited = False
@@ -1904,9 +1907,11 @@ def complete_upload(request):
             new_bonus.part3_text = request.POST[bs_part3_name]
             new_bonus.part3_answer = request.POST[bs_ans3_name]
             
-            
-            
-            new_bonus.category_name = request.POST[bs_cat_name]
+            bonus_cat = request.POST[bs_cat_name]
+            for category in categories:
+                formattedCategory = category.category + " - " + category.subcategory
+                if (formattedCategory == bonus_cat):
+                    new_bonus.category = category
 
             new_bonus.save()
 

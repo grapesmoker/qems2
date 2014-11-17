@@ -1,4 +1,5 @@
 import json
+import csv
 
 from django.template.loader import get_template
 from django.template import Context, RequestContext
@@ -76,13 +77,16 @@ def question_sets (request):
     # the tournaments for which this user is an editor
     editor_sets = writer.question_set_editor.all()
     # the tournaments for which this user is a writer
-    # by definition this includes sets you're editing and owning
-    writer_sets = owned_sets | editor_sets | writer.question_set_writer.all()
+    # by definition this includes sets you're editing and owning    
+    # Python is having trouble unioning these sets by default, 
+    # so be more explicit about what to union by using IDs as a key in a dict
+    writer_sets_dict = {}
+    for qset in (owned_sets | editor_sets | writer.question_set_writer.all()):
+        writer_sets_dict[qset.id] = qset
+   
+    writer_sets = writer_sets_dict.values()
 
-    print writer
-    print owned_sets
-
-    all_sets  = [{'header': 'Question sets you are writing for', 'qsets': writer_sets, 'id': 'qsets-write'},
+    all_sets  = [{'header': 'All your question sets', 'qsets': writer_sets, 'id': 'qsets-write'},
                  {'header': 'Question sets you are editing', 'qsets': editor_sets, 'id': 'qsets-edit'},
                  {'header': 'Question sets you own', 'qsets': owned_sets, 'id': 'qsets-owned'}]
 
@@ -1853,15 +1857,23 @@ def complete_upload(request):
         for tu_num in range(num_tossups):
             tu_text_name = 'tossup-text-{0}'.format(tu_num)
             tu_ans_name = 'tossup-answer-{0}'.format(tu_num)
+            tu_cat_name = 'tossup-category-{0}'.format(tu_num)
 
             tu_text = request.POST[tu_text_name]
             tu_ans = request.POST[tu_ans_name]
+            tu_cat_name = request.POST[tu_cat_name]
 
             new_tossup = Tossup()
             new_tossup.tossup_text = tu_text
             new_tossup.tossup_answer = tu_ans
             new_tossup.author = user
             new_tossup.question_set = qset
+            
+            # TODO: Need to validate this category
+            new_tossup.category_name = tu_cat_name
+            
+            
+            
             new_tossup.locked = False
             new_tossup.edited = False
 
@@ -1876,6 +1888,8 @@ def complete_upload(request):
             bs_ans2_name = 'bonus-answer2-{0}'.format(bs_num)
             bs_part3_name = 'bonus-part3-{0}'.format(bs_num)
             bs_ans3_name = 'bonus-answer3-{0}'.format(bs_num)
+            bs_cat_name = 'bonus-category-{0}'.format(bs_num)
+            bs_type_name = 'bonus-type-{0}'.format(bs_num)
 
             new_bonus = Bonus()
             new_bonus.question_set = qset
@@ -1889,6 +1903,10 @@ def complete_upload(request):
             new_bonus.part2_answer = request.POST[bs_ans2_name]
             new_bonus.part3_text = request.POST[bs_part3_name]
             new_bonus.part3_answer = request.POST[bs_ans3_name]
+            
+            
+            
+            new_bonus.category_name = request.POST[bs_cat_name]
 
             new_bonus.save()
 
@@ -2022,6 +2040,77 @@ def search(request):
 def logout_view(request):
 	logout(request)
 	return HttpResponseRedirect("/main/")
+
+@login_required
+def export_question_set(request, qset_id, output_format):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+    qset_editors = qset.editor.all()
+    if request.method == 'GET':
+        if (user in qset.editor.all()):
+            if (output_format == "csv"):
+                tossups = Tossup.objects.filter(question_set=qset)
+                bonuses = Bonus.objects.filter(question_set=qset)
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="exportedquestions.csv"'
+                
+                writer = csv.writer(response)
+                writer.writerow(["Tossup Question", "Answer", "Category", "Author", "Edited", "Packet", "Question Number"])
+                for tossup in tossups:                
+                    writer.writerow([tossup.tossup_text, tossup.tossup_answer, tossup.category, tossup.author, tossup.edited, tossup.packet, tossup.question_number])
+                
+                writer.writerow([])
+                
+                writer.writerow(["Bonus Leadin", "Bonus Part 1", "Bonus Answer 1", "Bonus Part 2", "Bonus Answer 2", "Bonus Part 3", "Bonus Answer 3", "Category", "Author", "Edited", "Packet", "Question Number"])
+                for bonus in bonuses:
+                    writer.writerow([bonus.leadin, bonus.part1_text, bonus.part1_answer, bonus.part2_text, bonus.part2_answer, bonus.part3_text, bonus.part3_answer, bonus.category, bonus.author, bonus.edited, bonus.packet, bonus.question_number])
+                    
+                return response
+            elif (output_format == "pdf"):
+                # TODO: Experiment with one of those PDF libraries
+                message = 'Not supported yet.'
+                message_class = 'alert alert-danger'
+                q_set = []
+                tossups = []
+                bonuses = []
+                return render_to_response('export_question_set.html',
+                                    {'user': user,
+                                     'q_set': q_set,
+                                     'tossups': tossups,
+                                     'bonuses': bonuses,
+                                     'message': message,
+                                     'message_class': message_class},
+                                     context_instance=RequestContext(request))
+            else:
+                message = 'Unsupported export format.'
+                message_class = 'alert alert-danger'
+                q_set = []
+                tossups = []
+                bonuses = []
+                return render_to_response('export_question_set.html',
+                                    {'user': user,
+                                     'q_set': q_set,
+                                     'tossups': tossups,
+                                     'bonuses': bonuses,
+                                     'message': message,
+                                     'message_class': message_class},
+                                     context_instance=RequestContext(request))                 
+            
+        else:
+            message = 'You are not authorized to export questions from this set.'
+            message_class = 'alert alert-danger'
+            q_set = []
+            tossups = []
+            bonuses = []
+            return render_to_response('export_question_set.html',
+                                {'user': user,
+                                 'q_set': q_set,
+                                 'tossups': tossups,
+                                 'bonuses': bonuses,
+                                 'message': message,
+                                 'message_class': message_class},
+                                 context_instance=RequestContext(request))
+
 
 # @login_required
 # def password(request):

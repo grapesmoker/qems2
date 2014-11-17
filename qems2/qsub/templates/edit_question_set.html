@@ -128,6 +128,11 @@
                     {% endfor %}
                     </tbody>
                 </table>
+                <div class="alert alert-info" style="text-align: left">
+                    <strong>
+                    <a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a>
+                    </strong>
+                </div>
                 <a id="#qset-comments"></a>
                 <div class="alert alert-info" style="text-align: center"><strong>Comments</strong></div>
                 <div class="comments col-md-6">
@@ -149,7 +154,6 @@
                         <input type="hidden" name="next" value="/edit_question_set/{{ qset.id }}/">
                     </form>
                 </div>
-
 
                 <!--<button class="btn btn-primary comment-button" title="Leave Comment">Comment</button>-->
 

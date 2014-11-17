@@ -1,10 +1,10 @@
-from django.test import TestCase
+from django.test import SimpleTestCase
 
 from qems2.qsub.packet_parser import is_answer, is_bpart, is_vhsl_bpart, is_category
 from qems2.qsub.packet_parser import parse_packet_data, get_bonus_part_value, remove_category
 from qems2.qsub.packet_parser import remove_answer_label, format_answerline_underscores
 
-class PacketParserTests(TestCase):
+class PacketParserTests(SimpleTestCase):
     def test_is_answer(self):
         answers = ["answer:", "Answer:", "ANSWER:", "ANSWER: _underlined_", "ANSWER: no underline", "ANSWER: <u>underline2</u>"]
         for answer in answers:

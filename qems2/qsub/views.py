@@ -47,9 +47,10 @@ def register (request):
 
 @login_required
 def main (request):
+    return question_sets(request)
 
-    return render_to_response('main.html', {'user': request.user.writer},
-                              context_instance=RequestContext(request))
+    #return render_to_response('main.html', {'user': request.user.writer},
+    #                          context_instance=RequestContext(request))
 @login_required
 def sidebar (request):
     writer = request.user.writer

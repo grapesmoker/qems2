@@ -247,6 +247,48 @@ $(function () {
         }
     });
 
+    $('.delete_writer').click(function(e) {
+        e.preventDefault();
+        var result = confirm("You are about to remove this writer from the set! Are you sure that you want to do that?");
+        if (result == true) {
+            $.post('/delete_writer/', {writer_id: $(this).attr('value'), qset_id: $('#qset-id').val()}, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $(this).dialog('close');
+                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
+        }
+    });
+
+    $('.delete_editor').click(function(e) {
+        e.preventDefault();
+        var result = confirm("You are about to remove this editor from the set! Are you sure you want to do that?");
+        if (result == true) {
+            $.post('/delete_editor/', {editor_id: $(this).attr('value'), qset_id: $('#qset-id').val()}, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $(this).dialog('close');
+                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
+        }
+    });
+
     $('#upload-dialog').dialog({
         autoOpen: false,
         width: 600,

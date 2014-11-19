@@ -61,6 +61,8 @@ urlpatterns = patterns('',
     (r'^logout/$', logout_view),   
     (r'^categories/(?P<qset_id>[0-9]+)/(?P<category_id>[0-9]+)/$', categories),
     (r'^export_question_set/(?P<qset_id>[0-9]+)/(?P<output_format>.+)/$', export_question_set),
+    (r'^delete_writer/$', delete_writer),
+    (r'^delete_editor/$', delete_editor),
     
     (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
     (r'^complete_upload/$', complete_upload),

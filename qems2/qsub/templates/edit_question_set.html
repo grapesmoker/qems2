@@ -184,10 +184,12 @@
 							<td>{{ editor.user.first_name }} {{ editor.user.last_name }}</td>
 							<td>{{ editor.user.username }}</td>
 							<td></td>
-							<td><a href="/roleassign/{{ editor.id }}/{{ tour.id}}/" rel="tooltip" title="Assign categories">
+							<td><a href="/assign_editor_categories/{{ qset.id }}/{{ editor.id}}/" rel="tooltip" title="Assign categories">
 								<i class="fa fa-edit"></i>
-								</a><a href="/removeeditor/{{ tour.id }}/{{ editor.id }}/" rel="tooltip" title="Remove editor">
-									<i class="fa fa-minus-circle"></i> </a>
+								</a>
+                                <a href="/delete_editor/{{ packet.id }}" rel="tooltip" title="Remove editor" class="delete_editor" value="{{ editor.id }}">
+                                    <i class="fa fa-minus-circle"></i>
+                                </a>
 							</td>
 						</tr>
 						{% endfor %}
@@ -210,9 +212,12 @@
 						<tr>
 							<td>{{ writer.user.first_name }} {{ writer.user.last_name }}</td>
 							<td>{{ writer.user.username }}</td>
-							<td><i class="fa fa-edit"></i>
-								</a><a href="/removeeditor/{{ tour.id }}/{{ editor.id }}/" rel="tooltip" title="Remove writer">
-									<i class="fa fa-minus-circle"></i> </a>
+							<td><a href="/assign_writer_categories/{{ qset.id }}/{{ writer.id}}/" rel="tooltip" title="Assign categories">
+								<i class="fa fa-edit"></i>
+								</a>
+                                <a href="/delete_writer/{{ packet.id }}" rel="tooltip" title="Delete writer" class="delete_writer" value="{{ writer.id }}">
+                                    <i class="fa fa-minus-circle"></i>
+                                </a>
 							</td>
 						</tr>
 						{% endfor %}

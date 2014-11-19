@@ -1019,6 +1019,52 @@ def delete_bonus(request):
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
+def delete_writer(request):
+    print "Delete Writer"
+    user = request.user.writer
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        qset_id = request.POST['qset_id']
+        qset = QuestionSet.objects.get(id=qset_id)
+        writer_id = request.POST['writer_id']
+        writer = qset.writer.get(id=writer_id)
+        if user == qset.owner:
+            qset.writer.remove(writer)
+            message = 'Writer removed'
+            message_class = 'alert alert-success'
+        else:
+            message = 'You are not authorized to remove writers from this set!'
+            message_class = 'alert alert-warning'
+
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
+@login_required
+def delete_editor(request):
+    print "Delete Editor"
+    user = request.user.writer
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        qset_id = request.POST['qset_id']
+        qset = QuestionSet.objects.get(id=qset_id)
+        editor_id = request.POST['editor_id']
+        editor = qset.editor.get(id=editor_id)
+        if user == qset.owner:
+            qset.editor.remove(editor)
+            message = 'Editor removed'
+            message_class = 'alert alert-success'
+        else:
+            message = 'You are not authorized to remove editors from this set!'
+            message_class = 'alert alert-warning'
+
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
+@login_required
 def add_packets(request, qset_id):
 
     qset = QuestionSet.objects.get(id=qset_id)

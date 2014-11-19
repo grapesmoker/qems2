@@ -82,7 +82,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for cat, entry in set_status.items %}
+                    {% for cat, entry in set_status.items|sort %}
                     <tr>
                         <td>
                             <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
@@ -109,7 +109,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for cat, entry in set_status.items %}
+                    {% for cat, entry in set_status.items|sort %}
                     <tr>
                         <td>
                             <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
@@ -259,7 +259,6 @@
                         {% for entry in set_distro_formset %}
                         <tr>
                             <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
-                            <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
                             <td>{{ entry.category.value }}</td>
                             <td>{{ entry.subcategory.value }}</td>
                             <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
@@ -301,6 +300,21 @@
                             <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
                         </tr>
                         {% endfor %}
+                    </table>
+                    <input type="submit" class="btn btn-primary">
+                    {{ tiebreak_formset.management_form }}
+                </form>
+            </div>
+            <div class="tab-pane" id="comments">
+
+                <form action="/edit_set_tiebreak/{{ qset.id }}/" method="POST">
+                    {% csrf_token %}
+                    <table class="table table-striped table-hover">
+                        <caption class="alert alert-info">
+                            <strong>Comments</strong>
+                        </caption>
+                        
+
                     </table>
                     <input type="submit" class="btn btn-primary">
                     {{ tiebreak_formset.management_form }}

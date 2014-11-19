@@ -227,8 +227,8 @@ def edit_question_set(request, qset_id):
                 tiebreak_formset = create_tiebreak_formset(qset)
             else:
                 read_only = True
-
-            entries = qset.setwidedistributionentry_set.all()
+            
+            entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
             for entry in sorted(entries):
                 tu_required = entry.num_tossups
                 bs_required = entry.num_bonuses
@@ -270,8 +270,9 @@ def edit_question_set(request, qset_id):
             qset_editors = []
     else:
         if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
-			# TODO: Should not display anything about the set
-            print 'TODO about user security'
+			# Just redirect to main in this case of no permissions
+            # TODO: a better story
+            return HttpResponseRedirect('/main.html')
         if user not in qset_editors and user != qset.owner:
             form = QuestionSetForm(instance=qset, read_only=True)
             read_only = True
@@ -296,8 +297,8 @@ def edit_question_set(request, qset_id):
                 tiebreak_formset = create_tiebreak_formset(qset)
             form = QuestionSetForm(instance=qset)
 
-        entries = qset.setwidedistributionentry_set.all()
-        for entry in sorted(entries):
+        entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
+        for entry in entries:
             tu_required = entry.num_tossups
             bs_required = entry.num_bonuses
             tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()

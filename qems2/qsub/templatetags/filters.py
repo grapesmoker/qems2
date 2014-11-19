@@ -1,4 +1,5 @@
 from django.template.defaultfilters import register
+from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from qems2.qsub.models import *
 from qems2.qsub.utils import sanitize_html, strip_markup
@@ -66,6 +67,23 @@ def check_mark_if_100_pct(x, y):
 @register.filter(name='class_name')
 def class_name(obj):
     return obj.__class__.__name__
+
+@register.filter(name='sort')
+def listsort(value):
+    if isinstance(value, dict):
+        print "Sorted dict called"
+        new_dict = SortedDict()
+        key_list = sorted(value.keys())
+        for key in key_list:
+            new_dict[key] = value[key]
+        return new_dict
+    elif isinstance(value, list):
+        print "List called"
+        return sorted(value)
+    else:
+        print "Other called"
+        return value
+    listsort.is_safe = True
 
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

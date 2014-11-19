@@ -357,7 +357,7 @@
 						{% get_comment_list for tossup as comment_list %}
 						{% for comment in comment_list %}
 							{% if not comment.is_removed %}
-								{{user}}: {{ comment.comment }}<br>
+								{{ comment.user }}: {{ comment.comment }}<br>
 							{% endif %}
 						{% endfor %}
                         </td>

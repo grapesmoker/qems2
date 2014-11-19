@@ -1136,7 +1136,7 @@ def delete_packet(request):
         packet = Packet.objects.get(id=packet_id)
         qset = packet.question_set
         if user == qset.owner:
-            #packet.delete()
+            packet.delete()
             message = 'Packet deleted'
             message_class = 'alert alert-success'
             read_only = False

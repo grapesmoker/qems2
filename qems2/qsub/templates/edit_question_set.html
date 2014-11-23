@@ -374,9 +374,9 @@
                             </td>
                             <td>
                             {% get_comment_list for tossup as comment_list %}
-                            {% for comment in comment_list %}
+                            {% for comment in comment_list reversed %}
                                 {% if not comment.is_removed %}
-                                    {{ comment.user }}: {{ comment.comment }}<br>
+                                    {{ comment.user }}: {{ comment.comment|preview }}<br>
                                 {% endif %}
                             {% endfor %}
                             </td>
@@ -435,9 +435,9 @@
                             </td>
                             <td>
                             {% get_comment_list for bonus as comment_list %}
-                            {% for comment in comment_list %}
+                            {% for comment in comment_list reversed %}
                                 {% if not comment.is_removed %}
-                                    {{user}}: {{ comment.comment }}<br>
+                                    {{user}}: {{ comment.comment|preview }}<br>
                                 {% endif %}
                             {% endfor %}
                             </td>

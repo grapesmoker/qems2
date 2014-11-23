@@ -128,11 +128,24 @@ $(function () {
         console.log(error);
     }
 
-    $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
-    $('#tossup-pager').css({position: "relative"});
+    // Set up sorting for all tables
+    $('#tu-status-table').tablesorter();
+    $('#bonus-status-table').tablesorter();    
+    $('#editors-table').tablesorter();
+    $('#writers-table').tablesorter();
+    $('#set-wide-reqs-table').tablesorter();
+    $('#tb-reqs-table').tablesorter();
+    $('#packets-table').tablesorter();
 
+    $("#tossup-table").tablesorter();
+    $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
+    $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
+
+    $("#bonus-table").tablesorter();
     $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});
-    $('#bonus-pager').css({position: "relative"});
+    $('#bonus-pager').css({cursor: "pointer", position: "relative", top: "0px"});
+
+
 
     /*tinymce.init({
         selector: 'textarea.question_text',
@@ -307,4 +320,3 @@ $(function () {
         $('#upload-dialog').dialog('open');
     })
 });
-

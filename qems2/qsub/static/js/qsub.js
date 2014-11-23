@@ -136,6 +136,8 @@ $(function () {
     $('#set-wide-reqs-table').tablesorter();
     $('#tb-reqs-table').tablesorter();
     $('#packets-table').tablesorter();
+    $('#category-tossup-table').tablesorter();
+    $('#category-bonus-table').tablesorter();
 
     $("#tossup-table").tablesorter();
     $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});

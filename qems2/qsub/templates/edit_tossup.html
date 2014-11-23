@@ -49,6 +49,8 @@
         </div>
         <br>
         <p><strong>Tossup Author:</strong> {{ tossup.author }}</p>
+        <p><strong>Character Count:</strong> {{ tossup_length }}</p>
+        
         {{ form.as_p }}
         {% endif %}
         <input type="submit" id="submit-tossup" value="Save"/>

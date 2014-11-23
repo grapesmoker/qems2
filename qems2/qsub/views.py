@@ -776,6 +776,7 @@ def add_bonuses(request, qset_id, packet_id=None):
 def edit_tossup(request, tossup_id):
     user = request.user.writer
     tossup = Tossup.objects.get(id=tossup_id)
+    tossup_length = len(tossup.tossup_text)
     qset = tossup.question_set
     packet = tossup.packet
     message = ''
@@ -807,6 +808,7 @@ def edit_tossup(request, tossup_id):
 
         return render_to_response('edit_tossup.html',
             {'tossup': tossup,
+             'tossup_length': tossup_length,
              'form': form,
              'qset': qset,
              'packet': packet,
@@ -840,6 +842,7 @@ def edit_tossup(request, tossup_id):
                 tossup.edited = form.cleaned_data['edited']
                 tossup.question_type = form.cleaned_data['question_type']
                 tossup.save()
+                tossup_length = len(tossup.tossup_text)
                 message = 'Your changes have been saved!'
                 message_class = 'alert alert-success'
 
@@ -865,6 +868,7 @@ def edit_tossup(request, tossup_id):
         # tossup.tossup_answer = ''
         return render_to_response('edit_tossup.html',
             {'tossup': tossup,
+             'tossup_length': tossup_length,            
              'form': form,
              'role': role,
              'qset': qset,
@@ -879,6 +883,7 @@ def edit_tossup(request, tossup_id):
 def edit_bonus(request, bonus_id):
     user = request.user.writer
     bonus = Bonus.objects.get(id=bonus_id)
+    bonus_length = len(bonus.leadin) + len(bonus.part1_text) + len(bonus.part2_text) + len(bonus.part3_text)    
     qset = bonus.question_set
     packet = bonus.packet
     message = ''
@@ -910,6 +915,7 @@ def edit_bonus(request, bonus_id):
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
+             'bonus_length': bonus_length,
              'form': form,
              'qset': qset,
              'packet': packet,
@@ -940,6 +946,7 @@ def edit_bonus(request, bonus_id):
                 bonus.edited = form.cleaned_data['edited']
                 bonus.question_type = form.cleaned_data['question_type']
                 bonus.save()
+                bonus_length = len(bonus.leadin) + len(bonus.part1_text) + len(bonus.part2_text) + len(bonus.part3_text)    
 
                 #print bonus.part1_text
 
@@ -966,6 +973,7 @@ def edit_bonus(request, bonus_id):
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
+             'bonus_length': bonus_length,
              'form': form,
              'qset': qset,
              'packet': packet,

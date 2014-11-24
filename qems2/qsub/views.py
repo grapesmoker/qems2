@@ -338,6 +338,7 @@ def edit_question_set(request, qset_id):
 def categories(request, qset_id, category_id):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id) # TODO: It might be dangerous to set this here without authorizing users first
+    # I don't believe there is any danger here. None of this is exposed to the client. -JV
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
     
@@ -531,6 +532,7 @@ def add_writer(request, qset_id):
              'message': message,
              'user': user},
             context_instance=RequestContext(request))
+
 
 @login_required
 def edit_packet(request, packet_id):
@@ -1590,6 +1592,11 @@ def edit_distribution(request, dist_id=None):
                             new_entry.min_tossups = form.cleaned_data['min_tossups']
                             new_entry.max_bonuses = form.cleaned_data['max_bonuses']
                             new_entry.max_tossups = form.cleaned_data['max_tossups']
+                            if new_entry.min_bonuses > new_entry.max_bonuses:
+                                new_entry.min_bonuses = new_entry.max_bonuses
+                            if new_entry.min_tossups > new_entry.max_tossups:
+                                new_entry.max_tossups = new_entry.min_tossups
+
                             new_entry.distribution = new_dist
                             new_entry.save()
 
@@ -1621,6 +1628,11 @@ def edit_distribution(request, dist_id=None):
                                     entry.min_tossups = form.cleaned_data['min_tossups']
                                     entry.max_bonuses = form.cleaned_data['max_bonuses']
                                     entry.max_tossups = form.cleaned_data['max_tossups']
+                                    if entry.min_bonuses > entry.max_bonuses:
+                                        entry.min_bonuses = entry.max_bonuses
+                                    if entry.min_tossups > entry.max_tossups:
+                                        entry.max_tossups = entry.min_tossups
+
                                     entry.save()
                             else:
                                 entry = form.save(commit=False)

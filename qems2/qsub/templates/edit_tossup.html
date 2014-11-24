@@ -25,44 +25,88 @@
     {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}
-    <div id="toolbar" class="ql-toolbar-container quill-wrapper">
+    <!--<div id="toolbar" class="ql-toolbar-container quill-wrapper">
         <button class="ql-bold"><b>B</b></button>
         <button class="ql-italic"><i>I</i></button>
         <button class="ql-underline"><u>U</u></button>
+    </div>-->
+    <div class="col-md-10">
+        <form action="" method="post" class="form-horizontal" role="form">
+            {% csrf_token %}
+            {% if not read_only %}
+                {% if form %}
+                    <div class="form-group col-md-10">
+                        <label class="control-label col-sm-2" for="{{ form.tossup_text.id_for_label }}">Tossup Text</label>
+                        <div class="col-lg-8">
+                            {{ form.tossup_text }}
+                        </div>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label class="control-label col-sm-2" for="{{ form.tossup_answer.id_for_label }}">Answer</label>
+                        <div class="col-lg-8">
+                            {{ form.tossup_answer }}
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-10">
+                        <label class="control-label col-sm-2" for="author">Tossup Author</label>
+                        <div class="col-lg-8">
+                            {% if tossup %}
+                            <p id="author">{{ tossup.author }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label class="control-label col-sm-2" for="{{ form.category.id_for_label }}">Category</label>
+                        <div class="col-lg-8">
+                            {{ form.category }}
+                        </div>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label class="control-label col-sm-2" for="{{ form.packet.id_for_label }}">Packet</label>
+                        <div class="col-lg-8">
+                            {{ form.packet }}
+                        </div>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label class="control-label col-sm-2" for="{{ form.edited.id_for_label }}">Edited</label>
+                        <div class="col-lg-8">
+                            {{ form.edited }}
+                        </div>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label class="control-label col-sm-2" for="{{ form.locked.id_for_label }}">Locked</label>
+                        <div class="col-lg-8">
+                            {{ form.locked }}
+                        </div>
+                    </div>
+                    <div class="form-group col-md-10">
+                        <label class="control-label col-sm-2" for="{{ form.question_type.id_for_label }}">Question Type</label>
+                        <div class="col-lg-8">
+                            {{ form.question_type }}
+                        </div>
+                    </div>
+                {% endif %}
+
+                <div class="form-group col-md-10">
+                    <label class="control-label col-lg-2" for="submit-tossup">&nbsp;</label>
+                    <div class="col-lg-8">
+                        <input type="submit" class="form-control" id="submit-tossup" value="Save"/>
+                    </div>
+                </div>
+
+
+            {% else %}
+                {% if tossup %}
+                    <p>{{ tossup.tossup_text|safe }}</p>
+                    <p>ANSWER: {{ tossup.tossup_answer|safe }}</p>
+                {% endif %}
+            {% endif %}
+        </form>
     </div>
 
-	<form action="" method="post">
-        {% csrf_token %}
-        {% if not read_only %}
-        {% if form %}
-        <strong>Tossup Text:</strong>
-        <div class="quill-wrapper">
-            <div id="tossup-editor" class="tossup-text">
-                <div>{{ tossup.tossup_text|safe }}</div>
-            </div>
-        </div>
-        <strong>Tossup Answer:</strong>
-        <div class="quill-wrapper" style="height: 50px;">
-            <div id="answer-editor" class="answer-text">
-                <div>{{ tossup.tossup_answer|safe }}</div>
-            </div>
-        </div>
-        <br>
-        <p><strong>Tossup Author:</strong> {{ tossup.author }}</p>
-        <p><strong>Character Count:</strong> {{ tossup_length }}</p>
-        
-        {{ form.as_p }}
-        {% endif %}
-        <input type="submit" id="submit-tossup" value="Save"/>
-        {% else %}
-        {% if tossup %}
-        <p>{{ tossup.tossup_text|safe }}</p>
-        <p>ANSWER: {{ tossup.tossup_answer|safe }}</p>
-        {% endif %}
-        {% endif %}
-    </form>
     {% if tossup %}
-    <div class="alert alert-info" style="text-align: center"><strong>Comments</strong></div>
+    <div class="col-md-10 alert alert-info" style="text-align: center"><strong>Comments</strong></div>
     <div class="comments col-md-6">
         {% render_comment_list for tossup %}
         {% get_comment_form for tossup as cform %}

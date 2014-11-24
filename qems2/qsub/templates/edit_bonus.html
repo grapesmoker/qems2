@@ -30,11 +30,11 @@
         <button class="ql-italic"><i>I</i></button>
         <button class="ql-underline"><u>U</u></button>
     </div>
-	<form action="" method="post">
+	<form action="" method="post" class="form-horizontal">
         {% csrf_token %}
         {% if not read_only %}
         {% if form %}
-        <strong>Leadin:</strong>
+        <!--<strong>Leadin:</strong>
         <div class="quill-wrapper" style="height: 75px;">
             <div id="bonus-leadin" class="bonus-text">
                 <div>{{ bonus.leadin|safe }}</div>
@@ -79,7 +79,7 @@
         <br>
         <p><strong>Bonus Author:</strong> {{ bonus.author }}</p>
         <p><strong>Character Count:</strong> {{ bonus_length }}</p>        
-        {{ form.as_p }}
+        {{ form.as_p }}-->
         {% endif %}
         <input type="submit" id="submit-bonus" value="Save"/>
         {% else %}

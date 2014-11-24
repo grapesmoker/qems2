@@ -82,10 +82,11 @@ class RoleAssignmentForm(forms.ModelForm):
     
 class TossupForm(forms.ModelForm):
     
-    #tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 40, 'rows': 12}))
-    #tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text field span8', 'cols': 40, 'rows': 5}))
-    tossup_text = forms.CharField(widget=forms.HiddenInput())
-    tossup_answer = forms.CharField(widget=forms.HiddenInput())
+    tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 10}))
+    tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 5}))
+    #tossup_text = forms.CharField(widget=forms.HiddenInput())
+    #tossup_answer = forms.CharField(widget=forms.HiddenInput())
+
     category = forms.ModelChoiceField([])
 
     class Meta:

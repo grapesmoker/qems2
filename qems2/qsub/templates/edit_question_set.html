@@ -101,8 +101,6 @@
                     </tr>
                     {% endfor %}
                     </tbody>
-                </table>
-                <table class="table table-striped table-hover" id="bonus-status-table">                    
                     <thead>
                     <tr>
                         <th>Bonus Category</th>
@@ -112,7 +110,7 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for cat, entry in set_status.items|sort %}
+                    {% for cat, entry in set_status.items %}
                     <tr>
                         <td>
                             <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
@@ -169,7 +167,7 @@
                 <a href="/add_writer/{{ qset.id }}" class="btn btn-primary" title="Add set writer">
 					<i class="fa fa-plus-circle"></i> Add set writer
 				</a>
-				<table class="table table-striped table-hover" id="editors-table">
+				<table class="table table-striped table-hover">
 					<caption class="alert alert-info">
 						<strong>Current set editors</strong>
 					</caption>
@@ -187,19 +185,17 @@
 							<td>{{ editor.user.first_name }} {{ editor.user.last_name }}</td>
 							<td>{{ editor.user.username }}</td>
 							<td></td>
-							<td><a href="/assign_editor_categories/{{ qset.id }}/{{ editor.id}}/" rel="tooltip" title="Assign categories">
+							<td><a href="/roleassign/{{ editor.id }}/{{ tour.id}}/" rel="tooltip" title="Assign categories">
 								<i class="fa fa-edit"></i>
-								</a>
-                                <a href="/delete_editor/{{ packet.id }}" rel="tooltip" title="Remove editor" class="delete_editor" value="{{ editor.id }}">
-                                    <i class="fa fa-minus-circle"></i>
-                                </a>
+								</a><a href="/removeeditor/{{ tour.id }}/{{ editor.id }}/" rel="tooltip" title="Remove editor">
+									<i class="fa fa-minus-circle"></i> </a>
 							</td>
 						</tr>
 						{% endfor %}
 					</tbody>
 				</table>
 
-                <table class="table table-striped table-hover" id="writers-table">
+                <table class="table table-striped table-hover">
 					<caption class="alert alert-info">
 						<strong>Current set writers</strong>
 					</caption>
@@ -215,12 +211,9 @@
 						<tr>
 							<td>{{ writer.user.first_name }} {{ writer.user.last_name }}</td>
 							<td>{{ writer.user.username }}</td>
-							<td><a href="/assign_writer_categories/{{ qset.id }}/{{ writer.id}}/" rel="tooltip" title="Assign categories">
-								<i class="fa fa-edit"></i>
-								</a>
-                                <a href="/delete_writer/{{ packet.id }}" rel="tooltip" title="Delete writer" class="delete_writer" value="{{ writer.id }}">
-                                    <i class="fa fa-minus-circle"></i>
-                                </a>
+							<td><i class="fa fa-edit"></i>
+								</a><a href="/removeeditor/{{ tour.id }}/{{ editor.id }}/" rel="tooltip" title="Remove writer">
+									<i class="fa fa-minus-circle"></i> </a>
 							</td>
 						</tr>
 						{% endfor %}
@@ -248,7 +241,7 @@
                 </div>
                 <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
                     {% csrf_token %}
-                    <table class="table table-striped table-hover" id="set-wide-reqs-table">
+                    <table class="table table-striped table-hover">
                         <caption class="alert alert-info">
                             <strong>Set-wide Requirements</strong>
                         </caption>
@@ -262,6 +255,7 @@
                         {% for entry in set_distro_formset %}
                         <tr>
                             <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
+                            <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
                             <td>{{ entry.category.value }}</td>
                             <td>{{ entry.subcategory.value }}</td>
                             <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
@@ -284,7 +278,7 @@
                 </div>
                 <form action="/edit_set_tiebreak/{{ qset.id }}/" method="POST">
                     {% csrf_token %}
-                    <table class="table table-striped table-hover" id="tb-reqs-table">
+                    <table class="table table-striped table-hover">
                         <caption class="alert alert-info">
                             <strong>Tiebreaker Requirements</strong>
                         </caption>
@@ -321,137 +315,135 @@
                 <a href="/type_questions/{{ qset.id }}" class="btn btn-primary" title="Type Questions">
                     <i class="fa fa-file-text"></i> Type Questions
                 </a>
-                
-                <div id="tossup-view">
-                    <div class="alert alert-info" style="text-align: center;"><strong>Current Tossups</strong></div>
-                    <div id="tossup-pager" class="pager">
-                        <form>
-                            <img src="/static/images/icons/without-shadows/badge-circle-direction-left-16-ns.png" class="first"/>
-                            <img src="/static/images/icons/without-shadows/arrow-left-16-ns.png" class="prev"/>
-                            <input type="text" class="pagedisplay"/>
-                            <img src="/static/images/icons/without-shadows/arrow-right-16-ns.png" class="next"/>
-                            <img src="/static/images/icons/without-shadows/badge-circle-direction-right-16-ns.png" class="last"/>
 
-                            <select class="pagesize">
-                                <option selected="selected" value="10">10</option>
-                                <option value="20">20</option>
-                                <option value="30">30</option>
-                                <option value="40">40</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>                            
-                            </select>
-                        </form>
-                    </div>
-                    <table class="table table-striped table-hover tablesorter" id="tossup-table">
-                        <thead>
-                        <tr>
-                            <th>Author</th>
-                            <th>Tossup Text</th>
-                            <th>Answer</th>
-                            <th>Category</th>
-                            <th>Packet</th>
-                            <th>Actions</th>
-                            <th>Comments</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for tossup in tossups %}
-                        <tr>
-                            <td>{{ tossup.author }}</td>
-                            <td>{{ tossup.tossup_text|preview }}</td>
-                            <td>{{ tossup.tossup_answer|preview }}</td>
-                            <td>{{ tossup.category }}</td>
-                            <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
-                            <td>{{ tossup.category }}</td>
-                            
-                            <td>
-                                <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit tossup">
-                                    <i class="fa fa-edit"></i>
-                                </a>
-                                <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ tossup.id }}">
-                                    <i class="fa fa-minus-circle"></i>
-                                </a>
-                            </td>
-                            <td>
-                            {% get_comment_list for tossup as comment_list %}
-                            {% for comment in comment_list reversed %}
-                                {% if not comment.is_removed %}
-                                    {{ comment.user }}: {{ comment.comment|preview }}<br>
-                                {% endif %}
-                            {% endfor %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                <table class="table table-striped table-hover tablesorter" id="tossup-table">
+                    <caption class="alert alert-info">
+                        <strong>
+                            Current Tossups
+                        </strong>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th>Tossup Text</th>
+                        <th>Answer</th>
+                        <th>Category</th>
+                        <th>Packet</th>
+                        <th>Actions</th>
+                        <th>Comments</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for tossup in tossups %}
+                    <tr>
+                        <td>{{ tossup.author }}</td>
+                        <td>{{ tossup.tossup_text|preview }}</td>
+                        <td>{{ tossup.tossup_answer|preview }}</td>
+                        <td>{{ tossup.category }}</td>
+                        <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
+                        <td>
+                            <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit tossup">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ tossup.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </td>
+                        <td>
+						{% get_comment_list for tossup as comment_list %}
+						{% for comment in comment_list %}
+							{% if not comment.is_removed %}
+								{{ comment.user }}: {{ comment.comment }}<br>
+							{% endif %}
+						{% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div id="tossup-pager" class="pager">
+                    <form>
+                        <img src="/static/images/icons/without-shadows/badge-circle-direction-left-16-ns.png" class="first"/>
+                        <img src="/static/images/icons/without-shadows/arrow-left-16-ns.png" class="prev"/>
+                        <input type="text" class="pagedisplay"/>
+                        <img src="/static/images/icons/without-shadows/arrow-right-16-ns.png" class="next"/>
+                        <img src="/static/images/icons/without-shadows/badge-circle-direction-right-16-ns.png" class="last"/>
+
+                        <select class="pagesize">
+                            <option selected="selected" value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="40">40</option>
+                        </select>
+                    </form>
                 </div>
-                <div id="bonus-view">
-                    <div class="alert alert-info" style="text-align: center;"><strong>Current Bonuses</strong></div>
-                    <div id="bonus-pager" class="pager">
-                        <form>
-                            <img src="/static/images/icons/without-shadows/badge-circle-direction-left-16-ns.png" class="first"/>
-                            <img src="/static/images/icons/without-shadows/arrow-left-16-ns.png" class="prev"/>
-                            <input type="text" class="pagedisplay"/>
-                            <img src="/static/images/icons/without-shadows/arrow-right-16-ns.png" class="next"/>
-                            <img src="/static/images/icons/without-shadows/badge-circle-direction-right-16-ns.png" class="last"/>
+                <table class="table table-striped table-hover" id="bonus-table">
+                    <caption class="alert alert-info">
+                        <strong>
+                            Current Bonuses
+                        </strong>
+                    </caption>
+                    <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th>Leadin</th>
+                        <th>Answers</th>
+                        <th>Category</th>
+                        <th>Packet</th>
+                        <th>Actions</th>
+                        <th>Comments</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for bonus in bonuses %}
+                    <tr>
+                        <td>{{ bonus.author }}</td>
+                        <td>{{ bonus.leadin|preview }}</td>
+                        <td>{{ bonus|bonus_answers }}</td>
+                        <td>{{ bonus.category }}</td>
+                        <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                        <td>
+                            <a href="/edit_bonus/{{ bonus.id }}" rel="tooltip" title="Edit tossup">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                            <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ bonus.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </td>
+                        <td>
+						{% get_comment_list for bonus as comment_list %}
+						{% for comment in comment_list %}
+							{% if not comment.is_removed %}
+								{{user}}: {{ comment.comment }}<br>
+							{% endif %}
+						{% endfor %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <div id="bonus-pager" class="pager">
+                    <form>
+                        <img src="/static/images/icons/without-shadows/badge-circle-direction-left-16-ns.png" class="first"/>
+                        <img src="/static/images/icons/without-shadows/arrow-left-16-ns.png" class="prev"/>
+                        <input type="text" class="pagedisplay"/>
+                        <img src="/static/images/icons/without-shadows/arrow-right-16-ns.png" class="next"/>
+                        <img src="/static/images/icons/without-shadows/badge-circle-direction-right-16-ns.png" class="last"/>
 
-                            <select class="pagesize">
-                                <option selected="selected" value="10">10</option>
-                                <option value="20">20</option>
-                                <option value="30">30</option>
-                                <option value="40">40</option>
-                                <option value="50">50</option>
-                                <option value="100">100</option>                            
-                            </select>
-                        </form>
-                    </div>                    
-                    <table class="table table-striped table-hover" id="bonus-table">
-                        <thead>
-                        <tr>
-                            <th>Author</th>
-                            <th>Leadin</th>
-                            <th>Answers</th>
-                            <th>Category</th>
-                            <th>Packet</th>
-                            <th>Actions</th>
-                            <th>Comments</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {% for bonus in bonuses %}
-                        <tr>
-                            <td>{{ bonus.author }}</td>
-                            <td>{{ bonus.leadin|preview }}</td>
-                            <td>{{ bonus|bonus_answers }}</td>
-                            <td>{{ bonus.category }}</td>
-                            <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
-                            <td>
-                                <a href="/edit_bonus/{{ bonus.id }}" rel="tooltip" title="Edit tossup">
-                                    <i class="fa fa-edit"></i>
-                                </a>
-                                <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ bonus.id }}">
-                                    <i class="fa fa-minus-circle"></i>
-                                </a>
-                            </td>
-                            <td>
-                            {% get_comment_list for bonus as comment_list %}
-                            {% for comment in comment_list reversed %}
-                                {% if not comment.is_removed %}
-                                    {{user}}: {{ comment.comment|preview }}<br>
-                                {% endif %}
-                            {% endfor %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                        </tbody>
-                    </table>
+                        <select class="pagesize">
+                            <option selected="selected" value="10">10</option>
+                            <option value="20">20</option>
+                            <option value="30">30</option>
+                            <option value="40">40</option>
+                        </select>
+                    </form>
                 </div>
             </div>
 			<div class="tab-pane" id="packets">
                 <a href="/add_packets/{{ qset.id }}" class="btn btn-primary" title="Add packets">
                     <i class="fa fa-plus-circle"></i> Add packets
                 </a>
-				<table class="table table-striped table-hover" id="packets-table">
+				<table class="table table-striped table-hover">
 					<caption class="alert alert-info">
 						<strong>
 							Active packets

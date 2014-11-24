@@ -1,5 +1,6 @@
 import json
 import csv
+import unicodecsv
 
 from django.template.loader import get_template
 from django.template import Context, RequestContext
@@ -21,6 +22,7 @@ from utils import sanitize_html
 from packet_parser import handle_uploaded_packet, parse_uploaded_packet, parse_packet_data
 from django.utils.safestring import mark_safe
 from haystack.query import SearchQuerySet
+from cStringIO import StringIO
 
 from collections import OrderedDict
 from itertools import chain, ifilter
@@ -600,7 +602,10 @@ def add_tossups(request, qset_id, packet_id=None):
     message_class = ''
     tossup = None
     read_only = True
-    question_type_id = QuestionType.objects.get(question_type="ACF-style tossup")
+    question_type_id = []
+    
+    if (QuestionType.objects.exists()):    
+        question_type_id = QuestionType.objects.get(question_type="ACF-style tossup")
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
@@ -691,7 +696,9 @@ def add_bonuses(request, qset_id, packet_id=None):
     message_class = ''
     read_only = True
     role = get_role(user, qset)
-    question_type_id = QuestionType.objects.get(question_type="ACF-style bonus")
+    question_type_id = []
+    if (QuestionType.objects.exists()):    
+        question_type_id = QuestionType.objects.get(question_type="ACF-style bonus")
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
@@ -2124,20 +2131,22 @@ def export_question_set(request, qset_id, output_format):
             if (output_format == "csv"):
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
-                response = HttpResponse(content_type='text/csv')
-                response['Content-Disposition'] = 'attachment; filename="exportedquestions.csv"'
                 
-                writer = csv.writer(response)
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = 'attachment; filename="packet2.csv"'
+                
+                writer = unicodecsv.writer(response, encoding='utf-8', quoting=csv.QUOTE_ALL)
+                
                 writer.writerow(["Tossup Question", "Answer", "Category", "Author", "Edited", "Packet", "Question Number"])
                 for tossup in tossups:                
                     writer.writerow([tossup.tossup_text, tossup.tossup_answer, tossup.category, tossup.author, tossup.edited, tossup.packet, tossup.question_number])
-                
+
                 writer.writerow([])
                 
                 writer.writerow(["Bonus Leadin", "Bonus Part 1", "Bonus Answer 1", "Bonus Part 2", "Bonus Answer 2", "Bonus Part 3", "Bonus Answer 3", "Category", "Author", "Edited", "Packet", "Question Number"])
                 for bonus in bonuses:
                     writer.writerow([bonus.leadin, bonus.part1_text, bonus.part1_answer, bonus.part2_text, bonus.part2_answer, bonus.part3_text, bonus.part3_answer, bonus.category, bonus.author, bonus.edited, bonus.packet, bonus.question_number])
-                    
+
                 return response
             elif (output_format == "pdf"):
                 # TODO: Experiment with one of those PDF libraries

@@ -141,6 +141,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django_comments',
     'djangobower',
+    'unicodecsv',
     # 'debug_toolbar',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
@@ -203,3 +204,6 @@ HAYSTACK_CONNECTIONS = {
         'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index')
     },
 }
+
+#COMMENTS_APP = "django_comments_xtd"
+#COMMENTS_XTD_MAX_THREAD_LEVEL = 1

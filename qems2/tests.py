@@ -2,7 +2,7 @@ from django.test import SimpleTestCase
 
 from qems2.qsub.packet_parser import is_answer, is_bpart, is_vhsl_bpart, is_category
 from qems2.qsub.packet_parser import parse_packet_data, get_bonus_part_value, remove_category
-from qems2.qsub.packet_parser import remove_answer_label, format_answerline_underscores
+from qems2.qsub.packet_parser import remove_answer_label, are_special_characters_balanced
 
 class PacketParserTests(SimpleTestCase):
     def test_is_answer(self):
@@ -16,9 +16,13 @@ class PacketParserTests(SimpleTestCase):
         answers = ["ANSWER: <b><u>my answer</b></u>", "answer:      <b><u>my answer</b></u>", "Answer:\t<b><u>my answer</b></u>"]
         for answer in answers:
             self.assertEqual(remove_answer_label(answer), '<b><u>my answer</b></u>')
-    def test_format_answerline_underscores(self):
-        answer = "ANSWER: _Charles I_ [or <b><u>Charles the Bad</b></u> or _Charles The Dangling Underscore]"
-        self.assertEqual(format_answerline_underscores(answer), "ANSWER: <b><u>Charles I</b></u> [or <b><u>Charles the Bad</b></u> or <b><u>Charles The Dangling Underscore]</b></u>")        
+    def test_are_special_characters_balanced(self):
+        balancedLines = ["", "No special chars", "_Underscores_", "~Italics~", "(Parens)", "_~Several_~ (items) in (one) _question_."]
+        unbalancedLines = ["_", "~", "_test__", "~~test~", "(test", "test)", "((test)", "(", ")", ")test(", "(test))"]
+        for balancedLine in balancedLines:
+            self.assertTrue(are_special_characters_balanced(balancedLine))
+        for unbalancedLine in unbalancedLines:
+            self.assertFalse(are_special_characters_balanced(unbalancedLine))
     def test_is_bpart(self):
         bonusParts = ['[10]', '[15]']
         for bonusPart in bonusParts:
@@ -178,3 +182,23 @@ class PacketParserTests(SimpleTestCase):
         self.assertEqual(bonuses[0].parts[2], '&lt;i&gt;Prompt 3.&lt;/i&gt;')
         self.assertEqual(bonuses[0].answers[2], '&lt;i&gt;_Answer 3_&lt;/i&gt;') 
         self.assertEqual(bonuses[0].values[2], '10');
+        
+        tossupWithUnbalancedSpecialCharsInQuestion = 'This is a tossup question with ~an unclosed tilde.\nANSWER: _foo_'
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithUnbalancedSpecialCharsInQuestion.splitlines())
+        self.assertEqual(len(tossup_errors), 1)
+
+        tossupWithUnbalancedSpecialCharsInAnswer = 'This is a tossup question.\nANSWER: _unclosed answer'
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithUnbalancedSpecialCharsInAnswer.splitlines())
+        self.assertEqual(len(tossup_errors), 1)
+        
+        bonusWithUnbalancedSpecialCharsInLeadin = 'This is a bonus with (unbalanced leadin characters.  For 10 points each:\n[10] <i>Prompt 1</i>.\nANSWER: "_Answer 1_"\n[10] "Prompt 2."\nANSWER: <i>_Answer 2_</i>\n[10] <i>Prompt 3.</i>\nANSWER: <i>_Answer 3_</i>'
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInLeadin.splitlines())
+        self.assertEqual(len(bonus_errors), 1)
+        
+        bonusWithUnbalancedSpecialCharsInPrompts = 'This is a bonus with unbalanced prompt characters.  For 10 points each:\n[10] ~Prompt 1.\nANSWER: "_Answer 1_"\n[10] "Prompt 2."\nANSWER: <i>_Answer 2_</i>\n[10] <i>Prompt 3.</i>\nANSWER: <i>_Answer 3_</i>'
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInPrompts.splitlines())
+        self.assertEqual(len(bonus_errors), 1)
+
+        bonusWithUnbalancedSpecialCharsInAnswers = 'This is a bonus with unbalanced answer characters.  For 10 points each:\n[10] Prompt 1.\nANSWER: "_Answer 1_"\n[10] "Prompt 2."\nANSWER: _Answer 2\n[10] <i>Prompt 3.</i>\nANSWER: <i>_Answer 3_</i>'
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInAnswers.splitlines())
+        self.assertEqual(len(bonus_errors), 1)

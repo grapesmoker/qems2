@@ -49,26 +49,38 @@ def get_bonus_part_value(line):
     match = re.search(bpart_regex, line)
     return re.sub(bonus_value_regex, '', match.group(0))     
 
-def format_answerline_underscores(line):
-    
-    output = ''
+def are_special_characters_balanced(line):
     underlineFlag = False
+    italicsFlag = False
+    parensFlag = False
     for c in line:
         if (c == '_'):
             if (underlineFlag):
                 underlineFlag = False
-                output = output + '</b></u>'
             else:
                 underlineFlag = True
-                output = output + '<b><u>'
-        else:
-            output = output + c
+        elif (c == '~'):
+            if (italicsFlag):
+                italicsFlag = False
+            else:
+                italicsFlag = True
+        elif (c == '('):
+            if (parensFlag):
+                # There are too many open parens
+                return False
+            else:
+                parensFlag = True
+        elif (c == ')'):
+            if (parensFlag):
+                parensFlag = False
+            else:
+                # There are too many close parens
+                return False
     
-    # If we're at the end of the string and there isn't a closing flag, add it
-    if (underlineFlag):
-        output = output + '</b></u>'
-    
-    return output
+    if (underlineFlag or italicsFlag or parensFlag):
+        return False
+    else:
+        return True                
 
 def parse_uploaded_packet(uploaded_file):
 
@@ -522,15 +534,18 @@ class Bonus:
             if self.values == []:
                 raise InvalidBonus('values', self.values, self.number)
 
-            # for ans in self.answers:
-            #    if re.match('answer:', ans) is None:
-            #        raise InvalidBonus('answers', self.answers)
-            #    if ans == '':
-            #        raise Invalidbonus('answers', self.answers)
+            if (not are_special_characters_balanced(self.leadin)):
+                raise InvalidBonus('leading', self.leadin, self.number)
+
+            for answer in self.answers:
+                if (not are_special_characters_balanced(answer)):
+                    raise InvalidBonus('answers', self.answers, self.number)
 
             for part in self.parts:
                 if part == '':
                     raise InvalidBonus('parts', self.parts, self.number)
+                if (not are_special_characters_balanced(part)):
+                    raise InvalidBonus('parts', self.parts, self.number)                    
 
             for val in self.values:
                 if val == '':
@@ -550,8 +565,14 @@ class Bonus:
             if self.answers == []:
                 raise InvalidBonus('answers', self.answers, self.number)
 
+            for answer in self.answers:
+                if (not are_special_characters_balanced(answer)):
+                    raise InvalidBonus('answers', self.answers, self.number)
+
             for part in self.parts:
                 if part == '':
+                    raise InvalidBonus('parts', self.parts, self.number)
+                if (not are_special_characters_balanced(part)):
                     raise InvalidBonus('parts', self.parts, self.number)
                     
         else:
@@ -605,10 +626,13 @@ class Tossup:
 
         if self.answer == '':
             raise InvalidTossup('answer', self.answer, self.number)
+            
+        if (not are_special_characters_balanced(self.question)):
+            raise InvalidTossup('question', self.question, self.number)
 
-        # if re.match('answer:', self.answer) is None:
-        #        raise InvalidTossup('answer', self.answer)
-
+        if (not are_special_characters_balanced(self.answer)):
+            raise InvalidTossup('answer', self.answer, self.number)
+            
         self.valid = True
         return True
 

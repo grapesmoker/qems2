@@ -2,7 +2,7 @@ from django.template.defaultfilters import register
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from qems2.qsub.models import *
-from qems2.qsub.utils import sanitize_html, strip_markup
+from qems2.qsub.utils import sanitize_html, strip_markup, get_formatted_question_html
 
 @register.filter(name='lookup')
 def lookup(dict, key):
@@ -42,9 +42,9 @@ def preview(text):
 
 @register.filter(name='bonus_answers')
 def bonus_answers(bonus):
-    return mark_safe('<p>' + bonus.part1_answer[0:80].encode('utf-8') + '</p><p>'
-    + bonus.part2_answer[0:80].encode('utf-8') + '</p><p>'
-    + bonus.part3_answer[0:80].encode('utf-8') + '</p>')
+    return mark_safe('<p>' + answer_html(bonus.part1_answer[0:80].encode('utf-8')) + '</p><p>'
+    + answer_html(bonus.part2_answer[0:80].encode('utf-8')) + '</p><p>'
+    + answer_html(bonus.part3_answer[0:80].encode('utf-8')) + '</p>')
 
 @register.filter(name='percent')
 def percent(x, y):
@@ -84,6 +84,18 @@ def listsort(value):
         print "Other called"
         return value
     listsort.is_safe = True
+
+@register.filter(name='question_html')
+def question_html(line):
+    return get_formatted_question_html(line, False, True, False)
+
+@register.filter(name='answer_html')
+def answer_html(line):
+    return get_formatted_question_html(line, True, True, False)
+
+@register.filter(name='comment_html')
+def comment_html(comment):
+    return get_formatted_question_html(comment, True, False, True)
 
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

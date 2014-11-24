@@ -28,6 +28,18 @@
     <div class="col-md-10">
         <form action="" method="post" class="form-horizontal">
             {% csrf_token %}
+            {% autoescape off %}  
+                {% if bonus %}
+                <p>{{ bonus.leadin|safe|question_html }}</p>
+                <p>[10] {{ bonus.part1_text | safe|question_html }}</p>
+                <p>ANSWER: {{ bonus.part1_answer | safe|answer_html }}</p>
+                <p>[10] {{ bonus.part2_text | safe|question_html }}</p>
+                <p>ANSWER: {{ bonus.part2_answer | safe|answer_html }}</p>
+                <p>[10] {{ bonus.part3_text | safe|question_html }}</p>
+                <p>ANSWER: {{ bonus.part3_answer | safe|answer_html }}</p>
+                {% endif %}
+            {% endautoescape %}
+            
             {% if not read_only %}
             {% if form %}
                 <div class="form-group col-md-10">
@@ -118,23 +130,21 @@
                         <input type="submit" class="form-control" id="submit-tossup" value="Save"/>
                     </div>
                 </div>
-            {% else %}
-            {% if bonus %}
-            <p>{{ bonus.leadin | safe }}</p>
-            <p>[10] {{ bonus.part1_text | safe }}</p>
-            <p>ANSWER: {{ bonus.part1_answer | safe }}</p>
-            <p>[10] {{ bonus.part2_text | safe }}</p>
-            <p>ANSWER: {{ bonus.part2_answer | safe }}</p>
-            <p>[10] {{ bonus.part3_text | safe }}</p>
-            <p>ANSWER: {{ bonus.part3_answer | safe }}</p>
-            {% endif %}
             {% endif %}
         </form>
     </div>
     {% if bonus %}
     <div class="col-md-10 alert alert-info" style="text-align: center"><strong>Comments</strong></div>
     <div class="comments col-md-6">
-        {% render_comment_list for bonus %}
+        {% autoescape off %}        
+            {% get_comment_list for bonus as comment_list %}
+            {% for comment in comment_list %}
+                {% if not comment.is_removed %}
+                    <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br><br>
+                {% endif %}
+            {% endfor %}        
+        {% endautoescape %}
+        
         {% get_comment_form for bonus as cform %}
         <form action="{% comment_form_target %}" method="POST">
             {% csrf_token %}

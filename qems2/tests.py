@@ -3,6 +3,7 @@ from django.test import SimpleTestCase
 from qems2.qsub.packet_parser import is_answer, is_bpart, is_vhsl_bpart, is_category
 from qems2.qsub.packet_parser import parse_packet_data, get_bonus_part_value, remove_category
 from qems2.qsub.packet_parser import remove_answer_label, are_special_characters_balanced
+from qems2.qsub.utils import get_character_count, get_formatted_question_html
 
 class PacketParserTests(SimpleTestCase):
     def test_is_answer(self):
@@ -202,3 +203,32 @@ class PacketParserTests(SimpleTestCase):
         bonusWithUnbalancedSpecialCharsInAnswers = 'This is a bonus with unbalanced answer characters.  For 10 points each:\n[10] Prompt 1.\nANSWER: "_Answer 1_"\n[10] "Prompt 2."\nANSWER: _Answer 2\n[10] <i>Prompt 3.</i>\nANSWER: <i>_Answer 3_</i>'
         tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInAnswers.splitlines())
         self.assertEqual(len(bonus_errors), 1)
+    def test_get_character_count(self):
+        emptyTossup = ""
+        self.assertEqual(get_character_count(emptyTossup), 0)
+        
+        noSpecialCharacters = "123456789"
+        self.assertEqual(get_character_count(noSpecialCharacters), 9)
+        
+        onlySpecialCharacters = "~~()"
+        self.assertEqual(get_character_count(onlySpecialCharacters), 0)
+        
+        mixed = "(~1234~) ~67~"
+        self.assertEqual(get_character_count(mixed), 3)
+        
+    def test_get_formatted_question_html(self):
+        emptyLine = ""
+        self.assertEqual(get_formatted_question_html(emptyLine, False, True, False), "")
+        self.assertEqual(get_formatted_question_html(emptyLine, True, True, False), "")
+        
+        noSpecialChars = "No special chars"
+        self.assertEqual(get_formatted_question_html(noSpecialChars, False, True, False), noSpecialChars)
+        self.assertEqual(get_formatted_question_html(noSpecialChars, True, True, False), noSpecialChars)
+        
+        specialChars = "_Underlines_, ~italics~ and (parens).  And again _Underlines_, ~italics~ and (parens)."
+        self.assertEqual(get_formatted_question_html(specialChars, False, True, False), "_Underlines_, <i>italics</i> and <strong>(parens)</strong>.  And again _Underlines_, <i>italics</i> and <strong>(parens)</strong>.")
+        self.assertEqual(get_formatted_question_html(specialChars, True, True, False), "<b><u>Underlines</b></u>, <i>italics</i> and <strong>(parens)</strong>.  And again <b><u>Underlines</b></u>, <i>italics</i> and <strong>(parens)</strong>.")
+        
+        newLinesNoParens = "(No parens).&lt;br&gt;New line."
+        self.assertEqual(get_formatted_question_html(newLinesNoParens, False, False, False), "(No parens).&lt;br&gt;New line.")
+        self.assertEqual(get_formatted_question_html(newLinesNoParens, False, False, True), "(No parens).<br>New line.")

@@ -334,31 +334,33 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for tossup in tossups %}
-                    <tr>
-                        <td>{{ tossup.author }}</td>
-                        <td>{{ tossup.tossup_text|preview }}</td>
-                        <td>{{ tossup.tossup_answer|preview }}</td>
-                        <td>{{ tossup.category }}</td>
-                        <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
-                        <td>
-                            <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit tossup">
-                                <i class="fa fa-edit"></i>
-                            </a>
-                            <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ tossup.id }}">
-                                <i class="fa fa-minus-circle"></i>
-                            </a>
-                        </td>
-                        <td>
-						{% get_comment_list for tossup as comment_list %}
-						{% for comment in comment_list %}
-							{% if not comment.is_removed %}
-								{{ comment.user }}: {{ comment.comment }}<br>
-							{% endif %}
-						{% endfor %}
-                        </td>
-                    </tr>
-                    {% endfor %}
+                    {% autoescape off %}
+                        {% for tossup in tossups %}
+                        <tr>
+                            <td>{{ tossup.author }}</td>
+                            <td>{{ tossup.tossup_text|safe|preview|question_html }}</td>
+                            <td>{{ tossup.tossup_answer|safe|preview|answer_html }}</td>
+                            <td>{{ tossup.category }}</td>
+                            <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
+                            <td>
+                                <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit tossup">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ tossup.id }}">
+                                    <i class="fa fa-minus-circle"></i>
+                                </a>
+                            </td>
+                            <td>
+                            {% get_comment_list for tossup as comment_list %}
+                            {% for comment in comment_list %}
+                                {% if not comment.is_removed %}
+                                    {{ comment.user }}: {{ comment.comment }}<br>
+                                {% endif %}
+                            {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endautoescape %}
                     </tbody>
                 </table>
                 <div id="tossup-pager" class="pager">
@@ -395,31 +397,33 @@
                     </tr>
                     </thead>
                     <tbody>
-                    {% for bonus in bonuses %}
-                    <tr>
-                        <td>{{ bonus.author }}</td>
-                        <td>{{ bonus.leadin|preview }}</td>
-                        <td>{{ bonus|bonus_answers }}</td>
-                        <td>{{ bonus.category }}</td>
-                        <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
-                        <td>
-                            <a href="/edit_bonus/{{ bonus.id }}" rel="tooltip" title="Edit tossup">
-                                <i class="fa fa-edit"></i>
-                            </a>
-                            <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ bonus.id }}">
-                                <i class="fa fa-minus-circle"></i>
-                            </a>
-                        </td>
-                        <td>
-						{% get_comment_list for bonus as comment_list %}
-						{% for comment in comment_list %}
-							{% if not comment.is_removed %}
-								{{user}}: {{ comment.comment }}<br>
-							{% endif %}
-						{% endfor %}
-                        </td>
-                    </tr>
-                    {% endfor %}
+                    {% autoescape off %}
+                        {% for bonus in bonuses %}
+                        <tr>
+                            <td>{{ bonus.author }}</td>
+                            <td>{{ bonus.leadin|safe|preview|question_html }}</td>
+                            <td>{{ bonus|bonus_answers }}</td>
+                            <td>{{ bonus.category }}</td>
+                            <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                            <td>
+                                <a href="/edit_bonus/{{ bonus.id }}" rel="tooltip" title="Edit tossup">
+                                    <i class="fa fa-edit"></i>
+                                </a>
+                                <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ bonus.id }}">
+                                    <i class="fa fa-minus-circle"></i>
+                                </a>
+                            </td>
+                            <td>
+                            {% get_comment_list for bonus as comment_list %}
+                            {% for comment in comment_list %}
+                                {% if not comment.is_removed %}
+                                    {{comment.user}}: {{ comment.comment|safe|comment_html }}<br>
+                                {% endif %}
+                            {% endfor %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    {% endautoescape %}
                     </tbody>
                 </table>
                 <div id="bonus-pager" class="pager">

@@ -39,46 +39,51 @@
             {% endif %}
 
             <h3>Submitted Tossups</h3>
-            {% for tossup in tossups %}
-            <p>{{ tossup.question|safe }}<br>
-                {{ tossup.answer|safe }} 
-                {% if tossup.category != '' %}
-                    &#123;{{ tossup.category|safe}}&#125;
-                {% endif %}
+            {% autoescape off %}
+                {% for tossup in tossups %}
+                <p>{{ tossup.question|safe|question_html }}<br>
+                    {{ tossup.answer|safe|answer_html }} 
+                    {% if tossup.category != '' %}
+                        &#123;{{ tossup.category|safe}}&#125;
+                    {% endif %}
                 </p>
-            <input type="hidden" name="tossup-text-{{ forloop.counter0 }}" value="{{ tossup.question|safe }}">
-            <input type="hidden" name="tossup-answer-{{ forloop.counter0 }}" value="{{ tossup.answer|safe }}"> 
-            <input type="hidden" name="tossup-category-{{ forloop.counter0 }}" value="{{ tossup.category|safe }}">
-            {% endfor %}
+                <input type="hidden" name="tossup-text-{{ forloop.counter0 }}" value="{{ tossup.question|safe }}">
+                <input type="hidden" name="tossup-answer-{{ forloop.counter0 }}" value="{{ tossup.answer|safe }}"> 
+                <input type="hidden" name="tossup-category-{{ forloop.counter0 }}" value="{{ tossup.category|safe }}">
+                {% endfor %}
+            {% endautoescape %}
+                
             <h3>Submitted Bonuses</h3>
-            {% for bonus in bonuses %}
-            <p>{{ bonus.leadin|safe }}<br>
-                [{{ bonus.values.0 }}]
-                {{ bonus.parts.0|safe }}<br>
-                {{ bonus.answers.0|safe }}<br>
-                [{{ bonus.values.1 }}]
-                {{ bonus.parts.1|safe }}<br>
-                {{ bonus.answers.1|safe }}<br>
-                [{{ bonus.values.2 }}]
-                {{ bonus.parts.2|safe }}<br>
-                {{ bonus.answers.2|safe }}<br>
-                Type: {{ bonus.type|safe}}<br>
-                {% if bonus.category != '' %}
-                    Category: {{ bonus.category|safe}} <br>
-                {% endif %}
-            </p>
+            {% autoescape off %}
+                {% for bonus in bonuses %}
+                <p>{{ bonus.leadin|safe|question_html }}<br>
+                    [{{ bonus.values.0 }}]
+                    {{ bonus.parts.0|safe|question_html }}<br>
+                    {{ bonus.answers.0|safe|answer_html }}<br>
+                    [{{ bonus.values.1 }}]
+                    {{ bonus.parts.1|safe|question_html }}<br>
+                    {{ bonus.answers.1|safe|answer_html }}<br>
+                    [{{ bonus.values.2 }}]
+                    {{ bonus.parts.2|safe|question_html }}<br>
+                    {{ bonus.answers.2|safe|answer_html }}<br>
+                    Type: {{ bonus.type|safe}}<br>
+                    {% if bonus.category != '' %}
+                        Category: {{ bonus.category|safe}} <br>
+                    {% endif %}
+                </p>
 
-            <input type="hidden" name="bonus-leadin-{{ forloop.counter0 }}" value="{{ bonus.leadin|safe }}">
-            <input type="hidden" name="bonus-category-{{ forloop.counter0 }}" value="{{ bonus.category|safe }}">
-            <input type="hidden" name="bonus-type-{{ forloop.counter0 }}" value="{{ bonus.type|safe }}">            
-            <input type="hidden" name="bonus-part1-{{ forloop.counter0 }}" value="{{ bonus.parts.0|safe }}">
-            <input type="hidden" name="bonus-answer1-{{ forloop.counter0 }}" value="{{ bonus.answers.0|safe }}">
-            <input type="hidden" name="bonus-part2-{{ forloop.counter0 }}" value="{{ bonus.parts.1|safe }}">
-            <input type="hidden" name="bonus-answer2-{{ forloop.counter0 }}" value="{{ bonus.answers.1|safe }}">
-            <input type="hidden" name="bonus-part3-{{ forloop.counter0 }}" value="{{ bonus.parts.2|safe }}">
-            <input type="hidden" name="bonus-answer3-{{ forloop.counter0 }}" value="{{ bonus.answers.2|safe }}">
+                <input type="hidden" name="bonus-leadin-{{ forloop.counter0 }}" value="{{ bonus.leadin|safe }}">
+                <input type="hidden" name="bonus-category-{{ forloop.counter0 }}" value="{{ bonus.category|safe }}">
+                <input type="hidden" name="bonus-type-{{ forloop.counter0 }}" value="{{ bonus.type|safe }}">            
+                <input type="hidden" name="bonus-part1-{{ forloop.counter0 }}" value="{{ bonus.parts.0|safe }}">
+                <input type="hidden" name="bonus-answer1-{{ forloop.counter0 }}" value="{{ bonus.answers.0|safe }}">
+                <input type="hidden" name="bonus-part2-{{ forloop.counter0 }}" value="{{ bonus.parts.1|safe }}">
+                <input type="hidden" name="bonus-answer2-{{ forloop.counter0 }}" value="{{ bonus.answers.1|safe }}">
+                <input type="hidden" name="bonus-part3-{{ forloop.counter0 }}" value="{{ bonus.parts.2|safe }}">
+                <input type="hidden" name="bonus-answer3-{{ forloop.counter0 }}" value="{{ bonus.answers.2|safe }}">
 
-            {% endfor %}
+                {% endfor %}
+            {% endautoescape %}
 
             <input type="hidden" name="num-tossups" value="{{ tossups|length }}">
             <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}">

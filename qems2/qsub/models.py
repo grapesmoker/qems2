@@ -4,10 +4,12 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
+from datetime import datetime
 import json
 
 from collections import OrderedDict
-from utils import sanitize_html, strip_markup, html_to_latex
+from utils import sanitize_html, strip_markup, html_to_latex, get_formatted_question_html
+from utils import get_character_count
 
 # Create your models here.
 
@@ -240,9 +242,15 @@ class Tossup (models.Model):
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
+    
+    created_date = models.DateTimeField('date created', default=datetime.now())
+    updated_date = models.DateTimeField('date updated', default=datetime.now())
+    
+    # Calculates character count, ignoring special characters
+    def character_count(self):
+        return get_character_count(self.tossup_text)
 
     def __unicode__(self):
-        #return 'butts'
         return '{0!s}...'.format(strip_markup(self.tossup_answer)[0:40]) #.decode('utf-8')
 
     def to_json(self):
@@ -301,6 +309,14 @@ class Bonus(models.Model):
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
 
+    # Calculates character count per part, ignoring special characters
+    def character_count(self):
+        leadin_count = get_character_count(self.leadin)
+        part1_count = get_character_count(self.part1_text)
+        part2_count = get_character_count(self.part2_text)
+        part3_count = get_character_count(self.part3_text)
+        return leadin_count, part1_count, part2_count, part3_count
+
     def __unicode__(self):
         return '{0!s}...'.format(strip_markup(self.leadin)[0:40])
 
@@ -353,7 +369,6 @@ class Bonus(models.Model):
 class Tag(models.Model):
 
     pass
-
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

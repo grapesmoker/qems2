@@ -43,3 +43,62 @@ def html_to_latex(html, replacement_dict):
         html = html.replace(close_tag, end_cmd)
 
     return html
+    
+def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLines):
+    italicsFlag = False
+    parensFlag = False
+    underlineFlag = False
+    output = ""
+    for c in line:
+        if (c == "~"):
+            if (not italicsFlag):
+                output += "<i>"
+                italicsFlag = True
+            else:                
+                output += "</i>"
+                italicsFlag = False
+        elif (c == "(" and allowParens):
+            output += "<strong>("
+            parensFlag = True
+        elif (c == ")" and allowParens):
+            output += ")</strong>"                
+            parensFlag = False
+        else:
+            if (c == "_" and allowUnderlines):
+                if (not underlineFlag):
+                    output += "<b><u>"
+                    underlineFlag = True                    
+                else:
+                    output += "</b></u>"
+                    underlineFlag = False
+            else:
+                output += c
+    
+    if (italicsFlag):
+        output += "</i>"
+        
+    if (underlineFlag):
+        output += "</b></u>"
+    
+    if (parensFlag):
+        output += "</strong>"
+    
+    if (allowNewLines):
+        output = output.replace("&lt;br&gt;", "<br>")
+            
+    return output
+    
+def get_character_count(line):
+    count = 0
+    parensFlag = False # Parentheses indicate pronunciation guide
+    for c in line:
+        if (parensFlag):
+            if (c == ")"):
+                parensFlag = False
+        else:
+            if (c == "("):
+                parensFlag = True
+            elif (c != "~"):
+                count = count + 1 # Only count non-special chars not in pronunciation guide
+                
+    return count

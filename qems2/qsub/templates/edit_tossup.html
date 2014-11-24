@@ -25,12 +25,14 @@
     {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}
-    <!--<div id="toolbar" class="ql-toolbar-container quill-wrapper">
-        <button class="ql-bold"><b>B</b></button>
-        <button class="ql-italic"><i>I</i></button>
-        <button class="ql-underline"><u>U</u></button>
-    </div>-->
     <div class="col-md-10">
+        {% if tossup %}
+            {% autoescape off %}
+                <p>Tossup Preview:</p>
+                <p>{{ tossup.tossup_text|safe|question_html }}</p>
+                <p>ANSWER: {{ tossup.tossup_answer|safe|answer_html }}</p>
+            {% endautoescape %}
+        {% endif %}        
         <form action="" method="post" class="form-horizontal" role="form">
             {% csrf_token %}
             {% if not read_only %}
@@ -94,21 +96,24 @@
                         <input type="submit" class="form-control" id="submit-tossup" value="Save"/>
                     </div>
                 </div>
-
-
-            {% else %}
-                {% if tossup %}
-                    <p>{{ tossup.tossup_text|safe }}</p>
-                    <p>ANSWER: {{ tossup.tossup_answer|safe }}</p>
-                {% endif %}
-            {% endif %}
+            {% endif %}            
         </form>
     </div>
 
     {% if tossup %}
     <div class="col-md-10 alert alert-info" style="text-align: center"><strong>Comments</strong></div>
     <div class="comments col-md-6">
-        {% render_comment_list for tossup %}
+        <!--{% render_comment_list for tossup %}-->
+
+        {% autoescape off %}        
+            {% get_comment_list for tossup as comment_list %}
+            {% for comment in comment_list %}
+                {% if not comment.is_removed %}
+                    <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br><br>
+                {% endif %}
+            {% endfor %}        
+        {% endautoescape %}
+        
         {% get_comment_form for tossup as cform %}
         <form action="{% comment_form_target %}" method="POST">
             {% csrf_token %}

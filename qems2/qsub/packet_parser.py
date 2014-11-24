@@ -5,10 +5,11 @@ import json
 import string
 
 from qems2.qsub.model_utils import sanitize_html
+from django.utils.html import escape
 
 ansregex = '(?i)a..?wers?:\s*'
-bpart_regex = '^\[\d+\]|^\(\d+\)'
-vhsl_bpart_regex = '^\[V\d+\]|^\(V\d+\)'
+bpart_regex = '^\[\d+\]'
+vhsl_bpart_regex = '^\[V\d+\]'
 category_regex = '\{(.+)}'
 bonus_value_regex = '\[|\]|\(|\)'
 
@@ -446,17 +447,25 @@ class InvalidBonus(Exception):
 class Bonus:
 
     def __init__(self, leadin='', parts=[], answers=[], values=[], number='', type='acf', category=''):
-        self.leadin = leadin
-        self.parts = parts
+        self.leadin = escape(leadin)
+        sanitizedParts = []
+        for part in parts:
+            sanitizedParts.append(escape(part))
+        self.parts = sanitizedParts
+        
         self.number = number
-        self.values = values
+        
+        sanitizedValues = []
+        for value in values:
+            sanitizedValues.append(escape(value))        
+        self.values = sanitizedValues
+        
         self.type = type
-        self.category = category
+        self.category = escape(category)
         
         modifiedAnswers = []
         for answer in answers:
-            formattedAnswer = remove_answer_label(answer)
-            formattedAnswer = format_answerline_underscores(formattedAnswer)
+            formattedAnswer = escape(remove_answer_label(answer))
             modifiedAnswers.append(formattedAnswer)
         self.answers = modifiedAnswers
 
@@ -562,11 +571,10 @@ class Bonus:
 
 class Tossup:
     def __init__(self, question='', answer='', number='', category=''):
-        self.question = question
-        self.answer = remove_answer_label(answer)
-        self.answer = format_answerline_underscores(self.answer)     
+        self.question = escape(question)
+        self.answer = escape(remove_answer_label(answer))
         self.number = number
-        self.category = category
+        self.category = escape(category)
 
     def to_json(self):
         return json.dumps({'question': self.question,

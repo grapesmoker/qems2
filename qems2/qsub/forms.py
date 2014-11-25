@@ -84,8 +84,6 @@ class TossupForm(forms.ModelForm):
     
     tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 10}))
     tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 5}))
-    #tossup_text = forms.CharField(widget=forms.HiddenInput())
-    #tossup_answer = forms.CharField(widget=forms.HiddenInput())
 
     category = forms.ModelChoiceField([])
 
@@ -101,6 +99,9 @@ class TossupForm(forms.ModelForm):
         super(TossupForm, self).__init__(*args, **kwargs)
 
         self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
+        self.fields['created_date'].widget.attrs['readonly'] = 'readonly'
+        self.fields['updated_date'].widget.attrs['readonly'] = 'readonly'
+        
         #self.fields['locked'].required = False
 
         if qset_id:
@@ -160,6 +161,8 @@ class BonusForm(forms.ModelForm):
         super(BonusForm, self).__init__(*args, **kwargs)
 
         self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
+        self.fields['created_date'].widget.attrs['readonly'] = 'readonly'
+        self.fields['updated_date'].widget.attrs['readonly'] = 'readonly'
 
         if qset_id:
             try:

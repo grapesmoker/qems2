@@ -132,21 +132,21 @@ class TossupForm(forms.ModelForm):
         
 class BonusForm(forms.ModelForm):
     
-    #leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    #part1_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    #part1_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    #part2_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    #part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    #part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
-    #part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 80, 'rows': 2}))
+    leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))
+    part1_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}))
+    part1_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))
+    part2_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}))
+    part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))
+    part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}))
+    part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))
 
-    leadin = forms.CharField(widget=forms.HiddenInput())
-    part1_text = forms.CharField(widget=forms.HiddenInput())
-    part1_answer = forms.CharField(widget=forms.HiddenInput())
-    part2_text = forms.CharField(widget=forms.HiddenInput())
-    part2_answer = forms.CharField(widget=forms.HiddenInput())
-    part3_text = forms.CharField(widget=forms.HiddenInput())
-    part3_answer = forms.CharField(widget=forms.HiddenInput())
+    #leadin = forms.CharField(widget=forms.HiddenInput())
+    #part1_text = forms.CharField(widget=forms.HiddenInput())
+    #part1_answer = forms.CharField(widget=forms.HiddenInput())
+    #part2_text = forms.CharField(widget=forms.HiddenInput())
+    #part2_answer = forms.CharField(widget=forms.HiddenInput())
+    #part3_text = forms.CharField(widget=forms.HiddenInput())
+    #part3_answer = forms.CharField(widget=forms.HiddenInput())
 
     class Meta:
         model = Bonus

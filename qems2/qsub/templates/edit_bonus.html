@@ -25,77 +25,114 @@
     {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}
-    <div id="toolbar" class="ql-toolbar-container quill-wrapper">
-        <button class="ql-bold"><b>B</b></button>
-        <button class="ql-italic"><i>I</i></button>
-        <button class="ql-underline"><u>U</u></button>
+    <div class="col-md-10">
+        <form action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            {% if not read_only %}
+            {% if form %}
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.leadin.id_for_label }}">Leadin</label>
+                    <div class="col-lg-8">
+                        {{ form.leadin }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.part1_text.id_for_label }}">Part 1</label>
+                    <div class="col-lg-8">
+                        {{ form.part1_text }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.part1_answer.id_for_label }}">Answer 1</label>
+                    <div class="col-lg-8">
+                        {{ form.part1_answer }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.part2_text.id_for_label }}">Part 2</label>
+                    <div class="col-lg-8">
+                        {{ form.part2_text }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.part2_answer.id_for_label }}">Answer 2</label>
+                    <div class="col-lg-8">
+                        {{ form.part2_answer }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.part3_text.id_for_label }}">Part 3</label>
+                    <div class="col-lg-8">
+                        {{ form.part3_text }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.part3_answer.id_for_label }}">Answer 3</label>
+                    <div class="col-lg-8">
+                        {{ form.part3_answer }}
+                    </div>
+                </div>
+
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="author">Bonus Author</label>
+                    <div class="col-lg-8">
+                        {% if bonus %}
+                        <p id="author">{{ bonus.author }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.category.id_for_label }}">Category</label>
+                    <div class="col-lg-8">
+                        {{ form.category }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.packet.id_for_label }}">Packet</label>
+                    <div class="col-lg-8">
+                        {{ form.packet }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.edited.id_for_label }}">Edited</label>
+                    <div class="col-lg-8">
+                        {{ form.edited }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.locked.id_for_label }}">Locked</label>
+                    <div class="col-lg-8">
+                        {{ form.locked }}
+                    </div>
+                </div>
+                <div class="form-group col-md-10">
+                    <label class="control-label col-sm-2" for="{{ form.question_type.id_for_label }}">Question Type</label>
+                    <div class="col-lg-8">
+                        {{ form.question_type }}
+                    </div>
+                </div>
+            {% endif %}
+                <div class="form-group col-md-10">
+                    <label class="control-label col-lg-2" for="submit-tossup">&nbsp;</label>
+                    <div class="col-lg-8">
+                        <input type="submit" class="form-control" id="submit-tossup" value="Save"/>
+                    </div>
+                </div>
+            {% else %}
+            {% if bonus %}
+            <p>{{ bonus.leadin | safe }}</p>
+            <p>[10] {{ bonus.part1_text | safe }}</p>
+            <p>ANSWER: {{ bonus.part1_answer | safe }}</p>
+            <p>[10] {{ bonus.part2_text | safe }}</p>
+            <p>ANSWER: {{ bonus.part2_answer | safe }}</p>
+            <p>[10] {{ bonus.part3_text | safe }}</p>
+            <p>ANSWER: {{ bonus.part3_answer | safe }}</p>
+            {% endif %}
+            {% endif %}
+        </form>
     </div>
-	<form action="" method="post" class="form-horizontal">
-        {% csrf_token %}
-        {% if not read_only %}
-        {% if form %}
-        <!--<strong>Leadin:</strong>
-        <div class="quill-wrapper" style="height: 75px;">
-            <div id="bonus-leadin" class="bonus-text">
-                <div>{{ bonus.leadin|safe }}</div>
-            </div>
-        </div>
-        <strong>Part 1:</strong>
-        <div class="quill-wrapper" style="height: 75px;">
-            <div id="part-1-text" class="part-text">
-                <div>{{ bonus.part1_text|safe }}</div>
-            </div>
-        </div>
-        <strong>Answer 1:</strong>
-        <div class="quill-wrapper" style="height: 50px">
-            <div id="part-1-answer" class="answer-text">
-                <div>{{ bonus.part1_answer|safe }}</div>
-            </div>
-        </div>
-        <strong>Part 2:</strong>
-        <div class="quill-wrapper" style="height: 75px">
-            <div id="part-2-text" class="part-text">
-                <div>{{ bonus.part2_text|safe }}</div>
-            </div>
-        </div>
-        <strong>Answer 2:</strong>
-        <div class="quill-wrapper" style="height: 50px">
-            <div id="part-2-answer" class="answer-text">
-                <div>{{ bonus.part2_answer|safe }}</div>
-            </div>
-        </div>
-        <strong>Part 3:</strong>
-        <div class="quill-wrapper" style="height: 75px">
-            <div id="part-3-text" class="part-text">
-                <div>{{ bonus.part3_text|safe }}</div>
-            </div>
-        </div>
-        <strong>Answer 3:</strong>
-        <div class="quill-wrapper" style="height: 50px">
-            <div id="part-3-answer" class="answer-text">
-                <div>{{ bonus.part3_answer|safe }}</div>
-            </div>
-        </div>
-        <br>
-        <p><strong>Bonus Author:</strong> {{ bonus.author }}</p>
-        <p><strong>Character Count:</strong> {{ bonus_length }}</p>        
-        {{ form.as_p }}-->
-        {% endif %}
-        <input type="submit" id="submit-bonus" value="Save"/>
-        {% else %}
-        {% if bonus %}
-        <p>{{ bonus.leadin | safe }}</p>
-        <p>[10] {{ bonus.part1_text | safe }}</p>
-        <p>ANSWER: {{ bonus.part1_answer | safe }}</p>
-        <p>[10] {{ bonus.part2_text | safe }}</p>
-        <p>ANSWER: {{ bonus.part2_answer | safe }}</p>
-        <p>[10] {{ bonus.part3_text | safe }}</p>
-        <p>ANSWER: {{ bonus.part3_answer | safe }}</p>
-        {% endif %}
-        {% endif %}
-    </form>
     {% if bonus %}
-    <div class="alert alert-info" style="text-align: center"><strong>Comments</strong></div>
+    <div class="col-md-10 alert alert-info" style="text-align: center"><strong>Comments</strong></div>
     <div class="comments col-md-6">
         {% render_comment_list for bonus %}
         {% get_comment_form for bonus as cform %}

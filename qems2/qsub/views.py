@@ -354,10 +354,8 @@ def categories(request, qset_id, category_id):
         message = 'You are not authorized to view this set'
     else:
         tossups = Tossup.objects.filter(question_set=qset).filter(category=category_id)
-        
-        # tossups = Tossup.objects.filter(question_set=qset).filter(category__category=category_object.category)
-        # bonuses = Bonus.objects.filter(question_set=qset) #.filter(category=category_id)	
-	
+        bonuses = Bonus.objects.filter(question_set=qset).filter(category=category_id)
+        	
     return render_to_response('categories.html',
         {
         'user': user,

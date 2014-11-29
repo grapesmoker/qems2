@@ -102,3 +102,84 @@ def get_character_count(line):
                 count = count + 1 # Only count non-special chars not in pronunciation guide
                 
     return count
+
+def are_special_characters_balanced(line):
+    underlineFlag = False
+    italicsFlag = False
+    parensFlag = False
+    for c in line:
+        if (c == '_'):
+            if (underlineFlag):
+                underlineFlag = False
+            else:
+                underlineFlag = True
+        elif (c == '~'):
+            if (italicsFlag):
+                italicsFlag = False
+            else:
+                italicsFlag = True
+        elif (c == '('):
+            if (parensFlag):
+                # There are too many open parens
+                return False
+            else:
+                parensFlag = True
+        elif (c == ')'):
+            if (parensFlag):
+                parensFlag = False
+            else:
+                # There are too many close parens
+                return False
+    
+    if (underlineFlag or italicsFlag or parensFlag):
+        return False
+    else:
+        return True   
+
+def does_answerline_have_underlines(line):
+    if (line == ""):
+        return True # Ignore completely blank lines
+    
+    if (line.find("_") == -1):
+        return False
+    else:
+        return True
+
+class InvalidTossup(Exception):
+
+    def __init__(self, *args):
+        self.args = [a for a in args]
+
+    def __str__(self):
+        s = '*' * 50 + '<br>'
+        s += 'Invalid tossup {0}!<br>'.format(self.args[2])
+        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
+        s += '*' * 50 + '<br>'
+
+        return s
+
+
+class InvalidBonus(Exception):
+
+    def __init__(self, *args):
+        self.args = [a for a in args]
+
+    def __str__(self):
+        s = '*' * 50 + '<br>'
+        s += 'Invalid bonus {0}!<br>'.format(self.args[2])
+        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
+        s += '*' * 50 + '<br>'
+
+        return s
+
+class InvalidPacket(Exception):
+
+    def __init__(self, *args):
+        self.args = [a for a in args]
+
+    def __str__(self):
+        s = '*' * 80 + '\n'
+        s += 'There was a problem in packet {0}\n'.format(self.args[0])
+        s += '*' * 80 + '\n'
+
+        return s

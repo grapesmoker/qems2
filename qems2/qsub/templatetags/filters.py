@@ -97,5 +97,21 @@ def answer_html(line):
 def comment_html(comment):
     return get_formatted_question_html(comment, True, False, True)
 
+@register.filter(name='tossup_html')
+def tossup_html(tossup):
+    return tossup.to_html()
+
+@register.filter(name='tossup_html_verbose')
+def tossup_html_verbose(tossup):
+    return tossup.to_html(include_category=True, include_character_count=True)
+
+@register.filter(name='bonus_html')
+def bonus_html(bonus):
+    return bonus.to_html()
+
+@register.filter(name='bonus_html_verbose')
+def bonus_html_verbose(bonus):
+    return bonus.to_html(include_category=True, include_character_count=True)
+
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

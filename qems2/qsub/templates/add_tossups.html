@@ -12,31 +12,16 @@
 
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
     <h2 class="page-header">Add a Tossup</h2>
-    {% if message %}
-    <div class="{{ message_class }}">
-        {{ message }} {% if tossup %} - or see your <a href="/edit_tossup/{{ tossup.id }}">submitted tossup</a> {% endif %}
-    </div>
-    {% endif %}    
+    {% autoescape off %}        
+        {% if message %}
+        <div class="{{ message_class }}">
+            {{ message }} {% if tossup_id %} - or see your <a href="/edit_tossup/{{ tossup_id }}">submitted tossup</a> {% endif %}
+        </div>
+        {% endif %}
+    {% endautoescape %}
     <p><a href="/add_bonuses/{{ qset_id }}">Switch to adding a bonus</a></p>
+    <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
     <p>It is not necessary to include ANSWER: in your answer line.</p>
-    <div id="toolbar" class="ql-toolbar-container quill-wrapper">
-        <button class="ql-bold"><b>B</b></button>
-        <button class="ql-italic"><i>I</i></button>
-        <button class="ql-underline"><u>U</u></button>
-    </div>
-    <strong>Tossup Text:</strong>
-    <div class="quill-wrapper">
-        <div id="tossup-editor" class="tossup-text">
-            <div>{{ tossup.tossup_text|safe }}</div>
-        </div>
-    </div>
-    <strong>Tossup Answer:</strong>
-    <div class="quill-wrapper" style="height: 50px;">
-        <div id="answer-editor" class="answer-text">
-            <div>{{ tossup.tossup_answer|safe }}</div>
-        </div>
-    </div>
-    <br>
     <form action="" method="post">
         {% csrf_token %}
         {{ form.as_p }}

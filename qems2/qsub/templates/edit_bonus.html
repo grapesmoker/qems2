@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% load comments %}
+{% load filters %}
 
 {% block content %}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
@@ -22,114 +23,23 @@
         {% endif %}
     </ol>
     <h2 class="page-header">Edit Bonus</h2>
-    {% if message %}
-    <p class="{{ message_class }}">{{ message }}</p>
-    {% endif %}
-    <div class="col-md-10">
-        <form action="" method="post" class="form-horizontal">
-            {% csrf_token %}
-            {% autoescape off %}  
-                {% if bonus %}
-                <p>{{ bonus.leadin|safe|question_html }}</p>
-                <p>[10] {{ bonus.part1_text | safe|question_html }}</p>
-                <p>ANSWER: {{ bonus.part1_answer | safe|answer_html }}</p>
-                <p>[10] {{ bonus.part2_text | safe|question_html }}</p>
-                <p>ANSWER: {{ bonus.part2_answer | safe|answer_html }}</p>
-                <p>[10] {{ bonus.part3_text | safe|question_html }}</p>
-                <p>ANSWER: {{ bonus.part3_answer | safe|answer_html }}</p>
-                {% endif %}
-            {% endautoescape %}
-            
-            {% if not read_only %}
-            {% if form %}
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.leadin.id_for_label }}">Leadin</label>
-                    <div class="col-lg-8">
-                        {{ form.leadin }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.part1_text.id_for_label }}">Part 1</label>
-                    <div class="col-lg-8">
-                        {{ form.part1_text }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.part1_answer.id_for_label }}">Answer 1</label>
-                    <div class="col-lg-8">
-                        {{ form.part1_answer }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.part2_text.id_for_label }}">Part 2</label>
-                    <div class="col-lg-8">
-                        {{ form.part2_text }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.part2_answer.id_for_label }}">Answer 2</label>
-                    <div class="col-lg-8">
-                        {{ form.part2_answer }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.part3_text.id_for_label }}">Part 3</label>
-                    <div class="col-lg-8">
-                        {{ form.part3_text }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.part3_answer.id_for_label }}">Answer 3</label>
-                    <div class="col-lg-8">
-                        {{ form.part3_answer }}
-                    </div>
-                </div>
-
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="author">Bonus Author</label>
-                    <div class="col-lg-8">
-                        {% if bonus %}
-                        <p id="author">{{ bonus.author }}</p>
-                        {% endif %}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.category.id_for_label }}">Category</label>
-                    <div class="col-lg-8">
-                        {{ form.category }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.packet.id_for_label }}">Packet</label>
-                    <div class="col-lg-8">
-                        {{ form.packet }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.edited.id_for_label }}">Edited</label>
-                    <div class="col-lg-8">
-                        {{ form.edited }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.locked.id_for_label }}">Locked</label>
-                    <div class="col-lg-8">
-                        {{ form.locked }}
-                    </div>
-                </div>
-                <div class="form-group col-md-10">
-                    <label class="control-label col-sm-2" for="{{ form.question_type.id_for_label }}">Question Type</label>
-                    <div class="col-lg-8">
-                        {{ form.question_type }}
-                    </div>
-                </div>
+    {% autoescape off %}        
+        {% if message %}
+        <p class="{{ message_class }}">{{ message }}</p>
+        {% endif %}
+    {% endautoescape %}
+    <div class="col-md-10">        
+        {% autoescape off %}
+            {% if bonus %}
+                {{ bonus|bonus_html_verbose }}
             {% endif %}
-                <div class="form-group col-md-10">
-                    <label class="control-label col-lg-2" for="submit-tossup">&nbsp;</label>
-                    <div class="col-lg-8">
-                        <input type="submit" class="form-control" id="submit-tossup" value="Save"/>
-                    </div>
-                </div>
+        {% endautoescape %}
+                    
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            {% if not read_only %}
+            <input type="submit" id="submit-bonus" value="Save"/>
             {% endif %}
         </form>
     </div>
@@ -158,7 +68,6 @@
             {{ cform.timestamp }}
             {{ cform.security_hash }}
             <input type="submit" name="submit" value="Post" class="btn btn-primary">
-            <!--<input type="submit" name="preview" value="Preview" class="btn btn-primary">-->
             <input type="hidden" name="next" value="/edit_bonus/{{ bonus.id }}/">
         </form>
     </div>

@@ -12,63 +12,20 @@
 
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
     <h2 class="page-header">Add a Bonus</h2>
-    {% if message %}
-    <div class="{{ message_class }}">
-        {{ message }} {% if bonus %} - or see your <a href="/edit_bonus/{{ bonus_id }}">submitted bonus</a> {% endif %}
-    </div>
-    {% endif %}
+    {% autoescape off %}        
+        {% if message %}
+        <div class="{{ message_class }}">
+            {{ message }} {% if bonus_id %} - or see your <a href="/edit_bonus/{{ bonus_id }}">submitted bonus</a> {% endif %}
+        </div>
+        {% endif %}
+    {% endautoescape %}
     <p><a href="/add_tossups/{{ qset_id }}">Switch to adding a tossup</a></p>
+    <p></p>
+    <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
     <p>It is not necessary to include [10] labels to bonus parts or the word ANSWER: in answer lines.</p>
-    <div id="toolbar" class="ql-toolbar-container quill-wrapper">
-        <button class="ql-bold"><b>B</b></button>
-        <button class="ql-italic"><i>I</i></button>
-        <button class="ql-underline"><u>U</u></button>
-    </div>
+    <p>If you're writing a VHSL bonus, only fill in Part1 text and Part1 answer.</p>
     <form action="" method="post">
         {% csrf_token %}
-        <strong>Leadin:</strong>
-        <div class="quill-wrapper" style="height: 75px;">
-            <div id="bonus-leadin" class="bonus-text">
-                <div>{{ bonus.leadin|safe }}</div>
-            </div>
-        </div>
-        <strong>Part 1:</strong>
-        <div class="quill-wrapper" style="height: 75px;">
-            <div id="part-1-text" class="part-text">
-                <div>{{ bonus.part1_text|safe }}</div>
-            </div>
-        </div>
-        <strong>Answer 1:</strong>
-        <div class="quill-wrapper" style="height: 50px">
-            <div id="part-1-answer" class="answer-text">
-                <div>{{ bonus.part1_answer|safe }}</div>
-            </div>
-        </div>
-        <strong>Part 2:</strong>
-        <div class="quill-wrapper" style="height: 75px">
-            <div id="part-2-text" class="part-text">
-                <div>{{ bonus.part2_text|safe }}</div>
-            </div>
-        </div>
-        <strong>Answer 2:</strong>
-        <div class="quill-wrapper" style="height: 50px">
-            <div id="part-2-answer" class="answer-text">
-                <div>{{ bonus.part2_answer|safe }}</div>
-            </div>
-        </div>
-        <strong>Part 3:</strong>
-        <div class="quill-wrapper" style="height: 75px">
-            <div id="part-3-text" class="part-text">
-                <div>{{ bonus.part3_text|safe }}</div>
-            </div>
-        </div>
-        <strong>Answer 3:</strong>
-        <div class="quill-wrapper" style="height: 50px">
-            <div id="part-3-answer" class="answer-text">
-                <div>{{ bonus.part3_answer|safe }}</div>
-            </div>
-        </div>
-        <br>
         {{ form.as_p }}
         {% if not read_only %}
         <input type="submit" id="submit-bonus" value="Save"/>

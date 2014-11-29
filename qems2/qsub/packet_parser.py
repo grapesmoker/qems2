@@ -4,6 +4,8 @@ import re
 import json
 import string
 
+from qems2.qsub.models import *
+from qems2.qsub.utils import are_special_characters_balanced, does_answerline_have_underlines
 from qems2.qsub.model_utils import sanitize_html
 from django.utils.html import escape
 
@@ -48,229 +50,6 @@ def get_bonus_part_value(line):
     
     match = re.search(bpart_regex, line)
     return re.sub(bonus_value_regex, '', match.group(0))     
-
-def are_special_characters_balanced(line):
-    underlineFlag = False
-    italicsFlag = False
-    parensFlag = False
-    for c in line:
-        if (c == '_'):
-            if (underlineFlag):
-                underlineFlag = False
-            else:
-                underlineFlag = True
-        elif (c == '~'):
-            if (italicsFlag):
-                italicsFlag = False
-            else:
-                italicsFlag = True
-        elif (c == '('):
-            if (parensFlag):
-                # There are too many open parens
-                return False
-            else:
-                parensFlag = True
-        elif (c == ')'):
-            if (parensFlag):
-                parensFlag = False
-            else:
-                # There are too many close parens
-                return False
-    
-    if (underlineFlag or italicsFlag or parensFlag):
-        return False
-    else:
-        return True                
-
-def parse_uploaded_packet(uploaded_file):
-
-    print uploaded_file.name
-    file_data = uploaded_file.read().split('\n')
-
-    tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(file_data)
-
-    return tossups, bonuses
-
-def handle_uploaded_packet(uploaded_file):
-
-    print uploaded_file.name
-
-    file_data = uploaded_file.read().split('\n')
-
-    first_tossup = find_first_tossup(file_data)
-    first_bonus = find_first_bonus(file_data)
-
-    try:
-        last_tossup = find_last_tossup(file_data, first_bonus)
-    except:
-        last_tossup = None
-        first_tossup = None
-
-    try:
-        last_bonus = find_last_bonus(file_data)
-    except:
-        last_bonus = None
-        first_bonus = None
-
-    print first_tossup, last_tossup
-
-    if first_tossup is not None and last_tossup is not None:
-        tossups = file_data[first_tossup:last_tossup]
-    else:
-        tossups = []
-
-    if first_bonus is not None and last_bonus is not None:
-        bonuses = file_data[first_bonus:last_bonus]
-    else:
-        bonuses = []
-
-    #print last_bonus
-
-    cleaned_tossups = [line for line in tossups if len(line) > 7]
-    cleaned_bonuses = [line for line in bonuses if len(line) > 7]
-
-    #print cleaned_tossups
-
-    final_tossups, tu_errors = tossups_structured(cleaned_tossups)
-    final_bonuses, bs_errors = bonuses_structured(cleaned_bonuses)
-
-    #print final_tossups
-
-    return final_tossups, final_bonuses
-
-
-def find_first_tossup (text):
-
-    first_index = next((i for i in range(len(text)) if re.search(ansregex, text[i], re.I)), None)
-    return first_index - 1
-
-
-def find_first_bonus (text):
-    first_index = next((i for i in range(len(text)) if re.search(bpart_regex, text[i], re.I)), None)
-    #this actually finds the first bonus part
-    #so return that index - 1 to get the first bonus leadin
-    return first_index - 1
-
-
-def find_last_tossup (text, first_bonus_index):
-    reversed = text[0:first_bonus_index][::-1]
-    last_index = len(reversed) - find_first_tossup(reversed)
-    return last_index - 1
-
-
-def find_last_bonus (text):
-    reversed = text[::-1]
-    last_index = len(reversed) - find_first_bonus(reversed)
-    return last_index
-
-
-def tossup_filter(tossups):
-
-    tossups = map(lambda text: string.strip(re.sub('^\d*\.', '', text)), tossups)
-    #tossups = map(lambda text: re.sub('\'', '\\\'', text), tossups)
-    questions = [tossups[i] for i in range(len(tossups)) if i % 2 == 0]
-    questions = map(lambda text: string.strip(re.sub('^\d*\.', '', text)), questions)
-    answers = [tossups[i] for i in range(len(tossups)) if i % 2 == 1]
-    answers = [tossups[i] for i in range(len(tossups)) if i % 2 == 1]
-    answers = map(lambda text: re.sub(ansregex, '', text, re.I), answers)
-    answers = map(lambda text: string.strip(text), answers)
-    answers = map(lambda text: sanitize_html(text, ['u', 'b', 'i']), answers)
-    #answers = map(lambda text: re.sub('(?i)<b><u>|<u><b>', '<req>', text), answers)
-    #answers = map(lambda text: re.sub('(?i)</b></u>|</u></b>', '</req>', text), answers)
-
-    return tossups, questions, answers
-
-def tossups_structured(tossups, mode='json'):
-
-    errors = 0
-
-    tossups, questions, answers = tossup_filter(tossups)
-
-    tossups_text = ''
-
-    tossup_objects = []
-
-    for i, (question, answer) in enumerate(zip(questions, answers)):
-        tossup = Tossup(question, answer, i + 1)
-        if mode == 'json':
-            tossups_text += tossup.to_json() + ','
-        elif mode == 'latex':
-            tossups_text += tossup.to_latex() + '\n'
-        try:
-            tossup.is_valid()
-            tossup_objects.append(tossup)
-        except InvalidTossup as ex:
-            print ex
-            print tossup
-            errors += 1
-
-    if mode == 'json':
-        tossups_text = '"tossups": [' + tossups_text[:-1] + ']' + '\n'
-    elif mode == 'latex':
-        tossups_text = r'\tossups' + '\n' + tossups_text[:-1] + '\n'
-
-    return tossup_objects, errors
-
-def bonuses_structured(bonuses, mode='json'):
-
-    errors = 0
-
-    bonuses_text = ''
-    bonuses = map(lambda text: string.strip(re.sub('^\d*\.', '', text)), bonuses)
-    bonus_objects = []
-    #bonuses = map(lambda text: re.sub('\'', '\\\'', text), bonuses)
-    leadin_markers = [i for i in range(len(bonuses)) if not re.search('^\[\w*\]|^\(\w*\)|(?i)^(answer|asnwer|answers|anwer):', bonuses[i])]
-    print leadin_markers
-    for i in range(len(leadin_markers)):
-        leadin = bonuses[leadin_markers[i]]
-        parts = []
-        values = []
-        answers = []
-
-        if leadin_markers[i] < leadin_markers[-1]:
-            b_index = i + 1
-            current_bonus = bonuses[leadin_markers[i] + 1:leadin_markers[b_index]]
-        else:
-            b_index = i
-            current_bonus = bonuses[leadin_markers[b_index] + 1:]
-
-
-        #print current_bonus
-        for element in current_bonus:
-            element = string.strip(element)
-            if re.search(ansregex, element):
-                answer = string.strip(re.sub(ansregex, '', element))
-                answer = sanitize_html(answer, ['u', 'b', 'i'])
-                answer = re.sub('(?i)<b><u>|<u><b>', '<req>', answer)
-                answer = re.sub('(?i)</b></u>|</u></b>', '</req>', answer)
-                answers.append(answer)
-            else:
-                match = re.search('^(\[\w*\]|\(\w*\))', element)
-                val = re.sub('\[|\]|\(|\)', '', match.group(0))
-                question = string.strip(re.sub('^(\[\w*\]|\(\w*\))', '', element))
-                question = sanitize_html(question, ['i'])
-                parts.append(question)
-                values.append(val)
-
-        bonus = Bonus(leadin, parts, answers, values, i + 1)
-        if mode == 'json':
-            bonuses_text += bonus.to_json() + ','
-        elif mode == 'latex':
-            bonuses_text += bonus.to_latex() + '\n'
-        try:
-            bonus.is_valid()
-            bonus_objects.append(bonus)
-        except InvalidBonus as ex:
-            print ex
-            print bonus
-            errors += 1
-
-    if mode == 'json':
-        bonuses_text = '"bonuses": [' + bonuses_text[:-1] + ']' + '\n'
-    elif mode == 'latex':
-        bonuses_text = r'\bonuses ' + '\n' + bonuses_text
-
-    return bonus_objects, errors
 
 def parse_packet_data(data):
 
@@ -325,7 +104,7 @@ def parse_packet_data(data):
                 tossup_answer = remove_category(tossup_answer)
 
                 tossup_text = question_stack.pop()            
-                tossup = Tossup(tossup_text, tossup_answer, i, tossup_category)
+                tossup = create_tossup(tossup_text, tossup_answer, tossup_category)
                 try:
                     tossup.is_valid()
                     tossups.append(tossup)
@@ -384,7 +163,7 @@ def parse_packet_data(data):
             if (i < len(data) - 1):
                 question_stack.append(next_question_line)
                 
-            bonus = Bonus(leadin, parts, answers, values, i, type="acf", category=category)            
+            bonus = create_bonus(leadin, parts, answers, values, question_type_text="ACF-style bonus", category_text=category)            
             try:
                 bonus.is_valid()
                 bonuses.append(bonus)
@@ -404,7 +183,7 @@ def parse_packet_data(data):
             category = get_category(answer)
             answer = remove_category(answer)
             
-            bonus = Bonus('', [question], [answer], [], i, type='vhsl', category=category)
+            bonus = create_bonus('', [question], [answer], [], question_type_text='VHSL bonus', category_text=category)
             try:
                 bonus.is_valid()
                 bonuses.append(bonus)
@@ -415,231 +194,74 @@ def parse_packet_data(data):
  
     return tossups, bonuses, tossup_errors, bonus_errors
 
-class InvalidPacket(Exception):
+def create_tossup(question='', answer='', category_text='', question_type_text='ACF-style tossup'):
+    
+    question = escape(question)
+    answer = escape(remove_answer_label(answer))
 
-    def __init__(self, *args):
-        self.args = [a for a in args]
+    categories = DistributionEntry.objects.all() 
+    setCategory = None
+    for category in categories:
+        formattedCategory = category.category + " - " + category.subcategory
+        print "formattedCategory: " + formattedCategory
+        if (formattedCategory == category_text):
+            print "setCategory"
+            setCategory = category
+            break
+    
+    questionTypes = QuestionType.objects.all()
+    setQuestionType = None
+    for questionType in questionTypes:
+        if (str(questionType) == question_type_text):
+            setQuestionType = questionType
+            break;
+    
+    tossup = Tossup(tossup_text=question, tossup_answer=answer, category=setCategory, question_type=setQuestionType)
+    return tossup
 
-    def __str__(self):
-        s = '*' * 80 + '\n'
-        s += 'There was a problem in packet {0}\n'.format(self.args[0])
-        s += '*' * 80 + '\n'
-
-        return s
-
-
-class InvalidTossup(Exception):
-
-    def __init__(self, *args):
-        self.args = [a for a in args]
-
-    def __str__(self):
-        s = '*' * 50 + '<br>'
-        s += 'Invalid tossup {0}!<br>'.format(self.args[2])
-        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
-        s += '*' * 50 + '<br>'
-
-        return s
-
-
-class InvalidBonus(Exception):
-
-    def __init__(self, *args):
-        self.args = [a for a in args]
-
-    def __str__(self):
-        s = '*' * 50 + '<br>'
-        s += 'Invalid bonus {0}!<br>'.format(self.args[2])
-        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
-        s += '*' * 50 + '<br>'
-
-        return s
-
-
-class Bonus:
-
-    def __init__(self, leadin='', parts=[], answers=[], values=[], number='', type='acf', category=''):
-        self.leadin = escape(leadin)
-        sanitizedParts = []
-        for part in parts:
-            sanitizedParts.append(escape(part))
-        self.parts = sanitizedParts
+def create_bonus(leadin='', parts=[], answers=[], values=[], question_type_text='ACF-Style bonus', category_text=''):
+    
+    leadin = escape(leadin)
+    sanitizedParts = []
+    for part in parts:
+        sanitizedParts.append(escape(part))
+    parts = sanitizedParts
+    
+    # For VHSL bonuses, make sure that we have enough data to pass into the bonus form
+    while (len(parts) < 3):
+        parts.append('')
+    
+    while (len(answers) < 3):
+        answers.append('')
         
-        self.number = number
-        
-        sanitizedValues = []
-        for value in values:
-            sanitizedValues.append(escape(value))        
-        self.values = sanitizedValues
-        
-        self.type = type
-        self.category = escape(category)
-        
-        modifiedAnswers = []
-        for answer in answers:
-            formattedAnswer = escape(remove_answer_label(answer))
-            modifiedAnswers.append(formattedAnswer)
-        self.answers = modifiedAnswers
+    # TODO: We don't do anything with values right now
+    #sanitizedValues = []
+    #for value in values:
+    #    sanitizedValues.append(escape(value))        
+    #values = sanitizedValues
+    
+    questionTypes = QuestionType.objects.all()
+    setQuestionType = None
+    for questionType in questionTypes:
+        if (str(questionType) == question_type_text):
+            setQuestionType = questionType
+            break;
 
-    def add_part(self, part):
-        self.parts.append(part)
-
-    def add_answer(self, answer):
-        self.answers.append(answer)
-
-    def to_json(self):
-        return json.dumps({'leadin': self.leadin,
-                           'parts': self.parts,
-                           'answers': self.answers,
-                           'number': self.number,
-                           'values': self.values,
-                           'type': self.type,                           
-                           'category': self.category}) + '\n'
-
-    def to_latex(self):
-        leadin = self.leadin.replace('&ldquo;', '``')
-        leadin = leadin.replace('&rdquo;', "''")
-        leadin = leadin.replace('<i>', r'{\it ')
-        leadin = leadin.replace('</i>', '}')
-        leadin = r'\begin{{bonus}}{{{0}}}'.format(leadin) + '\n'
-        parts = ''
-        for val, part, answer in zip(self.values, self.parts, self.answers):
-            answer = answer.replace('<req>', r'\ans{')
-            answer = answer.replace('</req>', '}')
-            answer = answer.replace('<b>', r'\ans{')
-            answer = answer.replace('</b>', '}')
-            answer = answer.replace('&ldquo;', '``')
-            answer = answer.replace('&rdquo;', "''")
-            
-            part = part.replace('<i>', r'{\it ')
-            part = part.replace('</i>', '}')
-            part = part.replace('&ldquo;', '``')
-            part = part.replace('&rdquo;', "''")
-
-            parts += r'\bonuspart{{{0}}}{{{1}}}{{{2}}}'.format(val, part, answer) + '\n'
-        return leadin + parts + r'\end{bonus}' + '\n'
-
-    def is_valid(self):
-
-        self.valid = False
-
-        if self.type == 'acf':
-
-            if self.leadin == '':
-                raise InvalidBonus('leadin', self.leadin, self.number)
-            if self.parts == []:
-                raise InvalidBonus('parts', self.parts, self.number)
-            if self.answers == []:
-                raise InvalidBonus('answers', self.answers, self.number)
-            if self.values == []:
-                raise InvalidBonus('values', self.values, self.number)
-
-            if (not are_special_characters_balanced(self.leadin)):
-                raise InvalidBonus('leading', self.leadin, self.number)
-
-            for answer in self.answers:
-                if (not are_special_characters_balanced(answer)):
-                    raise InvalidBonus('answers', self.answers, self.number)
-
-            for part in self.parts:
-                if part == '':
-                    raise InvalidBonus('parts', self.parts, self.number)
-                if (not are_special_characters_balanced(part)):
-                    raise InvalidBonus('parts', self.parts, self.number)                    
-
-            for val in self.values:
-                if val == '':
-                    raise InvalidBonus('values', self.values, self.number)
-                try:
-                    int(val)
-                except ValueError:
-                    raise InvalidBonus('values', self.values, self.number)
-
-            self.valid = True
-            return True
-
-        elif self.type == 'vhsl':
-
-            if self.parts == []:
-                raise InvalidBonus('parts', self.parts, self.number)
-            if self.answers == []:
-                raise InvalidBonus('answers', self.answers, self.number)
-
-            for answer in self.answers:
-                if (not are_special_characters_balanced(answer)):
-                    raise InvalidBonus('answers', self.answers, self.number)
-
-            for part in self.parts:
-                if part == '':
-                    raise InvalidBonus('parts', self.parts, self.number)
-                if (not are_special_characters_balanced(part)):
-                    raise InvalidBonus('parts', self.parts, self.number)
-                    
-        else:
-            raise InvalidBonus('type', self.type, self.number)
-
-    def __str__(self):
-
-        s = '*' * 50 + '\n'
-        s += self.leadin + '\n'
-
-        for p, v, a in zip(self.parts, self.values, self.answers):
-            s += '[{0}] {1}\nANSWER: {2}\n'.format(v, p, a)
-
-        s += '*' * 50 + '\n'
-
-        return s
-
-class Tossup:
-    def __init__(self, question='', answer='', number='', category=''):
-        self.question = escape(question)
-        self.answer = escape(remove_answer_label(answer))
-        self.number = number
-        self.category = escape(category)
-
-    def to_json(self):
-        return json.dumps({'question': self.question,
-                           'answer': self.answer,
-                           'number': self.number,
-                           'category': self.category}) + '\n'
-
-    def to_latex(self):
-        answer = self.answer.replace('<req>', r'\ans{')
-        answer = answer.replace('</req>', '}')
-        answer = answer.replace('<b>', r'\ans{')
-        answer = answer.replace('</b>', '}')
-        question = self.question.replace('<i>', r'{\it ')
-        question = question.replace('</i>', '}')
-        answer = answer.replace('&ldquo;', '``')
-        answer = answer.replace('&rdquo;', "''")
-        question = question.replace('&ldquo;', '``')
-        question = question.replace('&rdquo;', "''")
-
-        return r'\tossup{{{0}}}{{{1}}}'.format(question, answer) + '\n'
-
-    def is_valid(self):
-
-        self.valid = False
-
-        if self.question == '':
-            raise InvalidTossup('question', self.question, self.number)
-
-        if self.answer == '':
-            raise InvalidTossup('answer', self.answer, self.number)
-            
-        if (not are_special_characters_balanced(self.question)):
-            raise InvalidTossup('question', self.question, self.number)
-
-        if (not are_special_characters_balanced(self.answer)):
-            raise InvalidTossup('answer', self.answer, self.number)
-            
-        self.valid = True
-        return True
-
-    def __str__(self):
-
-        s = '*' * 50 + '\n'
-        s += '{0}\nANSWER: {1}\n'.format(self.question, self.answer)
-        s += '*' * 50 + '\n'
-
-        return s
+    categories = DistributionEntry.objects.all() 
+    setCategory = None
+    for category in categories:
+        formattedCategory = category.category + " - " + category.subcategory
+        if (formattedCategory == category_text):
+            setCategory = category
+            break
+    
+    modifiedAnswers = []
+    for answer in answers:
+        formattedAnswer = escape(remove_answer_label(answer))
+        modifiedAnswers.append(formattedAnswer)
+    answers = modifiedAnswers
+    
+    bonus = Bonus(leadin=leadin, part1_text=parts[0], part1_answer=answers[0],
+        part2_text=parts[1], part2_answer=answers[1], part3_text=parts[2],
+        part3_answer=answers[2], category=setCategory, question_type=setQuestionType)
+    return bonus

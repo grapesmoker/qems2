@@ -19,7 +19,8 @@ from models import *
 from forms import *
 from model_utils import *
 from utils import sanitize_html
-from packet_parser import handle_uploaded_packet, parse_uploaded_packet, parse_packet_data
+#from packet_parser import handle_uploaded_packet, parse_uploaded_packet, parse_packet_data
+from packet_parser import parse_packet_data
 from django.utils.safestring import mark_safe
 from haystack.query import SearchQuerySet
 from cStringIO import StringIO
@@ -631,6 +632,8 @@ def add_tossups(request, qset_id, packet_id=None):
 
     elif request.method == 'POST':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
+            read_only = False
+
             # The user may have set the packet ID through the POST body, so check for it there
             if packet_id == None and 'packet' in request.POST and request.POST['packet'] != '':
                 packet_id = int(request.POST['packet'])                
@@ -642,29 +645,46 @@ def add_tossups(request, qset_id, packet_id=None):
                 tossup.question_set = qset
                 tossup.tossup_text = sanitize_html(tossup.tossup_text)
                 tossup.tossup_answer = sanitize_html(tossup.tossup_answer)
-                # New questions should not be auto-locked. Also, the user has no way to currently change this setting.
                 tossup.locked = False
-                if packet_id is None or packet_id == '':
-                    # If the tossup doesn't have a packet, set its number to be the magic number
-                    # of 999, meaning that it's unassigned.  Can't assign -1 because this is outside
-                    # of the legal range of tossup numbers and it ends up getting set to 1 for some
-                    # reason, except in the case where there are no packets in the system in which
-                    # case there's an error adding the question
-                    tossup.question_number = 999                    
-                else:
-                    tossup.packet_id = packet_id
-                    tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
-                 
-                tossup.save()
-                message = 'Your tossup has been successfully added to the set! Write more questions!'
-                message_class = 'alert alert-success'
+                
+                try:
+                    tossup.is_valid()
+
+                    if packet_id is None or packet_id == '':
+                        # If the tossup doesn't have a packet, set its number to be the magic number
+                        # of 999, meaning that it's unassigned.  Can't assign -1 because this is outside
+                        # of the legal range of tossup numbers and it ends up getting set to 1 for some
+                        # reason, except in the case where there are no packets in the system in which
+                        # case there's an error adding the question
+                        tossup.question_number = 999                    
+                    else:
+                        tossup.packet_id = packet_id
+                        tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
+                     
+                    tossup.save()
+                    message = 'Your tossup has been successfully added to the set! Write more questions!'
+                    message_class = 'alert alert-success'                     
+                    
+                    # In the success case, don't return the whole tossup object so as to clear the fields
+                    return render_to_response('add_tossups.html',
+                             {'form': TossupForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
+                             'message': message,
+                             'message_class': message_class,
+                             'tossup' : None,
+                             'tossup_id': tossup.id,
+                             'read_only': read_only,
+                             'user': user,
+                             'qset_id': qset.id},
+                             context_instance=RequestContext(request))
+                    
+                except InvalidTossup as ex:
+                    message = str(ex)
+                    message_class = 'alert alert-warning'
 
             else:
-                for field in tossup_form:
-                    print field
-                    print field.errors
+                message = 'Problem adding a tossup.  Make sure that all required fields are filled out!'
+                message_class = 'alert alert-warning'
 
-            read_only = False
         else:
             tossup = None
             message = 'You are not authorized to add questions to this tournament!'
@@ -672,11 +692,13 @@ def add_tossups(request, qset_id, packet_id=None):
             tossup_form = []
             read_only = True
 
+        # In the error case, return the whole tossup object so you can edit it
         return render_to_response('add_tossups.html',
                  {'form': TossupForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
                  'message': message,
                  'message_class': message_class,
-                 'tossup_id': tossup.id, # Don't send the whole tossup object or else the old text won't get cleared
+                 'tossup' : tossup,
+                 'tossup_id': None,
                  'read_only': read_only,
                  'user': user,
                  'qset_id': qset.id},
@@ -720,6 +742,7 @@ def add_bonuses(request, qset_id, packet_id=None):
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
+        bonus = None
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
             form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id})
 
@@ -734,7 +757,6 @@ def add_bonuses(request, qset_id, packet_id=None):
                 bonus.part2_answer = sanitize_html(bonus.part2_answer)
                 bonus.part3_text = sanitize_html(bonus.part3_text)
                 bonus.part3_answer = sanitize_html(bonus.part3_answer)
-                # New questions should not be auto-locked. Also, the user has no way to currently change this setting.
                 bonus.locked = False
                 
                 if packet_id is None or packet_id == '':
@@ -748,14 +770,31 @@ def add_bonuses(request, qset_id, packet_id=None):
                     bonus.packet_id = packet_id
                     bonus.question_number = Bonus.objects.filter(packet_id=packet_id).count()
 
-                bonus.save()
-                message = 'Your bonus has been successfully added to the set! Write more questions!'
-                message_class = 'alert alert-success'
+                try:
+                    bonus.is_valid()
+                    bonus.save()
+                    message = 'Your bonus has been successfully added to the set! Write more questions!'
+                    message_class = 'alert alert-success'
+                    
+                    # On success case, don't return the full bonus so that field gets cleared
+                    return render_to_response('add_bonuses.html',
+                             {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
+                             'message': message,
+                             'message_class': message_class,
+                             'bonus': None,
+                             'bonus_id': bonus.id, 
+                             'read_only': read_only,
+                             'user': user,
+                             'qset_id': qset_id},
+                             context_instance=RequestContext(request))
+                 
+                except InvalidBonus as ex:
+                    message = str(ex)
+                    message_class = 'alert alert-warning'
 
             else:
-                for field in form:
-                    print field
-                    print field.errors
+                message = 'There was an error with the form: ' + str(form.errors)
+                message_class = 'alert alert-warning'
 
             read_only = False
         else:
@@ -769,7 +808,8 @@ def add_bonuses(request, qset_id, packet_id=None):
                  {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
                  'message': message,
                  'message_class': message_class,
-                 'bonus_id': bonus.id, # Don't send the whole bonus object or else the old text won't get cleared
+                 'bonus': bonus,
+                 'bonus_id': None, 
                  'read_only': read_only,
                  'user': user,
                  'qset_id': qset_id},
@@ -785,7 +825,7 @@ def add_bonuses(request, qset_id, packet_id=None):
 def edit_tossup(request, tossup_id):
     user = request.user.writer
     tossup = Tossup.objects.get(id=tossup_id)
-    tossup_length = len(tossup.tossup_text)
+    tossup_length = tossup.character_count()
     qset = tossup.question_set
     packet = tossup.packet
     message = ''
@@ -829,37 +869,46 @@ def edit_tossup(request, tossup_id):
 
     elif request.method == 'POST':
         if user == tossup.author or user == qset.owner or user in qset.editor.all():
-
             form = TossupForm(request.POST, qset_id=qset.id, role=role)
             can_change = True
             if user == tossup.author and tossup.locked and not user in qset.editor.all():
                 can_change = False
 
             if form.is_valid() and can_change:
-                #print form.cleaned_data['tossup_text']
+                print "Tossup post data:"
+                print form.cleaned_data['tossup_text']
                 print form.cleaned_data['tossup_answer']
+                
+                read_only = False
 
-                tossup.tossup_text = sanitize_html(form.cleaned_data['tossup_text'])
-                tossup.tossup_answer = sanitize_html(form.cleaned_data['tossup_answer'])
-
-                #print tossup.tossup_text
-                print tossup.tossup_answer
-
+                tossup.tossup_text = strip_markup(form.cleaned_data['tossup_text'])
+                tossup.tossup_answer = strip_markup(form.cleaned_data['tossup_answer'])
                 tossup.category = form.cleaned_data['category']
                 tossup.packet = form.cleaned_data['packet']
                 tossup.locked = form.cleaned_data['locked']
                 tossup.edited = form.cleaned_data['edited']
                 tossup.question_type = form.cleaned_data['question_type']
-                tossup.save()
-                tossup_length = len(tossup.tossup_text)
-                message = 'Your changes have been saved!'
-                message_class = 'alert alert-success'
-
-                read_only = False
+                
+                try:
+                    tossup.is_valid()
+                    tossup.save()
+                    tossup_length = tossup.character_count()
+                    print "Tossup saved"
+                    message = 'Your changes have been saved!'
+                    message_class = 'alert alert-success'
+                                    
+                except InvalidTossup as ex:
+                    message = str(ex)
+                    message_class = 'alert alert-warning'
+                    
             elif form.is_valid() and not can_change:
                 message = 'This tossup is locked and can only be changed by an editor!'
                 message_class = 'alert alert-warning'
                 read_only = True
+            else:
+                message = 'There was an error with the form: ' + str(form.errors)
+                message_class = 'alert alert-warning'
+                
 
         elif user in qset.writer.all():
             read_only = True
@@ -872,9 +921,6 @@ def edit_tossup(request, tossup_id):
             message = 'You are not authorized to view or edit this question!'
             message_class = 'alert alert-error'
 
-        # Clear the tossup info for when you're brought back to the new question entry screen
-        # tossup.tossup_text = ''
-        # tossup.tossup_answer = ''
         return render_to_response('edit_tossup.html',
             {'tossup': tossup,
              'tossup_length': tossup_length,            
@@ -892,7 +938,7 @@ def edit_tossup(request, tossup_id):
 def edit_bonus(request, bonus_id):
     user = request.user.writer
     bonus = Bonus.objects.get(id=bonus_id)
-    bonus_length = len(bonus.leadin) + len(bonus.part1_text) + len(bonus.part2_text) + len(bonus.part3_text)    
+    leadin_length, part1_length, part2_length, part3_length = bonus.character_count()   
     qset = bonus.question_set
     packet = bonus.packet
     message = ''
@@ -924,7 +970,10 @@ def edit_bonus(request, bonus_id):
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
-             'bonus_length': bonus_length,
+             'leadin_length': leadin_length,
+             'part1_length': part1_length,
+             'part2_length': part2_length,
+             'part3_length': part3_length,
              'form': form,
              'qset': qset,
              'packet': packet,
@@ -954,19 +1003,27 @@ def edit_bonus(request, bonus_id):
                 bonus.locked = form.cleaned_data['locked']
                 bonus.edited = form.cleaned_data['edited']
                 bonus.question_type = form.cleaned_data['question_type']
-                bonus.save()
-                bonus_length = len(bonus.leadin) + len(bonus.part1_text) + len(bonus.part2_text) + len(bonus.part3_text)    
+                
+                try:
+                    bonus.is_valid()
+                    
+                    bonus.save()
+                    leadin_length, part1_length, part2_length, part3_length = bonus.character_count()    
 
-                #print bonus.part1_text
-
-                message = 'Your changes have been saved!'
-                message_class = 'alert alert-success'
-                read_only = False
+                    message = 'Your changes have been saved!'
+                    message_class = 'alert alert-success'
+                    read_only = False
+                except InvalidBonus as ex:
+                    message = str(ex)
+                    message_class = 'alert alert-warning'
 
             elif form.is_valid() and not can_change:
                 message = 'This bonus is locked and can only be changed by an editor!'
                 message_class = 'alert alert-warning'
                 read_only = True
+            else:
+                message = 'There was an error with the form: ' + str(form.errors)
+                message_class = 'alert alert-warning'                
 
         elif user in qset.writer.all():
             form = None
@@ -982,7 +1039,10 @@ def edit_bonus(request, bonus_id):
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
-             'bonus_length': bonus_length,
+             'leadin_length': leadin_length,
+             'part1_length': part1_length,
+             'part2_length': part2_length,
+             'part3_length': part3_length,
              'form': form,
              'qset': qset,
              'packet': packet,
@@ -1877,7 +1937,7 @@ def type_questions(request, qset_id=None):
                 tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(question_data)
                 print "type questions post"
                 for tossup in tossups:
-                    print tossup.answer
+                    print tossup.tossup_answer
                 
                 return render_to_response('type_questions_preview.html',
                                           {'tossups': tossups,
@@ -1929,17 +1989,21 @@ def complete_upload(request):
 
         num_tossups = int(request.POST['num-tossups'])
         num_bonuses = int(request.POST['num-bonuses'])
-        categories = DistributionEntry.objects.all()            
+        categories = DistributionEntry.objects.all()
+        questionTypes = QuestionType.objects.all()       
 
         for tu_num in range(num_tossups):
             data="UTF-8 DATA"
             tu_text_name = 'tossup-text-{0}'.format(tu_num)
             tu_ans_name = 'tossup-answer-{0}'.format(tu_num)
             tu_cat_name = 'tossup-category-{0}'.format(tu_num)
+            tu_type_name = 'tossup-type-{0}'.format(tu_num)
 
             tu_text = request.POST[tu_text_name]
             tu_ans = request.POST[tu_ans_name]            
             tu_cat = request.POST[tu_cat_name]
+            tu_type = request.POST[tu_type_name]
+            print "tu_type: " + tu_type
 
             new_tossup = Tossup()
             new_tossup.tossup_text = tu_text
@@ -1947,10 +2011,17 @@ def complete_upload(request):
             new_tossup.author = user
             new_tossup.question_set = qset
             
+            print "tu_cat: " + tu_cat
             for category in categories:
                 formattedCategory = category.category + " - " + category.subcategory
                 if (formattedCategory == tu_cat):
                     new_tossup.category = category
+                    break
+            
+            for questionType in questionTypes:
+                if (str(questionType) == tu_type):
+                    new_tossup.question_type = questionType
+                    break            
             
             new_tossup.locked = False
             new_tossup.edited = False
@@ -1968,6 +2039,7 @@ def complete_upload(request):
             bs_ans3_name = 'bonus-answer3-{0}'.format(bs_num)
             bs_cat_name = 'bonus-category-{0}'.format(bs_num)
             bs_type_name = 'bonus-type-{0}'.format(bs_num)
+            bs_type = request.POST[bs_type_name]
 
             new_bonus = Bonus()
             new_bonus.question_set = qset
@@ -1981,12 +2053,18 @@ def complete_upload(request):
             new_bonus.part2_answer = request.POST[bs_ans2_name]
             new_bonus.part3_text = request.POST[bs_part3_name]
             new_bonus.part3_answer = request.POST[bs_ans3_name]
-            
+                        
             bonus_cat = request.POST[bs_cat_name]
             for category in categories:
                 formattedCategory = category.category + " - " + category.subcategory
                 if (formattedCategory == bonus_cat):
                     new_bonus.category = category
+                    break
+                    
+            for questionType in questionTypes:
+                if (str(questionType) == bs_type_name):
+                    new_bonus.question_type = questionType
+                    break
 
             new_bonus.save()
 

@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% load comments %}
+{% load filters %}
 
 {% block content %}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
@@ -22,89 +23,33 @@
         {% endif %}
     </ol>
     <h2 class="page-header">Edit Tossup</h2>
-    {% if message %}
-    <p class="{{ message_class }}">{{ message }}</p>
-    {% endif %}
+    {% autoescape off %}        
+        {% if message %}
+        <p class="{{ message_class }}">{{ message }}</p>
+        {% endif %}
+    {% endautoescape %}
     <div class="col-md-10">
         {% if tossup %}
             {% autoescape off %}
                 <p>Tossup Preview:</p>
                 <p>{{ tossup.tossup_text|safe|question_html }}</p>
                 <p>ANSWER: {{ tossup.tossup_answer|safe|answer_html }}</p>
+                <p>Character count: {{ tossup.character_count }}</p>
             {% endautoescape %}
-        {% endif %}        
-        <form action="" method="post" class="form-horizontal" role="form">
+        {% endif %}
+        
+        <form action="" method="post">
             {% csrf_token %}
+            {{ form.as_p }}
             {% if not read_only %}
-                {% if form %}
-                    <div class="form-group col-md-10">
-                        <label class="control-label col-sm-2" for="{{ form.tossup_text.id_for_label }}">Tossup Text</label>
-                        <div class="col-lg-8">
-                            {{ form.tossup_text }}
-                        </div>
-                    </div>
-                    <div class="form-group col-md-10">
-                        <label class="control-label col-sm-2" for="{{ form.tossup_answer.id_for_label }}">Answer</label>
-                        <div class="col-lg-8">
-                            {{ form.tossup_answer }}
-                        </div>
-                    </div>
-
-                    <div class="form-group col-md-10">
-                        <label class="control-label col-sm-2" for="author">Tossup Author</label>
-                        <div class="col-lg-8">
-                            {% if tossup %}
-                            <p id="author">{{ tossup.author }}</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="form-group col-md-10">
-                        <label class="control-label col-sm-2" for="{{ form.category.id_for_label }}">Category</label>
-                        <div class="col-lg-8">
-                            {{ form.category }}
-                        </div>
-                    </div>
-                    <div class="form-group col-md-10">
-                        <label class="control-label col-sm-2" for="{{ form.packet.id_for_label }}">Packet</label>
-                        <div class="col-lg-8">
-                            {{ form.packet }}
-                        </div>
-                    </div>
-                    <div class="form-group col-md-10">
-                        <label class="control-label col-sm-2" for="{{ form.edited.id_for_label }}">Edited</label>
-                        <div class="col-lg-8">
-                            {{ form.edited }}
-                        </div>
-                    </div>
-                    <div class="form-group col-md-10">
-                        <label class="control-label col-sm-2" for="{{ form.locked.id_for_label }}">Locked</label>
-                        <div class="col-lg-8">
-                            {{ form.locked }}
-                        </div>
-                    </div>
-                    <div class="form-group col-md-10">
-                        <label class="control-label col-sm-2" for="{{ form.question_type.id_for_label }}">Question Type</label>
-                        <div class="col-lg-8">
-                            {{ form.question_type }}
-                        </div>
-                    </div>
-                {% endif %}
-
-                <div class="form-group col-md-10">
-                    <label class="control-label col-lg-2" for="submit-tossup">&nbsp;</label>
-                    <div class="col-lg-8">
-                        <input type="submit" class="form-control" id="submit-tossup" value="Save"/>
-                    </div>
-                </div>
-            {% endif %}            
+            <input type="submit" id="submit-tossup" value="Save"/>
+            {% endif %}
         </form>
     </div>
 
     {% if tossup %}
     <div class="col-md-10 alert alert-info" style="text-align: center"><strong>Comments</strong></div>
     <div class="comments col-md-6">
-        <!--{% render_comment_list for tossup %}-->
-
         {% autoescape off %}        
             {% get_comment_list for tossup as comment_list %}
             {% for comment in comment_list %}
@@ -127,7 +72,6 @@
             {{ cform.timestamp }}
             {{ cform.security_hash }}
             <input type="submit" name="submit" value="Post" class="btn btn-primary">
-            <!--<input type="submit" name="preview" value="Preview" class="btn btn-primary">-->
             <input type="hidden" name="next" value="/edit_tossup/{{ tossup.id }}/">
         </form>
     </div>

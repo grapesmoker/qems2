@@ -8,8 +8,8 @@ from datetime import datetime
 import json
 
 from collections import OrderedDict
-from utils import sanitize_html, strip_markup, html_to_latex, get_formatted_question_html
-from utils import get_character_count
+from utils import sanitize_html, strip_markup, html_to_latex, get_formatted_question_html, does_answerline_have_underlines
+from utils import get_character_count, InvalidTossup, InvalidBonus, are_special_characters_balanced
 
 # Create your models here.
 
@@ -242,10 +242,7 @@ class Tossup (models.Model):
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
-    
-    created_date = models.DateTimeField('date created', default=datetime.now())
-    updated_date = models.DateTimeField('date updated', default=datetime.now())
-    
+        
     # Calculates character count, ignoring special characters
     def character_count(self):
         return get_character_count(self.tossup_text)
@@ -283,17 +280,53 @@ class Tossup (models.Model):
 
         return r'\tossup{{{0}}}{{{1}}}'.format(tossup_text, tossup_answer) + '\n'
 
+    def to_html(self, include_category=False, include_character_count=False):
+        output = ''
+        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "</p>"
+        output = output + "<p>" + get_formatted_question_html(self.tossup_answer, True, True, False)
+        if (include_category and self.category is not None):
+            output = output + " {" + str(self.category) + "}</p>"
+        else:
+            output = output + "</p>"
+        
+        if (include_character_count):
+            output = output + "<p>Character count: " + str(self.character_count()) + "</p>"
+        
+        return output
 
-class Bonus(models.Model):
+    def is_valid(self):
+
+        if self.tossup_text == '':
+            raise InvalidTossup('question', self.tossup_text, self.question_number)
+
+        if self.tossup_answer == '':
+            raise InvalidTossup('answer', self.tossup_answer, self.question_number)
+            
+        if (not are_special_characters_balanced(self.tossup_text)):
+            raise InvalidTossup('question', self.tossup_text, self.question_number)
+
+        if (not are_special_characters_balanced(self.tossup_answer)):
+            raise InvalidTossup('answer', self.tossup_answer, self.question_number)
+        
+        if (not does_answerline_have_underlines(self.tossup_answer)):
+            raise InvalidTossup('answer', self.tossup_answer, self.question_number)        
+            
+        return True
+
+
+class Bonus(models.Model):    
     packet = models.ForeignKey(Packet, null=True)
     question_set = models.ForeignKey(QuestionSet)
-    leadin = models.CharField(max_length=500)
+    
+    # Leadins and part 2 and 3 aren't required in VHSL, so allow nulls
+    # The is_valid method will make sure that ACF bonuses have these values
+    leadin = models.CharField(max_length=500, null=True)
     part1_text = models.TextField()
     part1_answer = models.TextField()
-    part2_text = models.TextField()
-    part2_answer = models.TextField()
-    part3_text = models.TextField()
-    part3_answer = models.TextField()
+    part2_text = models.TextField(null=True)
+    part2_answer = models.TextField(null=True)
+    part3_text = models.TextField(null=True)
+    part3_answer = models.TextField(null=True)
     
     category = models.ForeignKey(DistributionEntry, null=True)
     subtype = models.CharField(max_length=500)
@@ -365,6 +398,94 @@ class Bonus(models.Model):
             parts_latex += r'\bonuspart{{{0}}}{{{1}}}{{{2}}}'.format(10, part, answer) + '\n'
 
         return leadin + parts_latex + r'\end{bonus}' + '\n'
+
+    def to_html(self, include_category=False, include_character_count=False):
+        output = ''
+        if (self.question_type is None or str(self.question_type) == '' or str(self.question_type) == 'ACF-style bonus'):
+            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
+            output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
+            output = output + "<p>" + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
+            output = output + "<p>[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "</p>"
+            output = output + "<p>" + get_formatted_question_html(self.part2_answer, True, True, False) + "</p>"
+            output = output + "<p>[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "</p>"
+            output = output + "<p>" + get_formatted_question_html(self.part3_answer, True, True, False)
+            
+            if (include_category and self.category is not None):
+                output = output + " {" + str(self.category) + "}</p>"
+            else:
+                output = output + "</p>"
+            
+            if (include_character_count):
+                leadin_length, part1_length, part2_length, part3_length = self.character_count()
+                output = output + "<p>Character count (leadin / part 1 / part 2 / part 3): " 
+                output = output + str(leadin_length) + " / " + str(part1_length) + " / " + str(part2_length) + " / " + str(part3_length) + "</p>"
+            
+        elif (str(self.question_type) == 'VHSL bonus'):
+            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
+            output = output + "<p>" + get_formatted_question_html(self.part1_answer, True, True, False)
+            if (include_category and self.category is not None):
+                output = output + " {" + str(self.category) + "}</p>"
+            else:
+                output = output + "</p>"
+            
+            if (include_character_count):
+                leadin_length, part1_length, part2_length, part3_length = self.character_count()
+                output = output + "<p>Character count: " + str(part1_length) + "</p>"
+            
+        return output        
+
+    def is_valid(self):
+
+        if (str(self.question_type) == '' or str(self.question_type) == 'ACF-style bonus'):
+
+            if self.leadin == '':
+                raise InvalidBonus('leadin', self.leadin, self.question_number)
+
+            if (not are_special_characters_balanced(self.leadin)):
+                raise InvalidBonus('leadin', self.leadin, self.question_number)
+
+            answers = [self.part1_answer, self.part2_answer, self.part3_answer]
+            for answer in answers:
+                if (not are_special_characters_balanced(answer)):
+                    raise InvalidBonus('answers', answer, self.question_number)
+                if (not does_answerline_have_underlines(answer)):
+                    raise InvalidBonus('answers', answer, self.question_number) 
+
+            parts = [self.part1_text, self.part2_text, self.part3_text]
+            for part in parts:
+                if part == '':
+                    raise InvalidBonus('parts', part, self.question_number)
+                if (not are_special_characters_balanced(part)):
+                    raise InvalidBonus('parts', part, self.question_number)                    
+
+            return True
+
+        elif (str(self.question_type) == 'VHSL bonus'):
+            if (self.leadin is not None and self.leadin != ''):
+                raise InvalidBonus('leadin', self.leadin + " (this field should be blank for VHSL bonuses.)", self.question_number)
+            blank_parts = [self.part2_text, self.part2_answer, self.part3_text, self.part3_answer]
+            for blank_part in blank_parts:
+                if (blank_part is not None and blank_part != ''):
+                    raise InvalidBonus('2nd or 3rd part of bonus (this field should be blank for VHSL bonuses.)', blank_part, self.question_number)
+
+            answers = [self.part1_answer]
+            for answer in answers:
+                if (not are_special_characters_balanced(answer)):
+                    raise InvalidBonus('answer', answer, self.question_number)
+                if (not does_answerline_have_underlines(answer)):
+                    raise InvalidBonus('answer', answer, self.question_number) 
+
+            parts = [self.part1_text]            
+            for part in parts:
+                if part == '':
+                    raise InvalidBonus('part', part, self.question_number)
+                if (not are_special_characters_balanced(part)):
+                    raise InvalidBonus('part', part, self.question_number)
+                    
+            return True
+                    
+        else:
+            raise InvalidBonus('question_type', self.question_type, self.question_number)
 
 class Tag(models.Model):
 

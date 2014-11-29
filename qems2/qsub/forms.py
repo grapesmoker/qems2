@@ -99,8 +99,6 @@ class TossupForm(forms.ModelForm):
         super(TossupForm, self).__init__(*args, **kwargs)
 
         self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
-        self.fields['created_date'].widget.attrs['readonly'] = 'readonly'
-        self.fields['updated_date'].widget.attrs['readonly'] = 'readonly'
         
         #self.fields['locked'].required = False
 
@@ -133,21 +131,13 @@ class TossupForm(forms.ModelForm):
         
 class BonusForm(forms.ModelForm):
     
-    leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))
+    leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
     part1_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}))
     part1_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))
-    part2_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}))
-    part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))
-    part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}))
-    part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))
-
-    #leadin = forms.CharField(widget=forms.HiddenInput())
-    #part1_text = forms.CharField(widget=forms.HiddenInput())
-    #part1_answer = forms.CharField(widget=forms.HiddenInput())
-    #part2_text = forms.CharField(widget=forms.HiddenInput())
-    #part2_answer = forms.CharField(widget=forms.HiddenInput())
-    #part3_text = forms.CharField(widget=forms.HiddenInput())
-    #part3_answer = forms.CharField(widget=forms.HiddenInput())
+    part2_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}), required=False)
+    part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
+    part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}), required=False)
+    part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
 
     class Meta:
         model = Bonus
@@ -161,8 +151,6 @@ class BonusForm(forms.ModelForm):
         super(BonusForm, self).__init__(*args, **kwargs)
 
         self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
-        self.fields['created_date'].widget.attrs['readonly'] = 'readonly'
-        self.fields['updated_date'].widget.attrs['readonly'] = 'readonly'
 
         if qset_id:
             try:

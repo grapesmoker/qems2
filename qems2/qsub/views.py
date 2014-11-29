@@ -18,7 +18,7 @@ from django.contrib import messages
 from models import *
 from forms import *
 from model_utils import *
-from utils import sanitize_html
+from utils import strip_markup
 #from packet_parser import handle_uploaded_packet, parse_uploaded_packet, parse_packet_data
 from packet_parser import parse_packet_data
 from django.utils.safestring import mark_safe
@@ -340,8 +340,7 @@ def edit_question_set(request, qset_id):
 @login_required
 def categories(request, qset_id, category_id):
     user = request.user.writer
-    qset = QuestionSet.objects.get(id=qset_id) # TODO: It might be dangerous to set this here without authorizing users first
-    # I don't believe there is any danger here. None of this is exposed to the client. -JV
+    qset = QuestionSet.objects.get(id=qset_id)
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
     
@@ -641,8 +640,8 @@ def add_tossups(request, qset_id, packet_id=None):
                 tossup = tossup_form.save(commit=False)
                 tossup.author = user
                 tossup.question_set = qset
-                tossup.tossup_text = sanitize_html(tossup.tossup_text)
-                tossup.tossup_answer = sanitize_html(tossup.tossup_answer)
+                tossup.tossup_text = strip_markup(tossup.tossup_text)
+                tossup.tossup_answer = strip_markup(tossup.tossup_answer)
                 tossup.locked = False
                 
                 try:
@@ -748,13 +747,13 @@ def add_bonuses(request, qset_id, packet_id=None):
                 bonus = form.save(commit=False)
                 bonus.author = user
                 bonus.question_set = qset
-                bonus.leadin = sanitize_html(bonus.leadin)
-                bonus.part1_text = sanitize_html(bonus.part1_text)
-                bonus.part1_answer = sanitize_html(bonus.part1_answer)
-                bonus.part2_text = sanitize_html(bonus.part2_text)
-                bonus.part2_answer = sanitize_html(bonus.part2_answer)
-                bonus.part3_text = sanitize_html(bonus.part3_text)
-                bonus.part3_answer = sanitize_html(bonus.part3_answer)
+                bonus.leadin = strip_markup(bonus.leadin)
+                bonus.part1_text = strip_markup(bonus.part1_text)
+                bonus.part1_answer = strip_markup(bonus.part1_answer)
+                bonus.part2_text = strip_markup(bonus.part2_text)
+                bonus.part2_answer = strip_markup(bonus.part2_answer)
+                bonus.part3_text = strip_markup(bonus.part3_text)
+                bonus.part3_answer = strip_markup(bonus.part3_answer)
                 bonus.locked = False
                 
                 if packet_id is None or packet_id == '':
@@ -989,13 +988,13 @@ def edit_bonus(request, bonus_id):
                 can_change = False
 
             if form.is_valid() and can_change:
-                bonus.leadin = sanitize_html(form.cleaned_data['leadin'])
-                bonus.part1_text = sanitize_html(form.cleaned_data['part1_text'])
-                bonus.part1_answer = sanitize_html(form.cleaned_data['part1_answer'])
-                bonus.part2_text = sanitize_html(form.cleaned_data['part2_text'])
-                bonus.part2_answer = sanitize_html(form.cleaned_data['part2_answer'])
-                bonus.part3_text = sanitize_html(form.cleaned_data['part3_text'])
-                bonus.part3_answer = sanitize_html(form.cleaned_data['part3_answer'])
+                bonus.leadin = strip_markup(form.cleaned_data['leadin'])
+                bonus.part1_text = strip_markup(form.cleaned_data['part1_text'])
+                bonus.part1_answer = strip_markup(form.cleaned_data['part1_answer'])
+                bonus.part2_text = strip_markup(form.cleaned_data['part2_text'])
+                bonus.part2_answer = strip_markup(form.cleaned_data['part2_answer'])
+                bonus.part3_text = strip_markup(form.cleaned_data['part3_text'])
+                bonus.part3_answer = strip_markup(form.cleaned_data['part3_answer'])
                 bonus.category = form.cleaned_data['category']
                 bonus.packet = form.cleaned_data['packet']
                 bonus.locked = form.cleaned_data['locked']
@@ -1997,11 +1996,10 @@ def complete_upload(request):
             tu_cat_name = 'tossup-category-{0}'.format(tu_num)
             tu_type_name = 'tossup-type-{0}'.format(tu_num)
 
-            tu_text = request.POST[tu_text_name]
-            tu_ans = request.POST[tu_ans_name]            
+            tu_text = strip_markup(request.POST[tu_text_name])
+            tu_ans = strip_markup(request.POST[tu_ans_name])
             tu_cat = request.POST[tu_cat_name]
             tu_type = request.POST[tu_type_name]
-            print "tu_type: " + tu_type
 
             new_tossup = Tossup()
             new_tossup.tossup_text = tu_text
@@ -2009,7 +2007,6 @@ def complete_upload(request):
             new_tossup.author = user
             new_tossup.question_set = qset
             
-            print "tu_cat: " + tu_cat
             for category in categories:
                 formattedCategory = category.category + " - " + category.subcategory
                 if (formattedCategory == tu_cat):
@@ -2044,13 +2041,13 @@ def complete_upload(request):
             new_bonus.author = user
             new_bonus.edited = False
             new_bonus.locked = False
-            new_bonus.leadin = request.POST[bs_leadin_name]
-            new_bonus.part1_text = request.POST[bs_part1_name]
-            new_bonus.part1_answer = request.POST[bs_ans1_name]
-            new_bonus.part2_text = request.POST[bs_part2_name]
-            new_bonus.part2_answer = request.POST[bs_ans2_name]
-            new_bonus.part3_text = request.POST[bs_part3_name]
-            new_bonus.part3_answer = request.POST[bs_ans3_name]
+            new_bonus.leadin = strip_markup(request.POST[bs_leadin_name])
+            new_bonus.part1_text = strip_markup(request.POST[bs_part1_name])
+            new_bonus.part1_answer = strip_markup(request.POST[bs_ans1_name])
+            new_bonus.part2_text = strip_markup(request.POST[bs_part2_name])
+            new_bonus.part2_answer = strip_markup(request.POST[bs_ans2_name])
+            new_bonus.part3_text = strip_markup(request.POST[bs_part3_name])
+            new_bonus.part3_answer = strip_markup(request.POST[bs_ans3_name])
                         
             bonus_cat = request.POST[bs_cat_name]
             for category in categories:

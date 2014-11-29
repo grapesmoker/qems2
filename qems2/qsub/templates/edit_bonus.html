@@ -60,8 +60,7 @@
             {% csrf_token %}
             {{ cform.comment.label_tag }}
             <textarea cols="40" rows="10" id="{{ cform.comment.id_for_label }}"
-                      name="{{ cform.comment.html_name }}" class="form-control">
-            </textarea>
+                      name="{{ cform.comment.html_name }}" class="form-control"></textarea>
             {{ cform.honeypot }}
             {{ cform.content_type }}
             {{ cform.object_pk }}

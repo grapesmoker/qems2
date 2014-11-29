@@ -73,7 +73,7 @@
                     <strong>Set Completion Status - {{ set_pct_complete}} - {{ tu_needed }} tossups needed, {{ bs_needed }} bonuses needed</strong>
                 </caption>
 
-                <table class="table table-striped table-hover" id="tu-status-table">
+                <table class="tablesorter" id="tu-status-table">
                     <thead>
                     <tr>
                         <th>Category</th>
@@ -162,7 +162,7 @@
                 <a href="/add_writer/{{ qset.id }}" class="btn btn-primary" title="Add set writer">
 					<i class="fa fa-plus-circle"></i> Add set writer
 				</a>
-				<table class="table table-striped table-hover">
+				<table class="tablesorter" id="editors-table">
 					<caption class="alert alert-info">
 						<strong>Current set editors</strong>
 					</caption>
@@ -190,7 +190,7 @@
 					</tbody>
 				</table>
 
-                <table class="table table-striped table-hover">
+                <table class="tablesorter" id="writers-table">
 					<caption class="alert alert-info">
 						<strong>Current set writers</strong>
 					</caption>
@@ -236,7 +236,7 @@
                 </div>
                 <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
                     {% csrf_token %}
-                    <table class="table table-striped table-hover">
+                    <table class="tablesorter" id="set-wide-reqs-table">
                         <caption class="alert alert-info">
                             <strong>Set-wide Requirements</strong>
                         </caption>
@@ -273,7 +273,7 @@
                 </div>
                 <form action="/edit_set_tiebreak/{{ qset.id }}/" method="POST">
                     {% csrf_token %}
-                    <table class="table table-striped table-hover">
+                    <table class="tablesorter" id ="tb-reqs-table">
                         <caption class="alert alert-info">
                             <strong>Tiebreaker Requirements</strong>
                         </caption>
@@ -310,15 +310,15 @@
                 <a href="/type_questions/{{ qset.id }}" class="btn btn-primary" title="Type Questions">
                     <i class="fa fa-file-text"></i> Type Questions
                 </a>
-
-<div id="upload-dialog" >
-    <form action="/upload_questions/{{ qset.id }}/" method="POST" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ upload_form }}
-    </form>
-</div>
-
-                <table class="table table-striped table-hover tablesorter" id="tossup-table">
+                <!--
+                <div id="upload-dialog" >
+                    <form action="/upload_questions/{{ qset.id }}/" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ upload_form }}
+                    </form>
+                </div>
+                -->
+                <table class="tablesorter" id="tossup-table">
                     <caption class="alert alert-info">
                         <strong>
                             Current Tossups
@@ -381,7 +381,7 @@
                         </select>
                     </form>
                 </div>
-                <table class="table table-striped table-hover" id="bonus-table">
+                <table class="tablesorter" id="bonus-table">
                     <caption class="alert alert-info">
                         <strong>
                             Current Bonuses
@@ -449,7 +449,7 @@
                 <a href="/add_packets/{{ qset.id }}" class="btn btn-primary" title="Add packets">
                     <i class="fa fa-plus-circle"></i> Add packets
                 </a>
-				<table class="table table-striped table-hover">
+				<table class="tablesorter" id="packets-table">
 					<caption class="alert alert-info">
 						<strong>
 							Active packets
@@ -507,6 +507,5 @@
         </form>
     </div>
 </div>-->
-
 
 {% endblock %}

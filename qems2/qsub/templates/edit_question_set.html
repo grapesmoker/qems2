@@ -161,7 +161,7 @@
                 <a href="/add_writer/{{ qset.id }}" class="btn btn-primary" title="Add set writer">
 					<i class="fa fa-plus-circle"></i> Add set writer
 				</a>
-				<table class="tablesorter" id="editors-table">
+				<table class="tablesorter table table-striped table-hover" id="editors-table">
 					<caption class="alert alert-info">
 						<strong>Current set editors</strong>
 					</caption>
@@ -189,7 +189,7 @@
 					</tbody>
 				</table>
 
-                <table class="tablesorter" id="writers-table">
+                <table class="tablesorter table table-striped table-hover" id="writers-table">
 					<caption class="alert alert-info">
 						<strong>Current set writers</strong>
 					</caption>
@@ -235,7 +235,7 @@
                 </div>
                 <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
                     {% csrf_token %}
-                    <table class="tablesorter" id="set-wide-reqs-table">
+                    <table class="tablesorter table table-striped table-hover" id="set-wide-reqs-table">
                         <caption class="alert alert-info">
                             <strong>Set-wide Requirements</strong>
                         </caption>
@@ -317,7 +317,7 @@
                     </form>
                 </div>
                 -->
-                <table class="tablesorter" id="tossup-table">
+                <table class="tablesorter table table-striped table-hover" id="tossup-table">
                     <caption class="alert alert-info">
                         <strong>
                             Current Tossups
@@ -380,7 +380,7 @@
                         </select>
                     </form>
                 </div>
-                <table class="tablesorter" id="bonus-table">
+                <table class="tablesorter table table-striped table-hover" id="bonus-table">
                     <caption class="alert alert-info">
                         <strong>
                             Current Bonuses

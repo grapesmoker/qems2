@@ -40,7 +40,7 @@ def create_period_wide_category_entries(period_wide_entry):
         pwce.save()
 
 def create_one_period_category_entries(period_wide_entry, period):
-    period_wide_category_entries = PeriodWideCategoryEntry.filter(period_wide_entry=period_wide_entry)
+    period_wide_category_entries = PeriodWideCategoryEntry.objects.filter(period_wide_entry=period_wide_entry)
     for pwce in period_wide_category_entry:
         opce = OnePeriodCategoryEntry.objects.create(period=period, period_wide_category_entry=pwce)
         opce.save()
@@ -50,12 +50,114 @@ def set_packet_requirements(qset):
     clear_questions(qset)
     reset_category_counts(qsets, True)
     
+    # Need to figure out total questions
+    # When does probability come into play?
+    
+    packets = Packet.objects.filter(question_set=qset)
+    for packet in packets:
+        periods = Period.objects.filter(packet=packet)
+        for period in periods:
+            
+    
+    period_wide_entries = PeriodWideEntry.objects.filter(question_set=qset)
+    for pwe in period_wide_entries:
+        
+    
 # Determines if you've written enough questions to start packetization
 def is_question_set_complete(qset):
+    # Get every period-wide entry, see if requirement is satisfied
+    all_periods_dict, per_period_dict = get_per_category_requirements_for_set(qset)
+    for cat in all_periods_dict:
+        req = all_periods_dict[cat]
+        
+        # Actually this isn't going to work, because we haven't assigned at the period category level
+        
+        
+        if (is not req.is_requirement_satisfied()):
+            return False
+    
+    return True
+
+# Returns a dictionary of requirements for all
+# items in the set (spanning across periods).
+def get_per_category_requirements_for_set(qset):    
+    all_periods_dict = {} # Category Name to DistributionRequirement mapping
+    period_wide_entries = PeriodWideEntry.objects.filter(question_set=qset)
+    for pwe in period_wide_entries:
+        period_wide_category_entries = PeriodWideCategoryEntry.objects.filter(period_wide_entry=pwe)
+        for pwce in period_wide_category_entries:
+            if (not str(pwce.category_entry) in all_periods_dict):
+                # Calculate how many we've already written in this category from the set                
+                # At the category level, I want to sum up anything that just matches my category name
+                c = pwce.category_entry
+                req = DistributionRequirement(c)
+                if (c.sub_category_name is None or c.sub_category_name == ''):
+                    # Return anything that matches category (implies sub and subsub match)
+                    req.acf_tossups_written += len(Tossup.objects.filter(question_set=qset, category__category_name=c.category_name))
+                    req.acf_bonuses_written += len(Bonus.objects.filter(question_set=qset, question_type="ACF-style bonus", category__category_name=c.category_name))
+                    req.vhsl_bonuses_written += len(Bonus.objects.filter(question_set=qset, question_type="VHSL bonus",  category__category_name=c.category_name))
+                elif (c.sub_sub_category_name is None or c.sub_sub_category_name == ''):
+                    # Return anything that matches category and sub (implies subsub match)
+                    req.acf_tossups_written += len(Tossup.objects.filter(question_set=qset, category__category_name=c.category_name, category__sub_category_name=c.sub_category_name))                    
+                    req.acf_bonuses_written += len(Bonus.objects.filter(question_set=qset, question_type="ACF-style bonus", category__category_name=c.category_name, category__sub_category_name=c.sub_category_name))                    
+                    req.vhsl_bonuses_written += len(Bonus.objects.filter(question_set=qset, question_type="VHSL bonus",  category__category_name=c.category_name, category__sub_category_name=c.sub_category_name))                    
+                else:
+                    # Just match on exact category--won't match subcategory because of the if statement
+                    req.acf_tossups_written += len(Tossup.objects.filter(question_set=qset, category=c))
+                    req.acf_bonuses_written += len(Bonus.objects.filter(question_set=qset, question_type="ACF-style bonus", category=c))
+                    req.vhsl_bonuses_written += len(Bonus.objects.filter(question_set=qset, question_type="VHSL bonus",  category=c))
+                
+                all_periods_dict[str(pwce.category_entry)] = req
+                
+            req = all_periods_dict[str(pwce.category_entry)]
+            
+            req.acf_tossups_needed += pwce.acf_tossup_total_across_periods
+            req.acf_bonuses_needed += pwce.acf_bonus_total_across_periods
+            req.vhsl_bonuses_needed += pwce.vhsl_bonus_total_across_periods
+            all_periods_dict[str(req)] = req # TODO: May not be needed
+            
+    return all_periods_dict
+
     
 # Goes through the set and creates placeholder questions to enable to you to do packetization
 # You will repalce these questions later
-def fill_unassigned_questions(qset):
+def fill_unassigned_questions(qset, author):
+    # Get every period-wide entry, see if requirement is satisfied
+    all_periods_dict = get_per_category_requirements_for_set(qset)
+    for cat in all_periods_dict:
+        req = all_periods_dict[cat]
+        if (is not req.is_requirement_satisfied()):
+            # Now we need to add the appropriate number of questions
+            # but we only really want to do this at the lowest level -- i.e. don't add
+            # a question of category History and then another one of History - American            
+            children = get_children_from_category_entry(cat)
+            
+            # If there's just 1 child, it means that we satisfy this set's needs by adding at this level
+            if (len(children) == 1):
+                difference = req.acf_tossups_needed - req.acf_tossups_written
+                for i in range(0:difference):
+                    tossup = Tossup.objects.create(question_set=qset, tossup_text="Placeholder Question for " + str(cat), \
+                        tossup_answer = "_Placeholder Answer_", author=author, question_type = "ACF-style tossup", \
+                        location = "", time_period = "")
+                    tossup.save()
+                    
+                difference = req.acf_bonuses_needed - req.acf_bonuses_written
+                for i in range(0:difference):
+                    bonus = Bonus.objects.create(question_set=qset, leadin="Placeholder Question for " + str(cat), \
+                        part1_text = "Placeholder question", part1_answer = "_Placeholder Answer_", \
+                        part2_text = "Placeholder question", part2_answer = "_Placeholder Answer_", \
+                        part3_text = "Placeholder question", part3_answer = "_Placeholder Answer_", \                    
+                        author=author, question_type = "ACF-style bonus", location = "", time_period = "")
+                    bonus.save()
+
+                difference = req.acf_tossups_needed - req.acf_tossups_written
+                for i in range(0:difference):
+                    bonus = Bonus.objects.create(question_set=qset, leadin="", \
+                        part1_text = "Placeholder Question for " + str(cat), part1_answer = "_Placeholder Answer_", \
+                        part2_text = "", part2_answer = "", \
+                        part3_text = "", part3_answer = "", \                    
+                        author=author, question_type = "ACF-style bonus", location = "", time_period = "")
+                    bonus.save()
 
 def packetize(qset):
     if (is not is_question_set_complete(qset)):
@@ -262,7 +364,22 @@ def get_parents_from_category_entry(category_entry):
         category = CategoryEntry.objects.get(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=None)
         sub_category = CategoryEntry.objects.get(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name, sub_sub_category_name=None)
         return category, sub_category, category_entry
-        
+
+# Gets the current entry and any children of this category.  For instance,
+# "History" could return "History" and "History - European" and
+# "History - European - British"
+def get_children_from_category_entry(category_entry):
+    children = []
+    if (category_entry.sub_category_name is None or category_entry.sub_category_name == ''):
+        children.append(CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name)
+    elif (category_entry.sub_sub_category_name is None or category_entry.sub_sub_category_name == ''):
+        children.append(CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name)
+    else:
+        # subsub categories don't have children
+        children.append(category_entry)
+     
+     return children
+
 def get_period_entries_from_category_entry_with_parents(category_entry, period):
     c, sc, ssc = get_parents_from_category_entry(category_entry)
     c_pwce, c_opce = get_period_entries_from_category_entry(c, period)
@@ -448,3 +565,31 @@ def reset_category_counts(qset, reset_totals=False):
                 opce.reset_current_values()
                 if (reset_totals):
                     opce.reset_total_values()
+
+class DistributionRequirement():
+    acf_tossups_written = 0
+    acf_tossups_needed = 0
+    acf_bonuses_written = 0
+    acf_bonuses_needed = 0
+    vhsl_bonuses_written = 0
+    vhsl_bonuses_needed = 0
+    category_entry = None
+    period_name = ''
+    
+    def __init__(self, category_entry):
+        self.category_entry = category_entry
+    
+    def __str__(self):
+        return str(self.category_entry)
+    
+    def is_requirement_satisfied(self):
+        if (self.acf_tossups_written < self.acf_tossups_needed):
+            return False
+            
+        if (self.acf_bonuses_written < self.acf_bonuses_needed):
+            return False
+            
+        if (self.vhsl_bonuses_writen < self.vhsl_bonuses_needed):
+            return False
+            
+        return True

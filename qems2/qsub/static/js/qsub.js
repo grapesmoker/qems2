@@ -140,12 +140,14 @@ $(function () {
     $('#question-set-table').tablesorter();
     $('#distributions-table').tablesorter();
     $('#writer-stats-table').tablesorter();
+    $('#tossup-table').tablesorter();
+    $('#bonus-table').tablesorter();
 
-    $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
-    $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
+    // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
+    // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
-    $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});
-    $('#bonus-pager').css({cursor: "pointer", position: "relative", top: "0px"});
+    // $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});
+    // $('#bonus-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
     /*tinymce.init({
         selector: 'textarea.question_text',

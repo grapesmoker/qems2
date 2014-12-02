@@ -77,11 +77,11 @@
                     <thead>
                     <tr>
                         <th>Category</th>
-                        <th>Tossups required</th>
                         <th>Tossups written</th>
+                        <th>Tossups required</th>
                         <th>Tossups complete</th>
-                        <th>Bonuses required</th>
                         <th>Bonuses written</th>
+                        <th>Bonuses required</th>                        
                         <th>Bonuses complete</th>                        
                     </tr>
                     </thead>
@@ -92,21 +92,21 @@
                             <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
                         </td>
                         <td>
-                            {{ entry.tu_req }}
+                            {{ entry.tu_in_cat }}
                         </td>
                         <td>
-                            {{ entry.tu_in_cat }}
+                            {{ entry.tu_req }}
                         </td>
                         <td>
                             {{ entry.tu_in_cat|percent:entry.tu_req }}
                             {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }}
                         </td>
                         <td>
-                            {{ entry.bs_req }}
-                        </td>
-                        <td>
                             {{ entry.bs_in_cat }}
                         </td>
+                        <td>
+                            {{ entry.bs_req }}
+                        </td>                        
                         <td>
                             {{ entry.bs_in_cat|percent:entry.bs_req }}
                             {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }}

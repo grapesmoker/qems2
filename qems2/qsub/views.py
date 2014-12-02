@@ -200,6 +200,7 @@ def edit_question_set(request, qset_id):
     user = request.user.writer
     set_status = {}
     set_distro_formset = None
+    writer_stats = {}
 
     total_tu_req = 0
     total_bs_req = 0
@@ -250,12 +251,22 @@ def edit_question_set(request, qset_id):
                                                      }
             set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
 
+            for writer in qset_writers:
+                writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
+                                                            'bonus_written': len(qset.bonus_set.filter(author=writer)),
+                                                            'writer': writer}
+            for writer in qset_editors:
+                writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
+                                                            'bonus_written': len(qset.bonus_set.filter(author=writer)),
+                                                            'writer': writer}                                                            
+
             return render_to_response('edit_question_set.html',
                                       {'form': form,
                                        'qset': qset,
                                        'user': user,
                                        'editors': [ed for ed in qset_editors if ed != qset.owner],
                                        'writers': qset.writer.all(),
+                                       'writer_stats': writer_stats,
                                        'set_distro_formset': set_distro_formset,
                                        'tiebreak_formset': tiebreak_formset,
                                        'upload_form': QuestionUploadForm(),
@@ -317,11 +328,25 @@ def edit_question_set(request, qset_id):
                                                      'category_id': entry.dist_entry.id}
         set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
         
+        for writer in qset_writers:
+            print "Writer: " + str(writer)
+            writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
+                                                        'bonus_written': len(qset.bonus_set.filter(author=writer)),
+                                                        'writer': writer}
+        for writer in qset_editors:
+            print "Editor: " + str(writer)
+            writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
+                                                        'bonus_written': len(qset.bonus_set.filter(author=writer)),
+                                                        'writer': writer}
+        
+        print "writer_stats: " + str(writer_stats)
+        
     return render_to_response('edit_question_set.html',
                               {'form': form,
                                'user': user,
                                'editors': [ed for ed in qset_editors if ed != qset.owner],
                                'writers': [wr for wr in qset_writers if wr != qset.owner],
+                               'writer_stats': writer_stats,
                                'set_distro_formset': set_distro_formset,
                                'tiebreak_formset': tiebreak_formset,
                                'set_status': set_status,

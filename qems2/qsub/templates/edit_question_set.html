@@ -30,12 +30,15 @@
 			<li>
 				<a href="#qset-info" data-toggle="tab">Question set info</a>
 			</li>
+			<li>
+				<a href="#writer-stats" data-toggle="tab">Writer stats</a>
+			</li>
             <li>
 				<a href="#packets" data-toggle="tab">Packets</a>
 			</li>
 			<li>
 				<a href="#editors" data-toggle="tab">Editor assignments</a>
-			</li>
+			</li>            
             <li>
                 <a href="#set-wide-distribution" data-toggle="tab">Set-wide distribution</a>
             </li>
@@ -153,6 +156,39 @@
                 <!--<button class="btn btn-primary comment-button" title="Leave Comment">Comment</button>-->
 
 			</div>
+			<div class="tab-pane" id="writer-stats">
+				{% if not read_only %}
+				<table class="tablesorter table table-striped table-hover" id="writer-stats-table">
+					<caption class="alert alert-info">
+						<strong>Writers</strong>
+					</caption>
+					<thead>
+						<tr>
+							<th>Writer name</th>
+							<th>Writer username</th>
+							<th>Tossups written</th>
+							<th>Bonuses written</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for username, writer in writer_stats.items %}
+						<tr>
+							<td>{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</td>
+							<td>{{ writer.writer.user.username }}</td>
+							<td>{{ writer.tu_written }}</td>
+							<td>{{ writer.bonus_written }}</td>
+						</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+				{% else %}
+				<div class="alert alert-info">
+					You are not authorized to view this information
+				</div>
+				{% endif %}
+			</div>
+            
+            
 			<div class="tab-pane" id="editors">
 				{% if not read_only %}
                 <a href="/add_editor/{{ qset.id }}" class="btn btn-primary" title="Add set editor" id="btn-add-editor">

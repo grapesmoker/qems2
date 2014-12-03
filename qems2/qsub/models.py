@@ -9,7 +9,7 @@ import json
 
 from collections import OrderedDict
 from utils import sanitize_html, strip_markup, html_to_latex, get_formatted_question_html, does_answerline_have_underlines
-from utils import get_character_count, InvalidTossup, InvalidBonus, are_special_characters_balanced
+from utils import get_character_count, InvalidTossup, InvalidBonus, are_special_characters_balanced, strip_special_chars
 
 # Create your models here.
 
@@ -238,11 +238,14 @@ class Tossup (models.Model):
     author = models.ForeignKey(Writer)
     
     locked = models.BooleanField(default=False)
-    edited = models.BooleanField(default=False)
+    edited = models.BooleanField(default=False)    
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
-        
+    
+    search_tossup_text = models.TextField(default='')
+    search_tossup_answer = models.TextField(default='')
+    
     # Calculates character count, ignoring special characters
     def character_count(self):
         return get_character_count(self.tossup_text)
@@ -312,6 +315,10 @@ class Tossup (models.Model):
             raise InvalidTossup('answer', self.tossup_answer, self.question_number)        
             
         return True
+        
+    def setup_search_fields(self):
+        self.search_tossup_text = strip_special_chars(self.tossup_text)
+        self.search_tossup_answer = strip_special_chars(self.tossup_answer)
 
 
 class Bonus(models.Model):    
@@ -341,6 +348,14 @@ class Bonus(models.Model):
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
+    
+    search_leadin = models.CharField(max_length=500, null=True, default='')
+    search_part1_text = models.TextField(default='')
+    search_part1_answer = models.TextField(default='')
+    search_part2_text = models.TextField(null=True, default='')
+    search_part2_answer = models.TextField(null=True, default='')
+    search_part3_text = models.TextField(null=True, default='')
+    search_part3_answer = models.TextField(null=True, default='')    
 
     # Calculates character count per part, ignoring special characters
     def character_count(self):
@@ -404,11 +419,11 @@ class Bonus(models.Model):
         if (self.question_type is None or str(self.question_type) == '' or str(self.question_type) == 'ACF-style bonus'):
             output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
             output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>" + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
+            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
             output = output + "<p>[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "</p>"
-            output = output + "<p>" + get_formatted_question_html(self.part2_answer, True, True, False) + "</p>"
+            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "</p>"
             output = output + "<p>[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "</p>"
-            output = output + "<p>" + get_formatted_question_html(self.part3_answer, True, True, False)
+            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False)
             
             if (include_category and self.category is not None):
                 output = output + " {" + str(self.category) + "}</p>"
@@ -422,7 +437,7 @@ class Bonus(models.Model):
             
         elif (str(self.question_type) == 'VHSL bonus'):
             output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>" + get_formatted_question_html(self.part1_answer, True, True, False)
+            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False)
             if (include_category and self.category is not None):
                 output = output + " {" + str(self.category) + "}</p>"
             else:
@@ -486,6 +501,16 @@ class Bonus(models.Model):
                     
         else:
             raise InvalidBonus('question_type', self.question_type, self.question_number)
+
+    def setup_search_fields(self):
+        self.search_leadin = strip_special_chars(self.leadin)
+        self.search_part1_text = strip_special_chars(self.part1_text)
+        self.search_part1_answer = strip_special_chars(self.part1_answer)
+        self.search_part2_text = strip_special_chars(self.part2_text)
+        self.search_part2_answer = strip_special_chars(self.part2_answer)
+        self.search_part3_text = strip_special_chars(self.part3_text)
+        self.search_part3_answer = strip_special_chars(self.part3_answer)
+        
 
 class Tag(models.Model):
 

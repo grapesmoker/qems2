@@ -8,8 +8,8 @@ from qems2.qsub.models import Tossup, Bonus
 class TossupIndex(indexes.SearchIndex, indexes.Indexable):
 
     text = indexes.CharField(document=True, use_template=True)
-    tossup_text = indexes.CharField(model_attr='tossup_text')
-    tossup_answer = indexes.CharField(model_attr='tossup_answer')
+    tossup_text = indexes.CharField(model_attr='search_tossup_text')
+    tossup_answer = indexes.CharField(model_attr='search_tossup_answer')
     author = indexes.CharField(model_attr='author')
     question_set = indexes.CharField(model_attr='question_set')
 
@@ -24,13 +24,13 @@ class TossupIndex(indexes.SearchIndex, indexes.Indexable):
 class BonusIndex(indexes.SearchIndex, indexes.Indexable):
 
     text = indexes.CharField(document=True, use_template=True)
-    leadin = indexes.CharField(model_attr='leadin')
-    part1_text = indexes.CharField(model_attr='part1_text')
-    part2_text = indexes.CharField(model_attr='part2_text')
-    part3_text = indexes.CharField(model_attr='part3_text')
-    part1_answer = indexes.CharField(model_attr='part1_answer')
-    part2_answer = indexes.CharField(model_attr='part2_answer')
-    part3_answer = indexes.CharField(model_attr='part3_answer')
+    leadin = indexes.CharField(model_attr='search_leadin')
+    part1_text = indexes.CharField(model_attr='search_part1_text')
+    part2_text = indexes.CharField(model_attr='search_part2_text')
+    part3_text = indexes.CharField(model_attr='search_part3_text')
+    part1_answer = indexes.CharField(model_attr='search_part1_answer')
+    part2_answer = indexes.CharField(model_attr='search_part2_answer')
+    part3_answer = indexes.CharField(model_attr='search_part3_answer')
     author = indexes.CharField(model_attr='author')
     question_set = indexes.CharField(model_attr='question_set')
 

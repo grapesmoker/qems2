@@ -84,6 +84,8 @@ class TossupForm(forms.ModelForm):
     
     tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 10}))
     tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 5}))
+    search_tossup_text = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_tossup_answer = forms.BooleanField(widget=forms.HiddenInput, required=False)
 
     category = forms.ModelChoiceField([])
 
@@ -138,6 +140,13 @@ class BonusForm(forms.ModelForm):
     part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
     part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}), required=False)
     part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
+    search_leadin = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_part1_text = forms.BooleanField(widget=forms.HiddenInput, required=False)
+    search_part1_answer = forms.BooleanField(widget=forms.HiddenInput, required=False)
+    search_part2_text = forms.BooleanField(widget=forms.HiddenInput, required=False)
+    search_part2_answer = forms.BooleanField(widget=forms.HiddenInput, required=False)
+    search_part3_text = forms.BooleanField(widget=forms.HiddenInput, required=False)
+    search_part3_answer = forms.BooleanField(widget=forms.HiddenInput, required=False)
 
     class Meta:
         model = Bonus

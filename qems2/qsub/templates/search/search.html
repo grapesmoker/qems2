@@ -13,6 +13,12 @@
 {% load filters %}
 
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
+    {% if passed_q_set %}
+    <ol class="breadcrumb">
+        <li><a href="/edit_question_set/{{ passed_q_set.id }}">{{ passed_q_set }}</a></li>
+    </ol>
+    {% endif %}
+    
     <h2 class="page-header">Question Search</h2>
     {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
@@ -25,13 +31,21 @@
         <div class="checkbox">
             <label for="id_models_0">Search in:
                 <label for="id_models_0">
-                    <input checked="checked" id="id_models_0" name="models" type="checkbox" value="qsub.tossup"/>
+                    {% if tossups_selected == "checked" %}
+                        <input checked="checked" id="id_models_0" name="models" type="checkbox" value="qsub.tossup"/>
+                    {% else %}
+                        <input id="id_models_0" name="models" type="checkbox" value="qsub.tossup"/>                    
+                    {% endif %}                    
                     Tossups
                 </label>
-                <label for="id_models_1">
-                    <input checked="checked" id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>
-                    Bonuses
-                </label>
+            </label>
+            <label for="id_models_1">
+                {% if bonuses_selected == "checked" %}
+                    <input checked="checked" id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>                
+                {% else %}
+                    <input id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>                 
+                {% endif%}               
+                Bonuses
             </label>
         </div>
         <div class="form-group">
@@ -78,44 +92,40 @@
         </tr>
         </thead>
         <tbody>
-        {% for question in result %}
-        <tr>
-            <td>{{ question.author }}</td>
-            {% if question|class_name == "Tossup" %}
-            <td>{{ question.tossup_text|safe}}<br>
-                ANSWER: {{ question.tossup_answer|safe }}</td>
-            {% elif question|class_name == "Bonus" %}
-            <td>
-                {{ question.leadin|safe }}<br>
-                {{ question.part1_text|safe }}<br>
-                ANSWER: {{ question.part1_answer|safe }}<br>
-                {{ question.part2_text|safe }}<br>
-                ANSWER: {{ question.part2_answer|safe }}<br>
-                {{ question.part3_text|safe }}<br>
-                ANSWER: {{ question.part3_answer|safe }}<br>
-            {% endif %}
-            </td>
-            <td>{{ question.category }}</td>
-            <td>{% if question.packet %} {{ question.packet }} {% else %} Not in packet {% endif %}</td>
-            <td>
+        {% autoescape off %}            
+            {% for question in result %}
+            <tr>
+                <td>{{ question.author }}</td>
                 {% if question|class_name == "Tossup" %}
-                <a href="/edit_tossup/{{ question.id }}" rel="tooltip" title="Edit tossup">
-                    <i class="fa fa-edit"></i>
-                </a>
-                <a href="/delete_tossup/{{ question.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ question.id }}">
-                    <i class="fa fa-minus-circle"></i>
-                </a>
+                <td>{{ question.tossup_text|safe|question_html}}<br>
+                    ANSWER: {{ question.tossup_answer|safe|answer_html }}</td>
                 {% elif question|class_name == "Bonus" %}
-                <a href="/edit_bonus/{{ question.id }}" rel="tooltip" title="Edit bonus">
-                    <i class="fa fa-edit"></i>
-                </a>
-                <a href="/delete_bonus/{{ question.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ question.id }}">
-                    <i class="fa fa-minus-circle"></i>
-                </a>
+                <td>
+                    {{ question|bonus_html }}
                 {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
+                </td>
+                <td>{{ question.category }}</td>
+                <td>{% if question.packet %} {{ question.packet }} {% else %} Not in packet {% endif %}</td>
+                <td>
+                    {% if question|class_name == "Tossup" %}
+                    <a href="/edit_tossup/{{ question.id }}" rel="tooltip" title="Edit tossup">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                    <a href="/delete_tossup/{{ question.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ question.id }}">
+                        <i class="fa fa-minus-circle"></i>
+                    </a>
+                    {% elif question|class_name == "Bonus" %}
+                    <a href="/edit_bonus/{{ question.id }}" rel="tooltip" title="Edit bonus">
+                        <i class="fa fa-edit"></i>
+                    </a>
+                    <a href="/delete_bonus/{{ question.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ question.id }}">
+                        <i class="fa fa-minus-circle"></i>
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        {% endautoescape %}
         </tbody>
     </table>
     {% else %}

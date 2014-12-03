@@ -2,7 +2,6 @@
 from __future__ import unicode_literals
 
 from django.db import models, migrations
-import datetime
 from django.conf import settings
 
 
@@ -17,13 +16,13 @@ class Migration(migrations.Migration):
             name='Bonus',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('leadin', models.CharField(max_length=500)),
+                ('leadin', models.CharField(max_length=500, null=True)),
                 ('part1_text', models.TextField()),
                 ('part1_answer', models.TextField()),
-                ('part2_text', models.TextField()),
-                ('part2_answer', models.TextField()),
-                ('part3_text', models.TextField()),
-                ('part3_answer', models.TextField()),
+                ('part2_text', models.TextField(null=True)),
+                ('part2_answer', models.TextField(null=True)),
+                ('part3_text', models.TextField(null=True)),
+                ('part3_answer', models.TextField(null=True)),
                 ('subtype', models.CharField(max_length=500)),
                 ('time_period', models.CharField(max_length=500)),
                 ('location', models.CharField(max_length=500)),
@@ -174,14 +173,14 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('tossup_text', models.TextField()),
                 ('tossup_answer', models.TextField()),
+                ('search_tossup_text', models.TextField()),
+                ('search_tossup_answer', models.TextField()),
                 ('subtype', models.CharField(max_length=500)),
                 ('time_period', models.CharField(max_length=500)),
                 ('location', models.CharField(max_length=500)),
                 ('locked', models.BooleanField(default=False)),
                 ('edited', models.BooleanField(default=False)),
                 ('question_number', models.PositiveIntegerField(null=True)),
-                ('created_date', models.DateTimeField(default=datetime.datetime(2014, 11, 23, 11, 19, 18, 491235), verbose_name='date created')),
-                ('updated_date', models.DateTimeField(default=datetime.datetime(2014, 11, 23, 11, 19, 18, 491264), verbose_name='date updated')),
             ],
             options={
             },

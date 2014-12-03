@@ -157,7 +157,6 @@
 
 			</div>
 			<div class="tab-pane" id="writer-stats">
-				{% if not read_only %}
 				<table class="tablesorter table table-striped table-hover" id="writer-stats-table">
 					<caption class="alert alert-info">
 						<strong>Writers</strong>
@@ -181,13 +180,7 @@
 						{% endfor %}
 					</tbody>
 				</table>
-				{% else %}
-				<div class="alert alert-info">
-					You are not authorized to view this information
-				</div>
-				{% endif %}
-			</div>
-            
+			</div>            
             
 			<div class="tab-pane" id="editors">
 				{% if not read_only %}
@@ -339,12 +332,18 @@
                 <a href="/add_bonuses/{{ qset.id }}" class="btn btn-primary" title="Add bonuses">
                     <i class="fa fa-plus-circle"></i> Add bonuses
                 </a>
+                <!--
                 <a href="#" class="btn btn-primary" title="Upload questions" id="upload-questions">
                     <i class="fa fa-upload"></i> Upload questions from file
                 </a>
+                -->
                 <a href="/type_questions/{{ qset.id }}" class="btn btn-primary" title="Type Questions">
                     <i class="fa fa-file-text"></i> Type Questions
                 </a>
+                <a href="/search/{{ qset.id }}/" class="btn btn-primary" title="Search">
+                    <i class="fa fa-search"></i> Search
+                </a>
+                
                 <!--
                 <div id="upload-dialog" >
                     <form action="/upload_questions/{{ qset.id }}/" method="POST" enctype="multipart/form-data">
@@ -391,7 +390,7 @@
                             {% get_comment_list for tossup as comment_list %}
                             {% for comment in comment_list %}
                                 {% if not comment.is_removed %}
-                                    {{ comment.user }}: {{ comment.comment }}<br>
+                                    {{ comment.user }}: {{ comment.comment|safe|comment_html|preview }}<br>
                                 {% endif %}
                             {% endfor %}
                             </td>
@@ -456,7 +455,7 @@
                             {% get_comment_list for bonus as comment_list %}
                             {% for comment in comment_list %}
                                 {% if not comment.is_removed %}
-                                    {{comment.user}}: {{ comment.comment|safe|comment_html }}<br>
+                                    {{comment.user}}: {{ comment.comment|safe|comment_html|preview }}<br>
                                 {% endif %}
                             {% endfor %}
                             </td>

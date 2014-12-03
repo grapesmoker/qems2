@@ -1,2 +1,2 @@
-{{ object.tossup_text }}
-{{ object.tossup_answer }}
+{{ object.search_tossup_text }}
+{{ object.search_tossup_answer }}

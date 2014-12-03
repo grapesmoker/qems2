@@ -1,7 +1,7 @@
-{{ object.leadin }}
-{{ object.part1_text }}
-{{ object.part1_answer }}
-{{ object.part2_text }}
-{{ object.part2_answer }}
-{{ object.part3_text }}
-{{ object.part3_answer }}
+{{ object.search_leadin }}
+{{ object.search_part1_text }}
+{{ object.search_part1_answer }}
+{{ object.search_part2_text }}
+{{ object.search_part2_answer }}
+{{ object.search_part3_text }}
+{{ object.search_part3_answer }}

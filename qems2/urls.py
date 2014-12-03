@@ -81,6 +81,7 @@ urlpatterns = patterns('',
 
     # search
     # (r'^search/', include('haystack.urls')),
-    (r'^search/', search),
+    (r'^search/$', search),
+    (r'^search/(?P<passed_qset_id>[0-9]+)/$', search),
 )
 

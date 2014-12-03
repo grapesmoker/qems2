@@ -649,7 +649,7 @@ def add_tossups(request, qset_id, packet_id=None):
              'message_class': message_class,
              'read_only': read_only,
              'user': user,
-             'qset_id': qset.id},
+             'qset': qset},
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
@@ -682,7 +682,8 @@ def add_tossups(request, qset_id, packet_id=None):
                     else:
                         tossup.packet_id = packet_id
                         tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
-                     
+                    
+                    tossup.setup_search_fields() 
                     tossup.save()
                     message = 'Your tossup has been successfully added to the set! Write more questions!'
                     message_class = 'alert alert-success'                     
@@ -696,7 +697,7 @@ def add_tossups(request, qset_id, packet_id=None):
                              'tossup_id': tossup.id,
                              'read_only': read_only,
                              'user': user,
-                             'qset_id': qset.id},
+                             'qset': qset},
                              context_instance=RequestContext(request))
                     
                 except InvalidTossup as ex:
@@ -723,7 +724,7 @@ def add_tossups(request, qset_id, packet_id=None):
                  'tossup_id': None,
                  'read_only': read_only,
                  'user': user,
-                 'qset_id': qset.id},
+                 'qset': qset},
                  context_instance=RequestContext(request))
 
     else:
@@ -760,7 +761,7 @@ def add_bonuses(request, qset_id, packet_id=None):
              'message_class': message_class,
              'read_only': read_only,
              'user': user,
-             'qset_id': qset.id},
+             'qset': qset},
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
@@ -794,6 +795,7 @@ def add_bonuses(request, qset_id, packet_id=None):
 
                 try:
                     bonus.is_valid()
+                    bonus.setup_search_fields() 
                     bonus.save()
                     message = 'Your bonus has been successfully added to the set! Write more questions!'
                     message_class = 'alert alert-success'
@@ -807,7 +809,7 @@ def add_bonuses(request, qset_id, packet_id=None):
                              'bonus_id': bonus.id, 
                              'read_only': read_only,
                              'user': user,
-                             'qset_id': qset_id},
+                             'qset': qset},
                              context_instance=RequestContext(request))
                  
                 except InvalidBonus as ex:
@@ -834,7 +836,7 @@ def add_bonuses(request, qset_id, packet_id=None):
                  'bonus_id': None, 
                  'read_only': read_only,
                  'user': user,
-                 'qset_id': qset_id},
+                 'qset': qset},
                  context_instance=RequestContext(request))
 
     else:
@@ -913,6 +915,7 @@ def edit_tossup(request, tossup_id):
                 
                 try:
                     tossup.is_valid()
+                    tossup.setup_search_fields() 
                     tossup.save()
                     tossup_length = tossup.character_count()
                     print "Tossup saved"
@@ -1029,6 +1032,7 @@ def edit_bonus(request, bonus_id):
                 try:
                     bonus.is_valid()
                     
+                    bonus.setup_search_fields() 
                     bonus.save()
                     leadin_length, part1_length, part2_length, part3_length = bonus.character_count()    
 
@@ -2045,6 +2049,7 @@ def complete_upload(request):
             
             new_tossup.locked = False
             new_tossup.edited = False
+            new_tossup.setup_search_fields() 
 
             new_tossup.save()
 
@@ -2086,6 +2091,7 @@ def complete_upload(request):
                     new_bonus.question_type = questionType
                     break
 
+            new_bonus.setup_search_fields() 
             new_bonus.save()
 
         messages.success(request, 'Your questions have been uploaded!')
@@ -2137,15 +2143,24 @@ def profile(request):
             context_instance=RequestContext(request))
 
 @login_required()
-def search(request):
+def search(request, passed_qset_id=None):
 
     user = request.user.writer
 
+    passed_q_set = None
+    if passed_qset_id is not None:
+        passed_q_set = QuestionSet.objects.get(id=passed_qset_id)
+
+    all_question_sets = QuestionSet.objects.all()
+    question_sets = []
+    for qset in all_question_sets:
+        if user in qset.writer.all() or user in qset.editor.all() or user == qset.owner:
+            question_sets.append(qset)
+
     if request.method == 'GET':
 
-        print request.GET
-
-        question_sets = QuestionSet.objects.all()
+        print request.GET        
+        
         all_categories = [(cat.category, cat.subcategory) for cat in DistributionEntry.objects.all()]
         categories = []
         for cat in all_categories:
@@ -2154,10 +2169,16 @@ def search(request):
 
         if request.GET.dict() == {}:
 
+            q_set = passed_q_set
+
             return render_to_response('search/search.html',
                                       {'user': user,
                                        'categories': categories,
-                                       'q_sets': question_sets},
+                                       'q_sets': question_sets,
+                                       'selected_set': q_set,
+                                       'tossups_selected': 'checked',
+                                       'bonuses_selected': 'checked',
+                                       'passed_q_set': passed_q_set},
                                       context_instance=RequestContext(request))
 
         else:
@@ -2167,6 +2188,12 @@ def search(request):
             qset_id = request.GET.get('qset')
             qset = QuestionSet.objects.get(id=qset_id)
             search_category = request.GET.get('category')
+            tossups_selected = "unchecked"
+            bonuses_selected = "unchecked"
+            if 'qsub.tossup' in search_models:
+                tossups_selected = "checked"
+            if 'qsub.bonus' in search_models:
+                bonuses_selected = "checked"
 
             if user in qset.writer.all() or user in qset.editor.all() or user == qset.owner:
 
@@ -2176,6 +2203,8 @@ def search(request):
                     result_ids = [r.id for r in SearchQuerySet().filter(content=query).models(Bonus)]
                 elif 'qsub.tossup' in search_models and 'qsub.bonus' in search_models:
                     result_ids = [r.id for r in SearchQuerySet().filter(content=query).models(Tossup, Bonus)]
+                else:
+                    result_ids = []
 
                 print search_category
 
@@ -2185,12 +2214,13 @@ def search(request):
                     question_type = fields[1]
                     question_id = int(fields[2])
                     if question_type == 'tossup':
-                        question = Tossup.objects.get(id=question_id)
+                        question = Tossup.objects.get(id=question_id)                        
                     elif question_type == 'bonus':
                         question = Bonus.objects.get(id=question_id)
 
                     if question.question_set == qset and (str(question.category) == search_category or search_category == 'All') and question not in questions:
                         questions.append(question)
+
 
                 result = questions
                 message = ''
@@ -2210,6 +2240,9 @@ def search(request):
                                        'search_term': query,
                                        'search_category': search_category,
                                        'search_qset': qset,
+                                       'tossups_selected': tossups_selected,
+                                       'bonuses_selected': bonuses_selected,
+                                       'passed_q_set': passed_q_set,
                                        'message': message,
                                        'message_class': message_class},
                                       context_instance=RequestContext(request))

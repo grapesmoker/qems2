@@ -7,39 +7,38 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('qsub', '0002_auto_20141123_1136'),
+        ('qsub', '0004_auto_20141202_0310'),
     ]
 
     operations = [
-
         migrations.AlterField(
             model_name='bonus',
-            name='leadin',
-            field=models.CharField(max_length=500, null=True),
+            name='search_leadin',
+            field=models.CharField(default='', max_length=500, null=True),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='bonus',
-            name='part2_answer',
-            field=models.TextField(null=True),
+            name='search_part2_answer',
+            field=models.TextField(default='', null=True),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='bonus',
-            name='part2_text',
-            field=models.TextField(null=True),
+            name='search_part2_text',
+            field=models.TextField(default='', null=True),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='bonus',
-            name='part3_answer',
-            field=models.TextField(null=True),
+            name='search_part3_answer',
+            field=models.TextField(default='', null=True),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='bonus',
-            name='part3_text',
-            field=models.TextField(null=True),
+            name='search_part3_text',
+            field=models.TextField(default='', null=True),
             preserve_default=True,
         ),
     ]

@@ -11,6 +11,9 @@
 {% block content %}
 
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
+    <ol class="breadcrumb">
+        <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
+    </ol>    
     <h2 class="page-header">Add a Tossup</h2>
     {% autoescape off %}        
         {% if message %}
@@ -19,7 +22,7 @@
         </div>
         {% endif %}
     {% endautoescape %}
-    <p><a href="/add_bonuses/{{ qset_id }}">Switch to adding a bonus</a></p>
+    <p><a href="/add_bonuses/{{ qset.id }}">Switch to adding a bonus</a></p>
     <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
     <p>It is not necessary to include ANSWER: in your answer line.</p>
     <form action="" method="post">

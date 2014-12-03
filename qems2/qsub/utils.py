@@ -174,6 +174,9 @@ def does_answerline_have_underlines(line):
 def convert_smart_quotes(line):
     return smart_unicode(line).translate(DOUBLE_QUOTE_MAP).translate(SINGLE_QUOTE_MAP)    
 
+def strip_special_chars(line):
+    return line.replace('_', '').replace('~', '')
+
 class InvalidTossup(Exception):
 
     def __init__(self, *args):

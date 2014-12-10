@@ -50,16 +50,26 @@ def bonus_answers(bonus):
 def percent(x, y):
     try:
         if float(y) != 0:
-            return '{0:0.2f}'.format(100 * float(x) / float(y))
+            return '{0:0.1f}'.format(100 * float(x) / float(y))
         else:
             return None
     except Exception as ex:
         return None
 
+@register.filter(name='fpercent')
+def fpercent(x, y):
+    try:
+        if float(y) != 0:
+            return 100 * float(x) / float(y)
+        else:
+            return None
+    except Exception as ex:
+        return None
+    
 @register.filter(name='check_mark_if_100_pct')
 def check_mark_if_100_pct(x, y):
-    percentage = percent(x, y)
-    if percentage == '100.00' or percentage == None:
+    percentage = fpercent(x, y)
+    if percentage >= 100 or percentage == None:
         return mark_safe('<i class="fa fa-check" style="color:green"></i>')
     else:
         return mark_safe('<i class="fa fa-times" style="color:red"></i>')

@@ -50,7 +50,10 @@ def bonus_answers(bonus):
 def percent(x, y):
     try:
         if float(y) != 0:
-            return '{0:0.1f}'.format(100 * float(x) / float(y))
+            val = 100 * float(x) / float(y)
+            if (val > 100):
+                val = 100
+            return '{0:0.1f}%'.format(val)
         else:
             return None
     except Exception as ex:
@@ -65,6 +68,45 @@ def fpercent(x, y):
             return None
     except Exception as ex:
         return None
+    
+@register.filter(name='tossups_remaining')
+def tossups_remaining(entry):
+    val = entry['tu_req'] - entry['tu_in_cat']
+    if (val < 0):
+        val = "0 (" + str((val * -1)) + " extra)"
+        return val
+    else:
+        return val
+
+@register.filter(name='bonuses_remaining')
+def bonuses_remaining(entry):
+    val = entry['bs_req'] - entry['bs_in_cat']
+    if (val < 0):
+        val = "0 (" + str((val * -1)) + " extra)"
+        return val
+    else:
+        return val
+    
+@register.filter(name='overall_percent')
+def overall_percent(entry):
+    tu_in_cat = entry['tu_in_cat']
+    bs_in_cat = entry['bs_in_cat']
+    tu_req = entry['tu_req']
+    bs_req = entry['bs_req']
+    if (tu_in_cat is None):
+        tu_in_cat = 0
+    if (bs_in_cat is None):
+        bs_in_cat = 0
+    if (tu_req is None):
+        tu_req = 0
+    if (bs_req is None):
+        bs_req = 0
+    
+    percentage = fpercent(tu_in_cat + bs_in_cat, tu_req + bs_req)
+    if percentage >= 100 or percentage == None:
+        return mark_safe(str(percentage) + '% <i class="fa fa-check" style="color:green"></i>')
+    else:
+        return mark_safe(str(percentage) + '% <i class="fa fa-times" style="color:red"></i>')    
     
 @register.filter(name='check_mark_if_100_pct')
 def check_mark_if_100_pct(x, y):

@@ -80,12 +80,11 @@
                     <thead>
                     <tr>
                         <th>Category</th>
-                        <th>Tossups written</th>
-                        <th>Tossups required</th>
-                        <th>Tossups complete</th>
-                        <th>Bonuses written</th>
-                        <th>Bonuses required</th>                        
-                        <th>Bonuses complete</th>                        
+                        <th>Overall completion</th>
+                        <th>Tossups remaining</th>
+                        <th>Tossup completion</th>
+                        <th>Bonuses remaining</th>
+                        <th>Bonus completion</th>                        
                     </tr>
                     </thead>
                     <tbody>
@@ -95,26 +94,22 @@
                             <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
                         </td>
                         <td>
-                            {{ entry.tu_in_cat }}
+                            {{ entry|overall_percent }}
                         </td>
                         <td>
-                            {{ entry.tu_req }}
+                            {{ entry|tossups_remaining }}
                         </td>
                         <td>
                             {{ entry.tu_in_cat|percent:entry.tu_req }}
                             {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }}
                         </td>
                         <td>
-                            {{ entry.bs_in_cat }}
+                            {{ entry|bonuses_remaining }}
                         </td>
-                        <td>
-                            {{ entry.bs_req }}
-                        </td>                        
                         <td>
                             {{ entry.bs_in_cat|percent:entry.bs_req }}
                             {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }}
-                        </td>
-                        
+                        </td>                        
                     </tr>
                     {% endfor %}
                     </tbody>

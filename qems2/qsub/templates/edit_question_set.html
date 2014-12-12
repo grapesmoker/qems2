@@ -8,6 +8,8 @@
 {% include "sidebar.html" %}
 {% endblock %}
 
+{% block title %}{% if qset %}{{ qset.name }} - QEMS2{% else %}View Set - QEMS2{% endif %}{% endblock %}
+
 {% block content %}
 {% load static %}
 {% load filters %}

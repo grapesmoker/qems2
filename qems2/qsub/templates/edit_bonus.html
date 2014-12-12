@@ -11,6 +11,8 @@
 {% load comments %}
 {% load filters %}
 
+{% block title %}{% if bonus %}{{ bonus.part1_answer|answer_no_formatting|short_preview }} - QEMS2{% else %}Edit Bonus - QEMS2{% endif %}{% endblock %}
+
 {% block content %}
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
     <ol class="breadcrumb">
@@ -37,7 +39,10 @@
                     
         <form action="" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            {% for field in form.visible_fields %}
+                <p>{{ field.errors }} {{ field.label_tag }}</p>
+                <p>{{ field }}</p>
+            {% endfor %}
             {% if not read_only %}
             <input type="submit" id="submit-bonus" value="Save"/>
             {% endif %}

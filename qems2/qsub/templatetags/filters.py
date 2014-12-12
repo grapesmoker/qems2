@@ -2,7 +2,7 @@ from django.template.defaultfilters import register
 from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from qems2.qsub.models import *
-from qems2.qsub.utils import sanitize_html, strip_markup, get_formatted_question_html
+from qems2.qsub.utils import sanitize_html, strip_markup, get_formatted_question_html, get_answer_no_formatting
 
 @register.filter(name='lookup')
 def lookup(dict, key):
@@ -39,6 +39,10 @@ def get_editor_categories(editor, tour):
 @register.filter(name='preview')
 def preview(text):
     return mark_safe(text[0:81] + '...')
+
+@register.filter(name='short_preview')
+def short_preview(text):
+    return mark_safe(text[0:25])
 
 @register.filter(name='bonus_answers')
 def bonus_answers(bonus):
@@ -144,6 +148,10 @@ def question_html(line):
 @register.filter(name='answer_html')
 def answer_html(line):
     return get_formatted_question_html(line, True, True, False)
+
+@register.filter(name='answer_no_formatting')
+def answer_no_formatting(line):
+    return get_answer_no_formatting(line)
 
 @register.filter(name='comment_html')
 def comment_html(comment):

@@ -8,10 +8,14 @@
 {% include "sidebar.html" %}
 {% endblock %}
 
-{% block content %}
 {% load static %}
 {% load filters %}
 {% load comments %}
+
+{% block title %}{% if category %}{{ category }} - QEMS2{% else %}Category View - QEMS2{% endif %}{% endblock %}
+
+
+{% block content %}
 
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
     <ol class="breadcrumb">

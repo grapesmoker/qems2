@@ -132,7 +132,7 @@ class TossupForm(forms.ModelForm):
             self.fields['edited'].label = ''
         
 class BonusForm(forms.ModelForm):
-    
+
     leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
     part1_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}))
     part1_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))

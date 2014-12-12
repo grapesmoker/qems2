@@ -70,6 +70,13 @@ def html_to_latex(html, replacement_dict):
 
     return html
     
+def get_answer_no_formatting(line):
+    output = line
+    output = strip_markup(output)
+    output = output.replace('_', '')
+    output = output.replace('~', '')
+    return output
+    
 def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLines):
     italicsFlag = False
     parensFlag = False

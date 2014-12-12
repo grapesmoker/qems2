@@ -8,6 +8,8 @@
 {% include "sidebar.html" %}
 {% endblock %}
 
+{% block title %}Add Bonus - QEMS2{% endblock %}
+
 {% block content %}
 
 <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
@@ -29,7 +31,10 @@
     <p>If you're writing a VHSL bonus, only fill in Part1 text and Part1 answer.</p>
     <form action="" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {% for field in form.visible_fields %}
+            <p>{{ field.errors }} {{ field.label_tag }}</p>
+            <p>{{ field }}</p>
+        {% endfor %}
         {% if not read_only %}
         <input type="submit" id="submit-bonus" value="Save"/>
         {% endif %}

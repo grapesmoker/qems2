@@ -5,26 +5,21 @@
 {% load static %}
 
 <head>
+    <title>{% block title %}{% endblock %}</title>
+    
     <link rel="stylesheet" href="{% static 'jquery-ui/themes/ui-lightness/jquery-ui.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'fontawesome/css/font-awesome.css' %}">
     <link rel="stylesheet" href="{% static 'css/signin.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
 
-
     <script type="text/javascript" src="{% static 'jquery/dist/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
     <script type="text/javascript" src="{% static 'js/jquery.cookie.js' %}"></script>
     <script type="text/javascript" src="{% static 'underscore/underscore.js' %}"></script>
-    <script type="text/javascript" src="{% static 'bootstrap/dist/js/bootstrap.min.js' %}"></script>
     <script type="text/javascript" src="{% static 'bootstrap/js/tab.js' %}"></script>
-    <script type="text/javascript" src="{% static 'quill/dist/quill.js' %}"></script>
     <script type="text/javascript" src="{% static 'tablesorter/jquery.tablesorter.js' %}"></script>
-    <script type="text/javascript" src="{% static 'tablesorter/addons/pager/jquery.tablesorter.pager.js' %}"></script>
-    <!--<script type="text/javascript" src="{% static 'tinymce/tinymce.jquery.js' %}"></script>-->
     <script type="text/javascript" src="{% static 'js/qsub.js' %}"></script>
-
-    <title>{% block title %}{% endblock %}</title>
 </head>
 
 <body>

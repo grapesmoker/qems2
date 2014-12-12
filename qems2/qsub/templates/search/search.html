@@ -8,6 +8,9 @@
 {% include "sidebar.html" %}
 {% endblock %}
 
+{% block title %}{% if search_term %}{{ search_term }} - Search - QEMS2{% else %}Search - QEMS2{% endif %}{% endblock %}
+
+
 {% block content %}
 {% load static %}
 {% load filters %}

@@ -54,7 +54,7 @@ body {
 
 .sidebar {
 position: fixed;
-top: 51px;
+top: 50px;
 bottom: 0;
 left: 0;
 z-index: 1000;
@@ -74,27 +74,6 @@ background-color: #eee;
 
 #id_honeypot {
   display: none;
-}
-
-.quill-wrapper {
-  background-color: #fff;
-  border-left: 1px solid #ccc;
-  border-right: 1px solid #ccc;
-  box-shadow: 0px 0px 10px #ccc;
-  /*max-width: 1000px;
-  min-width: 800px;
-  max-height: 200px;*/
-
-  width: 100%;
-}
-
-.ql-toolbar-container {
-  box-sizing: border-box;
-  padding: 8px;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
 }
 
 /* tables */

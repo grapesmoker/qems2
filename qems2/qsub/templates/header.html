@@ -1,17 +1,15 @@
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/main/">QEMS 2 {% if user %} - logged in as {{ user.user.username }} {% endif %}</a>
+            <a class="navbar-brand" href="/main/">QEMS 2 Home</a>
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">
                 <li><a href="/search/">Search</a></li>
-                <li><a href="/settings/">Settings</a></li>
-                <li><a href="/profile/">Profile</a></li>
-                {% if user %}
+                <!--<li><a href="/settings/">Settings</a></li>-->
+                <li><a href="/profile/">Profile ({{ user.user.username }})</a></li>
                 <li><a href="/logout/">Log Out</a></li>
-                {% endif %}             
-                <li><a href="/help/">Help</a></li>
+                <!--<li><a href="/help/">Help</a></li>-->
             </ul>
         </div>
     </div>

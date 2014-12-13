@@ -1995,11 +1995,14 @@ def type_questions(request, qset_id=None):
                                       context_instance=RequestContext(request))
     elif request.method == 'GET':
         if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
+            dist_entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
+                        
             form = TypeQuestionsForm(request.POST)
             return render_to_response('type_questions.html',
                                       {'user': user,
                                        'qset': qset,
-                                       'form': form},
+                                       'form': form,
+                                       'dist_entries': dist_entries},
                                       context_instance=RequestContext(request))
         else:
             messages.error(request, 'You do not have permission to add questions to this set')

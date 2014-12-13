@@ -768,6 +768,7 @@ def add_bonuses(request, qset_id, packet_id=None):
         bonus = None
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
             form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id})
+            read_only = False
 
             if form.is_valid():
                 bonus = form.save(commit=False)

@@ -1765,7 +1765,8 @@ def edit_distribution(request, dist_id=None):
                     
             return render_to_response('edit_distribution.html',
                                       {'form': dist_form,
-                                       'formset': formset},
+                                       'formset': formset,
+                                        'user': request.user.writer},
                                        context_instance=RequestContext(request))
         else:
             if dist_id is not None:
@@ -1788,7 +1789,8 @@ def edit_distribution(request, dist_id=None):
             
             return render_to_response('edit_distribution.html',
                                       {'form': dist_form,
-                                       'formset': formset,},
+                                       'formset': formset,
+                                        'user': request.user.writer},
                                        context_instance=RequestContext(request))
 
 @login_required()

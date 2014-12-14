@@ -32,6 +32,7 @@ Once you have those installed, you should use `pip` to get the necessary Python 
     sudo pip install django-haystack
     sudo pip install whoosh
     sudo pip install mysql-python
+    sudo pip install unicodecsv
 
 It's generally recommended that you use `virtualenv` to set up a virtual environment for your project. 
 

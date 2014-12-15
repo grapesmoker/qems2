@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block sidebar %}
+{% include "sidebar.html" %}
+{% endblock %}
+
+{% load comments %}
+{% load filters %}
+
+{% block title %}Move Bonus - QEMS2{% endblock %}
+
+{% block content %}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
+    <ol class="breadcrumb">
+        <li><a href="/edit_question_set/{{ q_set.id }}">{{ q_set }}</a></li>
+    </ol>    
+    <h2 class="page-header">Move Bonus</h2>
+    {% if message %}
+    <div class="{{ message_class }}">
+        {{ message }}
+    </div>
+    {% endif %}
+
+    {% if bonus %}
+        {% autoescape off %}        
+            {{ bonus|bonus_html }}
+        {% endautoescape %}
+        <p><h3>Select destination set:</h3></p>        
+        <form action="" method="post">
+            {% csrf_token %}
+            {% for field in form.visible_fields %}
+                <p>{{ field.label }} {{field }}</p>
+            {% endfor %}
+            <input type="submit" id="move-bonus" value="Move"/>
+        </form>
+    {% endif %}
+
+</div>
+{% endblock %}

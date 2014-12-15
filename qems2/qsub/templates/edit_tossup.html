@@ -49,6 +49,12 @@
         </form>
     </div>
 
+    <div class="col-md-10">    
+        {% if tossup %}
+            <p><strong><a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}">Move tossup to another set</a></strong></p>
+        {% endif %}
+    </div>
+
     {% if tossup %}
     <div class="col-md-10 alert alert-info" style="text-align: center"><strong>Comments</strong></div>
     <div class="comments col-md-6">

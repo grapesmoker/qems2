@@ -267,3 +267,19 @@ class NewPacketsForm(forms.Form):
 class TypeQuestionsForm(forms.Form):
 
     questions = forms.CharField(label='', widget=forms.Textarea(attrs={'cols': 120, 'rows': 40}), required=False)
+
+class MoveTossupForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        move_sets = kwargs.pop('move_sets', None)
+                
+        super(MoveTossupForm, self).__init__(*args, **kwargs)
+
+        self.fields['move_sets'] = forms.ModelChoiceField(queryset=move_sets, required=True)
+    
+class MoveBonusForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        move_sets = kwargs.pop('move_sets', None)
+                
+        super(MoveBonusForm, self).__init__(*args, **kwargs)
+
+        self.fields['move_sets'] = forms.ModelChoiceField(queryset=move_sets, required=True)

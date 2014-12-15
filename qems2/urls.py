@@ -66,6 +66,8 @@ urlpatterns = patterns('',
     
     (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
     (r'^complete_upload/$', complete_upload),
+    (r'^move_tossup/(?P<q_set_id>[0-9]+)/(?P<tossup_id>[0-9]+)/$', move_tossup),
+    (r'^move_bonus/(?P<q_set_id>[0-9]+)/(?P<bonus_id>[0-9]+)/$', move_bonus),
 
     # json calls
     (r'^get_unassigned_tossups/$', get_unassigned_tossups),

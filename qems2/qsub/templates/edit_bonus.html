@@ -48,6 +48,12 @@
             {% endif %}
         </form>
     </div>
+    <div class="col-md-10">    
+        {% if bonus %}
+            <p><strong><a href="/move_bonus/{{ qset.id }}/{{ bonus.id }}">Move bonus to another set</a></strong></p>
+        {% endif %}
+    </div>    
+    
     {% if bonus %}
     <div class="col-md-10 alert alert-info" style="text-align: center"><strong>Comments</strong></div>
     <div class="comments col-md-6">

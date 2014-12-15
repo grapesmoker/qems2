@@ -126,9 +126,11 @@ def create_question_set (request):
             #dist = Distribution.objects.get(id=1)
             question_set = form.save(commit=False)
             question_set.owner = user
+            question_set.editors = []
+            question_set.editors.append(user)           
             #question_set.distribution = dist
             question_set.save()
-            form.save_m2m()
+            form.save_m2m()            
             user.question_set_editor.add(question_set)
             user.save()
 
@@ -2257,6 +2259,248 @@ def search(request, passed_qset_id=None):
 def logout_view(request):
 	logout(request)
 	return HttpResponseRedirect("/main/")
+
+@login_required
+def move_tossup(request, q_set_id, tossup_id):
+    user = request.user.writer
+    q_set = QuestionSet.objects.get(id=q_set_id)
+    q_set_editors = []
+    q_set_editors.append(q_set.editor.all())
+    q_set_editors.append(q_set.owner)
+    
+    tossup = Tossup.objects.get(id=tossup_id)
+    if (tossup is None or tossup.question_set != q_set):
+        message = 'Invalid tossup'
+        message_class = 'alert alert-danger'
+        tossup = None
+    
+    move_sets = user.question_set_editor.exclude(id=q_set_id)
+    
+    if request.method == 'GET':
+        if (user in q_set_editors):            
+            if (tossup is not None):
+                form = MoveTossupForm(move_sets=move_sets)
+                
+                message = ''
+                message_class = ''
+                
+                return render_to_response('move_tossup.html',
+                                    {'user': user,
+                                     'q_set': q_set,
+                                     'form': form,
+                                     'tossup': tossup,
+                                     'message': message,
+                                     'message_class': message_class},
+                                     context_instance=RequestContext(request))
+            else:
+                form = []
+                return render_to_response('move_tossup.html',
+                                    {'user': user,
+                                     'q_set': q_set,
+                                     'form': form,
+                                     'tossup': tossup,
+                                     'message': message,
+                                     'message_class': message_class},
+                                     context_instance=RequestContext(request))                
+        else:
+            form = []
+            message = 'You do not have permissions to move this question.'
+            message_class = 'alert alert-danger'
+            q_set = []
+            return render_to_response('move_tossup.html',
+                                {'user': user,
+                                 'q_set': q_set,
+                                 'tossup': None,
+                                 'form': form,
+                                 'message': message,
+                                 'message_class': message_class},
+                                 context_instance=RequestContext(request))
+            
+    else:
+        # Update the question set for this tossup
+        if (user in q_set_editors):
+            form = MoveTossupForm(request.POST, move_sets=move_sets)
+            
+            print "MoveTossupForm: " + str(form)
+            if form.is_valid():
+                dest_qset_id = request.POST["move_sets"]
+                dest_qset = QuestionSet.objects.get(id=dest_qset_id)
+                
+                if (tossup is not None and dest_qset is not None):
+                    tossup.question_set = dest_qset
+                    tossup.packet = None
+                    
+                    # It's not guaranteed that these categories exist, so clear them
+                    tossup.category = None
+                    tossup.subtype = ''
+                    
+                    tossup.save()                
+                    message = "Successfully moved tossup to " + str(dest_qset)
+                    message_class = 'alert alert-success'
+                    return render_to_response('move_tossup_success.html',
+                                        {'user': user,
+                                         'q_set': q_set,
+                                         'dest_q_set': dest_qset,
+                                         'tossup': tossup,
+                                         'message': message,
+                                         'message_class': message_class},
+                                         context_instance=RequestContext(request))                                
+                else:
+                    message = 'There was an error with your submission.  Hit the back button and make sure you selected a valid question set to move to.'
+                    message_class = 'alert alert-warning'
+                    
+                    return render_to_response('move_tossup.html',
+                                        {'user': user,
+                                         'q_set': q_set,
+                                         'form': form,
+                                         'tossup': tossup,
+                                         'message': message,
+                                         'message_class': message_class},
+                                         context_instance=RequestContext(request))   
+            else:
+                message = 'There was an error moving your question.  Hit the back button and make sure you selected a valid question set to move to.'
+                message_class = 'alert alert-warning'
+                q_set = []
+                return render_to_response('move_tossup.html',
+                                    {'user': user,
+                                     'q_set': q_set,
+                                     'tossup': None,
+                                     'form': form,
+                                     'message': message,
+                                     'message_class': message_class},
+                                     context_instance=RequestContext(request))
+                
+        else:
+            message = 'You do not have permissions to move this question.'
+            message_class = 'alert alert-danger'
+            q_set = []
+            form = []
+            return render_to_response('move_tossup.html',
+                                {'user': user,
+                                 'q_set': q_set,
+                                 'tossup': None,
+                                 'form': form,
+                                 'message': message,
+                                 'message_class': message_class},
+                                 context_instance=RequestContext(request))
+
+@login_required
+def move_bonus(request, q_set_id, bonus_id):
+    user = request.user.writer
+    q_set = QuestionSet.objects.get(id=q_set_id)
+    q_set_editors = []
+    q_set_editors.append(q_set.editor.all())
+    q_set_editors.append(q_set.owner)
+    
+    bonus = Bonus.objects.get(id=bonus_id)
+    if (bonus is None or bonus.question_set != q_set):
+        message = 'Invalid bonus'
+        message_class = 'alert alert-danger'
+        bonus = None
+    
+    move_sets = user.question_set_editor.exclude(id=q_set_id)
+    
+    if request.method == 'GET':
+        if (user in q_set_editors):            
+            if (bonus is not None):
+                form = MoveBonusForm(move_sets=move_sets)
+                
+                message = ''
+                message_class = ''
+                
+                return render_to_response('move_bonus.html',
+                                    {'user': user,
+                                     'q_set': q_set,
+                                     'form': form,
+                                     'bonus': bonus,
+                                     'message': message,
+                                     'message_class': message_class},
+                                     context_instance=RequestContext(request))
+            else:
+                form = []
+                return render_to_response('move_bonus.html',
+                                    {'user': user,
+                                     'q_set': q_set,
+                                     'form': form,
+                                     'bonus': bonus,
+                                     'message': message,
+                                     'message_class': message_class},
+                                     context_instance=RequestContext(request))                
+        else:
+            form = []
+            message = 'You do not have permissions to move this question.'
+            message_class = 'alert alert-danger'
+            q_set = []
+            return render_to_response('move_bonus.html',
+                                {'user': user,
+                                 'q_set': q_set,
+                                 'bonus': None,
+                                 'form': form,
+                                 'message': message,
+                                 'message_class': message_class},
+                                 context_instance=RequestContext(request))
+            
+    else:
+        # Update the question set for this bonus
+        if (user in q_set_editors):
+            form = MoveBonusForm(request.POST, move_sets=move_sets)
+            if form.is_valid():
+                dest_qset_id = request.POST["move_sets"]
+                dest_qset = QuestionSet.objects.get(id=dest_qset_id)
+                
+                if (bonus is not None and dest_qset is not None):
+                    bonus.question_set = dest_qset
+                    bonus.packet = None
+                    
+                    # It's not guaranteed that these categories exist, so clear them
+                    bonus.category = None
+                    bonus.subtype = ''
+                    
+                    bonus.save()                
+                    return render_to_response('move_bonus_success.html',
+                                        {'user': user,
+                                         'q_set': q_set,
+                                         'dest_q_set': dest_qset,
+                                         'bonus': bonus},
+                                         context_instance=RequestContext(request))                                
+                else:
+                    message = 'There was an error with your submission.  Hit the back button and make sure you selected a valid question set to move to.'
+                    message_class = 'alert alert-warning'
+                    
+                    return render_to_response('move_bonus.html',
+                                        {'user': user,
+                                         'q_set': q_set,
+                                         'form': form,
+                                         'bonus': bonus,
+                                         'message': message,
+                                         'message_class': message_class},
+                                         context_instance=RequestContext(request))   
+            else:
+                message = 'There was an error moving your question.  Hit the back button and make sure you selected a valid question set to move to.'
+                message_class = 'alert alert-warning'
+                q_set = []
+                return render_to_response('move_bonus.html',
+                                    {'user': user,
+                                     'q_set': q_set,
+                                     'bonus': None,
+                                     'form': form,
+                                     'message': message,
+                                     'message_class': message_class},
+                                     context_instance=RequestContext(request))
+                
+        else:
+            message = 'You do not have permissions to move this question.'
+            message_class = 'alert alert-danger'
+            q_set = []
+            form = []
+            return render_to_response('move_bonus.html',
+                                {'user': user,
+                                 'q_set': q_set,
+                                 'bonus': None,
+                                 'form': form,
+                                 'message': message,
+                                 'message_class': message_class},
+                                 context_instance=RequestContext(request))
 
 @login_required
 def export_question_set(request, qset_id, output_format):

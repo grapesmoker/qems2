@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block sidebar %}
+{% include "sidebar.html" %}
+{% endblock %}
+
+{% load comments %}
+{% load filters %}
+
+{% block title %}Move Bonus Success - QEMS2{% endblock %}
+
+{% block content %}
+<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
+    <h2 class="page-header">Move Bonus Success</h2>
+    {% if bonus %}
+        <p>Your bonus was successfully moved to {{ dest_q_set }}.</p>
+        <p>You will need to re-assign this bonus's category and packet and also make sure it meets style/length guidelines.  <a href="/edit_bonus/{{ bonus.id }}">Click here</a> to view the bonus in the <a href="/edit_question_set/{{ dest_q_set.id }}">{{ dest_q_set }}</a> set.</p>
+        <p>Click here to return to <a href="/edit_question_set/{{ q_set.id }}">{{ q_set }}</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

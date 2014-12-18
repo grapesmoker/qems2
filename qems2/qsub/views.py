@@ -372,6 +372,18 @@ def categories(request, qset_id, category_id):
     qset_writers = qset.writer.all()
     
     category_object = DistributionEntry.objects.get(id=category_id)
+
+    entry = qset.setwidedistributionentry_set.get(dist_entry=category_object)
+    tu_required = entry.num_tossups
+    bs_required = entry.num_bonuses
+    tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
+    bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+
+    category_status =   {'tu_req': tu_required,
+                         'tu_in_cat': tu_written,
+                         'bs_req': bs_required,
+                         'bs_in_cat': bs_written
+                         }
     
     message = category_object.category
     tossups = []
@@ -387,6 +399,7 @@ def categories(request, qset_id, category_id):
         'user': user,
         'tossups': tossups,
         'bonuses': bonuses,
+        'category_status': category_status,
         'qset': qset,
         'message': message,
         'category': category_object},

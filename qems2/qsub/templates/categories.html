@@ -23,8 +23,8 @@
     </ol>
     <h2 class="page-header">{{ category }} - {{ message }}</h2>    
         <p>Overall Percent: {{ category_status|overall_percent}}</p>
-        <p>Tossups Remainig: {{ category_status|tossups_remaining }}, Tossup Percent: {{ category_status.tu_in_cat|percent:category_status.tu_req }}</p>
-        <p>Bonuses Remainig: {{ category_status|bonuses_remaining }}, Bonus Percent: {{ category_status.bs_in_cat|percent:category_status.bs_req }}</p>
+        <p>Tossups Remaining: {{ category_status|tossups_remaining }}, Tossup Percent: {{ category_status.tu_in_cat|percent:category_status.tu_req }}</p>
+        <p>Bonuses Remaining: {{ category_status|bonuses_remaining }}, Bonus Percent: {{ category_status.bs_in_cat|percent:category_status.bs_req }}</p>
 		<table class="table table-striped table-hover tablesorter" id="category-tossup-table">
 			<thead>
 			<tr>

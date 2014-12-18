@@ -91,22 +91,31 @@ class TossupForm(forms.ModelForm):
 
     class Meta:
         model = Tossup
-        exclude = ['author', 'question_set', 'subtype', 'time_period', 'location', 'question_number']
+        exclude = ['question_set', 'subtype', 'time_period', 'location', 'question_number']
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
         packet_id = kwargs.pop('packet_id', None)
         role = kwargs.pop('role', None)
+        writer = kwargs.pop('writer', None)
 
         super(TossupForm, self).__init__(*args, **kwargs)
 
         self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
         
         #self.fields['locked'].required = False
-
+        
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
+                all_writers = qset.writer.all() | qset.editor.all()
+                if writer:
+                    user = User.objects.get(username=writer)
+                    my_writer = all_writers.get(user=user)
+                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, initial=my_writer.pk, required=True)
+                else:
+                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, required=True)
+                
                 dist = qset.distribution
                 dist_entries = dist.distributionentry_set.all()
                 # categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]
@@ -130,6 +139,7 @@ class TossupForm(forms.ModelForm):
             self.fields['edited'].widget.attrs['readonly'] = 'readonly'
             self.fields['edited'].widget.attrs['style'] = 'display:none'
             self.fields['edited'].label = ''
+                        
         
 class BonusForm(forms.ModelForm):
 
@@ -150,12 +160,13 @@ class BonusForm(forms.ModelForm):
 
     class Meta:
         model = Bonus
-        exclude = ['author', 'question_set', 'subtype', 'time_period', 'location', 'question_number']
+        exclude = ['question_set', 'subtype', 'time_period', 'location', 'question_number']
 
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
         packet_id = kwargs.pop('packet_id', None)
         role = kwargs.pop('role', None)
+        writer = kwargs.pop('writer', None)
 
         super(BonusForm, self).__init__(*args, **kwargs)
 
@@ -164,6 +175,15 @@ class BonusForm(forms.ModelForm):
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
+                all_writers = qset.writer.all() | qset.editor.all()
+                if writer:
+                    user = User.objects.get(username=writer)
+                    my_writer = all_writers.get(user=user)
+                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, initial=my_writer.pk, required=True)
+                else:
+                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, required=True)
+
+                
                 dist = qset.distribution
                 dist_entries = dist.distributionentry_set.all()
                 # categories = [(d.id, '{0!s} - {1!s}'.format(d.category, d.subcategory)) for d in dist_entries]

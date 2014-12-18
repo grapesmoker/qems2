@@ -635,9 +635,9 @@ def add_tossups(request, qset_id, packet_id=None):
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
             if user in qset.writer.all() and user not in qset.editor.all() and user != qset.owner:
-                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, role='writer')
+                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, role='writer', writer=user.user.username)
             else:
-                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id)
+                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, writer=user.user.username)
             read_only = False
         else:
             tossup_form = []
@@ -646,7 +646,7 @@ def add_tossups(request, qset_id, packet_id=None):
             read_only = True
 
         return render_to_response('add_tossups.html',
-            {'form': TossupForm(qset_id=qset.id, initial={'question_type': question_type_id}),
+            {'form': tossup_form,
              'message': message,
              'message_class': message_class,
              'read_only': read_only,
@@ -661,11 +661,12 @@ def add_tossups(request, qset_id, packet_id=None):
             # The user may have set the packet ID through the POST body, so check for it there
             if packet_id == None and 'packet' in request.POST and request.POST['packet'] != '':
                 packet_id = int(request.POST['packet'])                
-            tossup_form = TossupForm(request.POST, qset_id=qset.id, packet_id=packet_id)
+            tossup_form = TossupForm(request.POST, qset_id=qset.id, packet_id=packet_id, writer=user.user.username)
 
             if tossup_form.is_valid():
-                tossup = tossup_form.save(commit=False)
-                tossup.author = user
+                tossup = tossup_form.save(commit=False)                
+                if (tossup.author is None):
+                    tossup.author = user
                 tossup.question_set = qset
                 tossup.tossup_text = strip_markup(tossup.tossup_text)
                 tossup.tossup_answer = strip_markup(tossup.tossup_answer)
@@ -749,7 +750,7 @@ def add_bonuses(request, qset_id, packet_id=None):
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            form = BonusForm(qset_id=qset.id, packet_id=packet_id, role=role, initial={'question_type': question_type_id})
+            form = BonusForm(qset_id=qset.id, packet_id=packet_id, role=role, initial={'question_type': question_type_id}, writer=user.user.username)
             read_only = False
         else:
             form = None
@@ -769,12 +770,14 @@ def add_bonuses(request, qset_id, packet_id=None):
     elif request.method == 'POST':
         bonus = None
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id})
+            form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username)
             read_only = False
 
             if form.is_valid():
                 bonus = form.save(commit=False)
-                bonus.author = user
+                if (bonus.author is None):
+                    bonus.author = user
+                    
                 bonus.question_set = qset
                 bonus.leadin = strip_markup(bonus.leadin)
                 bonus.part1_text = strip_markup(bonus.part1_text)
@@ -805,7 +808,7 @@ def add_bonuses(request, qset_id, packet_id=None):
                     
                     # On success case, don't return the full bonus so that field gets cleared
                     return render_to_response('add_bonuses.html',
-                             {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
+                             {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username),
                              'message': message,
                              'message_class': message_class,
                              'bonus': None,
@@ -915,6 +918,7 @@ def edit_tossup(request, tossup_id):
                 tossup.locked = form.cleaned_data['locked']
                 tossup.edited = form.cleaned_data['edited']
                 tossup.question_type = form.cleaned_data['question_type']
+                tossup.author = form.cleaned_data['author']
                 
                 try:
                     tossup.is_valid()
@@ -1031,6 +1035,7 @@ def edit_bonus(request, bonus_id):
                 bonus.locked = form.cleaned_data['locked']
                 bonus.edited = form.cleaned_data['edited']
                 bonus.question_type = form.cleaned_data['question_type']
+                bonus.author = form.cleaned_data['author']
                 
                 try:
                     bonus.is_valid()

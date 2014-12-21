@@ -38,7 +38,10 @@ def get_editor_categories(editor, tour):
 
 @register.filter(name='preview')
 def preview(text):
-    return mark_safe(text[0:81] + '...')
+    if (len(text) > 81):    
+        return mark_safe(text[0:81] + '...')
+    else:
+        return mark_safe(text)
 
 @register.filter(name='short_preview')
 def short_preview(text):

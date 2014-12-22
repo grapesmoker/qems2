@@ -80,40 +80,40 @@
 
                 <table class="tablesorter" id="tu-status-table">
                     <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Overall completion</th>
-                        <th>Tossups remaining</th>
-                        <th>Tossup completion</th>
-                        <th>Bonuses remaining</th>
-                        <th>Bonus completion</th>                        
-                    </tr>
+                        <tr>
+                            <th>Category</th>
+                            <th>Overall completion</th>
+                            <th>Tossups remaining</th>
+                            <th>Tossup completion</th>
+                            <th>Bonuses remaining</th>
+                            <th>Bonus completion</th>                        
+                        </tr>
                     </thead>
                     <tbody>
-                    {% for cat, entry in set_status.items|sort %}
-                    <tr>
-                        <td>
-                            <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
-                        </td>
-                        <td>
-                            {{ entry|overall_percent }}
-                        </td>
-                        <td>
-                            {{ entry|tossups_remaining }}
-                        </td>
-                        <td>
-                            {{ entry.tu_in_cat|percent:entry.tu_req }}
-                            {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }}
-                        </td>
-                        <td>
-                            {{ entry|bonuses_remaining }}
-                        </td>
-                        <td>
-                            {{ entry.bs_in_cat|percent:entry.bs_req }}
-                            {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }}
-                        </td>                        
-                    </tr>
-                    {% endfor %}
+                        {% for cat, entry in set_status.items|sort %}
+                        <tr>
+                            <td>
+                                <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
+                            </td>
+                            <td>
+                                {{ entry|overall_percent }}
+                            </td>
+                            <td>
+                                {{ entry|tossups_remaining }}
+                            </td>
+                            <td>
+                                {{ entry.tu_in_cat|percent:entry.tu_req }}
+                                {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }}
+                            </td>
+                            <td>
+                                {{ entry|bonuses_remaining }}
+                            </td>
+                            <td>
+                                {{ entry.bs_in_cat|percent:entry.bs_req }}
+                                {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }}
+                            </td>                        
+                        </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
                 <div class="alert alert-info" style="text-align: left">
@@ -195,7 +195,6 @@
 						<tr>
 							<th>Editor name</th>
 							<th>Editor username</th>
-							<th>Categories</th>
 							<th>Actions</th>
 						</tr>
 					</thead>
@@ -204,11 +203,9 @@
 						<tr>
 							<td>{{ editor.user.first_name }} {{ editor.user.last_name }}</td>
 							<td>{{ editor.user.username }}</td>
-							<td></td>
-							<td><a href="/roleassign/{{ editor.id }}/{{ tour.id}}/" rel="tooltip" title="Assign categories">
-								<i class="fa fa-edit"></i>
-								</a><a href="/removeeditor/{{ tour.id }}/{{ editor.id }}/" rel="tooltip" title="Remove editor">
-									<i class="fa fa-minus-circle"></i> </a>
+							<td><a href="/delete_editor/{{ editor.id }}" rel="tooltip" title="Delete editor" class="delete_editor" value="{{ editor.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                                </a>
 							</td>
 						</tr>
 						{% endfor %}
@@ -232,8 +229,9 @@
 							<td>{{ writer.user.first_name }} {{ writer.user.last_name }}</td>
 							<td>{{ writer.user.username }}</td>
 							<td><i class="fa fa-edit"></i>
-								</a><a href="/removeeditor/{{ tour.id }}/{{ editor.id }}/" rel="tooltip" title="Remove writer">
-									<i class="fa fa-minus-circle"></i> </a>
+                                <a href="/delete_writer/{{ writer.id }}" rel="tooltip" title="Delete writer" class="delete_writer" value="{{ writer.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                                </a>                                
 							</td>
 						</tr>
 						{% endfor %}
@@ -266,22 +264,25 @@
                             <strong>Set-wide Requirements</strong>
                         </caption>
                         <thead>
-                        <th>Category</th>
-                        <th>Subcategory</th>
-                        <th>Total Tossups (per set)</th>
-                        <th>Total Bonuses (per set)</th>
+                            <tr>
+                                <th>Category</th>
+                                <th>Subcategory</th>
+                                <th>Total Tossups (per set)</th>
+                                <th>Total Bonuses (per set)</th>
+                            </tr>
                         </thead>
                         <tbody>
-                        {% for entry in set_distro_formset %}
-                        <tr>
-                            <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
-                            <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
-                            <td>{{ entry.category.value }}</td>
-                            <td>{{ entry.subcategory.value }}</td>
-                            <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                            <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
-                        </tr>
-                        {% endfor %}
+                            {% for entry in set_distro_formset %}
+                            <tr>
+                                <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
+                                <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
+                                <td>{{ entry.category.value }}</td>
+                                <td>{{ entry.subcategory.value }}</td>
+                                <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                                <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
                     <input type="submit" class="btn btn-primary">
                     {{ set_distro_formset.management_form }}
@@ -303,20 +304,24 @@
                             <strong>Tiebreaker Requirements</strong>
                         </caption>
                         <thead>
-                        <th>Category</th>
-                        <th>Subcategory</th>
-                        <th>Total Tossups (per set)</th>
-                        <th>Total Bonuses (per set)</th>
+                            <tr>
+                                <th>Category</th>
+                                <th>Subcategory</th>
+                                <th>Total Tossups (per set)</th>
+                                <th>Total Bonuses (per set)</th>
+                            </tr>
                         </thead>
-                        {% for entry in tiebreak_formset %}
-                        <tr>
-                            <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
-                            <td>{{ entry.category.value }}</td>
-                            <td>{{ entry.subcategory.value }}</td>
-                            <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                            <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
-                        </tr>
-                        {% endfor %}
+                        <tbody>
+                            {% for entry in tiebreak_formset %}
+                            <tr>
+                                <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
+                                <td>{{ entry.category.value }}</td>
+                                <td>{{ entry.subcategory.value }}</td>
+                                <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                                <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
                     </table>
                     <input type="submit" class="btn btn-primary">
                     {{ tiebreak_formset.management_form }}
@@ -360,15 +365,15 @@
                         </strong>
                     </caption>
                     <thead>
-                    <tr>
-                        <th>Author</th>
-                        <th>Tossup Text</th>
-                        <th>Answer</th>
-                        <th>Category</th>
-                        <th>Packet</th>
-                        <th>Actions</th>
-                        <th>Comments</th>
-                    </tr>
+                        <tr>
+                            <th>Author</th>
+                            <th>Tossup Text</th>
+                            <th>Answer</th>
+                            <th>Category</th>
+                            <th>Packet</th>
+                            <th>Actions</th>
+                            <th>Comments</th>
+                        </tr>
                     </thead>
                     <tbody>
                     {% autoescape off %}
@@ -425,15 +430,15 @@
                         </strong>
                     </caption>
                     <thead>
-                    <tr>
-                        <th>Author</th>
-                        <th>Preview</th>
-                        <th>Answers</th>
-                        <th>Category</th>
-                        <th>Packet</th>
-                        <th>Actions</th>
-                        <th>Comments</th>
-                    </tr>
+                        <tr>
+                            <th>Author</th>
+                            <th>Preview</th>
+                            <th>Answers</th>
+                            <th>Category</th>
+                            <th>Packet</th>
+                            <th>Actions</th>
+                            <th>Comments</th>
+                        </tr>
                     </thead>
                     <tbody>
                     {% autoescape off %}

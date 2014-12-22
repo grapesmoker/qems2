@@ -16,7 +16,11 @@
     <ol class="breadcrumb">
         <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
     </ol>
-    <h2 class="page-header">Add a Bonus</h2>
+    {% if question_type == "ACF-style bonus" %}    
+        <h2 class="page-header">Add an ACF-Style Bonus</h2>
+    {% else %}
+        <h2 class="page-header">Add a VHSL Bonus</h2>    
+    {% endif %}
     {% autoescape off %}        
         {% if message %}
         <div class="{{ message_class }}">
@@ -25,18 +29,82 @@
         {% endif %}
     {% endautoescape %}
     <p><a href="/add_tossups/{{ qset.id }}">Switch to adding a tossup</a></p>
+    {% if question_type == "ACF-style bonus" %}
+        <p><a href="/add_bonuses/{{ qset.id }}/VHSL bonus">Switch to adding a VHSL bonus</a></p>        
+    {% else %}
+        <p><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus">Switch to adding an ACF-style bonus</a></p>
+    {% endif %}
     <p></p>
     <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
     <p>It is not necessary to include [10] labels to bonus parts or the word ANSWER: in answer lines.</p>
     <p>If you're writing a VHSL bonus, only fill in Part1 text and Part1 answer.</p>
     <form action="" method="post">
         {% csrf_token %}
-        {% for field in form.visible_fields %}
-            <p>{{ field.errors }} {{ field.label_tag }}</p>
-            <p>{{ field }}</p>
-        {% endfor %}
+        {{ form.non_field_errors }}
+        
         {% if not read_only %}
-        <input type="submit" id="submit-bonus" value="Save"/>
+        
+            {% if question_type == "ACF-style bonus" %}
+                <div class="fieldWrapper">
+                    {{ form.leadin.errors }}
+                    <p><label for="{{ form.leadin.id_for_label }}">Leadin:</label></p>
+                    <p>{{ form.leadin }}</p>
+                </div>
+            {% endif %}
+            
+            <div class="fieldWrapper">
+                {{ form.part1_text.errors }}
+                <p><label for="{{ form.part1_text.id_for_label }}">Part 1 text:</label></p>
+                <p>{{ form.part1_text }}</p>
+            </div>
+            <div class="fieldWrapper">
+                {{ form.part1_answer.errors }}
+                <p><label for="{{ form.part1_answer.id_for_label }}">Part 1 answer:</label></p>
+                <p>{{ form.part1_answer }}</p>
+            </div>
+
+            {% if question_type == "ACF-style bonus" %}
+                <div class="fieldWrapper">
+                    {{ form.part2_text.errors }}
+                    <p><label for="{{ form.part2_text.id_for_label }}">Part 2 text:</label></p>
+                    <p>{{ form.part2_text }}</p>
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.part2_answer.errors }}
+                    <p><label for="{{ form.part2_answer.id_for_label }}">Part 2 answer:</label></p>
+                    <p>{{ form.part2_answer }}</p>
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.part3_text.errors }}
+                    <p><label for="{{ form.part3_text.id_for_label }}">Part 3 text:</label></p>
+                    <p>{{ form.part3_text }}</p>
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.part3_answer.errors }}
+                    <p><label for="{{ form.part3_answer.id_for_label }}">Part 3 answer:</label></p>
+                    <p>{{ form.part3_answer }}</p>
+                </div>            
+            {% endif %}
+            
+            <div class="fieldWrapper">
+                {{ form.category.errors }}
+                <label for="{{ form.category.id_for_label }}">Category:</label>
+                {{ form.category }}
+            </div>      
+
+            <div class="fieldWrapper">
+                {{ form.author.errors }}
+                <label for="{{ form.author.id_for_label }}">Author:</label>
+                {{ form.author }}
+            </div>      
+
+            <div class="fieldWrapper">
+                {{ form.packet.errors }}
+                <label for="{{ form.packet.id_for_label }}">Packet:</label>
+                {{ form.packet }}
+            </div>   
+
+            <input type="submit" id="submit-bonus" value="Save"/>
         {% endif %}
     </form>
 </div>

@@ -175,5 +175,3 @@ def export_packet_reportlab(packet_id):
     qset = packet.question_set
 
     pdf_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "pdf"),)
-
-

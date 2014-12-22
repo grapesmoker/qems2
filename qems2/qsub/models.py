@@ -8,8 +8,7 @@ from datetime import datetime
 import json
 
 from collections import OrderedDict
-from utils import sanitize_html, strip_markup, html_to_latex, get_formatted_question_html, does_answerline_have_underlines
-from utils import get_character_count, InvalidTossup, InvalidBonus, are_special_characters_balanced, strip_special_chars
+from utils import *
 
 # Create your models here.
 
@@ -250,6 +249,10 @@ class Tossup (models.Model):
     def character_count(self):
         return get_character_count(self.tossup_text)
 
+    def save(self, *args, **kwargs):
+        self.setup_search_fields()
+        super(Tossup, self).save(*args, **kwargs)
+
     def __unicode__(self):
         return '{0!s}...'.format(strip_markup(self.tossup_answer)[0:40]) #.decode('utf-8')
 
@@ -364,6 +367,10 @@ class Bonus(models.Model):
         part2_count = get_character_count(self.part2_text)
         part3_count = get_character_count(self.part3_text)
         return leadin_count, part1_count, part2_count, part3_count
+        
+    def save(self, *args, **kwargs):
+        self.setup_search_fields()
+        super(Bonus, self).save(*args, **kwargs)
 
     def __unicode__(self):
         return '{0!s}...'.format(strip_markup(self.leadin)[0:40])
@@ -414,9 +421,17 @@ class Bonus(models.Model):
 
         return leadin + parts_latex + r'\end{bonus}' + '\n'
 
+    def leadin_to_html(self):
+        output = ''
+        if (self.get_bonus_type() == ACF_STYLE_BONUS):
+            return get_formatted_question_html(self.leadin, False, True, False)
+        elif (self.get_bonus_type() == VHSL_BONUS):
+            return get_formatted_question_html(self.part1_text, False, True, False)
+        return output
+
     def to_html(self, include_category=False, include_character_count=False):
         output = ''
-        if (self.question_type is None or str(self.question_type) == '' or str(self.question_type) == 'ACF-style bonus'):
+        if (self.get_bonus_type() == ACF_STYLE_BONUS):
             output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
             output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
             output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
@@ -435,7 +450,7 @@ class Bonus(models.Model):
                 output = output + "<p>Character count (leadin / part 1 / part 2 / part 3): " 
                 output = output + str(leadin_length) + " / " + str(part1_length) + " / " + str(part2_length) + " / " + str(part3_length) + "</p>"
             
-        elif (str(self.question_type) == 'VHSL bonus'):
+        elif (self.get_bonus_type() == VHSL_BONUS):
             output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
             output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False)
             if (include_category and self.category is not None):
@@ -451,7 +466,7 @@ class Bonus(models.Model):
 
     def is_valid(self):
 
-        if (str(self.question_type) == '' or str(self.question_type) == 'ACF-style bonus'):
+        if (self.get_bonus_type() == ACF_STYLE_BONUS):
 
             if self.leadin == '':
                 raise InvalidBonus('leadin', self.leadin, self.question_number)
@@ -475,7 +490,7 @@ class Bonus(models.Model):
 
             return True
 
-        elif (str(self.question_type) == 'VHSL bonus'):
+        elif (self.get_bonus_type() == VHSL_BONUS):
             if (self.leadin is not None and self.leadin != ''):
                 raise InvalidBonus('leadin', self.leadin + " (this field should be blank for VHSL bonuses.)", self.question_number)
             blank_parts = [self.part2_text, self.part2_answer, self.part3_text, self.part3_answer]
@@ -511,6 +526,13 @@ class Bonus(models.Model):
         self.search_part3_text = strip_special_chars(self.part3_text)
         self.search_part3_answer = strip_special_chars(self.part3_answer)
         
+    def get_bonus_type(self):
+        if (self.question_type is None or str(self.question_type) == ''):
+            return ACF_STYLE_BONUS
+        elif (str(self.question_type) == VHSL_BONUS):
+            return VHSL_BONUS
+        else:
+            return ACF_STYLE_BONUS        
 
 class Tag(models.Model):
 

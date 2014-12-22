@@ -24,15 +24,47 @@
         </div>
         {% endif %}
     {% endautoescape %}
-    <p><a href="/add_bonuses/{{ qset.id }}">Switch to adding a bonus</a></p>
+    <p><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus">Switch to adding an ACF-style bonus</a></p>
+    <p><a href="/add_bonuses/{{ qset.id }}/VHSL bonus">Switch to adding a VHSL bonus</a></p>    
     <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
-    <p>It is not necessary to include ANSWER: in your answer line.</p>
+    <p>Do not include ANSWER: in your answer line.</p>
     <form action="" method="post">
         {% csrf_token %}
-        {{ form.as_p }}
+        {{ form.non_field_errors }}
+        
         {% if not read_only %}
-        <input type="submit" id="submit-tossup" value="Save"/>
+            <div class="fieldWrapper">
+                {{ form.tossup_text.errors }}
+                <p><label for="{{ form.tossup_text.id_for_label }}">Tossup text:</label></p>
+                <p>{{ form.tossup_text }}</p>
+            </div>
+            <div class="fieldWrapper">
+                {{ form.tossup_answer.errors }}
+                <p><label for="{{ form.tossup_answer.id_for_label }}">Tossup answer:</label></p>
+                <p>{{ form.tossup_answer }}</p>
+            </div>
+
+            <div class="fieldWrapper">
+                {{ form.category.errors }}
+                <label for="{{ form.category.id_for_label }}">Category:</label>
+                {{ form.category }}
+            </div>   
+
+            <div class="fieldWrapper">
+                {{ form.author.errors }}
+                <label for="{{ form.author.id_for_label }}">Author:</label>
+                {{ form.author }}
+            </div>      
+
+            <div class="fieldWrapper">
+                {{ form.packet.errors }}
+                <label for="{{ form.packet.id_for_label }}">Packet:</label>
+                {{ form.packet }}
+            </div>   
+        
+            <input type="submit" id="submit-bonus" value="Save"/>
         {% endif %}
+        
     </form>
 </div>
 

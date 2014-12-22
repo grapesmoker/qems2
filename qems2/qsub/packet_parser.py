@@ -5,7 +5,7 @@ import json
 import string
 
 from qems2.qsub.models import *
-from qems2.qsub.utils import are_special_characters_balanced, does_answerline_have_underlines
+from qems2.qsub.utils import *
 from qems2.qsub.model_utils import sanitize_html
 from django.utils.html import escape
 
@@ -163,7 +163,7 @@ def parse_packet_data(data):
             if (i < len(data) - 1):
                 question_stack.append(next_question_line)
                 
-            bonus = create_bonus(leadin, parts, answers, values, question_type_text="ACF-style bonus", category_text=category)            
+            bonus = create_bonus(leadin, parts, answers, values, question_type_text=ACF_STYLE_BONUS, category_text=category)            
             try:
                 bonus.is_valid()
                 bonuses.append(bonus)
@@ -183,7 +183,7 @@ def parse_packet_data(data):
             category = get_category(answer)
             answer = remove_category(answer)
             
-            bonus = create_bonus('', [question], [answer], [], question_type_text='VHSL bonus', category_text=category)
+            bonus = create_bonus('', [question], [answer], [], question_type_text=VHSL_BONUS, category_text=category)
             try:
                 bonus.is_valid()
                 bonuses.append(bonus)
@@ -219,7 +219,7 @@ def create_tossup(question='', answer='', category_text='', question_type_text='
     tossup = Tossup(tossup_text=question, tossup_answer=answer, category=setCategory, question_type=setQuestionType)
     return tossup
 
-def create_bonus(leadin='', parts=[], answers=[], values=[], question_type_text='ACF-Style bonus', category_text=''):
+def create_bonus(leadin='', parts=[], answers=[], values=[], question_type_text=ACF_STYLE_BONUS, category_text=''):
     
     leadin = escape(leadin)
     sanitizedParts = []

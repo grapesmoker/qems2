@@ -29,6 +29,11 @@ DOUBLE_QUOTE_MAP = {
 	0x201F: 34,
 }
 
+# Constants for question types
+ACF_STYLE_TOSSUP = 'ACF-style tossup'
+ACF_STYLE_BONUS = 'ACF-style bonus'
+VHSL_BONUS = 'VHSL bonus'
+
 def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
     soup = BeautifulSoup(html)
     for tag in soup.find_all(True):

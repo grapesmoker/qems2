@@ -172,6 +172,10 @@ def tossup_html_verbose(tossup):
 def bonus_html(bonus):
     return bonus.to_html()
 
+@register.filter(name='bonus_leadin')
+def bonus_leadin(bonus):
+    return preview(bonus.leadin_to_html())
+
 @register.filter(name='bonus_html_verbose')
 def bonus_html_verbose(bonus):
     return bonus.to_html(include_category=True, include_character_count=True)

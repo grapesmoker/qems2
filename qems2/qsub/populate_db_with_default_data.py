@@ -2,6 +2,7 @@
 # typical ACF distribution and adds some questions
 
 from qems2.qsub.models import *
+from utils import *
 from datetime import datetime
 
 # Set this to an existing user in the database
@@ -65,13 +66,13 @@ dist_entry = DistributionEntry(
                 max_bonuses=1)
 dist_entry.save()
 
-question_type = QuestionType(question_type="ACF-style tossup")
+question_type = QuestionType(question_type=ACF_STYLE_TOSSUP)
 question_type.save()
 
-question_type = QuestionType(question_type="ACF-style bonus")
+question_type = QuestionType(question_type=ACF_STYLE_BONUS)
 question_type.save()
 
-question_type = QuestionType(question_type="VHSL bonus")
+question_type = QuestionType(question_type=VHSL_BONUS)
 question_type.save()
 
 user = User.objects.get(username=username)
@@ -87,6 +88,9 @@ qset = QuestionSet(
                     num_packets=10)
 qset.save()                    
 
+writer.question_set_editor.add(qset)
+writer.save()
+
 for dist_entry in DistributionEntry.objects.filter(distribution=distribution):
     swde = SetWideDistributionEntry(
                                     question_set=qset,
@@ -100,7 +104,8 @@ tossup = Tossup(
                     question_set=qset,
                     tossup_text="Test ~tossup 1~.",
                     tossup_answer="test _answer 1_",
-                    author=writer)
+                    author=writer,
+                    question_type=ACF_STYLE_TOSSUP)
 tossup.setup_search_fields()
 tossup.save()
                     
@@ -108,8 +113,32 @@ tossup = Tossup(
                     question_set=qset,
                     tossup_text="Test ~tossup 2~.",
                     tossup_answer="test _answer 2_",
-                    author=writer)
+                    author=writer,
+                    question_type=ACF_STYLE_TOSSUP)
 tossup.setup_search_fields()
 tossup.save()                    
+
+bonus = Bonus(
+                    question_set=qset,
+                    leadin="Test leadin for ACF-style bonus.  For 10 points each:",
+                    part1_text="Part 1.",
+                    part1_answer="_answer 1_",
+                    part2_text="Part 2.",
+                    part2_answer="_answer 2_",
+                    part3_text="Part 3",
+                    part3_answer="_answer 3_",
+                    author=writer,
+                    question_type=ACF_STYLE_BONUS)
+bonus.setup_search_fields()
+bonus.save()
+
+bonus = Bonus(
+                    question_set=qset,
+                    part1_text="~Part 1~ for VHSL bonus.",
+                    part1_answer="_vhsl answer 1_",
+                    author=writer,
+                    question_type=VHSL_BONUS)
+bonus.setup_search_fields()
+bonus.save()
 
 print "Done"

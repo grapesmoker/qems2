@@ -42,9 +42,52 @@
         
         <form action="" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form.non_field_errors }}
+
             {% if not read_only %}
-            <input type="submit" id="submit-tossup" value="Save"/>
+                <div class="fieldWrapper">
+                    {{ form.tossup_text.errors }}
+                    <p><label for="{{ form.tossup_text.id_for_label }}">Tossup text:</label></p>
+                    <p>{{ form.tossup_text }}</p>
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.tossup_answer.errors }}
+                    <p><label for="{{ form.tossup_answer.id_for_label }}">Tossup answer:</label></p>
+                    <p>{{ form.tossup_answer }}</p>
+                </div>
+
+                <div class="fieldWrapper">
+                    {{ form.category.errors }}
+                    <label for="{{ form.category.id_for_label }}">Category:</label>
+                    {{ form.category }}
+                </div>   
+
+                <div class="fieldWrapper">
+                    {{ form.author.errors }}
+                    <label for="{{ form.author.id_for_label }}">Author:</label>
+                    {{ form.author }}
+                </div>      
+
+                <div class="fieldWrapper">
+                    {{ form.packet.errors }}
+                    <label for="{{ form.packet.id_for_label }}">Packet:</label>
+                    {{ form.packet }}
+                </div>
+                
+                {% if role == "editor" %}
+                    <div class="fieldWrapper">
+                        {{ form.locked.errors }}
+                        <label for="{{ form.locked.id_for_label }}">Locked:</label>
+                        {{ form.locked }}
+                    </div>      
+                    <div class="fieldWrapper">
+                        {{ form.edited.errors }}
+                        <label for="{{ form.edited.id_for_label }}">Edited:</label>
+                        {{ form.edited }}
+                    </div>              
+                {% endif %}            
+            
+                <input type="submit" id="submit-bonus" value="Save"/>
             {% endif %}
         </form>
     </div>

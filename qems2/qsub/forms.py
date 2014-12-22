@@ -2,6 +2,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm, ReadOnly
 from django.contrib.auth.models import User
 from django.db import models
 from models import *
+from utils import *
 from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
 
@@ -85,7 +86,8 @@ class TossupForm(forms.ModelForm):
     tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 10}))
     tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 5}))
     search_tossup_text = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_tossup_answer = forms.BooleanField(widget=forms.HiddenInput, required=False)
+    search_tossup_answer = forms.CharField(widget=forms.HiddenInput, required=False)
+    # question_type = forms.CharField(widget=forms.HiddenInput, required=False)
 
     category = forms.ModelChoiceField([])
 
@@ -102,6 +104,7 @@ class TossupForm(forms.ModelForm):
         super(TossupForm, self).__init__(*args, **kwargs)
 
         self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
+        self.fields['question_type'].widget.attrs['style'] = 'display:none'        
         
         #self.fields['locked'].required = False
         
@@ -151,12 +154,12 @@ class BonusForm(forms.ModelForm):
     part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 3}), required=False)
     part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
     search_leadin = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part1_text = forms.BooleanField(widget=forms.HiddenInput, required=False)
-    search_part1_answer = forms.BooleanField(widget=forms.HiddenInput, required=False)
-    search_part2_text = forms.BooleanField(widget=forms.HiddenInput, required=False)
-    search_part2_answer = forms.BooleanField(widget=forms.HiddenInput, required=False)
-    search_part3_text = forms.BooleanField(widget=forms.HiddenInput, required=False)
-    search_part3_answer = forms.BooleanField(widget=forms.HiddenInput, required=False)
+    search_part1_text = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_part1_answer = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_part2_text = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_part2_answer = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_part3_text = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_part3_answer = forms.CharField(widget=forms.HiddenInput, required=False)
 
     class Meta:
         model = Bonus
@@ -167,15 +170,17 @@ class BonusForm(forms.ModelForm):
         packet_id = kwargs.pop('packet_id', None)
         role = kwargs.pop('role', None)
         writer = kwargs.pop('writer', None)
+        question_type = kwargs.pop('question_type', None)
 
         super(BonusForm, self).__init__(*args, **kwargs)
 
         self.fields['question_type'] = forms.ModelChoiceField(queryset=QuestionType.objects.all(), required=False)
+        self.fields['question_type'].widget.attrs['style'] = 'display:none'
 
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
-                all_writers = qset.writer.all() | qset.editor.all()
+                all_writers = qset.editor.all() | qset.editor.all() # This line has a bug
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)
@@ -199,7 +204,14 @@ class BonusForm(forms.ModelForm):
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'
                 self.fields['category'] = forms.ModelChoiceField([], empty_label=None)
-
+                
+        if question_type and question_type == VHSL_BONUS:
+            self.fields['leadin'].widget.attrs['style'] = 'display:none'
+            self.fields['part2_text'].widget.attrs['style'] = 'display:none'
+            self.fields['part2_answer'].widget.attrs['style'] = 'display:none'
+            self.fields['part3_text'].widget.attrs['style'] = 'display:none'
+            self.fields['part3_answer'].widget.attrs['style'] = 'display:none'
+            
         if role and role == 'writer':
             # if this tossup is being submitted by a writer we don't need to show them the edited/locked checkboxes
             self.fields['locked'].widget.attrs['readonly'] = 'readonly'

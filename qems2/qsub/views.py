@@ -18,7 +18,7 @@ from django.contrib import messages
 from models import *
 from forms import *
 from model_utils import *
-from utils import strip_markup
+from utils import *
 #from packet_parser import handle_uploaded_packet, parse_uploaded_packet, parse_packet_data
 from packet_parser import parse_packet_data
 from django.utils.safestring import mark_safe
@@ -643,14 +643,14 @@ def add_tossups(request, qset_id, packet_id=None):
     question_type_id = []
     
     if (QuestionType.objects.exists()):    
-        question_type_id = QuestionType.objects.get(question_type="ACF-style tossup")
+        question_type_id = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
 
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
             if user in qset.writer.all() and user not in qset.editor.all() and user != qset.owner:
-                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, role='writer', writer=user.user.username)
+                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, role='writer', writer=user.user.username, initial={'question_type': question_type_id})
             else:
-                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, writer=user.user.username)
+                tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, writer=user.user.username, initial={'question_type': question_type_id})
             read_only = False
         else:
             tossup_form = []
@@ -699,14 +699,13 @@ def add_tossups(request, qset_id, packet_id=None):
                         tossup.packet_id = packet_id
                         tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
                     
-                    tossup.setup_search_fields() 
                     tossup.save()
                     message = 'Your tossup has been successfully added to the set! Write more questions!'
                     message_class = 'alert alert-success'                     
                     
                     # In the success case, don't return the whole tossup object so as to clear the fields
                     return render_to_response('add_tossups.html',
-                             {'form': TossupForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
+                             {'form': TossupForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username),
                              'message': message,
                              'message_class': message_class,
                              'tossup' : None,
@@ -750,7 +749,7 @@ def add_tossups(request, qset_id, packet_id=None):
             context_instance=RequestContext(request))
 
 @login_required
-def add_bonuses(request, qset_id, packet_id=None):
+def add_bonuses(request, qset_id, bonus_type, packet_id=None):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
     message = ''
@@ -758,12 +757,21 @@ def add_bonuses(request, qset_id, packet_id=None):
     read_only = True
     role = get_role(user, qset)
     question_type_id = []
-    if (QuestionType.objects.exists()):    
-        question_type_id = QuestionType.objects.get(question_type="ACF-style bonus")
 
+    if (QuestionType.objects.exists()):
+        if (bonus_type == VHSL_BONUS):
+            question_type_id = QuestionType.objects.get(question_type=VHSL_BONUS)
+        elif (bonus_type == ACF_STYLE_BONUS):
+            question_type_id = QuestionType.objects.get(question_type=ACF_STYLE_BONUS)
+        else:
+            return render_to_response('failure.html',
+                {'message': 'The request cannot be completed as specified.  Bonus type is invalid.',
+                 'message-class': 'alert alert-error'},
+                context_instance=RequestContext(request))
+    
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            form = BonusForm(qset_id=qset.id, packet_id=packet_id, role=role, initial={'question_type': question_type_id}, writer=user.user.username)
+            form = BonusForm(qset_id=qset.id, packet_id=packet_id, role=role, initial={'question_type': question_type_id}, writer=user.user.username, question_type=bonus_type)
             read_only = False
         else:
             form = None
@@ -776,6 +784,7 @@ def add_bonuses(request, qset_id, packet_id=None):
              'message': message,
              'message_class': message_class,
              'read_only': read_only,
+             'question_type': bonus_type,             
              'user': user,
              'qset': qset},
             context_instance=RequestContext(request))
@@ -783,7 +792,7 @@ def add_bonuses(request, qset_id, packet_id=None):
     elif request.method == 'POST':
         bonus = None
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username)
+            form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username, question_type=bonus_type)
             read_only = False
 
             if form.is_valid():
@@ -814,19 +823,19 @@ def add_bonuses(request, qset_id, packet_id=None):
 
                 try:
                     bonus.is_valid()
-                    bonus.setup_search_fields() 
                     bonus.save()
                     message = 'Your bonus has been successfully added to the set! Write more questions!'
                     message_class = 'alert alert-success'
                     
                     # On success case, don't return the full bonus so that field gets cleared
                     return render_to_response('add_bonuses.html',
-                             {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username),
+                             {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username, question_type=bonus_type),
                              'message': message,
                              'message_class': message_class,
                              'bonus': None,
                              'bonus_id': bonus.id, 
                              'read_only': read_only,
+                             'question_type': bonus_type,
                              'user': user,
                              'qset': qset},
                              context_instance=RequestContext(request))
@@ -848,7 +857,7 @@ def add_bonuses(request, qset_id, packet_id=None):
             read_only = True
 
         return render_to_response('add_bonuses.html',
-                 {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
+                 {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username),
                  'message': message,
                  'message_class': message_class,
                  'bonus': bonus,
@@ -907,6 +916,7 @@ def edit_tossup(request, tossup_id):
              'message': message,
              'message_class': message_class,
              'read_only': read_only,
+             'role': role,
              'user': user},
             context_instance=RequestContext(request))
 
@@ -935,7 +945,6 @@ def edit_tossup(request, tossup_id):
                 
                 try:
                     tossup.is_valid()
-                    tossup.setup_search_fields() 
                     tossup.save()
                     tossup_length = tossup.character_count()
                     print "Tossup saved"
@@ -990,10 +999,14 @@ def edit_bonus(request, bonus_id):
     message_class = ''
     read_only = True
     role = get_role(user, qset)
+    
+    question_type = ACF_STYLE_BONUS
+    if (question_type is not None):
+        question_type = bonus.question_type.question_type
 
     if request.method == 'GET':
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
-            form = BonusForm(instance=bonus, qset_id=qset.id, role=role)
+            form = BonusForm(instance=bonus, qset_id=qset.id, role=role, question_type=question_type)
             if user == bonus.author and not user == qset.owner and not user in qset.editor.all() and bonus.locked:
                 read_only = True
                 message = 'This bonus has been locked by an editor. It cannot be changed except by another editor.'
@@ -1030,7 +1043,7 @@ def edit_bonus(request, bonus_id):
 
     elif request.method == 'POST':
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
-            form = BonusForm(request.POST, qset_id=qset.id, role=role)
+            form = BonusForm(request.POST, qset_id=qset.id, role=role, question_type=question_type)
             can_change = True
             if user == bonus.author and bonus.locked:
                 can_change = False
@@ -1053,7 +1066,6 @@ def edit_bonus(request, bonus_id):
                 try:
                     bonus.is_valid()
                     
-                    bonus.setup_search_fields() 
                     bonus.save()
                     leadin_length, part1_length, part2_length, part3_length = bonus.character_count()    
 
@@ -2075,7 +2087,6 @@ def complete_upload(request):
             
             new_tossup.locked = False
             new_tossup.edited = False
-            new_tossup.setup_search_fields() 
 
             new_tossup.save()
 
@@ -2117,7 +2128,6 @@ def complete_upload(request):
                     new_bonus.question_type = questionType
                     break
 
-            new_bonus.setup_search_fields() 
             new_bonus.save()
 
         messages.success(request, 'Your questions have been uploaded!')

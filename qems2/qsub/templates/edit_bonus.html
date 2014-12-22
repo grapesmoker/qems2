@@ -39,12 +39,83 @@
                     
         <form action="" method="post">
             {% csrf_token %}
-            {% for field in form.visible_fields %}
-                <p>{{ field.errors }} {{ field.label_tag }}</p>
-                <p>{{ field }}</p>
-            {% endfor %}
-            {% if not read_only %}
-            <input type="submit" id="submit-bonus" value="Save"/>
+            {{ form.non_field_errors }}
+            
+            {% if not read_only %}    
+                {% if question_type == "ACF-style bonus" %}
+                    <div class="fieldWrapper">
+                        {{ form.leadin.errors }}
+                        <p><label for="{{ form.leadin.id_for_label }}">Leadin:</label></p>
+                        <p>{{ form.leadin }}</p>
+                    </div>
+                {% endif %}
+                
+                <div class="fieldWrapper">
+                    {{ form.part1_text.errors }}
+                    <p><label for="{{ form.part1_text.id_for_label }}">Part 1 text:</label></p>
+                    <p>{{ form.part1_text }}</p>
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.part1_answer.errors }}
+                    <p><label for="{{ form.part1_answer.id_for_label }}">Part 1 answer:</label></p>
+                    <p>{{ form.part1_answer }}</p>
+                </div>
+
+                {% if question_type == "ACF-style bonus" %}
+                    <div class="fieldWrapper">
+                        {{ form.part2_text.errors }}
+                        <p><label for="{{ form.part2_text.id_for_label }}">Part 2 text:</label></p>
+                        <p>{{ form.part2_text }}</p>
+                    </div>
+                    <div class="fieldWrapper">
+                        {{ form.part2_answer.errors }}
+                        <p><label for="{{ form.part2_answer.id_for_label }}">Part 2 answer:</label></p>
+                        <p>{{ form.part2_answer }}</p>
+                    </div>
+                    <div class="fieldWrapper">
+                        {{ form.part3_text.errors }}
+                        <p><label for="{{ form.part3_text.id_for_label }}">Part 3 text:</label></p>
+                        <p>{{ form.part3_text }}</p>
+                    </div>
+                    <div class="fieldWrapper">
+                        {{ form.part3_answer.errors }}
+                        <p><label for="{{ form.part3_answer.id_for_label }}">Part 3 answer:</label></p>
+                        <p>{{ form.part3_answer }}</p>
+                    </div>            
+                {% endif %}
+                
+                <div class="fieldWrapper">
+                    {{ form.category.errors }}
+                    <label for="{{ form.category.id_for_label }}">Category:</label>
+                    {{ form.category }}
+                </div>      
+
+                <div class="fieldWrapper">
+                    {{ form.author.errors }}
+                    <label for="{{ form.author.id_for_label }}">Author:</label>
+                    {{ form.author }}
+                </div>      
+
+                <div class="fieldWrapper">
+                    {{ form.packet.errors }}
+                    <label for="{{ form.packet.id_for_label }}">Packet:</label>
+                    {{ form.packet }}
+                </div>   
+
+                {% if role == "editor" %}
+                    <div class="fieldWrapper">
+                        {{ form.locked.errors }}
+                        <label for="{{ form.locked.id_for_label }}">Locked:</label>
+                        {{ form.locked }}
+                    </div>      
+                    <div class="fieldWrapper">
+                        {{ form.edited.errors }}
+                        <label for="{{ form.edited.id_for_label }}">Edited:</label>
+                        {{ form.edited }}
+                    </div>              
+                {% endif %}
+
+                <input type="submit" id="submit-bonus" value="Save"/>
             {% endif %}
         </form>
     </div>

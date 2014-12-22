@@ -323,12 +323,16 @@
                 </form>
             </div>
             <div class="tab-pane active" id="questions">
-                <a href="/add_tossups/{{ qset.id }}" class="btn btn-primary" title="Add tossups">
-                    <i class="fa fa-plus-circle"></i> Add tossups
+                <a href="/add_tossups/{{ qset.id }}" class="btn btn-primary" title="Add tossup">
+                    <i class="fa fa-plus-circle"></i> Add tossup
                 </a>
-                <a href="/add_bonuses/{{ qset.id }}" class="btn btn-primary" title="Add bonuses">
-                    <i class="fa fa-plus-circle"></i> Add bonuses
+                <a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="btn btn-primary" title="Add ACF-style bonus">
+                    <i class="fa fa-plus-circle"></i> Add ACF-style bonus
                 </a>
+                <a href="/add_bonuses/{{ qset.id }}/VHSL bonus" class="btn btn-primary" title="Add VHSL bonus">
+                    <i class="fa fa-plus-circle"></i> Add VHSL bonus
+                </a>
+                
                 <!--
                 <a href="#" class="btn btn-primary" title="Upload questions" id="upload-questions">
                     <i class="fa fa-upload"></i> Upload questions from file
@@ -423,7 +427,7 @@
                     <thead>
                     <tr>
                         <th>Author</th>
-                        <th>Leadin</th>
+                        <th>Preview</th>
                         <th>Answers</th>
                         <th>Category</th>
                         <th>Packet</th>
@@ -436,7 +440,7 @@
                         {% for bonus in bonuses %}
                         <tr>
                             <td>{{ bonus.author }}</td>
-                            <td>{{ bonus.leadin|safe|preview|question_html }}</td>
+                            <td>{{ bonus|bonus_leadin }}</td>
                             <td>{{ bonus|bonus_answers }}</td>
                             <td>{{ bonus.category }}</td>
                             <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>

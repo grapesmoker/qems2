@@ -104,6 +104,11 @@
                 {{ form.packet }}
             </div>   
 
+            <div class="fieldWrapper">
+                {{ form.question_type.errors }}
+                {{ form.question_type }}
+            </div>
+
             <input type="submit" id="submit-bonus" value="Save"/>
         {% endif %}
     </form>

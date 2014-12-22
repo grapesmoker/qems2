@@ -467,6 +467,7 @@ class Bonus(models.Model):
     def is_valid(self):
 
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
+            print "valid acf"
 
             if self.leadin == '':
                 raise InvalidBonus('leadin', self.leadin, self.question_number)
@@ -491,6 +492,8 @@ class Bonus(models.Model):
             return True
 
         elif (self.get_bonus_type() == VHSL_BONUS):
+            print "valid vhsl"
+            
             if (self.leadin is not None and self.leadin != ''):
                 raise InvalidBonus('leadin', self.leadin + " (this field should be blank for VHSL bonuses.)", self.question_number)
             blank_parts = [self.part2_text, self.part2_answer, self.part3_text, self.part3_answer]
@@ -528,6 +531,7 @@ class Bonus(models.Model):
         
     def get_bonus_type(self):
         if (self.question_type is None or str(self.question_type) == ''):
+            print "bonus type none"
             return ACF_STYLE_BONUS
         elif (str(self.question_type) == VHSL_BONUS):
             return VHSL_BONUS

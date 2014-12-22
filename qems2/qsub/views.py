@@ -498,6 +498,12 @@ def add_editor(request, qset_id):
                     print editor_id
                     editor = Writer.objects.get(id=editor_id)
                     qset.editor.add(editor)
+                    
+                    # Don't have someone be both a writer and editor--delete them
+                    writer = qset.writer.get(id=editor_id)
+                    if (writer is not None):
+                        qset.writer.remove(writer)
+                    
                 qset.save()
                 current_editors = qset.editor.all()
                 available_editors = [writer for writer in Writer.objects.all()
@@ -1001,7 +1007,7 @@ def edit_bonus(request, bonus_id):
     role = get_role(user, qset)
     
     question_type = ACF_STYLE_BONUS
-    if (question_type is not None):
+    if (bonus.question_type is not None):
         question_type = bonus.question_type.question_type
 
     if request.method == 'GET':
@@ -1032,6 +1038,7 @@ def edit_bonus(request, bonus_id):
              'part1_length': part1_length,
              'part2_length': part2_length,
              'part3_length': part3_length,
+             'question_type': question_type,
              'form': form,
              'qset': qset,
              'packet': packet,
@@ -1102,6 +1109,7 @@ def edit_bonus(request, bonus_id):
              'part1_length': part1_length,
              'part2_length': part2_length,
              'part3_length': part3_length,
+             'question_type': question_type,
              'form': form,
              'qset': qset,
              'packet': packet,

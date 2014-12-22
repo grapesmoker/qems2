@@ -87,7 +87,6 @@ class TossupForm(forms.ModelForm):
     tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 5}))
     search_tossup_text = forms.CharField(widget=forms.HiddenInput, required=False)
     search_tossup_answer = forms.CharField(widget=forms.HiddenInput, required=False)
-    # question_type = forms.CharField(widget=forms.HiddenInput, required=False)
 
     category = forms.ModelChoiceField([])
 
@@ -180,7 +179,7 @@ class BonusForm(forms.ModelForm):
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
-                all_writers = qset.editor.all() | qset.editor.all() # This line has a bug
+                all_writers = qset.writer.all() | qset.editor.all()
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)

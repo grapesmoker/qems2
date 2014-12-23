@@ -96,6 +96,19 @@ def get_role(user, qset):
 
     return role
 
+def get_role_no_owner(user, qset):
+
+    role = 'viewer'
+    qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()
+
+    if user in qset_editors:
+        role = 'editor'
+    elif user in qset_writers:
+        role = 'writer'
+
+    return role    
+
 def export_packet(packet_id):
 
     packet = Packet.objects.get(id=packet_id)

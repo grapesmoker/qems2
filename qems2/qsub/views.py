@@ -24,6 +24,7 @@ from packet_parser import parse_packet_data
 from django.utils.safestring import mark_safe
 from haystack.query import SearchQuerySet
 from cStringIO import StringIO
+from django_comments.models import Comment
 
 from collections import OrderedDict
 from itertools import chain, ifilter
@@ -209,7 +210,7 @@ def edit_question_set(request, qset_id):
     total_tu_written = 0
     total_bs_written = 0
 
-    role = get_role(user, qset)
+    role = get_role_no_owner(user, qset)
 
     if user != qset.owner and user not in qset_editors and user not in qset_writers:
         messages.error(request, 'You are not authorized to view information about this tournament!')
@@ -279,6 +280,7 @@ def edit_question_set(request, qset_id):
                                        'tossups': tossups,
                                        'bonuses': bonuses,
                                        'packets': qset.packet_set.all(),
+                                       'role': role,
                                        'message': 'Your changes have been successfully saved.',
                                        'message_class': 'alert-success'},
                                       context_instance=RequestContext(request))
@@ -360,6 +362,7 @@ def edit_question_set(request, qset_id):
                                'bonuses': bonuses,
                                'packets': qset.packet_set.all(),
                                'qset': qset,
+                               'role': role,
                                'read_only': read_only,
                                'message': message},
                               context_instance=RequestContext(request))
@@ -761,7 +764,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
     message = ''
     message_class = ''
     read_only = True
-    role = get_role(user, qset)
+    role = get_role_no_owner(user, qset)
     question_type_id = []
 
     if (QuestionType.objects.exists()):
@@ -889,7 +892,7 @@ def edit_tossup(request, tossup_id):
     message = ''
     message_class = ''
     read_only = True
-    role = get_role(user, qset)
+    role = get_role_no_owner(user, qset)
 
     if request.method == 'GET':
         if user == tossup.author or user == qset.owner or user in qset.editor.all():
@@ -1004,7 +1007,7 @@ def edit_bonus(request, bonus_id):
     message = ''
     message_class = ''
     read_only = True
-    role = get_role(user, qset)
+    role = get_role_no_owner(user, qset)
     
     question_type = ACF_STYLE_BONUS
     if (bonus.question_type is not None):
@@ -1208,6 +1211,37 @@ def delete_editor(request):
             message_class = 'alert alert-warning'
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
+@login_required
+def delete_comment(request):
+    print "Delete Comment"
+    user = request.user.writer
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        qset_id = request.POST['qset_id']
+        qset = QuestionSet.objects.get(id=qset_id)
+        qset_editors = qset.editor.all()
+        comment_id = request.POST['comment_id']
+        comment = Comment.objects.get(id=comment_id)
+        
+        if (comment is None):
+            message = 'Error retrieving comment.'
+            message_class = 'alert alert-warning'
+        else:
+            if user in qset_editors:
+                comment.is_removed = True
+                comment.save()
+                message = 'Comment removed'
+                message_class = 'alert alert-success'
+            else:
+                message = 'You are not authorized to remove comments from this set!'
+                message_class = 'alert alert-warning'
+
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
 
 @login_required
 def add_packets(request, qset_id):

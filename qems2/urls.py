@@ -63,7 +63,8 @@ urlpatterns = patterns('',
     (r'^export_question_set/(?P<qset_id>[0-9]+)/(?P<output_format>.+)/$', export_question_set),
     (r'^delete_writer/$', delete_writer),
     (r'^delete_editor/$', delete_editor),
-    
+    (r'^delete_comment/$', delete_comment),
+        
     (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
     (r'^complete_upload/$', complete_upload),
     (r'^move_tossup/(?P<q_set_id>[0-9]+)/(?P<tossup_id>[0-9]+)/$', move_tossup),

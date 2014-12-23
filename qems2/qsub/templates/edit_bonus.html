@@ -8,6 +8,7 @@
 {% include "sidebar.html" %}
 {% endblock %}
 
+{% load static %}
 {% load comments %}
 {% load filters %}
 
@@ -138,6 +139,9 @@
             {% for comment in comment_list %}
                 {% if not comment.is_removed %}
                     <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br><br>
+                    {% if role == "editor" %}
+                        <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br><br>
+                    {% endif %}
                 {% endif %}
             {% endfor %}        
         {% endautoescape %}
@@ -159,5 +163,7 @@
     </div>
     {% endif %}
 </div>
+
+{% include "dialog.html" %}
 
 {% endblock %}

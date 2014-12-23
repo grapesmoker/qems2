@@ -373,7 +373,10 @@ class Bonus(models.Model):
         super(Bonus, self).save(*args, **kwargs)
 
     def __unicode__(self):
-        return '{0!s}...'.format(strip_markup(self.leadin)[0:40])
+        if (self.get_bonus_type() == ACF_STYLE_BONUS):
+            return '{0!s}...'.format(strip_markup(get_answer_no_formatting(self.leadin))[0:40])
+        else:
+            return '{0!s}...'.format(strip_markup(get_answer_no_formatting(self.part1_answer))[0:40])
 
     def to_json(self):
 

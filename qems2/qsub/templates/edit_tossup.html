@@ -20,8 +20,8 @@
         {% if packet %}
         <li><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
         {% endif %}
-        {% if tossup %}
-        <li><a href="/edit_tossup/{{ tossup.id }}">{{ tossup }}</a></li>
+        {% if tossup %}        
+        <li><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|answer_no_formatting|short_preview }}</a></li>
         {% endif %}
     </ol>
     <h2 class="page-header">Edit Tossup</h2>

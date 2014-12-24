@@ -134,7 +134,8 @@
     <div class="col-md-10">    
         {% if bonus %}
             <p><strong><a href="/move_bonus/{{ qset.id }}/{{ bonus.id }}">Move bonus to another set</a></strong></p>
-            <p><strong><a href="/bonus_history/{{ bonus.id }}">View bonus history</a></strong></p>            
+            <p><strong><a href="/bonus_history/{{ bonus.id }}">View bonus history</a></strong></p>
+            <p><strong><a href="/delete_bonus/{{ bonus.id }}" class="delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">Delete question</a></strong></p>            
         {% endif %}
     </div>    
         

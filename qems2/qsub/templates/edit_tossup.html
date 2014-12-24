@@ -104,7 +104,8 @@
     <div class="col-md-10">    
         {% if tossup %}
             <p><strong><a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}">Move tossup to another set</a></strong></p>
-            <p><strong><a href="/tossup_history/{{ tossup.id }}">View tossup history</a></strong></p>            
+            <p><strong><a href="/tossup_history/{{ tossup.id }}">View tossup history</a></strong></p>   
+            <p><strong><a href="/delete_tossup/{{ tossup.id }}" class="delete_tossup" value="{{ tossup.id }}"  qset-id="{{ qset.id }}">Delete question</a></strong></p>
         {% endif %}        
     </div>
 

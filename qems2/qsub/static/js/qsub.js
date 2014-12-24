@@ -115,6 +115,7 @@ $(function () {
         e.preventDefault();
         var result = confirm("You are about to delete this tossup! If you do so, you will not be able to recover it! Are you ABSOLUTELY SURE you want to do that?!");
         if (result == true) {
+            var qset_id = $(this).attr('qset-id');
             $.post('/delete_tossup/', {tossup_id: $(this).attr('value')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
@@ -122,7 +123,7 @@ $(function () {
                     buttons: {
                         Ok: function() {
                             $(this).dialog('close');
-                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                            window.location.replace('/edit_question_set/' + qset_id);
                         }
                     }
                 })
@@ -136,6 +137,7 @@ $(function () {
         e.preventDefault();
         var result = confirm("You are about to delete this bonus! If you do so, you will not be able to recover it! Are you ABSOLUTELY SURE you want to do that?!");
         if (result == true) {
+            var qset_id = $(this).attr('qset-id');            
             $.post('/delete_bonus/', {bonus_id: $(this).attr('value')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
@@ -143,7 +145,7 @@ $(function () {
                     buttons: {
                         Ok: function() {
                             $(this).dialog('close');
-                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                            window.location.replace('/edit_question_set/' + qset_id);
                         }
                     }
                 })

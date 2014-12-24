@@ -34,10 +34,13 @@
     <div class="col-md-10">
         {% if tossup %}
             {% autoescape off %}
-                <p>Tossup Preview:</p>
-                <p>{{ tossup.tossup_text|safe|question_html }}</p>
-                <p>ANSWER: {{ tossup.tossup_answer|safe|answer_html }}</p>
-                <p>Character count: {{ tossup.character_count }}</p>
+                {{ tossup|tossup_html_verbose }}
+                <p><strong>Written by:</strong> {{ tossup.author }} on {{ tossup.created_date }}<br>
+                <strong>Last modified:</strong> {{ tossup.last_changed_date }}<br>
+                {% if tossup.edited %}
+                    <strong>Edited by:</strong> {{ tossup.editor }} on {{ tossup.edited_date }}
+                {% endif %}
+                </p>
             {% endautoescape %}
         {% endif %}
         

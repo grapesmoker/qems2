@@ -35,6 +35,12 @@
         {% autoescape off %}
             {% if bonus %}
                 {{ bonus|bonus_html_verbose }}
+                <p><strong>Written by:</strong> {{ bonus.author }} on {{ bonus.created_date }}<br>
+                <strong>Last modified:</strong> {{ bonus.last_changed_date }}<br>
+                {% if bonus.edited %}
+                    <strong>Edited by:</strong> {{ bonus.editor }} on {{ bonus.edited_date }}
+                {% endif %}
+                </p>                
             {% endif %}
         {% endautoescape %}
                     

@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 
 from datetime import datetime
+from django.utils import timezone
 import json
 
 from collections import OrderedDict
@@ -222,7 +223,11 @@ class QuestionType(models.Model):
 
     def __unicode__(self):
         return '{0!s}'.format(self.question_type)
-    
+
+# Tossups and tossup history will both reference this, it's how you link
+class QuestionHistory(models.Model):
+    pass
+
 class Tossup (models.Model):
     packet = models.ForeignKey(Packet, null=True)
     question_set = models.ForeignKey(QuestionSet)
@@ -244,6 +249,13 @@ class Tossup (models.Model):
     
     search_tossup_text = models.TextField(default='')
     search_tossup_answer = models.TextField(default='')
+    
+    question_history = models.ForeignKey(QuestionHistory, null=True)
+
+    created_date = models.DateTimeField()    
+    last_changed_date = models.DateTimeField()
+    edited_date = models.DateTimeField(null=True)
+    editor = models.ForeignKey(Writer, null=True, related_name='tossup_editor')
     
     # Calculates character count, ignoring special characters
     def character_count(self):
@@ -299,7 +311,7 @@ class Tossup (models.Model):
             output = output + "<p>Character count: " + str(self.character_count()) + "</p>"
         
         return output
-
+                
     def is_valid(self):
 
         if self.tossup_text == '':
@@ -323,7 +335,43 @@ class Tossup (models.Model):
         self.search_tossup_text = strip_special_chars(self.tossup_text)
         self.search_tossup_answer = strip_special_chars(self.tossup_answer)
 
-
+    def get_question_history(self):
+        tossups = []
+        bonuses = []
+        
+        if (self.question_history is not None):
+            tossups = TossupHistory.objects.filter(question_history=self.question_history)            
+            bonuses = BonusHistory.objects.filter(question_history=self.question_history)
+        
+        return tossups, bonuses
+        
+    def save_question(self, edit_type, changer):
+        print "Changer: " + str(changer)
+        
+        if (self.question_history is None):
+            qh = QuestionHistory()
+            qh.save()
+            self.question_history = qh
+            self.created_date = timezone.now()
+        
+        self.last_changed_date = timezone.now()
+        if (edit_type == QUESTION_EDIT):
+            self.editor = changer
+            self.edited_date = timezone.now()
+        
+        print "Question History: " + str(self.question_history)
+        
+        tossup_history = TossupHistory()
+        tossup_history.tossup_text = self.tossup_text
+        tossup_history.tossup_answer = self.tossup_answer
+        tossup_history.question_type = self.question_type
+        tossup_history.question_history = self.question_history
+        tossup_history.changer = changer
+        tossup_history.change_date = timezone.now()
+        tossup_history.save()
+        
+        self.save()
+                
 class Bonus(models.Model):    
     packet = models.ForeignKey(Packet, null=True)
     question_set = models.ForeignKey(QuestionSet)
@@ -344,6 +392,8 @@ class Bonus(models.Model):
     location = models.CharField(max_length=500)
     question_type = models.ForeignKey(QuestionType, null=True)
 
+    question_history = models.ForeignKey(QuestionHistory, null=True)
+
     author = models.ForeignKey(Writer)
     
     locked = models.BooleanField(default=False)
@@ -358,7 +408,12 @@ class Bonus(models.Model):
     search_part2_text = models.TextField(null=True, default='')
     search_part2_answer = models.TextField(null=True, default='')
     search_part3_text = models.TextField(null=True, default='')
-    search_part3_answer = models.TextField(null=True, default='')    
+    search_part3_answer = models.TextField(null=True, default='')
+    
+    created_date = models.DateTimeField()    
+    last_changed_date = models.DateTimeField()
+    edited_date = models.DateTimeField(null=True)
+    editor = models.ForeignKey(Writer, null=True, related_name='bonus_editor')
 
     # Calculates character count per part, ignoring special characters
     def character_count(self):
@@ -466,7 +521,7 @@ class Bonus(models.Model):
                 output = output + "<p>Character count: " + str(part1_length) + "</p>"
             
         return output        
-
+            
     def is_valid(self):
 
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
@@ -533,14 +588,107 @@ class Bonus(models.Model):
         self.search_part3_answer = strip_special_chars(self.part3_answer)
         
     def get_bonus_type(self):
-        if (self.question_type is None or str(self.question_type) == ''):
-            print "bonus type none"
-            return ACF_STYLE_BONUS
-        elif (str(self.question_type) == VHSL_BONUS):
-            return VHSL_BONUS
-        else:
-            return ACF_STYLE_BONUS        
+        return get_bonus_type_from_question_type(self.question_type)
+        
+    def get_question_history(self):
+        tossups = []
+        bonuses = []
+        
+        if (self.question_history is not None):
+            tossups = TossupHistory.objects.filter(question_history=self.question_history)            
+            bonuses = BonusHistory.objects.filter(question_history=self.question_history)
+            print "is not null"
+        
+        return tossups, bonuses
 
+    def save_question(self, edit_type, changer):
+        print "save question 1"
+        if (self.question_history is None):
+            qh = QuestionHistory()
+            qh.save()
+            self.question_history = qh            
+            self.created_date = timezone.now()
+        
+        self.last_changed_date = timezone.now()
+        if (edit_type == QUESTION_EDIT):
+            self.editor = changer
+            self.edited_date = timezone.now()
+        
+        bonus_history = BonusHistory()
+        bonus_history.leadin = self.leadin
+        bonus_history.part1_text = self.part1_text
+        bonus_history.part1_answer = self.part1_answer
+        bonus_history.part2_text = self.part2_text
+        bonus_history.part2_answer = self.part2_answer
+        bonus_history.part3_text = self.part3_text
+        bonus_history.part3_answer = self.part3_answer        
+        bonus_history.question_type = self.question_type
+        bonus_history.question_history = self.question_history
+        bonus_history.changer = changer
+        bonus_history.change_date = timezone.now()
+        bonus_history.save()
+        self.save()
+        
+        print "bonus_history question_history: " + str(bonus_history.question_history.id)
+        print "self.question_history: " + str(self.question_history.id)
+    
+class TossupHistory(models.Model):
+    tossup_text = models.TextField()
+    tossup_answer = models.TextField()
+    changer = models.ForeignKey(Writer)
+    change_date = models.DateTimeField()
+    question_history = models.ForeignKey(QuestionHistory)
+    question_type = models.ForeignKey(QuestionType, null=True)
+
+    def __unicode__(self):
+        return '{0!s}...'.format(strip_markup(self.tossup_answer)[0:40]) #.decode('utf-8')
+    
+    def to_html(self):
+        output = ''
+        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "</p>"
+        output = output + "<p>" + get_formatted_question_html(self.tossup_answer, True, True, False) + "</p>"
+        output = output + "<p>Changed by " + str(self.changer) + " on " + str(self.change_date) + "</p>"        
+        return output
+    
+class BonusHistory(models.Model):
+    leadin = models.CharField(max_length=500, null=True)
+    part1_text = models.TextField()
+    part1_answer = models.TextField()
+    part2_text = models.TextField(null=True)
+    part2_answer = models.TextField(null=True)
+    part3_text = models.TextField(null=True)
+    part3_answer = models.TextField(null=True)
+    changer = models.ForeignKey(Writer)
+    change_date = models.DateTimeField()    
+    question_history = models.ForeignKey(QuestionHistory)
+    question_type = models.ForeignKey(QuestionType, null=True)
+
+    def to_html(self):
+        output = ''
+        if (self.get_bonus_type() == ACF_STYLE_BONUS):
+            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
+            output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
+            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
+            output = output + "<p>[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "</p>"
+            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "</p>"
+            output = output + "<p>[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "</p>"
+            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<p>"
+        else:
+            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
+            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"        
+
+        output = output + "<p>Changed by " + str(self.changer) + " on " + str(self.change_date) + "</p>"        
+        return output
+
+    def __unicode__(self):
+        if (self.get_bonus_type() == ACF_STYLE_BONUS):
+            return '{0!s}...'.format(strip_markup(get_answer_no_formatting(self.leadin))[0:40])
+        else:
+            return '{0!s}...'.format(strip_markup(get_answer_no_formatting(self.part1_answer))[0:40])
+    
+    def get_bonus_type(self):
+        return get_bonus_type_from_question_type(self.question_type)
+        
 class Tag(models.Model):
 
     pass

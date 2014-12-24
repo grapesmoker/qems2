@@ -244,6 +244,7 @@ def create_bonus(leadin='', parts=[], answers=[], values=[], question_type_text=
     setQuestionType = None
     for questionType in questionTypes:
         if (str(questionType) == question_type_text):
+            print "setQuestionType: " + str(questionType)
             setQuestionType = questionType
             break;
 

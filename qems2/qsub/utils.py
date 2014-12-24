@@ -34,6 +34,12 @@ ACF_STYLE_TOSSUP = 'ACF-style tossup'
 ACF_STYLE_BONUS = 'ACF-style bonus'
 VHSL_BONUS = 'VHSL bonus'
 
+# Constants for edit types
+QUESTION_CREATE = 'Question Create'
+QUESTION_CHANGE = 'Question Change'
+QUESTION_EDIT = 'Question Edit'
+QUESTION_RESTORE = 'Question Restore'
+
 def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
     soup = BeautifulSoup(html)
     for tag in soup.find_all(True):
@@ -188,7 +194,17 @@ def convert_smart_quotes(line):
 
 def strip_special_chars(line):
     return line.replace('_', '').replace('~', '')
-
+        
+def get_bonus_type_from_question_type(question_type):
+    if (question_type is None or str(question_type) == ''):
+        print "bonus type none"
+        return ACF_STYLE_BONUS
+    elif (str(question_type) == VHSL_BONUS):
+        return VHSL_BONUS
+    else:
+        return ACF_STYLE_BONUS        
+    
+        
 class InvalidTossup(Exception):
 
     def __init__(self, *args):

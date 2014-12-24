@@ -237,6 +237,50 @@ $(function () {
         }
     });
 
+    $('.restore_tossup').click(function(e) {
+        e.preventDefault();        
+        var result = confirm("Are you sure that you want to restore this question to this version?");
+        if (result == true) {
+            $.post('/restore_tossup/', {th_id: $(this).attr('value'), qset_id: $(this).attr('qset')}, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $(this).dialog('close');
+                            window.location.reload();
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
+        }
+    });
+
+
+    $('.restore_bonus').click(function(e) {
+        e.preventDefault();        
+        var result = confirm("Are you sure that you want to restore this question to this version?");
+        if (result == true) {
+            $.post('/restore_bonus/', {bh_id: $(this).attr('value'), qset_id: $(this).attr('qset')}, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $(this).dialog('close');
+                            window.location.reload();
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
+        }
+    });
+
+
     $('#upload-dialog').dialog({
         autoOpen: false,
         width: 600,

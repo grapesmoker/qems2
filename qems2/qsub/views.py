@@ -708,7 +708,7 @@ def add_tossups(request, qset_id, packet_id=None):
                         tossup.packet_id = packet_id
                         tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
                     
-                    tossup.save()
+                    tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
                     message = 'Your tossup has been successfully added to the set! Write more questions!'
                     message_class = 'alert alert-success'                     
                     
@@ -832,7 +832,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
 
                 try:
                     bonus.is_valid()
-                    bonus.save()
+                    bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
                     message = 'Your bonus has been successfully added to the set! Write more questions!'
                     message_class = 'alert alert-success'
                     
@@ -942,6 +942,8 @@ def edit_tossup(request, tossup_id):
                 print form.cleaned_data['tossup_answer']
                 
                 read_only = False
+                
+                is_tossup_already_edited = tossup.edited                
 
                 tossup.tossup_text = strip_markup(form.cleaned_data['tossup_text'])
                 tossup.tossup_answer = strip_markup(form.cleaned_data['tossup_answer'])
@@ -954,7 +956,11 @@ def edit_tossup(request, tossup_id):
                 
                 try:
                     tossup.is_valid()
-                    tossup.save()
+                    change_type = QUESTION_CHANGE
+                    if (not is_tossup_already_edited and tossup.edited == True):
+                        change_type = QUESTION_EDIT
+                    
+                    tossup.save_question(edit_type=change_type, changer=user)
                     tossup_length = tossup.character_count()
                     print "Tossup saved"
                     message = 'Your changes have been saved!'
@@ -1059,6 +1065,8 @@ def edit_bonus(request, bonus_id):
                 can_change = False
 
             if form.is_valid() and can_change:
+                is_bonus_already_edited = bonus.edited
+                
                 bonus.leadin = strip_markup(form.cleaned_data['leadin'])
                 bonus.part1_text = strip_markup(form.cleaned_data['part1_text'])
                 bonus.part1_answer = strip_markup(form.cleaned_data['part1_answer'])
@@ -1075,8 +1083,11 @@ def edit_bonus(request, bonus_id):
                 
                 try:
                     bonus.is_valid()
+                    change_type = QUESTION_CHANGE
+                    if (not is_bonus_already_edited and bonus.edited):
+                        change_type = QUESTION_EDIT
                     
-                    bonus.save()
+                    bonus.save_question(edit_type=change_type, changer=user)
                     leadin_length, part1_length, part2_length, part3_length = bonus.character_count()    
 
                     message = 'Your changes have been saved!'
@@ -1563,168 +1574,6 @@ def change_question_order(request):
 #             question.question_number += direction
 #             question.save()
 
-def add_question(request, type, packet_id):
-    
-    # need some role checking here to make sure user is authorized to do this
-    # also allowed categories have to be restricted
-    
-    if request.user.is_authenticated():
-        player = request.user.get_profile()
-        packet = Packet.objects.get(id=packet_id)
-        team = packet.team
-        
-        if player not in packet.authors.all():
-            return render_to_response('failure.html',
-                                      {'message': 'You are not authorized to edit this packet!'})
-        
-        
-        if request.method == 'POST':
-            if type == 'tossup':
-                form = TossupForm(request.POST)
-            elif type == 'bonus':
-                form = BonusForm(request.POST)
-            else:
-                return render_to_response('failure.html',
-                                          {'message': 'Unknown question type specified!',
-                                           'message_type': 'error'})   
-            if form.is_valid():
-                question = form.save(commit=False)
-                     
-                if player.teamrole_set.filter(team_id=team.id).exists():
-                    player_role = player.teamrole_set.get(team_id=team.id)
-                    allowed_categories = player_role.category.split(';')
-                    selected_category = form.cleaned_data['category']
-                else:
-                    player_role = None
-                    allowed_categories = []
-                    selected_category = []
-
-                print allowed_categories, selected_category
-
-                if selected_category not in allowed_categories:
-                    return render_to_response('addquestion.html',
-                                              {'form': form,
-                                               'message': 'You cannot add questions of this category type. ' \
-                                               'If you want to add questions from this category, ask the team manager to assign it to you. ' \
-                                               'Your input has NOT been saved!',
-                                               'message_type': 'error'},
-                                              context_instance=RequestContext(request))
-                question.author = player
-                question.packet = packet
-                question.save()
-                
-                return HttpResponseRedirect('/editquestion/' + type + '/' + str(question.id))
-            else:
-                return render_to_response('addquestion.html',
-                                          {'form': form,
-                                           'packet': packet},
-                                          context_instance=RequestContext(request))
-        else:
-            if type == 'tossup':
-                form = TossupForm()
-            elif type == 'bonus':
-                form = BonusForm()
-            else:
-                return render_to_response('failure.html',
-                                          {'message': 'Unknown question type specified!',
-                                           'message_type': 'error'})
-
-            return render_to_response('addquestion.html',
-                                      {'form': form,
-                                       'packet': packet},
-                                      context_instance=RequestContext(request))
-        
-    else:
-        return HttpResponseRedirect('/accounts/login/')
-    
-def edit_question(request, type, question_id):
-    
-    if type != 'tossup' and type != 'bonus':
-        return render_to_response('failure.html',
-                                  {'message': 'Not a valid question type!',
-                                   'message_type': 'error'})
-    
-    if request.user.is_authenticated():
-        player = request.user.get_profile()
-        if type == 'tossup':
-            question = Tossup.objects.get(id=question_id)
-        elif type == 'bonus':
-            question = Bonus.objects.get(id=question_id)
-            
-        packet = question.packet
-        team = packet.team
-        
-        if request.method == 'POST':
-            if type == 'tossup':
-                form = TossupForm(request.POST)
-            elif type == 'bonus':
-                form = BonusForm(request.POST)
-                
-            if form.is_valid():
-                
-                if player.teamrole_set.filter(team_id=team.id).exists():
-                    player_role = player.teamrole_set.get(team_id=team.id)
-                    allowed_categories = player_role.category.split(';')
-                    selected_category = form.cleaned_data['category']
-                else:
-                    player_role = None
-                    allowed_categories = []
-                    selected_category = []
-
-                print allowed_categories, selected_category
-
-                if selected_category not in allowed_categories:
-                    return render_to_response('editquestion.html',
-                                              {'form': form,
-                                               'message': 'You cannot edit questions of this category type. ' \
-                                               'If you want to edit questions from this category, ask the team manager to assign it to you. ' \
-                                               'Your input has NOT been saved!',
-                                               'message_type': 'error'},
-                                              context_instance=RequestContext(request))
-                
-
-                if type == 'tossup':
-                    question.tossup_text = form.cleaned_data['tossup_text']
-                    question.tossup_answer = form.cleaned_data['tossup_answer']
-                    
-                elif type == 'bonus':
-                    question.leadin = form.cleaned_data['leadin']
-                    question.part1_text = form.cleaned_data['part1_text']
-                    question.part2_text = form.cleaned_data['part2_text']
-                    question.part3_text = form.cleaned_data['part3_text']
-                    question.part1_answer = form.cleaned_data['part1_answer']
-                    question.part2_answer = form.cleaned_data['part2_answer']
-                    question.part3_answer = form.cleaned_data['part3_answer']
-                
-                question.category = form.cleaned_data['category']
-                question.subtype = form.cleaned_data['subtype']
-                question.location = form.cleaned_data['location']
-                question.time_period = form.cleaned_data['time_period']
-                question.save()
-                
-            return render_to_response('editquestion.html',
-                                      {'form': form,
-                                       'packet': packet},
-                                       context_instance=RequestContext(request))
-        else:
-            if type == 'tossup':
-                form = TossupForm(instance=question)
-            elif type == 'bonus':
-                form = BonusForm(instance=question)
-            
-        return render_to_response('editquestion.html',
-                                  {'form': form,
-                                   'packet': packet},
-                                  context_instance=RequestContext(request))
-        
-    else:
-        return HttpResponseRedirect('/accounts/login/')
-            
-            
-def add_bonus(request, packet_id):
-    pass
-
-
 @login_required
 def distributions (request):
     
@@ -2088,7 +1937,6 @@ def type_questions(request, qset_id=None):
 @login_required
 def complete_upload(request):
     user = request.user.writer
-
     if request.method == 'POST':
         qset_id = request.POST['qset-id']
         qset = QuestionSet.objects.get(id=qset_id)
@@ -2129,10 +1977,11 @@ def complete_upload(request):
             
             new_tossup.locked = False
             new_tossup.edited = False
-
-            new_tossup.save()
+            
+            new_tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
 
         for bs_num in range(num_bonuses):
+            print "in bs_num"
             bs_leadin_name = 'bonus-leadin-{0}'.format(bs_num)
 
             bs_part1_name = 'bonus-part1-{0}'.format(bs_num)
@@ -2164,13 +2013,13 @@ def complete_upload(request):
                 if (formattedCategory == bonus_cat):
                     new_bonus.category = category
                     break
-                    
+            
             for questionType in questionTypes:
-                if (str(questionType) == bs_type_name):
+                if (str(questionType) == bs_type):
                     new_bonus.question_type = questionType
                     break
 
-            new_bonus.save()
+            new_bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
 
         messages.success(request, 'Your questions have been uploaded!')
         return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
@@ -2644,6 +2493,188 @@ def export_question_set(request, qset_id, output_format):
                                  'message_class': message_class},
                                  context_instance=RequestContext(request))
 
+@login_required
+def restore_tossup(request):
+    print "restore tossup"
+    user = request.user.writer
+
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        th_id = request.POST['th_id']
+        tossup_history = TossupHistory.objects.get(id=th_id)
+        tossup = Tossup.objects.get(question_history=tossup_history.question_history)
+        print "foo1"
+        if (tossup_history is None):
+            message = 'Invalid tossup history restoration!'
+            message_class = 'alert alert-warning'
+        else:
+            qset_id = request.POST['qset_id']
+            print "qset_id: " + str(qset_id)
+            qset = QuestionSet.objects.get(id=qset_id)
+            print "qset: " + str(qset)
+            if user == tossup.author or user == qset.owner or user in qset.editor.all():
+                print "foo1.5"
+                tossup = Tossup.objects.get(question_history=tossup_history.question_history)
+                print "foo2"
+                if (tossup is None):
+                    message = 'Invalid tossup restoration!'
+                    message_class = 'alert alert-warning'
+                else:
+                    tossup.tossup_answer = tossup_history.tossup_answer
+                    tossup.tossup_text = tossup_history.tossup_text
+                    tossup.save_question(edit_type=QUESTION_RESTORE, changer=user)
+                    message = 'Successfully restored question'
+                    message_class = 'alert alert-success'                    
+            else:
+                message = 'You are not authorized to restore this question!'
+                message_class = 'alert alert-warning'
+            
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
+@login_required
+def restore_bonus(request):
+    user = request.user.writer
+
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        bh_id = request.POST['bh_id']
+        bonus_history = BonusHistory.objects.get(id=bh_id)
+        bonus = Bonus.objects.get(question_history=bonus_history.question_history)        
+        if (bonus_history is None):
+            message = 'Invalid bonus history restoration!'
+            message_class = 'alert alert-warning'
+        else:
+            qset_id = request.POST['qset_id']
+            qset = QuestionSet.objects.get(id=qset_id)
+            if user == bonus.author or user == qset.owner or user in qset.editor.all():
+                bonus = Bonus.objects.get(question_history=bonus_history.question_history)
+                if (bonus is None):
+                    message = 'Invalid bonus restoration!'
+                    message_class = 'alert alert-warning'
+                else:
+                    bonus.question_type = bonus_history.question_type
+                    bonus.leadin = bonus_history.leadin
+                    bonus.part1_text = bonus_history.part1_text
+                    bonus.part1_answer = bonus_history.part1_answer
+                    bonus.part2_text = bonus_history.part2_text
+                    bonus.part2_answer = bonus_history.part2_answer
+                    bonus.part3_text = bonus_history.part3_text
+                    bonus.part3_answer = bonus_history.part3_answer                                        
+                    bonus.save_question(edit_type=QUESTION_RESTORE, changer=user)
+                    message = 'Successfully restored question'
+                    message_class = 'alert alert-success'                    
+            else:
+                message = 'You are not authorized to restore this question!'
+                message_class = 'alert alert-warning'
+            
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
+@login_required
+def tossup_history(request, tossup_id):
+    user = request.user.writer
+    if request.method == 'GET':
+        tossup = Tossup.objects.get(id=tossup_id)
+        if (tossup is None):
+            message = 'Invalid tossup'
+            message_class = 'alert alert-danger'
+            tossup = None
+        else:
+            q_set = tossup.question_set
+            print "q_Set: " + str(q_set)
+            if (q_set is None):
+                message = 'Invalid question set'
+                message_class = 'alert alert-danger'
+                tossup = None
+            else:
+                q_set_writers = q_set.editor.all() | q_set.writer.all()
+                if (user in q_set_writers):                    
+                    tossup_histories, bonus_histories = tossup.get_question_history()
+                    message = ''
+                    message_class = ''
+                    
+                    return render_to_response('tossup_history.html',
+                                        {'user': user,
+                                         'qset': q_set,
+                                         'tossup': tossup,
+                                         'tossup_histories': tossup_histories,
+                                         'bonus_histories': bonus_histories,
+                                         'message': message,
+                                         'message_class': message_class},
+                                         context_instance=RequestContext(request))
+                    
+                else:
+                    message = "You don't have permission to view this question"
+                    message_class = 'alert alert-danger'
+                    tossup = None
+                    
+
+    return render_to_response('tossup_history.html',
+                        {'user': user,
+                         'q_set': q_set,
+                         'tossup': tossup,
+                         'tossup_histories': [],
+                         'bonus_histories': [],
+                         'message': message,
+                         'message_class': message_class},
+                         context_instance=RequestContext(request))
+
+@login_required
+def bonus_history(request, bonus_id):
+    user = request.user.writer
+    if request.method == 'GET':        
+        bonus = Bonus.objects.get(id=bonus_id)
+        if (bonus is None):
+            message = 'Invalid bonus'
+            message_class = 'alert alert-danger'
+            bonus = None
+        else:
+            q_set = bonus.question_set
+            if (q_set is None):
+                message = 'Invalid question set'
+                message_class = 'alert alert-danger'
+                bonus = None
+            else:
+                q_set_writers = q_set.editor.all() | q_set.writer.all()
+                print q_set_writers
+                print user        
+                if (user in q_set_writers):
+                    message = ''
+                    message_class = ''
+                    
+                    tossup_histories, bonus_histories = bonus.get_question_history()
+                    return render_to_response('bonus_history.html',
+                                        {'user': user,
+                                         'qset': q_set,
+                                         'bonus': bonus,
+                                         'tossup_histories': tossup_histories,
+                                         'bonus_histories': bonus_histories,
+                                         'message': message,
+                                         'message_class': message_class},
+                                         context_instance=RequestContext(request))
+                    
+                else:
+                    message = "You don't have permission to view this question"
+                    message_class = 'alert alert-danger'
+                    bonus = None
+                    
+
+    return render_to_response('bonus_history.html',
+                        {'user': user,
+                         'q_set': q_set,
+                         'bonus': bonus,
+                         'tossup_histories': [],
+                         'bonus_histories': [],
+                         'message': message,
+                         'message_class': message_class},
+                         context_instance=RequestContext(request))
+    
+    
 
 # @login_required
 # def password(request):

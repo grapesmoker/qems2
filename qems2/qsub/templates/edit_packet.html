@@ -4,10 +4,6 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% block title %}Edit Packet - QEMS2{% endblock %}
 
 {% block content %}
@@ -15,12 +11,8 @@
 {% load filters %}
 {% load comments %}
 
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
-    <ol class="breadcrumb">
-        <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
-        <li><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
-    </ol>
-    <h2 class="page-header">Editing Packet: {{ packet.packet_name }}</h2>
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    <h3 class="page-header">Editing Packet: {{ packet.packet_name }}</h3>
     {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}
@@ -28,11 +20,11 @@
     <div class="tabbable">
         <ul class="nav nav-tabs">
             <li class="active">
-				<a href="#status" data-toggle="tab">Packet status</a>
-			</li>
-			<li>
-				<a href="#tossups" data-toggle="tab">Tossups</a>
-			</li>
+                <a href="#status" data-toggle="tab">Packet Status</a>
+            </li>
+            <li>
+                <a href="#tossups" data-toggle="tab">Tossups</a>
+            </li>
             <li>
                 <a href="#bonuses" data-toggle="tab">Bonuses</a>
             </li>
@@ -40,7 +32,7 @@
         <div class="tab-content">
             <div class="tab-pane active" id="status">
                 <table class="table table-striped table-hover">
-                    <caption class="alert alert-info">
+                    <caption class="alert alert-info text-center">
                         <strong>Packet Completion Status</strong>
                     </caption>
                     <thead>

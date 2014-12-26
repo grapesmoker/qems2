@@ -4,10 +4,6 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% block title %}{% if search_term %}{{ search_term }} - Search - QEMS2{% else %}Search - QEMS2{% endif %}{% endblock %}
 
 
@@ -15,21 +11,14 @@
 {% load static %}
 {% load filters %}
 
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
-    {% if passed_q_set %}
-    <ol class="breadcrumb">
-        <li><a href="/edit_question_set/{{ passed_q_set.id }}">{{ passed_q_set }}</a></li>
-    </ol>
-    {% endif %}
-    
-    <h2 class="page-header">Question Search</h2>
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    <h3 class="page-header">Question Search</h3>
     {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}
     <form role="form" method="get" action=".">
         <div class="form-group">
-            <label for="id_q">Search: </label>
-            <input type="search" id="id_q" name="q" class="form-control" value="{% if search_term %}{{ search_term }}{% endif %}">
+            <input type="search" id="id_q" name="q" class="form-control" placeholder="Search Term" value="{% if search_term %}{{ search_term }}{% endif %}">
         </div>
         <div class="checkbox">
             <label for="id_models_0">Search in:
@@ -37,17 +26,17 @@
                     {% if tossups_selected == "checked" %}
                         <input checked="checked" id="id_models_0" name="models" type="checkbox" value="qsub.tossup"/>
                     {% else %}
-                        <input id="id_models_0" name="models" type="checkbox" value="qsub.tossup"/>                    
-                    {% endif %}                    
+                        <input id="id_models_0" name="models" type="checkbox" value="qsub.tossup"/>
+                    {% endif %}
                     Tossups
                 </label>
             </label>
             <label for="id_models_1">
                 {% if bonuses_selected == "checked" %}
-                    <input checked="checked" id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>                
+                    <input checked="checked" id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>
                 {% else %}
-                    <input id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>                 
-                {% endif%}               
+                    <input id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>
+                {% endif%}
                 Bonuses
             </label>
         </div>

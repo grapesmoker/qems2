@@ -2217,7 +2217,7 @@ def profile(request):
 
     return render_to_response('profile.html',
             {'form': form,
-             'user': user},
+             'user': request.user.writer},
             context_instance=RequestContext(request))
 
 @login_required()

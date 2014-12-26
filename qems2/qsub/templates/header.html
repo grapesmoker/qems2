@@ -1,7 +1,7 @@
 <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="container-fluid">
         <div class="navbar-header">
-            <a class="navbar-brand" href="/main/">QEMS 2 Home</a>
+            <a class="navbar-brand" href="/main/">Home</a> {% if qset %}<a class="navbar-brand" href="/edit_question_set/{{ qset.id }}">&raquo; {{ qset }}</a>{% endif %} {% if passed_q_set %}<a class="navbar-brand" href="/edit_question_set/{{ passed_q_set.id }}">&raquo; {{ passed_q_set }}</a>{% endif %} {% if packet %}<a class="navbar-brand" href="/edit_packet/{{ packet.id }}">&raquo; {{ packet }}</a>{% endif %}
         </div>
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav navbar-right">

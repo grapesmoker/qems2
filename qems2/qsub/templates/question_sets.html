@@ -4,10 +4,6 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% block title %}Question Sets - QEMS2{% endblock %}
 
 {% block content %}
@@ -15,49 +11,55 @@
 
 
 
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-    <h2 class="page-header">Question Sets</h2>
-    <!--<div class="tabbable">-->
-		<ul class="nav nav-tabs" role="tablist">
-			{% for qset_type in question_set_list %}
-			<li class="{% if forloop.first %}active{% endif %}">
-				<a href="#{{ qset_type.id }}" role="tab" data-toggle="tab">{{ qset_type.header }}</a>
-			</li>
-			{% endfor %}
-		</ul>
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1 main">
+    <h3 class="page-header">Home</h3>
+    <div class="tabbable">
+        <ul class="nav nav-tabs nav-stacked">
+            <li>
+                <a href="/edit_distribution/">Distribution Entry</a>
+            </li>
+            <li>
+                <a href="/create_question_set/">Create Question Set</a>
+            </li>
+            <li class="active">
+                <a href="#qset-entry">Question Sets</a>
+            </li>
+        </ul>
 
-		<div class="tab-content">
-			{% for qset_type in question_set_list  %}
-			<div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ qset_type.id }}">
-				{% if forloop.first %}
-				<a href="/create_question_set/" class="btn btn-primary" title="Create new question set">
-					<i class="icon-plus"></i> Create new question set
-				</a>
-				{% endif %}
-				<table class="tablesorter table table-striped table-hover" id="question-set-table">
-					<thead>
-						<tr>
-							<th>Question set name</th>
-							<th>Date</th>
-							<th>Host</th>
-							<th>Location</th>
-						</tr>
-					</thead>
-					<tbody>
-					{% for qset in qset_type.qsets %}
-					<tr>
-						<td><a href="/edit_question_set/{{ qset.id }}/">{{ qset.name }}</a></td>
-						<td>{{ qset.date }}</td>
-						<td>{{ qset.host }}</td>
-						<td>{{ qset.location }}</td>
-					</tr>
-					{% endfor %}
-					</tbody>
-				</table>
-			</div>
-			{% endfor %}
-		</div>
-	<!--</div>-->
+        <div class="tab-content">
+            <ul class="nav nav-tabs nav-justified" role="tablist" id="#qset-entry">
+                {% for qset_type in question_set_list %}
+                <li class="{% if forloop.first %}active{% endif %}">
+                    <a href="#{{ qset_type.id }}" role="tab" data-toggle="tab">{{ qset_type.header }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+            {% for qset_type in question_set_list  %}
+            <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ qset_type.id }}">
+                <table class="tablesorter table table-striped table-hover" id="question-set-table">
+                    <thead>
+                        <tr>
+                            <th>Question set name</th>
+                            <th>Date</th>
+                            <th>Host</th>
+                            <th>Location</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for qset in qset_type.qsets %}
+                    <tr>
+                        <td><a href="/edit_question_set/{{ qset.id }}/">{{ qset.name }}</a></td>
+                        <td>{{ qset.date }}</td>
+                        <td>{{ qset.host }}</td>
+                        <td>{{ qset.location }}</td>
+                    </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
 </div>
 
 {% endblock %}

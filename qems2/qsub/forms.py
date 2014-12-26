@@ -87,6 +87,11 @@ class TossupForm(forms.ModelForm):
     tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 5}))
     search_tossup_text = forms.CharField(widget=forms.HiddenInput, required=False)
     search_tossup_answer = forms.CharField(widget=forms.HiddenInput, required=False)
+    question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
+    editor = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
+    edited_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
+    last_changed_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
+    created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)    
 
     category = forms.ModelChoiceField([])
 
@@ -159,6 +164,11 @@ class BonusForm(forms.ModelForm):
     search_part2_answer = forms.CharField(widget=forms.HiddenInput, required=False)
     search_part3_text = forms.CharField(widget=forms.HiddenInput, required=False)
     search_part3_answer = forms.CharField(widget=forms.HiddenInput, required=False)
+    question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
+    editor = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
+    edited_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
+    last_changed_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
+    created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)    
 
     class Meta:
         model = Bonus

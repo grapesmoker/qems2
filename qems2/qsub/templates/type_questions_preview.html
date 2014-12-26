@@ -61,21 +61,8 @@
             <h3>Submitted Bonuses</h3>
             {% autoescape off %}
                 {% for bonus in bonuses %}
-                <p>{{ bonus.leadin|safe|question_html }}<br>
-                    [10]
-                    {{ bonus.part1_text|safe|question_html }}<br>
-                    {{ bonus.part1_answer|safe|answer_html }}<br>
-                    [10]
-                    {{ bonus.part2_text|safe|question_html }}<br>
-                    {{ bonus.part2_answer|safe|answer_html }}<br>
-                    [10]
-                    {{ bonus.part3_text|safe|question_html }}<br>
-                    {{ bonus.part3_answer|safe|answer_html }}<br>
-                    Type: {{ bonus.question_type|safe}}<br>
-                    {% if bonus.category != '' %}
-                        Category: {{ bonus.category|safe}} <br>
-                    {% endif %}
-                </p>
+                {{ bonus|bonus_html_verbose }}
+                
 
                 <input type="hidden" name="bonus-leadin-{{ forloop.counter0 }}" value="{{ bonus.leadin|safe }}">
                 <input type="hidden" name="bonus-category-{{ forloop.counter0 }}" value="{{ bonus.category }}">

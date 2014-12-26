@@ -180,5 +180,13 @@ def bonus_leadin(bonus):
 def bonus_html_verbose(bonus):
     return bonus.to_html(include_category=True, include_character_count=True)
 
+@register.filter(name='tossup_history_html')
+def tossup_history_html(tossup):
+    return tossup.to_html()
+
+@register.filter(name='bonus_history_html')    
+def bonus_history_html(bonus):
+    return bonus.to_html()
+
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

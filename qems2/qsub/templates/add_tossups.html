@@ -10,6 +10,10 @@
 
 <div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
     <h3 class="page-header">Add a Tossup</h3>
+    <div class="btn-group btn-group-justified">
+        <a class="btn btn-primary" href="/add_bonuses/{{ qset.id }}/ACF-style bonus/{% if packet %}{{ packet.id }}{% endif %}">Switch to adding an ACF bonus</a>
+        <a class="btn btn-primary" href="/add_bonuses/{{ qset.id }}/VHSL bonus/{% if packet %}{{ packet.id }}{% endif %}">Switch to adding a VHSL bonus</a>
+    </div>
     {% autoescape off %}
         {% if message %}
         <div class="{{ message_class }}">
@@ -17,8 +21,6 @@
         </div>
         {% endif %}
     {% endautoescape %}
-    <p><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus">Switch to adding an ACF-style bonus</a></p>
-    <p><a href="/add_bonuses/{{ qset.id }}/VHSL bonus">Switch to adding a VHSL bonus</a></p>    
     <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
     <p>Do not include ANSWER: in your answer line.</p>
     <form action="" method="post">

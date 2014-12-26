@@ -6,37 +6,31 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% block content %}
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
-    <h2 class="page-header">Available Distributions</h2>
-	<table class="tablesorter" id="distributions-table">
-		<!--<caption class="alert alert-info">
-			<strong>Available distributions</strong>
-		</caption>-->
-		<thead>
-			<th>Distribution name</th>
-		</thead>
-		<tbody>
-			{% if not dists %}
-				<td>No distributions available. Create one!</td>
-			{% else %}
-			{% for dist in dists %}
-			<tr>
-				<td>
-					<a href="/edit_distribution/{{ dist.id }}/">
-					{{ dist.name }}
-					</a>
-				</td>
-			</tr>
-			{% endfor %}
-			{% endif %}
-		</tbody>
-	</table>
-	
-	<a href="/edit_distribution/" class="btn btn-primary"><i class="icon-plus"></i> New distribution</a>
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    <h3 class="page-header">Available Distributions</h3>
+    <div class="btn-group btn-group-justified">
+        <a href="/edit_distribution/" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Distribution</a>
+    </div>
+    <table class="tablesorter" id="distributions-table">
+        <thead>
+            <th>Distribution Name</th>
+        </thead>
+        <tbody>
+            {% if not dists %}
+                <td>No distributions available. Create one!</td>
+            {% else %}
+            {% for dist in dists %}
+            <tr>
+                <td>
+                    <a href="/edit_distribution/{{ dist.id }}/">
+                    {{ dist.name }}
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
 </div>
 {% endblock %}

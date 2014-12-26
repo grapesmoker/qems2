@@ -4,46 +4,40 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% block title %}Add Bonus - QEMS2{% endblock %}
 
 {% block content %}
 
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
-    <ol class="breadcrumb">
-        <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
-    </ol>
-    {% if question_type == "ACF-style bonus" %}    
-        <h2 class="page-header">Add an ACF-Style Bonus</h2>
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    {% if question_type == "ACF-style bonus" %}
+        <h3 class="page-header">Add an ACF Bonus</h3>
     {% else %}
-        <h2 class="page-header">Add a VHSL Bonus</h2>    
+        <h3 class="page-header">Add a VHSL Bonus</h3>
     {% endif %}
-    {% autoescape off %}        
+    {% autoescape off %}
         {% if message %}
         <div class="{{ message_class }}">
             {{ message }} {% if bonus_id %} - or see your <a href="/edit_bonus/{{ bonus_id }}">submitted bonus</a> {% endif %}
         </div>
         {% endif %}
     {% endautoescape %}
-    <p><a href="/add_tossups/{{ qset.id }}">Switch to adding a tossup</a></p>
-    {% if question_type == "ACF-style bonus" %}
-        <p><a href="/add_bonuses/{{ qset.id }}/VHSL bonus">Switch to adding a VHSL bonus</a></p>        
-    {% else %}
-        <p><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus">Switch to adding an ACF-style bonus</a></p>
-    {% endif %}
-    <p></p>
+    <div class="btn-group btn-group-justified">
+        <a class="btn btn-primary" href="/add_tossups/{{ qset.id }}">Switch to adding a tossup</a>
+        {% if question_type == "ACF-style bonus" %}
+            <a class="btn btn-primary" href="/add_bonuses/{{ qset.id }}/VHSL bonus">Switch to adding a VHSL bonus</a>
+        {% else %}
+            <a class="btn btn-primary" href="/add_bonuses/{{ qset.id }}/ACF-style bonus">Switch to adding an ACF bonus</a>
+        {% endif %}
+    </div>
     <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
     <p>It is not necessary to include [10] labels to bonus parts or the word ANSWER: in answer lines.</p>
     <p>If you're writing a VHSL bonus, only fill in Part1 text and Part1 answer.</p>
     <form action="" method="post">
         {% csrf_token %}
         {{ form.non_field_errors }}
-        
+
         {% if not read_only %}
-        
+
             {% if question_type == "ACF-style bonus" %}
                 <div class="fieldWrapper">
                     {{ form.leadin.errors }}
@@ -51,7 +45,7 @@
                     <p>{{ form.leadin }}</p>
                 </div>
             {% endif %}
-            
+
             <div class="fieldWrapper">
                 {{ form.part1_text.errors }}
                 <p><label for="{{ form.part1_text.id_for_label }}">Part 1 text:</label></p>

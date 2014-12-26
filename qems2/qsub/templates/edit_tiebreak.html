@@ -4,10 +4,6 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% block title %}Edit Tiebreakers - QEMS2{% endblock %}
 
 {% block content %}
@@ -18,8 +14,8 @@
     Errors in your form! All question numbers are required!
 </div>
 {% endif %}
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-    <h2 class="page-header">Tiebreaker Distributions</h2>
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    <h3 class="page-header">Tiebreaker Distributions</h3>
     {% if message %}
     <div class="alert {{ message_class }}">{{ message }}</div>
     {% endif %}

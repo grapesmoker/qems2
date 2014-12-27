@@ -188,3 +188,102 @@ def export_packet_reportlab(packet_id):
     qset = packet.question_set
 
     pdf_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "pdf"),)
+
+def tossup_to_bonus(tossup, output_question_type):
+    if (output_question_type == ACF_STYLE_BONUS):
+        if (tossup.get_tossup_type() == ACF_STYLE_TOSSUP):
+            bonus = copy_to_bonus(tossup)
+            bonus.question_type = QuestionType.objects.get(question_type=ACF_STYLE_BONUS)
+            bonus.leadin = tossup.tossup_text
+            bonus.part1_answer = tossup.tossup_answer
+            bonus.part1_text = ""
+            bonus.part2_text = ""
+            bonus.part2_answer = ""
+            bonus.part3_text = ""
+            bonus.part3_answer = ""
+            bonus.save()
+            tossup.delete()
+    elif (output_question_type == VHSL_BONUS):
+        if (tossup.get_tossup_type() == ACF_STYLE_TOSSUP):
+            bonus = copy_to_bonus(tossup)
+            bonus.part1_text = tossup.tossup_text
+            bonus.part1_answer = tossup.tossup_answer
+            bonus.question_type = QuestionType.objects.get(question_type=VHSL_STYLE_BONUS)            
+            bonus.leadin = ""
+            bonus.part2_text = ""
+            bonus.part2_answer = ""
+            bonus.part3_text = ""
+            bonus.part3_answer = ""
+            bonus.save()
+            tossup.delete()                  
+        
+def tossup_to_tossup(tossup, output_question_type):
+    pass # No-op for now since there's just one type of tossup
+
+def bonus_to_bonus(bonus, output_question_type):
+    if (output_question_type == ACF_STYLE_BONUS):
+        if (bonus.get_bonus_type() == VHSL_BONUS):
+            bonus.question_type = QuestionType.objects.get(question_type=ACF_STYLE_BONUS)
+            bonus.leadin = ""
+            bonus.part2_text = ""
+            bonus.part2_answer = ""
+            bonus.part3_text = ""
+            bonus.part3_answer = ""
+            bonus.save()
+    elif (output_question_type == VHSL_BONUS):
+        if (bonus.get_bonus_type() == ACF_STYLE_BONUS):
+            bonus.question_type = QuestionType.objects.get(question_type=VHSL_BONUS)
+            bonus.part1_text = bonus.leadin + " " + bonus.part1_text + " " + bonus.part1_answer + " " + bonus.part2_text + " " + bonus.part2_answer + " " + bonus.part3_text + " " + bonus.part3_answer
+            bonus.leadin = ""
+            bonus.part2_text = ""
+            bonus.part2_answer = ""
+            bonus.part3_text = ""
+            bonus.part3_answer = ""
+            bonus.save()            
+        
+def bonus_to_tossup(bonus, output_question_type):
+    if (output_question_type == ACF_STYLE_TOSSUP):
+        if (bonus.get_bonus_type() == VHSL_BONUS):
+            tossup = copy_to_tossup(bonus)
+            tossup.question_type = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
+            tossup.tossup_text = bonus.part1_text
+            tossup.tossup_answer = bonus.part1_answer
+            tossup.save()
+            bonus.delete()            
+        elif (bonus.get_bonus_type() == ACF_STYLE_BONUS):
+            tossup = copy_to_tossup(bonus)
+            tossup.question_type = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
+            tossup.tossup_text = bonus.leadin + " " + bonus.part1_text + " " + bonus.part1_answer + " " + bonus.part2_text + " " + bonus.part2_answer + " " + bonus.part3_text + " " + bonus.part3_answer
+            tossup.tossup_answer = bonus.part1_answer
+            tossup.save()
+            bonus.delete()                        
+        
+def copy_to_tossup(bonus):
+    tossup = Tossup()
+    tossup.packet = bonus.packet
+    tossup.question_set = bonus.question_set
+    tossup.category = bonus.category
+    tossup.subtype = bonus.subtype
+    tossup.time_period = bonus.time_period
+    tossup.location = bonus.location
+    tossup.author = bonus.author
+    tossup.question_history = bonus.question_history
+    tossup.created_date = bonus.created_date
+    tossup.created_by = bonus.created_by
+    tossup.last_changed_date = bonus.last_changed_date
+    return tossup
+    
+def copy_to_bonus(tossup):
+    bonus = Bonus()
+    bonus.packet = tossup.packet
+    bonus.question_set = tossup.question_set
+    bonus.category = tossup.category
+    bonus.subtype = tossup.subtype
+    bonus.time_period = tossup.time_period
+    bonus.location = tossup.location
+    bonus.author = tossup.author
+    bonus.question_history = tossup.question_history
+    bonus.created_date = tossup.created_date
+    bonus.created_by = tossup.created_by
+    bonus.last_changed_date = tossup.last_changed_date
+    return bonus

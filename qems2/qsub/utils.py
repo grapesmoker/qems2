@@ -203,7 +203,13 @@ def get_bonus_type_from_question_type(question_type):
         return VHSL_BONUS
     else:
         return ACF_STYLE_BONUS        
-    
+
+def get_tossup_type_from_question_type(question_type):
+    if (question_type is None or str(question_type) == ''):
+        print "tossup type none"
+        return ACF_STYLE_TOSSUP
+    else:
+        return ACF_STYLE_TOSSUP        
         
 class InvalidTossup(Exception):
 

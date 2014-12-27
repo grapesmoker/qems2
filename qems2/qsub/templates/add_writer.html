@@ -4,18 +4,14 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% block title %}Add Writer - QEMS2{% endblock %}
 
 {% block content %}
 {% load static %}
 
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
-    <h2 class="page-header">Add Writers to {{ qset.name }}</h2>
-	<form action="" method="post" role="form" class="form-horizontal form-standard">
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    <h3 class="page-header">Add Writers to {{ qset.name }}</h3>
+    <form action="" method="post" role="form" class="form-horizontal form-standard">
         {% csrf_token %}
         <table class="table table-striped table-hover">
             <thead>
@@ -33,10 +29,7 @@
             {% endfor %}
             </tbody>
         </table>
-
-
         <button class="btn btn-lg btn-primary pull-right" type="submit">Submit</button>
     </form>
-
 </div>
 {% endblock %}

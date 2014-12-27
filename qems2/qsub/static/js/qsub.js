@@ -10,7 +10,7 @@ function add_row_to_cat_table() {
 <td><input id="id_distentry-%d-fin_tossups" width="10" type="text" class="spinner" name="fin_tossups" /></td> \
 <td><input id="id_distentry-%d-fin_bonuses" width="10" type="text" class="spinner" name="fin_bonuses" /></td> \
 <td>&nbsp;</td></tr>', next_form, next_form, next_form, next_form, next_form, next_form));
-    
+
     $('.spinner').width(10).spinner({'min': 0})
 }
 
@@ -41,7 +41,7 @@ $(function () {
     });
 
     // Set up sorting for all tables
-    $('#tu-status-table').tablesorter();
+    $('#set-status-table').tablesorter();
     $('#editors-table').tablesorter();
     $('#writers-table').tablesorter();    
     $('#set-wide-reqs-table').tablesorter();
@@ -49,11 +49,15 @@ $(function () {
     $('#packets-table').tablesorter();
     $('#category-tossup-table').tablesorter();
     $('#category-bonus-table').tablesorter();
-    $('#question-set-table').tablesorter();
+    $('#qsets-write-table').tablesorter();
+    $('#qsets-edit-table').tablesorter();
+    $('#qsets-owned-table').tablesorter();
     $('#distributions-table').tablesorter();
     $('#writer-stats-table').tablesorter();
-    $('#tossup-table').tablesorter();
-    $('#bonus-table').tablesorter();
+    $('#packet-tossup-table').tablesorter();
+    $('#packet-bonus-table').tablesorter();
+    $('#packet-status-tossup-table').tablesorter();
+    $('#packet-status-bonus-table').tablesorter();
 
     // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
     // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
@@ -85,29 +89,29 @@ $(function () {
             bold: {inline: 'b', exact: true}
         }
     });*/
-    
+
     $('#id_player_to_add').autocomplete({
     source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),
     select: function(event, ui) {
         $('#id_player_to_add').val(ui.item.label);
         $('#id_hd_player_to_add').val(ui.item.value);
-        
+
         return false;
     }
     }),
-    
+
     $('#id_teammate_to_add').autocomplete({
     source: "/find_teammate/?team_id=" + $('#team_id').val() + $(this).val(),
     select: function(event, ui) {
         $('#id_teammate_to_add').val(ui.item.label);
         $('#id_hd_teammate_to_add').val(ui.item.value);
-        
+
         return false;
     }
     })
-    
+
     $(document).tooltip();
-    
+
     $('.spinner').width(25).spinner({'min': 0})
     $('#add-row').click(add_row_to_cat_table)
 
@@ -262,7 +266,7 @@ $(function () {
 
 
     $('.restore_bonus').click(function(e) {
-        e.preventDefault();        
+        e.preventDefault();
         var result = confirm("Are you sure that you want to restore this question to this version?");
         if (result == true) {
             $.post('/restore_bonus/', {bh_id: $(this).attr('value'), qset_id: $(this).attr('qset')}, function (response) {

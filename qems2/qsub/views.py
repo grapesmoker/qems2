@@ -182,7 +182,7 @@ def create_question_set (request):
     else:
         form = QuestionSetForm()
         distributions = Distribution.objects.all()
-        
+
     return render_to_response('create_question_set.html',
                               {'form': form,
                                'distributions': distributions,
@@ -234,7 +234,7 @@ def edit_question_set(request, qset_id):
                 tiebreak_formset = create_tiebreak_formset(qset)
             else:
                 read_only = True
-            
+
             entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
             for entry in sorted(entries):
                 tu_required = entry.num_tossups
@@ -245,7 +245,7 @@ def edit_question_set(request, qset_id):
                 total_bs_req += bs_required
                 total_bs_written += bs_written
                 total_tu_written += tu_written
-                
+
                 set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
                                                      'tu_in_cat': tu_written,
                                                      'bs_req': bs_required,
@@ -261,7 +261,7 @@ def edit_question_set(request, qset_id):
             for writer in qset_editors:
                 writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
                                                             'bonus_written': len(qset.bonus_set.filter(author=writer)),
-                                                            'writer': writer}                                                            
+                                                            'writer': writer}
 
             return render_to_response('edit_question_set.html',
                                       {'form': form,
@@ -2066,7 +2066,7 @@ def profile(request):
 
     return render_to_response('profile.html',
             {'form': form,
-             'user': user},
+             'user': request.user.writer},
             context_instance=RequestContext(request))
 
 @login_required()

@@ -4,17 +4,13 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% block title %}Upload Preview - QEMS2{% endblock %}
 
 {% load filters %}
 {% block content %}
 
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
-    <h2 class="page-header">Upload Preview</h2>
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    <h3 class="page-header">Upload Preview</h3>
     {% if message %}
     <div class="{{ message_class }}">
         {{ message }}

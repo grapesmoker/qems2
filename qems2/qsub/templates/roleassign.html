@@ -3,20 +3,20 @@
 {% block title %}Assign Role - QEMS2{% endblock %}
 
 {% block header %}
-	<h1>editor assignment</h1>
+    <h1>editor assignment</h1>
 {% endblock %}
 
 {% block content %}
-	<div class="alert alert-info" style="text-align: center;">
-		<strong>Editing assignments for {{ editor.user.username }}</strong>
-	</div>
-	<form action="" method="post">
+    <div class="alert alert-info" style="text-align: center;">
+        <strong>Editing assignments for {{ editor.user.username }}</strong>
+    </div>
+    <form action="" method="post">
       {% csrf_token %}
       {{ form.as_p }}
       <input type="submit" value="Submit changes"/>
     </form>
     {% if message %}
-    	<div class="alert {{ message_class }}">{{ message }}</div>
+        <div class="alert {{ message_class }}">{{ message }}</div>
     {% endif %}
 
 

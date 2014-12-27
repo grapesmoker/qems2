@@ -4,10 +4,6 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% load static %}
 {% load comments %}
 {% load filters %}
@@ -15,17 +11,13 @@
 {% block title %}{% if tossup %}{{ tossup.tossup_answer|answer_no_formatting|short_preview }} - History - QEMS2{% else %}Tossup History - QEMS2{% endif %}{% endblock %}
 
 {% block content %}
-<div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 text-left">
-    <ol class="breadcrumb">
-        <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
-        {% if packet %}
-        <li><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
-        {% endif %}
-        {% if bonus %}
-        <li><a href="/edit_tossup/{{ tossup.id }}">{{ tossup }}</a></li>
-        {% endif %}
-    </ol>
-    <h2 class="page-header">Tossup History</h2>
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+    {% if tossup %}
+        <ol class="breadcrumb">
+            <li><a href="/edit_tossup/{{ tossup.id }}">{{ tossup }}</a></li>
+        </ol>
+    {% endif %}
+    <h3 class="page-header">Tossup History</h3>
     {% autoescape off %}        
         {% if message %}
         <p class="{{ message_class }}">{{ message }}</p>
@@ -38,7 +30,7 @@
                 {{ tossup|tossup_html_verbose }}
             {% endif %}
         {% endautoescape %}
-        
+
         <h3>Previous Tossups:</h3>
 
         {% autoescape off %}

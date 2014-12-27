@@ -9,7 +9,7 @@
 {% block content %}
 {% load static %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1 text-left">
+<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
     <h3 class="page-header">Create Question Set</h3>
     <form action="" method="post" role="form" class="form-horizontal form-standard">
         {% csrf_token %}
@@ -19,7 +19,7 @@
         </div>
         <div class="form-group">
             {{ form.date.errors }}
-            <input class="form-control" id="id_date" name="date" maxlength="200" type="datetime" placeholder="Due Date">
+            <input class="form-control" id="id_date" name="date" maxlength="200" type="datetime" placeholder="Due Date (mm/dd/yyyy)">
         </div>
         <div class="form-group">
             {{ form.num_packets.errors }}

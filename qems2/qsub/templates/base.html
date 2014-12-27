@@ -6,12 +6,13 @@
 
 <head>
     <title>{% block title %}{% endblock %}</title>
-    
+
     <link rel="stylesheet" href="{% static 'jquery-ui/themes/ui-lightness/jquery-ui.css' %}">
     <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.css' %}">
     <link rel="stylesheet" href="{% static 'fontawesome/css/font-awesome.css' %}">
     <link rel="stylesheet" href="{% static 'css/signin.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'css/header.css' %}">
 
     <script type="text/javascript" src="{% static 'jquery/dist/jquery.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
@@ -27,14 +28,11 @@
     {% block header %}{% endblock %}
     <div class="container-fluid">
         <div class="row">
-            {% block sidebar %}{% endblock %}
             {% block content %}{% endblock %}
         </div>
     </div>
 
     {% block footer %}{% endblock %}
-
 </div>
 </body>
 </html>
-  

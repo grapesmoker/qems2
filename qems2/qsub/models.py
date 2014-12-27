@@ -371,6 +371,9 @@ class Tossup (models.Model):
         tossup_history.save()
         
         self.save()
+
+    def get_tossup_type(self):
+        return get_tossup_type_from_question_type(self.question_type)
                 
 class Bonus(models.Model):    
     packet = models.ForeignKey(Packet, null=True)

@@ -89,9 +89,11 @@
         
         {% if tossup %}
             <div class="btn-group btn-group-justified">        
-                <a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}" class="btn btn-primary">Move tossup to another set</a>
+                <a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}" class="btn btn-primary">Move to another set</a>
                 <a href="/tossup_history/{{ tossup.id }}" class="btn btn-primary">View tossup history</a>
                 <a href="/delete_tossup/{{ tossup.id }}" class="btn btn-primary delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">Delete question</a>                        
+                <a href="/convert_tossup/{{ tossup.id }}" class="btn btn-primary convert_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}" target-type="ACF-style bonus">Convert to ACF bonus</a>                        
+                <a href="/convert_tossup/{{ tossup.id }}" class="btn btn-primary convert_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}" target-type="VHSL bonus">Convert to VHSL bonus</a>                
             </div>
         {% endif %}        
     </div>
@@ -117,7 +119,6 @@
             {{ cform.comment.label_tag }}
             <textarea cols="40" rows="10" id="{{ cform.comment.id_for_label }}"
                       name="{{ cform.comment.html_name }}" class="form-control"></textarea>
-            {{ cform.honeypot }}
             {{ cform.content_type }}
             {{ cform.object_pk }}
             {{ cform.timestamp }}

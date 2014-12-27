@@ -264,7 +264,6 @@ $(function () {
         }
     });
 
-
     $('.restore_bonus').click(function(e) {
         e.preventDefault();
         var result = confirm("Are you sure that you want to restore this question to this version?");
@@ -286,6 +285,49 @@ $(function () {
         }
     });
 
+    $('.convert_tossup').click(function(e) {
+        e.preventDefault();
+        var result = confirm("Are you sure that you want to change this tossup's type?");
+        if (result == true) {
+            var qset_id = $(this).attr('qset-id');            
+            $.post('/convert_tossup/', { tossup_id: $(this).attr('value'), qset_id: $(this).attr('qset-id'), target_type: $(this).attr('target-type')}, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $(this).dialog('close');
+                            window.location.replace('/edit_question_set/' + qset_id);
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
+        }
+    });
+
+    $('.convert_bonus').click(function(e) {
+        e.preventDefault();
+        var result = confirm("Are you sure that you want to change this bonus' type?");
+        if (result == true) {
+            var qset_id = $(this).attr('qset-id');                        
+            $.post('/convert_bonus/', {bonus_id: $(this).attr('value'), qset_id: $(this).attr('qset-id'), target_type: $(this).attr('target-type')}, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function() {
+                            $(this).dialog('close');
+                            window.location.replace('/edit_question_set/' + qset_id);
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
+        }
+    });
 
     $('#upload-dialog').dialog({
         autoOpen: false,

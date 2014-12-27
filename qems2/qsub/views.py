@@ -2673,8 +2673,73 @@ def bonus_history(request, bonus_id):
                          'message': message,
                          'message_class': message_class},
                          context_instance=RequestContext(request))
-    
-    
+
+@login_required
+def convert_tossup(request):
+    print "convert tossup"
+    user = request.user.writer
+
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        tossup_id = request.POST['tossup_id']
+        tossup = Tossup.objects.get(id=tossup_id)
+        if (tossup is None):
+            message = 'Invalid tossup!'
+            message_class = 'alert alert-warning'
+        else:
+            qset_id = request.POST['qset_id']
+            qset = QuestionSet.objects.get(id=qset_id)            
+            if user == tossup.author or user == qset.owner or user in qset.editor.all():
+                target_type = request.POST['target_type']
+                if (target_type == ACF_STYLE_TOSSUP):
+                    tossup_to_tossup(tossup, target_type)
+                else:
+                    tossup_to_bonus(tossup, target_type)
+                                    
+                message = 'Successfully changed tossup type'
+                message_class = 'alert alert-success'                    
+            else:
+                message = 'You are not authorized to change this tossup type!'
+                message_class = 'alert alert-warning'
+            
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
+@login_required
+def convert_bonus(request):
+    print "convert bonus"
+    user = request.user.writer
+
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        bonus_id = request.POST['bonus_id']
+        bonus = Bonus.objects.get(id=bonus_id)
+        if (bonus is None):
+            message = 'Invalid bonus!'
+            message_class = 'alert alert-warning'
+        else:
+            qset_id = request.POST['qset_id']
+            qset = QuestionSet.objects.get(id=qset_id)            
+            if user == bonus.author or user == qset.owner or user in qset.editor.all():
+                target_type = request.POST['target_type']
+                print "target_type: " + str(target_type)
+                if (target_type == ACF_STYLE_BONUS or target_type == VHSL_BONUS):
+                    bonus_to_bonus(bonus, target_type)                
+                else:
+                    bonus_to_tossup(bonus, target_type)
+                                    
+                message = 'Successfully changed bonus type'
+                message_class = 'alert alert-success'                    
+            else:
+                message = 'You are not authorized to change this bonus type!'
+                message_class = 'alert alert-warning'
+            
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 # @login_required
 # def password(request):

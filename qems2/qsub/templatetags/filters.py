@@ -93,7 +93,7 @@ def bonuses_remaining(entry):
         return val
     else:
         return val
-    
+
 @register.filter(name='overall_percent')
 def overall_percent(entry):
     tu_in_cat = entry['tu_in_cat']
@@ -108,13 +108,15 @@ def overall_percent(entry):
         tu_req = 0
     if (bs_req is None):
         bs_req = 0
-    
+
     percentage = fpercent(tu_in_cat + bs_in_cat, tu_req + bs_req)
-    if percentage >= 100 or percentage == None:
-        return mark_safe(str(percentage) + '% <i class="fa fa-check" style="color:green"></i>')
+    if percentage == None:
+        return mark_safe(str(percentage) + '<i class="fa fa-check" style="color:green"></i>')
+    elif percentage >= 100:
+        return mark_safe('{0:0.2f}%'.format(percentage) + '<i class="fa fa-check" style="color:green"></i>')
     else:
-        return mark_safe(str(percentage) + '% <i class="fa fa-times" style="color:red"></i>')    
-    
+        return mark_safe('{0:0.2f}%'.format(percentage) + '<i class="fa fa-times" style="color:red"></i>')
+
 @register.filter(name='check_mark_if_100_pct')
 def check_mark_if_100_pct(x, y):
     percentage = fpercent(x, y)

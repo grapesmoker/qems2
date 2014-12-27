@@ -8,10 +8,10 @@
 }
 
 div#header {
-	margin: 0px;
-	text-align: left;
-	height: 50px;
-	width: 800px;
+    margin: 0px;
+    text-align: left;
+    height: 50px;
+    width: 800px;
 }
 
 div#sidebar {
@@ -22,97 +22,74 @@ div#sidebar {
 }
 
 div#content {
-	padding: 10px;
+    padding: 10px;
     margin-top: 75px;
-	width: 70%;
-	position: absolute;
+    width: 70%;
+    position: absolute;
     background-color: #e0e0e0; 
 }*/
 
 body {
-  padding-top: 50px;
-  background-color: #fff;
+    padding-top: 32px;
+    background-color: #fdfdfd;
 }
-
 
 /*
  * Global add-ons
  */
 
 .sub-header {
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
-}
-
-/*
- * Top navigation
- * Hide default border to remove 1px line.
- */
-.navbar-fixed-top {
-  border: 0;
-}
-
-.sidebar {
-position: fixed;
-top: 50px;
-bottom: 0;
-left: 0;
-z-index: 1000;
-display: block;
-padding: 20px;
-overflow-x: hidden;
-overflow-y: auto;
-border-right: 1px solid #eee;
-background-color: #eee;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #eee;
 }
 
 .form-standard {
-  max-width: 660px;
-  padding: 15px;
-  margin: 0 auto;
+    max-width: 660px;
+    padding: 15px;
+    margin: 0 auto;
 }
 
 #id_honeypot {
-  display: none;
+    display: none;
 }
 
 /* tables */
 table.tablesorter {
-	font-family:arial;
-	background-color: #CDCDCD;
-	margin:10px 0pt 15px;
-	font-size: 8pt;
-	width: 100%;
-	text-align: left;
+    font-family:arial;
+    background-color: #CDCDCD;
+    margin:10px 0pt 15px;
+    font-size: 8pt;
+    width: 100%;
+    text-align: left;
 }
 table.tablesorter thead tr th, table.tablesorter tfoot tr th {
-	background-color: #e6EEEE;
-	border: 1px solid #FFF;
-	font-size: 8pt;
-	padding: 4px;
+    background-color: #e6EEEE;
+    border: 1px solid #FFF;
+    font-size: 8pt;
+    padding: 4px;
 }
 table.tablesorter thead tr .header {
-	background-image: url(bg.gif);
-	background-repeat: no-repeat;
-	background-position: center right;
-	cursor: pointer;
+    background-image: url(bg.gif);
+    background-repeat: no-repeat;
+    background-position: center right;
+    cursor: pointer;
 }
 table.tablesorter tbody td {
-	color: #3D3D3D;
-	padding: 4px;
-	background-color: #FFF;
-	vertical-align: top;
+    color: #3D3D3D;
+    padding: 4px;
+    background-color: #FFF;
+    vertical-align: top;
 }
 table.tablesorter tbody tr.odd td {
-	background-color:#F0F0F6;
+    background-color:#F0F0F6;
 }
 table.tablesorter thead tr .headerSortUp {
-	background-image: url(../images/blueskin/asc.gif);
+    background-image: url(../images/blueskin/asc.gif);
 }
 table.tablesorter thead tr .headerSortDown {
-	background-image: url(../images/blueskin/desc.gif);
+    background-image: url(../images/blueskin/desc.gif);
 }
 table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
-background-color: #8dbdd8;
+    background-color: #8dbdd8;
 }
 

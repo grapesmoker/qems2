@@ -5,8 +5,7 @@
                 <li><a href="/main/">Home</a></li>
                 {% if qset %}
                     <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
-                {% endif %}
-                {% if passed_q_set %}
+                {% elif passed_q_set %}
                     <li><a href="/edit_question_set/{{ passed_q_set.id }}">{{ passed_q_set }}</a></li>
                 {% endif %}
                 {% if packet %}

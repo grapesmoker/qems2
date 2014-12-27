@@ -2042,12 +2042,14 @@ def settings(request):
 def profile(request):
 
     user = request.user
+    writer = Writer.objects.get(user=user)
 
     if request.method == 'GET':
         initial_data = {'username': user.username,
                         'first_name': user.first_name,
                         'last_name': user.last_name,
-                        'email': user.email}
+                        'email': user.email,
+                        'send_mail_on_comments': writer.send_mail_on_comments}
 
         form = WriterChangeForm(initial=initial_data)
 
@@ -2062,7 +2064,9 @@ def profile(request):
             user.first_name = form.cleaned_data['first_name']
             user.last_name = form.cleaned_data['last_name']
             user.email = form.cleaned_data['email']
+            writer.send_mail_on_comments = form.cleaned_data['send_mail_on_comments']
             user.save()
+            writer.save()
 
     return render_to_response('profile.html',
             {'form': form,

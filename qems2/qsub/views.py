@@ -228,8 +228,8 @@ def edit_question_set(request, qset_id):
             qset.save()
 
             if user == qset.owner:
-                tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Bonus.objects.filter(question_set=qset)
+                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
+                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
             else:
@@ -296,21 +296,21 @@ def edit_question_set(request, qset_id):
             read_only = True
             message = 'You are not authorized to edit this tournament.'
             if user in qset.writer.all():
-                tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Bonus.objects.filter(question_set=qset)
+                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
+                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
         else:
             if user == qset.owner:
                 read_only = False
-                tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Bonus.objects.filter(question_set=qset)
+                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
+                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
             elif user in qset.writer.all() or user in qset.editor.all():
                 read_only = True
-                tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Bonus.objects.filter(question_set=qset)
+                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
+                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
             form = QuestionSetForm(instance=qset)

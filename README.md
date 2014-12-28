@@ -7,7 +7,7 @@ QEMS2 is a successor to a system called, intuitively enough, QEMS, which was use
 
 ## Stack
 
-QEMS2 is based on a technology stack that uses MySQL for storage, Python (in the form of Django) for the backend, and jQuery/Bootstrap for frontend manipulations. 
+QEMS2 is based on a technology stack that uses MySQL for storage, Python (in the form of Django) for the backend, and jQuery/Foundation for frontend manipulations. 
 
 ## Installation
 

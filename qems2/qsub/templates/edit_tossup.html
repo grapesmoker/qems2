@@ -13,12 +13,12 @@
 {% block content %}
 <div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
     <h3 class="page-header">Edit Tossup</h3>
-    {% autoescape off %}
-        {% if message %}
-        <p class="{{ message_class }}">{{ message }}</p>
-        {% endif %}
-    {% endautoescape %}
     <div class="col-xs-12 col-md-12">
+        {% autoescape off %}
+            {% if message %}
+                <p class="{{ message_class }}">{{ message }}</p>
+            {% endif %}
+        {% endautoescape %}
         {% if tossup %}
             {% autoescape off %}
                 <p>Tossup Preview:</p>
@@ -81,12 +81,11 @@
                 </div>
 
                 <input type="submit" id="submit-bonus" value="Save"/>
-            {% endif %}
         </form>
-
-        {% if tossup %}
-            <p><strong><a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}">Move tossup to another set</a></strong></p>
-            <p><strong><a href="/tossup_history/{{ tossup.id }}">View tossup history</a></strong></p>
+        <div class="btn-group btn-group-justified">
+            <a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}" class="btn btn-primary">Move tossup to another set</a>
+            <a href="/tossup_history/{{ tossup.id }}" class="btn btn-primary">View tossup history</a>
+        </div>
         {% endif %}
     </div>
 

@@ -27,7 +27,7 @@
         </ul>
 
         <div class="tab-content">
-            <ul class="nav nav-tabs nav-justified" role="tablist" id="#qset-entry">
+            <ul class="nav nav-tabs nav-justified" id="#qset-entry">
                 {% for qset_type in question_set_list %}
                 <li class="{% if forloop.first %}active{% endif %}">
                     <a href="#{{ qset_type.id }}" role="tab" data-toggle="tab">{{ qset_type.header }}</a>
@@ -35,12 +35,12 @@
                 {% endfor %}
             </ul>
             {% for qset_type in question_set_list  %}
-            <div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{ qset_type.id }}">
-                <table class="tablesorter table table-striped table-hover" id="question-set-table">
+            <div class="tab-pane{% if forloop.first %} active{% endif %}" id="{{ qset_type.id }}">
+                <table class="tablesorter table-striped table-hover" id="{{ qset_type.id }}-table">
                     <thead>
                         <tr>
-                            <th>Question set name</th>
-                            <th>Date</th>
+                            <th>Question Set</th>
+                            <th>Due Date</th>
                             <th>Host</th>
                             <th>Location</th>
                         </tr>

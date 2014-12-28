@@ -10,7 +10,7 @@ def lookup(dict, key):
         return dict[key]
     else:
         return 0
-    
+
 @register.filter(name='tossup_or_bonus')
 def tossup_or_bonus(type):
     return str(type)
@@ -25,20 +25,20 @@ def tossups_or_bonuses(type):
 
 @register.filter(name='get_editor_categories')
 def get_editor_categories(editor, tour):
-    
+
     if Role.objects.filter(player=editor, tournament=tour).exists():
         role = Role.objects.get(player=editor, tournament=tour)
         categories = role.category.split(';')
-    
+
         cat_list = [cat_tuple[1] for cat_tuple in CATEGORIES if cat_tuple[0] in categories]
     else:
         cat_list = []
-    
+
     return mark_safe('<p>' + '<br>'.join(cat_list) + '</p>')
 
 @register.filter(name='preview')
 def preview(text):
-    if (len(text) > 81):    
+    if (len(text) > 81):
         return mark_safe(text[0:81] + '...')
     else:
         return mark_safe(text)
@@ -75,7 +75,7 @@ def fpercent(x, y):
             return None
     except Exception as ex:
         return None
-    
+
 @register.filter(name='tossups_remaining')
 def tossups_remaining(entry):
     val = entry['tu_req'] - entry['tu_in_cat']
@@ -111,19 +111,19 @@ def overall_percent(entry):
 
     percentage = fpercent(tu_in_cat + bs_in_cat, tu_req + bs_req)
     if percentage == None:
-        return mark_safe(str(percentage) + '<i class="fa fa-check" style="color:green"></i>')
+        return mark_safe('<i class="fa fa-check"></i> ' + str(percentage))
     elif percentage >= 100:
-        return mark_safe('{0:0.2f}%'.format(percentage) + '<i class="fa fa-check" style="color:green"></i>')
+        return mark_safe('<i class="fa fa-check"></i> ' + '{0:0.2f}%'.format(percentage))
     else:
-        return mark_safe('{0:0.2f}%'.format(percentage) + '<i class="fa fa-times" style="color:red"></i>')
+        return mark_safe('<i class="fa fa-times"></i> ' + '{0:0.2f}%'.format(percentage))
 
 @register.filter(name='check_mark_if_100_pct')
 def check_mark_if_100_pct(x, y):
     percentage = fpercent(x, y)
     if percentage >= 100 or percentage == None:
-        return mark_safe('<i class="fa fa-check" style="color:green"></i>')
+        return mark_safe('<i class="fa fa-check"></i>')
     else:
-        return mark_safe('<i class="fa fa-times" style="color:red"></i>')
+        return mark_safe('<i class="fa fa-times"></i>')
 
 @register.filter(name='class_name')
 def class_name(obj):

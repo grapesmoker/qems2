@@ -18,13 +18,11 @@
         <ul class="nav nav-tabs nav-justified">
             <li class="active"><a href="#qset-info" data-toggle="tab">Question Set Info</a></li>
             <li><a href="#questions" data-toggle="tab">All Questions</a></li>
-            <li><a href="#writer-stats" data-toggle="tab">Writers</a></li>
+            <li><a href="#editors" data-toggle="tab">Editors & Writers</a></li>
+            <!--<li><a href="#writer-stats" data-toggle="tab">Writers</a></li>-->
             <li><a href="#packets" data-toggle="tab">Packets</a></li>
-            <li><a href="#set-wide-distribution" data-toggle="tab">Set-wide Distribution</a></li>
-            <li><a href="#tiebreak-distribution" data-toggle="tab">Tiebreaker Distribution</a></li>
-            <!--<li>
-                <a href="#editors" data-toggle="tab">Editor Assignments</a>
-            </li>-->
+            <li><a href="#set-wide-distribution" data-toggle="tab">Set-wide Distro</a></li>
+            <li><a href="#tiebreak-distribution" data-toggle="tab">Tiebreaker Distro</a></li>
         </ul>
         <div class="tab-content">
             <div id="qset-info" class="tab-pane active">
@@ -43,25 +41,25 @@
                 </ul>
                 {% endif %}
                 <div class="btn-group btn-group-justified">
-                    <a href="/add_tossups/{{ qset.id }}" class="btn btn-primary" title="Add tossup">
-                        <i class="fa fa-plus-circle"></i> Add tossup
+                    <a href="/add_tossups/{{ qset.id }}" class="btn btn-primary">
+                        <i class="fa fa-plus-circle"></i> Add Tossup
                     </a>
-                    <a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="btn btn-primary" title="Add ACF-style bonus">
-                        <i class="fa fa-plus-circle"></i> Add ACF bonus
+                    <a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="btn btn-primary">
+                        <i class="fa fa-plus-circle"></i> Add ACF Bonus
                     </a>
-                    <a href="/add_bonuses/{{ qset.id }}/VHSL bonus" class="btn btn-primary" title="Add VHSL bonus">
-                        <i class="fa fa-plus-circle"></i> Add VHSL bonus
+                    <a href="/add_bonuses/{{ qset.id }}/VHSL bonus" class="btn btn-primary">
+                        <i class="fa fa-plus-circle"></i> Add VHSL Bonus
+                    </a>
+                    <a href="/type_questions/{{ qset.id }}" class="btn btn-primary">
+                        <i class="fa fa-file-text"></i> Type Questions
+                    </a>
+                    <a href="/search/{{ qset.id }}/" class="btn btn-primary">
+                        <i class="fa fa-search"></i> Search
                     </a>
                     <!--<a href="#" class="btn btn-primary" title="Upload questions" id="upload-questions">
                         <i class="fa fa-upload"></i> Upload questions from file
-                    </a>-->
-                    <a href="/type_questions/{{ qset.id }}" class="btn btn-primary" title="Type Questions">
-                        <i class="fa fa-file-text"></i> Type Questions
                     </a>
-                    <a href="/search/{{ qset.id }}/" class="btn btn-primary" title="Search">
-                        <i class="fa fa-search"></i> Search
-                    </a>
-                    <!--<div id="upload-dialog" >
+                    <div id="upload-dialog" >
                         <form action="/upload_questions/{{ qset.id }}/" method="POST" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ upload_form }}
@@ -72,7 +70,7 @@
                     <strong>Set Completion Status: {{ set_pct_complete}} &ndash; {{ tu_needed }} tossups needed, {{ bs_needed }} bonuses needed</strong>
                 </div>
 
-                <table class="tablesorter" id="tu-status-table">
+                <table class="tablesorter table-striped table-hover" id="set-status-table">
                     <thead>
                         <tr>
                             <th>Category</th>
@@ -96,15 +94,13 @@
                                 {{ entry|tossups_remaining }}
                             </td>
                             <td>
-                                {{ entry.tu_in_cat|percent:entry.tu_req }}
-                                {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }}
+                                {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }} {{ entry.tu_in_cat|percent:entry.tu_req }}
                             </td>
                             <td>
                                 {{ entry|bonuses_remaining }}
                             </td>
                             <td>
-                                {{ entry.bs_in_cat|percent:entry.bs_req }}
-                                {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }}
+                                {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }} {{ entry.bs_in_cat|percent:entry.bs_req }}
                             </td>
                         </tr>
                         {% endfor %}
@@ -120,9 +116,7 @@
                 </form>
                 <br />
                 <div class="alert alert-info text-center">
-                    <strong>
-                    <a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a>
-                    </strong>
+                    <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
                 </div>
                 <a id="#qset-comments"></a>
                 <div class="alert alert-info text-center"><strong>Comments</strong></div>
@@ -159,8 +153,8 @@
                 <!--<button class="btn btn-primary comment-button" title="Leave Comment">Comment</button>-->
 
             </div>
-            <div class="tab-pane" id="writer-stats">
-                <table class="tablesorter table table-striped table-hover" id="writer-stats-table">
+            <!--<div class="tab-pane" id="writer-stats">
+                <table class="tablesorter table-striped table-hover" id="writer-stats-table">
                     <thead>
                         <tr>
                             <th>Writer</th>
@@ -180,68 +174,84 @@
                         {% endfor %}
                     </tbody>
                 </table>
-            </div>
+                </div>-->
 
             <div class="tab-pane" id="editors">
                 {% if not read_only %}
-                <a href="/add_editor/{{ qset.id }}" class="btn btn-primary" title="Add set editor" id="btn-add-editor">
-                    <i class="fa fa-plus-circle"></i> Add set editor
-                </a>
-                <a href="/add_writer/{{ qset.id }}" class="btn btn-primary" title="Add set writer">
-                    <i class="fa fa-plus-circle"></i> Add set writer
-                </a>
-                <table class="tablesorter table table-striped table-hover" id="editors-table">
-                    <caption class="alert alert-info">
-                        <strong>Current set editors</strong>
-                    </caption>
+                <div class="btn-group btn-group-justified">
+                    <a href="/add_editor/{{ qset.id }}" class="btn btn-primary" id="btn-add-editor">
+                        <i class="fa fa-plus-circle"></i> Add an Editor
+                    </a>
+                    <a href="/add_writer/{{ qset.id }}" class="btn btn-primary">
+                        <i class="fa fa-plus-circle"></i> Add a Writer
+                    </a>
+                </div>
+                <!--<div class="alert alert-info text-center h6"><strong>Editors</strong></div>
+                <table class="tablesorter table-striped table-hover" id="editors-table">
                     <thead>
                         <tr>
-                            <th>Editor name</th>
-                            <th>Editor username</th>
+                            <th>Editor</th>
+                            <th>Username</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for editor in editors %}
+                        <tr>
+                            <td>{{ qset.owner.user.first_name }} {{ qset.owner.user.last_name }} (Owner)</td>
+                            <td>{{ qset.owner.user.username }}</td>
+                        </tr>
+                        {% for editor in editors|sort %}
                         <tr>
                             <td>{{ editor.user.first_name }} {{ editor.user.last_name }}</td>
                             <td>{{ editor.user.username }}</td>
-                            <td><a href="/delete_editor/{{ editor.id }}" rel="tooltip" title="Delete editor" class="delete_editor" value="{{ editor.id }}">
-                                <i class="fa fa-minus-circle"></i>
+                            <td>
+                                <a href="/delete_editor/{{ editor.id }}" title="Delete" class="delete_editor" value="{{ editor.id }}">
+                                    <i class="fa fa-minus-circle"></i>
                                 </a>
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
-                </table>
+                    </table>-->
 
-                <table class="tablesorter table table-striped table-hover" id="writers-table">
-                    <caption class="alert alert-info">
-                        <strong>Current set writers</strong>
-                    </caption>
+                <table class="tablesorter table-striped table-hover" id="writers-table">
                     <thead>
                         <tr>
-                            <th>Writer name</th>
-                            <th>Writer username</th>
+                            <th>Role</th>
+                            <th>Writer</th>
+                            <th>Username</th>
+                            <th>Tossups Written</th>
+                            <th>Bonuses Written</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for writer in writers %}
+                        {% for username, writer in writer_stats.items|sort %}
                         <tr>
-                            <td>{{ writer.user.first_name }} {{ writer.user.last_name }}</td>
-                            <td>{{ writer.user.username }}</td>
-                            <td><i class="fa fa-edit"></i>
-                                <a href="/delete_writer/{{ writer.id }}" rel="tooltip" title="Delete writer" class="delete_writer" value="{{ writer.id }}">
-                                <i class="fa fa-minus-circle"></i>
+                            {% if writer.writer.user.username == qset.owner.user.username %}
+                            <td>Owner</td>
+                            {% elif writer.writer in editors %}
+                            <td>Editor</td>
+                            {% elif writer.writer in writers %}
+                            <td>Writer</td>
+                            {% endif %}
+                            <td>{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</td>
+                            <td>{{ writer.writer.user.username }}</td>
+                            <td>{{ writer.tu_written }}</td>
+                            <td>{{ writer.bonus_written }}</td>
+                            <td>
+                                {% if writer.writer.user.username != qset.owner.user.username %}
+                                <a href="/delete_writer/{{ writer.id }}" title="Delete" class="delete_writer" value="{{ writer.id }}">
+                                    <i class="fa fa-minus-circle"></i>
                                 </a>
+                                {% endif %}
                             </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
-                <div class="alert alert-info">
+                <div class="alert alert-warning">
                     You are not authorized to view this information
                 </div>
 
@@ -249,7 +259,7 @@
             </div>
             <div class="tab-pane" id="set-wide-distribution">
                 <div class="alert alert-warning">
-                    <i class="fa fa-exclamation-triangle" style="font-size: 24px"></i>
+                    <i class="fa fa-exclamation-triangle"></i>
                     The set-wide distribution controls the total number of questions of each kind that your set
                     will contain. It is distinct from the "template" distribution; you cannot change the categories
                     this way, only the <em>total</em> number of questions in those categories that will appear in
@@ -261,7 +271,7 @@
                 </div>
                 <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
                     {% csrf_token %}
-                    <table class="tablesorter table table-striped table-hover" id="set-wide-reqs-table">
+                    <table class="tablesorter table-striped table-hover" id="set-wide-reqs-table">
                         <thead>
                             <tr>
                                 <th>Category</th>
@@ -289,7 +299,7 @@
             </div>
             <div class="tab-pane" id="tiebreak-distribution">
                 <div class="alert alert-warning">
-                    <i class="fa fa-exclamation-triangle" style="font-size: 24px"></i>
+                    <i class="fa fa-exclamation-triangle"></i>
                     The tiebreaker distribution controls the total number of questions required as tiebreakers for the
                     whole set. It is like the set-wide distribution in that you cannot change the categories, only
                     the <em>total</em> number of questions in those categories that will appear as tiebreakers in the
@@ -298,7 +308,7 @@
                 </div>
                 <form action="/edit_set_tiebreak/{{ qset.id }}/" method="POST">
                     {% csrf_token %}
-                    <table class="tablesorter" id ="tb-reqs-table">
+                    <table class="tablesorter table-striped table-hover" id ="tb-reqs-table">
                         <thead>
                             <tr>
                                 <th>Category</th>
@@ -325,7 +335,7 @@
             </div>
             <div class="tab-pane" id="questions">
                 <div class="alert alert-info text-center"><strong>Tossups</strong></div>
-                <table class="tablesorter table table-striped table-hover" id="tossup-table">
+                <table class="tablesorter table-striped table-hover" id="tossup-table">
                     <thead>
                         <tr>
                             <th>Author</th>
@@ -386,7 +396,7 @@
                 </div>
                 -->
                 <div class="alert alert-info text-center"><strong>Bonuses</strong></div>
-                <table class="tablesorter table table-striped table-hover" id="bonus-table">
+                <table class="tablesorter table-striped table-hover" id="bonus-table">
                     <thead>
                         <tr>
                             <th>Author</th>
@@ -453,7 +463,7 @@
                         <i class="fa fa-plus-circle"></i> Add packets
                     </a>
                 </div>
-                <table class="tablesorter" id="packets-table">
+                <table class="tablesorter table-striped table-hover" id="packets-table">
                     <thead>
                         <tr>
                             <th>Packet name</th>

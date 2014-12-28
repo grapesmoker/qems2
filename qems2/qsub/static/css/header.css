@@ -1,10 +1,25 @@
+/* Stylesheet for header.html */
+
+/* Changes default border. */
 .navbar-fixed-top {
-    border:0;
+    height:50px;
+    border-width:0 0 3px;
+    border-color:#3b7db5;
 }
-.breadcrumb {
+/* Matches breadcrumb style to navbar-inverse. */
+.navbar-inverse .breadcrumb {
     background-color:transparent;
-    float:left;
-    height:32px;
     padding:15px 15px;
-    font-size:16px;
+    margin-bottom:0px;
+    border-radius:0px;
+    float:left;
+    font-size:1em;
+}
+.navbar-inverse .breadcrumb li a {
+    color:#9d9d9d;
+}
+.navbar-inverse .breadcrumb li a:hover,
+.navbar-inverse .breadcrumb li a:focus {
+    color:#fff;
+    text-decoration:none;
 }

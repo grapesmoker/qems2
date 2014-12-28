@@ -8,18 +8,16 @@
 {% load comments %}
 {% load filters %}
 
-{% block title %}{% if bonus %}{{ bonus.part1_answer|answer_no_formatting|short_preview }} - QEMS2{% else %}Edit Bonus - QEMS2{% endif %}{% endblock %}
+{% block title %}{% if bonus %}{{ bonus.part1_answer|answer_no_formatting|short_preview }}{% else %}Edit Bonus{% endif %} - QEMS2{% endblock %}
 
 {% block content %}
 <div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
     <h3 class="page-header">Edit Bonus</h3>
-    {% autoescape off %}
-        {% if message %}
-        <p class="{{ message_class }}">{{ message }}</p>
-        {% endif %}
-    {% endautoescape %}
     <div class="col-xs-12 col-md-12">
         {% autoescape off %}
+            {% if message %}
+                <p class="{{ message_class }}">{{ message }}</p>
+            {% endif %}
             {% if bonus %}
                 {{ bonus|bonus_html_verbose }}
             {% endif %}
@@ -111,11 +109,11 @@
                 </div>
 
                 <input type="submit" id="submit-bonus" value="Save"/>
-            {% endif %}
         </form>
-        {% if bonus %}
-            <p><strong><a href="/move_bonus/{{ qset.id }}/{{ bonus.id }}">Move bonus to another set</a></strong></p>
-            <p><strong><a href="/bonus_history/{{ bonus.id }}">View bonus history</a></strong></p>
+        <div class="btn-group btn-group-justified">
+            <a href="/move_bonus/{{ qset.id }}/{{ bonus.id }}" class="btn btn-primary">Move bonus to another set</a>
+            <a href="/bonus_history/{{ bonus.id }}" class="btn btn-primary">View bonus history</a>
+        </div>
         {% endif %}
     </div>
 

@@ -1,4 +1,4 @@
-/* base.css */
+/* Global overrides */
 
 /*div#container {
     margin: 5px;
@@ -7,89 +7,88 @@
     width: 800px;
 }
 
-div#header {
-    margin: 0px;
-    text-align: left;
-    height: 50px;
-    width: 800px;
-}
-
-div#sidebar {
-  float: top;
-  clear: both;
-  position: absolute;
-  width: 90%;
-}
-
 div#content {
     padding: 10px;
     margin-top: 75px;
     width: 70%;
     position: absolute;
-    background-color: #e0e0e0; 
+    background-color: #e0e0e0;
 }*/
 
 body {
-    padding-top: 32px;
-    background-color: #fdfdfd;
+    padding-top:50px;
+    background-color:#fcfcfc;
 }
-
-/*
- * Global add-ons
- */
-
-.sub-header {
-    padding-bottom: 10px;
-    border-bottom: 1px solid #eee;
-}
-
 .form-standard {
-    max-width: 660px;
-    padding: 15px;
-    margin: 0 auto;
+    max-width:660px;
+    padding:15px;
+    margin:0 auto;
+}
+.alert {
+    margin:5px 0 5px;
+    padding:8px;
+    font-size:0.9em;
+}
+.page-header {
+    margin:24px 0 20px;
+}
+.fa-check {
+    color:green;
+}
+.fa-times {
+    color:red;
 }
 
-#id_honeypot {
-    display: none;
+/* Tables */
+.tablesorter {
+    margin:5px 0 5px;
+    font-size:0.8em;
+    width:100%;
+    text-align:left;
 }
-
-/* tables */
-table.tablesorter {
-    font-family:arial;
-    background-color: #CDCDCD;
-    margin:10px 0pt 15px;
-    font-size: 8pt;
-    width: 100%;
-    text-align: left;
+.tablesorter thead tr th,
+.tablesorter tfoot tr th {
+    background-color:#bbb;
+    border:2px solid #fcfcfc;
+    font-size:1em;
+    padding:6px 20px 6px 3px;
 }
-table.tablesorter thead tr th, table.tablesorter tfoot tr th {
-    background-color: #e6EEEE;
-    border: 1px solid #FFF;
-    font-size: 8pt;
-    padding: 4px;
+.tablesorter thead tr .header {
+    background-image:url(../images/blueskin/bg.gif);
+    background-repeat:no-repeat;
+    background-position:center right;
+    cursor:pointer;
 }
-table.tablesorter thead tr .header {
-    background-image: url(bg.gif);
-    background-repeat: no-repeat;
-    background-position: center right;
-    cursor: pointer;
+.tablesorter thead tr .headerSortUp {
+    background-image:url(../images/blueskin/asc.gif);
 }
-table.tablesorter tbody td {
-    color: #3D3D3D;
-    padding: 4px;
-    background-color: #FFF;
-    vertical-align: top;
+.tablesorter thead tr .headerSortDown {
+    background-image:url(../images/blueskin/desc.gif);
 }
-table.tablesorter tbody tr.odd td {
-    background-color:#F0F0F6;
+.tablesorter thead tr .headerSortDown,
+.tablesorter thead tr .headerSortUp {
+    background-color:#8dbdd8;
 }
-table.tablesorter thead tr .headerSortUp {
-    background-image: url(../images/blueskin/asc.gif);
+.tablesorter tbody tr td {
+    border-right:2px solid #fcfcfc;
+    padding:4px 3px 4px;
+    background-color:transparent;
+    vertical-align:top;
 }
-table.tablesorter thead tr .headerSortDown {
-    background-image: url(../images/blueskin/desc.gif);
+.tablesorter tbody tr td a:hover,
+.tablesorter tbody tr td a:focus {
+    text-decoration:none;
 }
-table.tablesorter thead tr .headerSortDown, table.tablesorter thead tr .headerSortUp {
-    background-color: #8dbdd8;
+.table-hover tbody tr.even:hover td,
+.table-hover tbody tr:nth-child(even):hover td,
+.table-hover tbody tr:hover td {
+    background-color:#a0c5e4;
 }
-
+.table-striped tbody tr.even td,
+.table-striped tbody tr:nth-child(even) td {
+    background-color:#ddd;
+}
+#packet-status-tossup-table tbody tr td,
+#packet-status-bonus-table tbody tr td {
+    width:25%;
+}

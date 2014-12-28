@@ -4,3 +4,4 @@ static/
 
 # compiled python files
 *.py[cdo]
+secret

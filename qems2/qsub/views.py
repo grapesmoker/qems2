@@ -228,8 +228,8 @@ def edit_question_set(request, qset_id):
             qset.save()
 
             if user == qset.owner:
-                tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Bonus.objects.filter(question_set=qset)
+                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
+                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
             else:
@@ -296,21 +296,21 @@ def edit_question_set(request, qset_id):
             read_only = True
             message = 'You are not authorized to edit this tournament.'
             if user in qset.writer.all():
-                tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Bonus.objects.filter(question_set=qset)
+                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
+                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
         else:
             if user == qset.owner:
                 read_only = False
-                tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Bonus.objects.filter(question_set=qset)
+                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
+                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
             elif user in qset.writer.all() or user in qset.editor.all():
                 read_only = True
-                tossups = Tossup.objects.filter(question_set=qset)
-                bonuses = Bonus.objects.filter(question_set=qset)
+                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
+                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
             form = QuestionSetForm(instance=qset)
@@ -2042,12 +2042,14 @@ def settings(request):
 def profile(request):
 
     user = request.user
+    writer = Writer.objects.get(user=user)
 
     if request.method == 'GET':
         initial_data = {'username': user.username,
                         'first_name': user.first_name,
                         'last_name': user.last_name,
-                        'email': user.email}
+                        'email': user.email,
+                        'send_mail_on_comments': writer.send_mail_on_comments}
 
         form = WriterChangeForm(initial=initial_data)
 
@@ -2062,7 +2064,9 @@ def profile(request):
             user.first_name = form.cleaned_data['first_name']
             user.last_name = form.cleaned_data['last_name']
             user.email = form.cleaned_data['email']
+            writer.send_mail_on_comments = form.cleaned_data['send_mail_on_comments']
             user.save()
+            writer.save()
 
     return render_to_response('profile.html',
             {'form': form,
@@ -2673,8 +2677,73 @@ def bonus_history(request, bonus_id):
                          'message': message,
                          'message_class': message_class},
                          context_instance=RequestContext(request))
-    
-    
+
+@login_required
+def convert_tossup(request):
+    print "convert tossup"
+    user = request.user.writer
+
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        tossup_id = request.POST['tossup_id']
+        tossup = Tossup.objects.get(id=tossup_id)
+        if (tossup is None):
+            message = 'Invalid tossup!'
+            message_class = 'alert alert-warning'
+        else:
+            qset_id = request.POST['qset_id']
+            qset = QuestionSet.objects.get(id=qset_id)            
+            if user == tossup.author or user == qset.owner or user in qset.editor.all():
+                target_type = request.POST['target_type']
+                if (target_type == ACF_STYLE_TOSSUP):
+                    tossup_to_tossup(tossup, target_type)
+                else:
+                    tossup_to_bonus(tossup, target_type)
+                                    
+                message = 'Successfully changed tossup type'
+                message_class = 'alert alert-success'                    
+            else:
+                message = 'You are not authorized to change this tossup type!'
+                message_class = 'alert alert-warning'
+            
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
+@login_required
+def convert_bonus(request):
+    print "convert bonus"
+    user = request.user.writer
+
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        bonus_id = request.POST['bonus_id']
+        bonus = Bonus.objects.get(id=bonus_id)
+        if (bonus is None):
+            message = 'Invalid bonus!'
+            message_class = 'alert alert-warning'
+        else:
+            qset_id = request.POST['qset_id']
+            qset = QuestionSet.objects.get(id=qset_id)            
+            if user == bonus.author or user == qset.owner or user in qset.editor.all():
+                target_type = request.POST['target_type']
+                print "target_type: " + str(target_type)
+                if (target_type == ACF_STYLE_BONUS or target_type == VHSL_BONUS):
+                    bonus_to_bonus(bonus, target_type)                
+                else:
+                    bonus_to_tossup(bonus, target_type)
+                                    
+                message = 'Successfully changed bonus type'
+                message_class = 'alert alert-success'                    
+            else:
+                message = 'You are not authorized to change this bonus type!'
+                message_class = 'alert alert-warning'
+            
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 # @login_required
 # def password(request):

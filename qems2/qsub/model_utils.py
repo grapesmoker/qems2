@@ -5,6 +5,8 @@ from models import *
 from forms import *
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.comments import *
 
 import os
 
@@ -202,6 +204,7 @@ def tossup_to_bonus(tossup, output_question_type):
             bonus.part3_text = ""
             bonus.part3_answer = ""
             bonus.save()
+            move_comments_to_bonus(tossup, bonus)                        
             tossup.delete()
     elif (output_question_type == VHSL_BONUS):
         if (tossup.get_tossup_type() == ACF_STYLE_TOSSUP):
@@ -215,14 +218,17 @@ def tossup_to_bonus(tossup, output_question_type):
             bonus.part3_text = ""
             bonus.part3_answer = ""
             bonus.save()
+            move_comments_to_bonus(tossup, bonus)            
             tossup.delete()                  
         
 def tossup_to_tossup(tossup, output_question_type):
     pass # No-op for now since there's just one type of tossup
 
 def bonus_to_bonus(bonus, output_question_type):
+    print "bonus to bonus"
     if (output_question_type == ACF_STYLE_BONUS):
         if (bonus.get_bonus_type() == VHSL_BONUS):
+            print "Convert to ACF"
             bonus.question_type = QuestionType.objects.get(question_type=ACF_STYLE_BONUS)
             bonus.leadin = ""
             bonus.part2_text = ""
@@ -232,13 +238,14 @@ def bonus_to_bonus(bonus, output_question_type):
             bonus.save()
     elif (output_question_type == VHSL_BONUS):
         if (bonus.get_bonus_type() == ACF_STYLE_BONUS):
+            print "Convert to VHSL"
             bonus.question_type = QuestionType.objects.get(question_type=VHSL_BONUS)
             bonus.part1_text = bonus.leadin + " " + bonus.part1_text + " " + bonus.part1_answer + " " + bonus.part2_text + " " + bonus.part2_answer + " " + bonus.part3_text + " " + bonus.part3_answer
             bonus.leadin = ""
             bonus.part2_text = ""
             bonus.part2_answer = ""
             bonus.part3_text = ""
-            bonus.part3_answer = ""
+            bonus.part3_answer = ""            
             bonus.save()            
         
 def bonus_to_tossup(bonus, output_question_type):
@@ -249,6 +256,7 @@ def bonus_to_tossup(bonus, output_question_type):
             tossup.tossup_text = bonus.part1_text
             tossup.tossup_answer = bonus.part1_answer
             tossup.save()
+            move_comments_to_tossup(bonus, tossup)
             bonus.delete()            
         elif (bonus.get_bonus_type() == ACF_STYLE_BONUS):
             tossup = copy_to_tossup(bonus)
@@ -256,6 +264,7 @@ def bonus_to_tossup(bonus, output_question_type):
             tossup.tossup_text = bonus.leadin + " " + bonus.part1_text + " " + bonus.part1_answer + " " + bonus.part2_text + " " + bonus.part2_answer + " " + bonus.part3_text + " " + bonus.part3_answer
             tossup.tossup_answer = bonus.part1_answer
             tossup.save()
+            move_comments_to_tossup(bonus, tossup)            
             bonus.delete()                        
         
 def copy_to_tossup(bonus):
@@ -269,10 +278,18 @@ def copy_to_tossup(bonus):
     tossup.author = bonus.author
     tossup.question_history = bonus.question_history
     tossup.created_date = bonus.created_date
-    tossup.created_by = bonus.created_by
     tossup.last_changed_date = bonus.last_changed_date
     return tossup
-    
+
+def move_comments_to_tossup(bonus, tossup):
+    # Change all of the comments to be associated with this new object
+    tossup_content_type_id = ContentType.objects.get(name="tossup")
+    bonus_content_type_id = ContentType.objects.get(name="bonus")
+    for comment in Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id):
+        comment.object_pk = tossup.id
+        comment.content_type_id = tossup_content_type_id
+        comment.save()
+
 def copy_to_bonus(tossup):
     bonus = Bonus()
     bonus.packet = tossup.packet
@@ -284,6 +301,14 @@ def copy_to_bonus(tossup):
     bonus.author = tossup.author
     bonus.question_history = tossup.question_history
     bonus.created_date = tossup.created_date
-    bonus.created_by = tossup.created_by
     bonus.last_changed_date = tossup.last_changed_date
     return bonus
+
+def move_comments_to_bonus(tossup, bonus):
+    # Change all of the comments to be associated with this new object
+    tossup_content_type_id = ContentType.objects.get(name="tossup")
+    bonus_content_type_id = ContentType.objects.get(name="bonus")
+    for comment in Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id):
+        comment.object_pk = bonus.id
+        comment.content_type_id = bonus_content_type_id
+        comment.save()

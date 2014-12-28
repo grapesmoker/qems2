@@ -116,6 +116,8 @@ class Writer (models.Model):
     question_set_editor = models.ManyToManyField('QuestionSet', related_name='editor')
 
     administrator = models.BooleanField(default=False)
+    
+    send_mail_on_comments = models.BooleanField(default=False)
 
     def __str__(self):
         return '{0!s} {1!s} ({2!s})'.format(self.user.first_name, self.user.last_name, self.user.username)

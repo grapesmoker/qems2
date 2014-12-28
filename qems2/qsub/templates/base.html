@@ -6,17 +6,20 @@
 
 <head>
     <title>{% block title %}{% endblock %}</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <link rel="stylesheet" href="{% static 'jquery-ui/themes/ui-lightness/jquery-ui.css' %}">
-    <link rel="stylesheet" href="{% static 'bootstrap/dist/css/bootstrap.css' %}">
+    <link rel="stylesheet" href="{% static 'foundation/css/normalize.css' %}">
+    <link rel="stylesheet" href="{% static 'foundation/css/foundation.css' %}">
+    <link rel="stylesheet" href="{% static 'foundation/js/vendor/modernizr.js' %}">
     <link rel="stylesheet" href="{% static 'fontawesome/css/font-awesome.css' %}">
     <link rel="stylesheet" href="{% static 'css/signin.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/header.css' %}">
 
-    <script type="text/javascript" src="{% static 'jquery/dist/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'foundation/js/vendor/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'foundation/js/vendor/jquery.cookie.js' %}"></script>
     <script type="text/javascript" src="{% static 'jquery-ui/jquery-ui.js' %}"></script>
-    <script type="text/javascript" src="{% static 'js/jquery.cookie.js' %}"></script>
     <script type="text/javascript" src="{% static 'underscore/underscore.js' %}"></script>
     <script type="text/javascript" src="{% static 'bootstrap/js/tab.js' %}"></script>
     <script type="text/javascript" src="{% static 'tablesorter/jquery.tablesorter.js' %}"></script>
@@ -24,15 +27,14 @@
 </head>
 
 <body>
-<div class="container-fluid">
     {% block header %}{% endblock %}
-    <div class="container-fluid">
-        <div class="row">
-            {% block content %}{% endblock %}
-        </div>
+    <div class="row">
+        {% block content %}{% endblock %}
     </div>
 
-    {% block footer %}{% endblock %}
-</div>
+    <script type="text/javascript" src="{% static 'foundation/js/foundation.min.js' %}"></script>
+    <script>
+        $(document).foundation();
+    </script>
 </body>
 </html>

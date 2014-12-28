@@ -19,9 +19,11 @@ Because the Django secret key is not checked in, you will need to create a new f
 
     SECRET_KEY = 'your secret key'
 
-To run QEMS2 on a generic *nix (including OS X), you'll need the following prerequisites.
+### Generic *nix (including OS X)
 
-    python2 >= 2.7, MySQL, nodejs, npm
+To run QEMS2, you'll need the following prerequisites.
+
+    python2 >= 2.7, MySQL, nodejs
 
 Once you have those installed, you should use `pip` to get the necessary Python packages
 
@@ -43,8 +45,8 @@ Next, grab `bower` using `npm` for front-end package management:
 Set up your MySQL connection as, for example, `mysql -u root -p`:
 
     CREATE USER django@localhost IDENTIFIED BY 'django';
-    CREATE DATABASE qems2;
-    GRANT ALL PRIVILEGES ON qems2.* TO django@localhost;
+    CREATE DATABASE qems2_stable;
+    GRANT ALL PRIVILEGES ON qems2_stable.* TO django@localhost;
     GRANT ALL PRIVILEGES ON test_qems2.* TO django@localhost;
 
 Finally, use `manage.py` to populate the database, install the front-end packages, collect static files, and start the development server:
@@ -55,6 +57,28 @@ Finally, use `manage.py` to populate the database, install the front-end package
     python manage.py runserver
 
 If the bower install command is failing because node can't be found, you may need to install nodejs-legacy.
+
+### Windows
+
+Install the 32-bit version of Python 2.7.9 to C:\Python27; make sure to install the component that modifies your path. If the msi fails due to a missing DLL component, navigate to C:\Users\{username}\AppData\Local, right-click on Temp, go to Properties > Security and give "Everyone" "Full Control" (you'll get a lot of errors, just power through w/ the okay button).
+
+Install the 32-bit MySQL installer from http://dev.mysql.com/downloads/windows/ and the 32-bit msi from http://nodejs.org/download/.
+
+Run an instance of Windows PowerShell as an administrator and:
+
+    pip install django
+    pip install beautifulsoup4
+    pip install django-bower
+    pip install django-contrib-comments
+    pip install django-haystack
+    pip install whoosh
+    pip install unicodecsv
+
+Install the latest from https://pypi.python.org/pypi/MySQL-python/, make sure git is installed, and make sure all of the above programs are in your path, incl. variations on: C:\Program Files (x86)\MySQL\MySQL Workbench 6.2 CE\, C:\Program Files (x86)\Git\cmd\, C:\Python27\, C:\Python27\Scripts\, C:\Program Files (x86)\nodejs\, C:\Users\Andrew\AppData\Roaming\npm\. Then npm install -g bower.
+
+Then follow the above instructions to set up the MySQL connection and the server, except make sure to add `BOWER_PATH = os.path.normpath(r'C:\Users\{username}\AppData\Roaming\npm\bower.cmd')` below the `BOWER_COMPONENTS_ROOT` line in settings.py before `bower install`'ing. Note that the installation of git may require you to reference python as `C:\Python27\python.exe` instead of `python` in PowerShell.
+
+### Running QEMS2
 
 As with any Django project, you should now be able to access the website at http://localhost:8000.
 

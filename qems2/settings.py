@@ -90,7 +90,6 @@ STATICFILES_FINDERS = (
 )
 
 BOWER_COMPONENTS_ROOT = os.path.join(PROJECT_ROOT, 'components')
-BOWER_PATH = os.path.normpath(r'C:\Users\Andrew\AppData\Roaming\npm\bower.cmd')
 
 # Make this unique, and don't share it with anybody.
 # Read secret from disk
@@ -190,7 +189,7 @@ LOGGING = {
 BOWER_INSTALLED_APPS = (
     'jquery',
     'underscore',
-    'foundation',
+    'bootstrap',
     'backbone',
     'jquery-ui',
     'fontawesome',

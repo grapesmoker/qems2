@@ -1,23 +1,25 @@
 /* Stylesheet for header.html */
 
-.top-bar-section .breadcrumbs {
+/* Changes default border. */
+.navbar-fixed-top {
+    height:50px;
+    border-width:0 0 3px;
+    border-color:#3b7db5;
+}
+/* Matches breadcrumb style to navbar-inverse. */
+.navbar-inverse .breadcrumb {
     background-color:transparent;
-    border:0 none;
-    padding:0 0.875rem 0;
+    padding:15px 15px;
+    margin-bottom:0px;
+    border-radius:0px;
+    float:left;
+    font-size:1em;
 }
-.top-bar-section .breadcrumbs * a {
-    color:#ccc;
-    text-decoration:none;
-    font-size: 0.75rem;
-    line-height: 0.75rem;
+.navbar-inverse .breadcrumb li a {
+    color:#9d9d9d;
 }
-.top-bar-section .breadcrumbs *.current a {
+.navbar-inverse .breadcrumb li a:hover,
+.navbar-inverse .breadcrumb li a:focus {
     color:#fff;
-    cursor:pointer;
-}
-.top-bar-section .breadcrumbs *:before {
-    margin:0 0.125rem;
-}
-.top-bar-section .breadcrumbs *:first-child:before {
-    margin:0;
+    text-decoration:none;
 }

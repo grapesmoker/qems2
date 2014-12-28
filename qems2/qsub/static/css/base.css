@@ -16,7 +16,8 @@ div#content {
 }*/
 
 body {
-    background-color:#f8f8ff;
+    padding-top:50px;
+    background-color:#fcfcfc;
 }
 .form-standard {
     max-width:660px;
@@ -30,7 +31,6 @@ body {
 }
 .page-header {
     margin:24px 0 20px;
-    border-bottom: 1px solid #eeeeee;
 }
 .fa-check {
     color:green;

@@ -67,6 +67,9 @@ body {
     border:1px solid #f8f8ff;
     padding:0;
 }
+span.prefix.text-left {
+    padding-left:1rem;
+}
 /* Tables */
 .tablesorter {
     margin:5px 0 5px;

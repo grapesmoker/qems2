@@ -105,11 +105,16 @@
             <form action="" method="post" class="clearfix">
                 {% csrf_token %}
                 {% for field in form %}
-                    {{ field.errors }}
-                    <div class="small-6 columns">
-                        <label>
-                            {{ field.label }} {{ field }}
-                        </label>
+                    <div class="row collapse">
+                        <div class="small-3 columns">
+                            <span class="prefix text-left" for="field.id_for_label">{{ field.label }}</span>
+                        </div>
+                        <div class="small-9 columns">
+                            {{ field }}
+                        </div>
+                        {% if field.errors %}
+                            <small class="error">{{ field.errors }}</small>
+                        {% endif %}
                     </div>
                 {% endfor %}
                 {% if not read_only %}

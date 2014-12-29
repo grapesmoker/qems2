@@ -711,8 +711,8 @@ def add_tossups(request, qset_id, packet_id=None):
                         tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
                     
                     tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
-                    message = 'Your tossup has been successfully added to the set! Write more questions!'
-                    message_class = 'alert alert-success'                     
+                    message = 'Your tossup has been added to the set.'
+                    message_class = 'alert-box info radius'
                     
                     # In the success case, don't return the whole tossup object so as to clear the fields
                     return render_to_response('add_tossups.html',
@@ -835,8 +835,8 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
                 try:
                     bonus.is_valid()
                     bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
-                    message = 'Your bonus has been successfully added to the set! Write more questions!'
-                    message_class = 'alert alert-success'
+                    message = 'Your bonus has been added to the set.'
+                    message_class = 'alert-box success'
                     
                     # On success case, don't return the full bonus so that field gets cleared
                     return render_to_response('add_bonuses.html',

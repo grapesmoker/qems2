@@ -14,7 +14,7 @@
 <div class="small-11 small-centered columns end">
     <h3 class="page-header">Question Set Management</h3>
 
-    <dl class="edit-qset tabs" data-tab>
+    <dl class="tabs" data-tab>
         <dd class="active"><a href="#qset-info">Overall Info</a></dd>
         <dd><a href="#questions">All Questions</a></dd>
         <dd><a href="#editors">Contributors</a></dd>
@@ -39,7 +39,7 @@
                 {% endfor %}
             </ul>
             {% endif %}
-            <ul class="button-group even edit-qset">
+            <ul class="button-group even">
                 <li><a href="/add_tossups/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add Tossup</a></li>
                 <li><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add ACF Bonus</a></li>
                 <li><a href="/add_bonuses/{{ qset.id }}/VHSL bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add VHSL Bonus</a></li>
@@ -100,35 +100,50 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <div class="panel callout radius text-center"><strong>Set Information</strong></div>
-            <form action="" method="post">
+            <div class="panel callout radius text-center">
+                <strong>Set Information</strong>
+            </div>
+            <form action="" method="post" class="clearfix">
                 {% csrf_token %}
-                {{ form.as_p }}
+                {% for field in form %}
+                    {{ field.errors }}
+                    <div class="small-6 columns">
+                        <label>
+                            {{ field.label }} {{ field }}
+                        </label>
+                    </div>
+                {% endfor %}
                 {% if not read_only %}
-                <input type="submit" value="Submit Changes"/>
+                    <input type="submit" value="Submit Changes" class="button primary right" />
                 {% endif %}
             </form>
-            <br />
-            <div class="alert alert-info text-center">
+            <!--<form action="" method="post" class="clearfix">
+                {% csrf_token %}
+                {{ form }}
+                {% if not read_only %}
+                <input type="submit" value="Submit Changes" class="button primary right" />
+                {% endif %}
+            </form>-->
+            <div class="panel callout radius text-center">
                 <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
             </div>
             <a id="#qset-comments"></a>
-            <div class="alert alert-info text-center"><strong>Comments</strong></div>
-            <div class="comments col-xs-6 col-md-6">
+            <div class="panel callout radius text-center"><strong>Comments</strong></div>
+            <div class="comments small-6 columns end">
                 {% autoescape off %}
                     {% get_comment_list for qset as comment_list %}
                     {% for comment in comment_list %}
                         {% if not comment.is_removed %}
-                            <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br><br>
+                            <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br /><br />
                             {% if role == "editor" %}
-                                <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br><br>
+                                <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br /><br />
                             {% endif %}
                         {% endif %}
                     {% endfor %}
                 {% endautoescape %}
 
                 {% get_comment_form for qset as cform %}
-                <form action="{% comment_form_target %}" method="POST">
+                <form action="{% comment_form_target %}" method="POST" class="clearfix">
                     {% csrf_token %}
                     {{ cform.comment.label_tag }}
                     <textarea cols="40" rows="10" id="{{ cform.comment.id_for_label }}"
@@ -138,14 +153,11 @@
                     {{ cform.object_pk }}
                     {{ cform.timestamp }}
                     {{ cform.security_hash }}
-                    <input type="submit" name="submit" value="Post" class="btn btn-primary">
+                    <input type="submit" name="submit" value="Comment" class="button primary right" />
                     <!--<input type="submit" name="preview" value="Preview" class="btn btn-primary">-->
                     <input type="hidden" name="next" value="/edit_question_set/{{ qset.id }}/">
                 </form>
             </div>
-
-            <!--<button class="btn btn-primary comment-button" title="Leave Comment">Comment</button>-->
-
         </div>
         <!--<div class="tab-pane" id="writer-stats">
             <table class="tablesorter table-striped table-hover" id="writer-stats-table">
@@ -172,14 +184,10 @@
 
         <div class="content" id="editors">
             {% if not read_only %}
-            <div class="btn-group btn-group-justified">
-                <a href="/add_editor/{{ qset.id }}" class="btn btn-primary" id="btn-add-editor">
-                    <i class="fa fa-plus-circle"></i> Add an Editor
-                </a>
-                <a href="/add_writer/{{ qset.id }}" class="btn btn-primary">
-                    <i class="fa fa-plus-circle"></i> Add a Writer
-                </a>
-            </div>
+            <ul class="button-group even">
+                <li><a href="/add_editor/{{ qset.id }}" class="button primary" id="btn-add-editor"><i class="fa fa-plus-circle"></i> Add an Editor</a></li>
+                <li><a href="/add_writer/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add a Writer</a></li>
+            </ul>
             <!--<div class="alert alert-info text-center h6"><strong>Editors</strong></div>
             <table class="tablesorter table-striped table-hover" id="editors-table">
                 <thead>
@@ -452,11 +460,9 @@
             -->
         </div>
         <div class="content" id="packets">
-            <div class="btn-group btn-group-justified">
-                <a href="/add_packets/{{ qset.id }}" class="btn btn-primary" title="Add packets">
-                    <i class="fa fa-plus-circle"></i> Add packets
-                </a>
-            </div>
+            <ul class="button-group even">
+                <li><a href="/add_packets/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add Packets</a></li>
+            </ul>
             <table class="tablesorter table-striped table-hover" id="packets-table">
                 <thead>
                     <tr>

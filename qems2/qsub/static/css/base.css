@@ -33,11 +33,18 @@ body {
 .button-group.even li a {
     flex-grow:1;
 }
+.button {
+    font-size:0.8125rem;
+    padding-top:0.875rem;
+    padding-right:1.5rem;
+    padding-bottom:0.9125rem;
+    padding-left:1.5rem;
+}
 .tabs {
     display:flex;
     flex-direction:row;
     justify-content:center;
-    border-bottom:1px solid #333;
+    border-bottom:1px solid #ddd;
 }
 .tabs dd {
     flex-grow:1;
@@ -51,37 +58,26 @@ body {
     margin-bottom:0.625rem;
     padding:0.625rem;
 }
-.panel.callout > p {
-    font-size:0.875rem;
-    line-height:0.875rem;
-}
 .panel.callout > strong {
-    font-size:0.875rem;
-    line-height:0.875rem;
+    font-size:0.84375rem;
+    line-height:0.84375rem;
 }
 .progress.edit-qset {
     background-color: #f8f8ff;
     border:1px solid #f8f8ff;
     padding:0;
 }
-.edit-qset .button.secondary {
-    font-size:0.75rem;
-}
-.edit-qset .button.primary {
-    font-size:0.75rem;
-}
 /* Tables */
 .tablesorter {
     margin:5px 0 5px;
-    font-size:0.8em;
     width:100%;
     text-align:left;
 }
 .tablesorter thead tr th,
 .tablesorter tfoot tr th {
     background-color:#bbb;
-    border:2px solid #fcfcfc;
-    font-size:1em;
+    border:2px solid #f8f8ff;
+    font-size:0.75rem;
     padding:6px 20px 6px 3px;
 }
 .tablesorter thead tr .header {
@@ -101,10 +97,11 @@ body {
     background-color:#8dbdd8;
 }
 .tablesorter tbody tr td {
-    border-right:2px solid #fcfcfc;
+    border-right:2px solid #f8f8ff;
     padding:4px 3px 4px;
     background-color:transparent;
     vertical-align:top;
+    font-size:0.6875rem;
 }
 .tablesorter tbody tr td a:hover,
 .tablesorter tbody tr td a:focus {

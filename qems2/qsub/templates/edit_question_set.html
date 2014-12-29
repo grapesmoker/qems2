@@ -18,7 +18,6 @@
         <dd class="active"><a href="#qset-info">Overall Info</a></dd>
         <dd><a href="#questions">All Questions</a></dd>
         <dd><a href="#editors">Contributors</a></dd>
-        <!--<dd><a href="#writer-stats" data-toggle="tab">Writers</a></dd>-->
         <dd><a href="#packets">Packets</a></dd>
         <dd><a href="#set-wide-distribution">Set-wide Distro</a></dd>
         <dd><a href="#tiebreak-distribution">Tiebreaker Distro</a></dd>
@@ -117,13 +116,6 @@
                     <input type="submit" value="Submit Changes" class="button primary right" />
                 {% endif %}
             </form>
-            <!--<form action="" method="post" class="clearfix">
-                {% csrf_token %}
-                {{ form }}
-                {% if not read_only %}
-                <input type="submit" value="Submit Changes" class="button primary right" />
-                {% endif %}
-            </form>-->
             <div class="panel callout radius text-center">
                 <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
             </div>
@@ -159,62 +151,14 @@
                 </form>
             </div>
         </div>
-        <!--<div class="tab-pane" id="writer-stats">
-            <table class="tablesorter table-striped table-hover" id="writer-stats-table">
-                <thead>
-                    <tr>
-                        <th>Writer</th>
-                        <th>Username</th>
-                        <th>Tossups Written</th>
-                        <th>Bonuses Written</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for username, writer in writer_stats.items %}
-                    <tr>
-                        <td>{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</td>
-                        <td>{{ writer.writer.user.username }}</td>
-                        <td>{{ writer.tu_written }}</td>
-                        <td>{{ writer.bonus_written }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            </div>-->
-
+ 
         <div class="content" id="editors">
             {% if not read_only %}
-            <ul class="button-group even">
-                <li><a href="/add_editor/{{ qset.id }}" class="button primary" id="btn-add-editor"><i class="fa fa-plus-circle"></i> Add an Editor</a></li>
-                <li><a href="/add_writer/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add a Writer</a></li>
-            </ul>
-            <!--<div class="alert alert-info text-center h6"><strong>Editors</strong></div>
-            <table class="tablesorter table-striped table-hover" id="editors-table">
-                <thead>
-                    <tr>
-                        <th>Editor</th>
-                        <th>Username</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>{{ qset.owner.user.first_name }} {{ qset.owner.user.last_name }} (Owner)</td>
-                        <td>{{ qset.owner.user.username }}</td>
-                    </tr>
-                    {% for editor in editors|sort %}
-                    <tr>
-                        <td>{{ editor.user.first_name }} {{ editor.user.last_name }}</td>
-                        <td>{{ editor.user.username }}</td>
-                        <td>
-                            <a href="/delete_editor/{{ editor.id }}" title="Delete" class="delete_editor" value="{{ editor.id }}">
-                                <i class="fa fa-minus-circle"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-                </table>-->
+                <ul class="button-group even">
+                    <li><a href="/add_editor/{{ qset.id }}" class="button primary" id="btn-add-editor"><i class="fa fa-plus-circle"></i> Add an Editor</a></li>
+                    <li><a href="/add_writer/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add a Writer</a></li>
+                </ul>
+            {% endif %}
 
             <table class="tablesorter table-striped table-hover" id="writers-table">
                 <thead>
@@ -252,15 +196,9 @@
                     {% endfor %}
                 </tbody>
             </table>
-            {% else %}
-            <div class="alert alert-warning">
-                You are not authorized to view this information
-            </div>
-
-            {% endif %}
         </div>
         <div class="content" id="set-wide-distribution">
-            <div class="alert alert-warning">
+            <div class="alert-box warning radius">
                 <i class="fa fa-exclamation-triangle"></i>
                 The set-wide distribution controls the total number of questions of each kind that your set
                 will contain. It is distinct from the "template" distribution; you cannot change the categories
@@ -300,7 +238,7 @@
             </form>
         </div>
         <div class="content" id="tiebreak-distribution">
-            <div class="alert alert-warning">
+            <div class="alert-box warning radius">
                 <i class="fa fa-exclamation-triangle"></i>
                 The tiebreaker distribution controls the total number of questions required as tiebreakers for the
                 whole set. It is like the set-wide distribution in that you cannot change the categories, only
@@ -336,7 +274,7 @@
             </form>
         </div>
         <div class="content" id="questions">
-            <div class="alert alert-info text-center"><strong>Tossups</strong></div>
+            <div class="panel callout radius text-center"><strong>Tossups</strong></div>
             <table class="tablesorter table-striped table-hover" id="tossup-table">
                 <thead>
                     <tr>
@@ -379,25 +317,7 @@
                 {% endautoescape %}
                 </tbody>
             </table>
-            <!--
-            <div id="tossup-pager" class="pager">
-                <form>
-                    <img src="/static/images/icons/without-shadows/badge-circle-direction-left-16-ns.png" class="first"/>
-                    <img src="/static/images/icons/without-shadows/arrow-left-16-ns.png" class="prev"/>
-                    <input type="text" class="pagedisplay"/>
-                    <img src="/static/images/icons/without-shadows/arrow-right-16-ns.png" class="next"/>
-                    <img src="/static/images/icons/without-shadows/badge-circle-direction-right-16-ns.png" class="last"/>
-
-                    <select class="pagesize">
-                        <option value="10">10</option>
-                        <option selected="selected" value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </form>
-            </div>
-            -->
-            <div class="alert alert-info text-center"><strong>Bonuses</strong></div>
+            <div class="panel callout radius text-center"><strong>Bonuses</strong></div>
             <table class="tablesorter table-striped table-hover" id="bonus-table">
                 <thead>
                     <tr>
@@ -440,24 +360,6 @@
                 {% endautoescape %}
                 </tbody>
             </table>
-            <!--
-            <div id="bonus-pager" class="pager">
-                <form>
-                    <img src="/static/images/icons/without-shadows/badge-circle-direction-left-16-ns.png" class="first"/>
-                    <img src="/static/images/icons/without-shadows/arrow-left-16-ns.png" class="prev"/>
-                    <input type="text" class="pagedisplay"/>
-                    <img src="/static/images/icons/without-shadows/arrow-right-16-ns.png" class="next"/>
-                    <img src="/static/images/icons/without-shadows/badge-circle-direction-right-16-ns.png" class="last"/>
-
-                    <select class="pagesize">
-                        <option value="10">10</option>
-                        <option selected="selected" value="25">25</option>
-                        <option value="50">50</option>
-                        <option value="100">100</option>
-                    </select>
-                </form>
-            </div>
-            -->
         </div>
         <div class="content" id="packets">
             <ul class="button-group even">
@@ -500,21 +402,5 @@
 
 <input type="hidden" id="qset-id" value="{{ qset.id }}">
 <script type="text/javascript" src="{% static 'js/comments.js' %}"></script>
-
-{% include "dialog.html" %}
-
-<!--<div id="comment-dialog" style="display: none">
-    <div class="comment-header">
-
-    </div>
-    <div class="comment-content">
-        <form action="/add_comment/" method="post" class="form-horizontal">
-            {% csrf_token %}
-            <input type="hidden" id="reply-to" name="reply-to" value="">
-            <input type="hidden" id="qset-id" name="qset-id" value="{{ qset.id }}">
-            <textarea rows="10" cols="64" id="comment-text" name="comment-text"></textarea>
-        </form>
-    </div>
-</div>-->
 
 {% endblock %}

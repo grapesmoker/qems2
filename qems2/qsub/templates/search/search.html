@@ -110,17 +110,17 @@
                 <td>{% if question.packet %} {{ question.packet }} {% else %} Not in packet {% endif %}</td>
                 <td>
                     {% if question|class_name == "Tossup" %}
-                    <a href="/edit_tossup/{{ question.id }}" rel="tooltip" title="Edit tossup">
+                    <a href="/edit_tossup/{{ question.id }}" title="Edit">
                         <i class="fa fa-edit"></i>
                     </a>
-                    <a href="/delete_tossup/{{ question.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ question.id }}">
+                    <a href="/delete_tossup/{{ question.id }}" title="Delete" class="delete_tossup" value="{{ question.id }}">
                         <i class="fa fa-minus-circle"></i>
                     </a>
                     {% elif question|class_name == "Bonus" %}
-                    <a href="/edit_bonus/{{ question.id }}" rel="tooltip" title="Edit bonus">
+                    <a href="/edit_bonus/{{ question.id }}" title="Edit">
                         <i class="fa fa-edit"></i>
                     </a>
-                    <a href="/delete_bonus/{{ question.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ question.id }}">
+                    <a href="/delete_bonus/{{ question.id }}" title="Delete" class="delete_bonus" value="{{ question.id }}">
                         <i class="fa fa-minus-circle"></i>
                     </a>
                     {% endif %}

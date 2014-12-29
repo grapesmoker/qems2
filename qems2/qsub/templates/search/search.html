@@ -11,65 +11,79 @@
 {% load static %}
 {% load filters %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
+<div class="small-11 small-centered columns">
     <h3 class="page-header">Search</h3>
     {% if message %}
-    <p class="{{ message_class }}">{{ message }}</p>
+        <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}
-    <form role="form" method="get" action=".">
-        <div class="form-group">
-            <input type="search" id="id_q" name="q" class="form-control" placeholder="Search Term" value="{% if search_term %}{{ search_term }}{% endif %}">
+    <form action="" method="get">
+        <div class="row collapse">
+            <div class="small-3 columns">
+                <span class="prefix text-left" for="id_q">Search Term</span>
+            </div>
+            <div class="small-9 columns">
+                <input type="search" id="id_q" name="q" value="{% if search_term %}{{ search_term }}{% endif %}">
+            </div>
         </div>
-        <div class="checkbox">
-            <label for="id_models_0">Search in:
-                <label for="id_models_0">
-                    {% if tossups_selected == "checked" %}
-                        <input checked="checked" id="id_models_0" name="models" type="checkbox" value="qsub.tossup"/>
-                    {% else %}
-                        <input id="id_models_0" name="models" type="checkbox" value="qsub.tossup"/>
-                    {% endif %}
-                    Tossups
-                </label>
-            </label>
-            <label for="id_models_1">
-                {% if bonuses_selected == "checked" %}
-                    <input checked="checked" id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>
+        <div class="row">
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-3 columns">
+                        <span class="prefix text-left" for="id-qset">Tournament</span>
+                    </div>
+                    <div class="small-9 columns">
+                        <select class="form-control" id="id_qset" name="qset">
+                            {% for qset in q_sets %}
+                            <option value="{{ qset.id }}"
+                            {% if search_qset %}
+                                 {% if qset == search_qset %} selected {% endif %}
+                            {% endif %}>{{ qset.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-3 columns">
+                        <span class="prefix text-left" for="id_category">Category</span>
+                    </div>
+                    <div class="small-9 columns">
+                        <select class="form-control" id="id_category" name="category">
+                            <option value="All" {% if search_category == "All" %} selected {% endif %}>All Categories</option>
+                            {% for category in categories %}
+                            {% with category.0|add:" - "|add:category.1 as cat %}
+                            <option value="{{ cat }}" {% if search_category == cat %} selected {% endif %}>{{ cat }}</option>
+                            {% endwith %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="small-12 columns">
+                <label class="search">Question Types to Search</label>
+                {% if tossups_selected == "checked" %}
+                    <input checked="checked" id="id_models_0" name="models" type="checkbox" value="qsub.tossup" />
                 {% else %}
-                    <input id="id_models_1" name="models" type="checkbox" value="qsub.bonus"/>
+                    <input id="id_models_0" name="models" type="checkbox" value="qsub.tossup" />
+                {% endif %}
+                <label for="id_models_0">Tossups</label>
+                {% if bonuses_selected == "checked" %}
+                    <input checked="checked" id="id_models_1" name="models" type="checkbox" value="qsub.bonus" />
+                {% else %}
+                    <input id="id_models_1" name="models" type="checkbox" value="qsub.bonus" />
                 {% endif%}
-                Bonuses
-            </label>
+                <label for="id_models_1">Bonuses</label>
+            </div>
         </div>
-        <div class="form-group">
-            <label for="id_qset">Tournament: </label>
-            <select class="form-control" id="id_qset" name="qset">
-                {% for qset in q_sets %}
-                <option value="{{ qset.id }}"
-                {% if search_qset %}
-                     {% if qset == search_qset %} selected {% endif %}
-                {% endif %}>{{ qset.name }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            <label for="id_category">Category: </label>
-            <select class="form-control" id="id_category" name="category">
-                <option value="All" {% if search_category == "All" %} selected {% endif %}>All Categories</option>
-                {% for category in categories %}
-                {% with category.0|add:" - "|add:category.1 as cat %}
-                <option value="{{ cat }}" {% if search_category == cat %} selected {% endif %}>{{ cat }}</option>
-                {% endwith %}
-                {% endfor %}
-            </select>
-        </div>
-        <input type="submit" value="Search" class="btn btn-primary">
+        <input type="submit" value="Search" class="button primary right" />
     </form>
-    <p></p>
 
     {% if result %}
-
-    <div class="alert alert-info text-center"><strong>Results</strong></div>
-    <table class="table table-striped table-hover tablesorter">
+    <div class="panel callout radius text-center"><strong>Results</strong></div>
+    <table class="tablesorter table-striped table-hover">
         <thead>
         <tr>
             <th>Author</th>
@@ -117,7 +131,11 @@
         </tbody>
     </table>
     {% else %}
-    <p>No results found.</p>
+    <div class="row">
+        <div class="small-12 columns">
+            <p>No results found.</p>
+        </div>
+    </div>
     {% endif %}
 </div>
 {% endblock %}

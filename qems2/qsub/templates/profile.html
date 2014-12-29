@@ -7,11 +7,9 @@
 {% block title %}Profile - QEMS2{% endblock %}
 
 {% block content %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Profile for {{ user.user.username }}</h3>
-    <p class="alert alert-info">
-        You can change your profile information here, except your username.
-    </p>
+<div class="small-11 small-centered columns end">
+    <h3 class="page-header">Profile for {{ user.user.first_name }} {{ user.user.last_name }}</h3>
+    <div data-alert class="alert-box">You can change your profile information here, except for your username.</div>
     {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}

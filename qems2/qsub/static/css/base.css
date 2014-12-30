@@ -110,9 +110,21 @@ span.prefix.text-left {
 .tablesorter thead tr th,
 .tablesorter tfoot tr th {
     background-color:#bbb;
-    border:2px solid #f8f8ff;
+    border:1px solid #f8f8ff;
+    border-top:0;
+    border-bottom:0;
     font-size:0.75rem;
     padding:6px 20px 6px 3px;
+}
+#qsets-write-table thead tr th,
+#qsets-write-table tfoot tr th,
+#qsets-edit-table thead tr th,
+#qsets-edit-table tfoot tr th,
+#qsets-owned-table thead tr th,
+#qsets-owned-table tfoot tr th {
+    border:1px solid #fff;
+    border-top:0;
+    border-bottom:0;
 }
 .tablesorter thead tr .header {
     background-image:url(../images/blueskin/bg.gif);
@@ -131,11 +143,20 @@ span.prefix.text-left {
     background-color:#8dbdd8;
 }
 .tablesorter tbody tr td {
-    border-right:2px solid #f8f8ff;
+    border:1px solid #f8f8ff;
+    border-top:0;
+    border-bottom:0;
     padding:4px 3px 4px;
     background-color:transparent;
     vertical-align:top;
     font-size:0.6875rem;
+}
+#qsets-write-table tbody tr td,
+#qsets-edit-table tbody tr td,
+#qsets-owned-table tbody tr td {
+    border:1px solid #fff;
+    border-top:0;
+    border-bottom:0;
 }
 .tablesorter tbody tr td a:hover,
 .tablesorter tbody tr td a:focus {
@@ -153,4 +174,7 @@ span.prefix.text-left {
 #packet-status-tossup-table tbody tr td,
 #packet-status-bonus-table tbody tr td {
     width:25%;
+}
+#distribution-table {
+    /* TODO */
 }

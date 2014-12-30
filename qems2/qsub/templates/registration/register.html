@@ -3,12 +3,24 @@
 {% block title %}Create an account{% endblock %}
 
 {% block content %}
-<div class="container">
-    <form action="" method="post" class="form-signin">
-        <legend>Create an account:</legend>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
-    </form>
-</div>
+
+<form action="" method="post">
+    <h3 class="page-header">Create an Account</h3>
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="row collapse">
+            <div class="small-3 columns">
+                <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
+            </div>
+            <div class="small-9 columns">
+                {{ field }}
+            </div>
+            {% if field.errors %}
+                <small class="error">{{ field.errors }}</small>
+            {% endif %}
+        </div>
+    {% endfor %}
+    <input class="button primary right" type="submit" value="Register" />
+</form>
+
 {% endblock %}

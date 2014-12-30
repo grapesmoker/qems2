@@ -3,18 +3,35 @@
 {% block title %}Login{% endblock %}
 
 {% if form.errors %}
-  <p class="error">shit done gone wrong</p>
+    <p class="error">shit done gone wrong</p>
 {% endif %}
 
 {% block content %}
-	<div class="container">
-		<form action="" method="post" class="form-signin">
-			<legend>Login</legend>
-			{% csrf_token %}
+<div class="row">
+    <div class="small-8 small-centered columns">
+        <form action="" method="post">
+            <h3 class="page-header">Login</h3>
+            {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}" />
-            {{ form.as_table }}
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
-            <a href="/register/" class="btn btn-lg btn-primary btn-block" role="button">Register</a>
-		</form>
-	</div>
+            {% for field in form %}
+                <div class="row collapse">
+                    <div class="small-3 columns">
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
+                    </div>
+                    <div class="small-9 columns">
+                        {{ field }}
+                    </div>
+                    {% if field.errors %}
+                        <small class="error">{{ field.errors }}</small>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <ul class="button-group even">
+                <li><input type="submit" value="Login" class="button primary" /></li>
+                <li><a href="/register/" class="button primary">Register</a></li>
+            </ul>
+        </form>
+    </div>
+</div>
+
 {% endblock %}

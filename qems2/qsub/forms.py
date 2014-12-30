@@ -16,16 +16,8 @@ class WriterCreationForm(UserCreationForm):
 
         super(WriterCreationForm, self).__init__(*args, **kwargs)
 
-        self.fields['username'].widget.attrs.update({'class': 'form-control'})
-
-        self.fields['first_name'].widget.attrs.update({'class': 'form-control'})
-        self.fields['last_name'].widget.attrs.update({'class': 'form-control'})
-        self.fields['email'].widget.attrs.update({'class': 'form-control'})
-
-        #print self.fields
-        self.fields['password1'].widget.attrs.update({'class': 'form-control'})
-        self.fields['password2'].widget.attrs.update({'class': 'form-control'})
-        self.fields['username'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password2'].widget.attrs.update({'placeholder': 'Enter the same password as above, for verification.'})
+        self.fields['username'].widget.attrs.update({'placeholder': 'Thirty characters or fewer. Letters, digits, and @.-+_ are allowed.'})
 
 class WriterChangeForm(forms.Form):
 

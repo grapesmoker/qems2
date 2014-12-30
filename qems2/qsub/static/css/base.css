@@ -31,6 +31,9 @@ p {
 .button-group.even li a {
     flex-grow:1;
 }
+.button-group.even li input {
+    flex-grow:1;
+}
 .button {
     font-size:0.8125rem;
     padding-top:0.875rem;

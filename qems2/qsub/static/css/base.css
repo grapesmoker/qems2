@@ -111,6 +111,10 @@ span.prefix.text-left {
     bottom:0;
     margin-bottom:8px;
 }
+#set-wide-reqs-table .ui-spinner-down,
+#tb-reqs-table .ui-spinner-down{
+    margin-bottom:4px;
+}
 /* Tables */
 .tablesorter {
     margin:5px 0 5px;
@@ -187,4 +191,15 @@ span.prefix.text-left {
 }
 #distribution-table {
     /* TODO */
+}
+#set-wide-reqs-table tbody tr td,
+#tb-reqs-table tbody tr td {
+    vertical-align:middle;
+}
+#set-wide-reqs-table input.spinner,
+#tb-reqs-table input.spinner {
+    height:1.6875rem;
+    font-size:0.6875rem;
+    margin:0;
+    padding:0.5rem;
 }

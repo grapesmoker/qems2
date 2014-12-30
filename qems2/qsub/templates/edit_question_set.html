@@ -106,7 +106,7 @@
             {% for field in form %}
                 <div class="row collapse">
                     <div class="small-3 columns">
-                        <span class="prefix text-left" for="field.id_for_label">{{ field.label }}</span>
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
                     </div>
                     <div class="small-9 columns">
                         {{ field }}

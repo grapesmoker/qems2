@@ -12,10 +12,10 @@
 {% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
 {% endif %}
-<form action="" method="post" class="form-group">
+<form action="" method="post">
     {% csrf_token %}
     {% if form.non_field_errors %}
-    <div class="alert alert-warning">
+    <div class="alert-box warning">
         {{ form.non_field_errors }}
     </div>
     {% endif %}

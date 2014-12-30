@@ -7,17 +7,70 @@
 {% block title %}Profile - QEMS2{% endblock %}
 
 {% block content %}
-<div class="small-11 small-centered columns end">
-    <h3 class="page-header">Profile for {{ user.user.first_name }} {{ user.user.last_name }}</h3>
-    <div data-alert class="alert-box">You can change your profile information here, except for your username.</div>
-    {% if message %}
+
+<h3 class="page-header">Profile for {{ user.user.first_name }} {{ user.user.last_name }}</h3>
+<div data-alert class="alert-box info">You can change your profile information here, except for your username. To change your password, <a href="/password_change/">use this form</a>.</div>
+{% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
-    {% endif %}
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <p>To change your password, use <a href="/password_change/">this form</a>.</p>
-        <input type="submit" value="Update" class="btn btn-primary">
-    </form>
-</div>
+{% endif %}
+<form action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="small-6 columns">
+            <div class="row collapse">
+                <div class="small-4 columns">
+                    <span class="prefix text-left" for="{{ form.username.id_for_label }}">Username</span>
+                </div>
+                <div class="small-8 columns">
+                    <input id="{{ form.username.id_for_label }}" name="{{ form.username.html_name }}" readonly="readonly" type="text" value="{{ form.username.value }}" />
+                </div>
+            </div>
+        </div>
+        <div class="small-6 columns">
+            <div class="row collapse">
+                <div class="small-4 columns">
+                    <span class="prefix text-left" for="{{ form.email.id_for_label }}">E-mail</span>
+                </div>
+                <div class="small-8 columns">
+                    <input id="{{ form.email.id_for_label }}" name="{{ form.email.html_name }}" type="text" value="{{ form.email.value }}" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-6 columns">
+            <div class="row collapse">
+                <div class="small-4 columns">
+                    <span class="prefix text-left" for="{{ form.first_name.id_for_label }}">First Name</span>
+                </div>
+                <div class="small-8 columns">
+                    <input id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.html_name }}" type="text" value="{{ form.first_name.value }}" />
+                </div>
+            </div>
+        </div>
+        <div class="small-6 columns">
+            <div class="row collapse">
+                <div class="small-4 columns">
+                    <span class="prefix text-left" for="{{ form.last_name.id_for_label }}">Last Name</span>
+                </div>
+                <div class="small-8 columns">
+                    <input id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.html_name }}" type="text" value="{{ form.last_name.value }}" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="small-6 small-offset-6 columns">
+            {% if send_mail_on_comments_checked == "checked" %}
+                <input checked="checked" id="{{ form.send_mail_on_comments.id_for_label }}" name="form.send_mail_on_comments.html_name" type="checkbox" />
+            {% else %}
+                <input id="{{ form.send_mail_on_comments.id_for_label }}" name="form.send_mail_on_comments.html_name" type="checkbox" />
+            {% endif %}
+            <label>Send Mail on Comments?</label>
+        </div>
+    </div>
+    <input type="submit" value="Update" class="button primary right" />
+</form>
+
 {% endblock %}

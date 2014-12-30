@@ -44,10 +44,7 @@
             <label for="id_qset">Tournament: </label>
             <select class="form-control" id="id_qset" name="qset">
                 {% for qset in q_sets %}
-                <option value="{{ qset.id }}"
-                {% if search_qset %}
-                     {% if qset == search_qset %} selected {% endif %}
-                {% endif %}>{{ qset.name }}</option>
+                    <option value="{{ qset.id }}"{% if passed_q_set and qset == passed_q_set %} selected{% endif %}>{{ qset.name }}</option>
                 {% endfor %}
             </select>
         </div>

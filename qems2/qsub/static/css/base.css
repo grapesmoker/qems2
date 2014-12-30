@@ -3,11 +3,6 @@
 body {
     background-color:#f8f8ff;
 }
-.form-standard {
-    max-width:660px;
-    padding:15px;
-    margin:0 auto;
-}
 .page-header {
     margin:24px 0 20px;
     border-bottom:1px solid #ddd;
@@ -70,7 +65,6 @@ body {
 span.prefix.text-left {
     padding-left:1rem;
 }
-
 /* Tables */
 .tablesorter {
     margin:5px 0 5px;

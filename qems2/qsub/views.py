@@ -1279,8 +1279,8 @@ def add_packets(request, qset_id):
                     new_packet.created_by = user
                     new_packet.question_set = qset
                     new_packet.save()
-                    message = 'Your packet named {0} has been created!'.format(name_base)
-                    message_class = 'alert alert-success'
+                    message = 'Your packet named {0} has been created.'.format(packet_name)
+                    message_class = 'alert-box success'
 
                 elif name_base is not None and num_packets is not None:
                     for i in range(1, num_packets + 1):
@@ -1289,23 +1289,23 @@ def add_packets(request, qset_id):
                         new_packet.created_by = user
                         new_packet.question_set = qset
                         new_packet.save()
-                    message = 'Your {0} packets with the base name {1} have been created!'.format(num_packets, name_base)
-                    message_class = 'alert alert-success'
+                    message = 'Your {0} packets with the base name {1} have been created.'.format(num_packets, name_base)
+                    message_class = 'alert-box success'
                 else:
                     message = 'You must enter either the name for an individual packet or a base name and the number of packets to create!'
-                    message_class = 'alert alert-warning'
+                    message_class = 'alert-box warning'
 
             else:
                 message = 'Invalid information entered into form!'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box danger'
         else:
             message = 'Invalid method!'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box danger'
             form = None
 
     else:
         message = 'You are not authorized to add packets to this set!'
-        message_class = 'alert alert-danger'
+        message_class = 'alert-box danger'
         form = None
 
     return render_to_response('add_packets.html',

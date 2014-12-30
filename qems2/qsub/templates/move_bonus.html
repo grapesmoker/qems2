@@ -10,26 +10,25 @@
 {% block title %}Move Bonus - QEMS2{% endblock %}
 
 {% block content %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Move Bonus</h3>
-    {% if message %}
-    <div class="{{ message_class }}">
-        {{ message }}
-    </div>
-    {% endif %}
 
-    {% if bonus %}
-        {% autoescape off %}
-            {{ bonus|bonus_html }}
-        {% endautoescape %}
-        <form action="" method="post">
-            {% csrf_token %}
-            {% for field in form.visible_fields %}
-                <p class="alert alert-danger">Move to Set: {{field }}</p>
-            {% endfor %}
-            <input type="submit" id="move-bonus" value="Move"/>
-        </form>
-    {% endif %}
-
+<h3 class="page-header">Move Bonus</h3>
+{% if message %}
+<div class="{{ message_class }}">
+    {{ message }}
 </div>
+{% endif %}
+
+{% if bonus %}
+    {% autoescape off %}
+        {{ bonus|bonus_html }}
+    {% endautoescape %}
+    <form action="" method="post">
+        {% csrf_token %}
+        {% for field in form.visible_fields %}
+            <p class="alert alert-danger">Move to Set: {{field }}</p>
+        {% endfor %}
+        <input type="submit" id="move-bonus" value="Move"/>
+    </form>
+{% endif %}
+
 {% endblock %}

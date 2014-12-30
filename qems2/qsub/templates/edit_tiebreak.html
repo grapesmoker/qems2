@@ -10,49 +10,47 @@
 {% load static %}
 
 {% if formset.total_error_count > 0 %}
-<div class="alert alert-error">
+<div class="alert-box alert">
     Errors in your form! All question numbers are required!
 </div>
 {% endif %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Tiebreaker Distributions</h3>
-    {% if message %}
-    <div class="alert {{ message_class }}">{{ message }}</div>
-    {% endif %}
-    <form action="" method="post">
-        {% csrf_token %}
-        <label for="id_name">Distribution name:</label> {{ form.name}}
-        <table class="table table-striped" id="dist-table">
-            <thead>
-            <th>Category</th>
-            <th>Subcategory</th>
-            <th>Tossups</th>
-            <th>Bonuses</th>
-            <th>Delete?</th>
-            </thead>
-            <tbody>
-            {% for entry in formset %}
-            <tr>
-                {{ entry.entry_id }}
-                <td>{{ entry.category }}</td>
-                <td>{{ entry.subcategory }}</td>
-                <td>{{ entry.num_tossups }}</td>
-                <td>{{ entry.num_bonuses }}</td>
-                {% if formset.can_delete %}
-                <td>{{ entry.DELETE }}</td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-	{% if not read_only %}
-	{{ formset.management_form }}
-        <div class="row">
-            <div class="span4" style="text-align: left"><input type="submit" value="Submit changes"/></div>
-        </div>
-	{% endif %}
 
-    </form>
+<h3 class="page-header">Tiebreaker Distributions</h3>
+{% if message %}
+<div class="alert {{ message_class }}">{{ message }}</div>
+{% endif %}
+<form action="" method="post">
+    {% csrf_token %}
+    <label for="id_name">Distribution name:</label> {{ form.name}}
+    <table class="table table-striped" id="dist-table">
+        <thead>
+        <th>Category</th>
+        <th>Subcategory</th>
+        <th>Tossups</th>
+        <th>Bonuses</th>
+        <th>Delete?</th>
+        </thead>
+        <tbody>
+        {% for entry in formset %}
+        <tr>
+            {{ entry.entry_id }}
+            <td>{{ entry.category }}</td>
+            <td>{{ entry.subcategory }}</td>
+            <td>{{ entry.num_tossups }}</td>
+            <td>{{ entry.num_bonuses }}</td>
+            {% if formset.can_delete %}
+            <td>{{ entry.DELETE }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% if not read_only %}
+{{ formset.management_form }}
+    <div class="row">
+        <div class="span4" style="text-align: left"><input type="submit" value="Submit changes"/></div>
+    </div>
+{% endif %}
 
-</div>
+</form>
 {% endblock %}

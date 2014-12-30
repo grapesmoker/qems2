@@ -191,7 +191,7 @@
                     <td>{{ writer.bonus_written }}</td>
                     <td>
                         {% if writer.writer.user.username != qset.owner.user.username %}
-                        <a href="/delete_writer/{{ writer.id }}" title="Delete" class="delete_writer" value="{{ writer.id }}">
+                        <a href="/delete_writer/{{ writer.id }}" rel="tooltip" title="Delete" class="delete_writer" value="{{ writer.id }}">
                             <i class="fa fa-minus-circle"></i>
                         </a>
                         {% endif %}
@@ -301,10 +301,10 @@
                     <td>{{ tossup.category }}</td>
                     <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
                     <td>
-                        <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit tossup">
+                        <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit">
                             <i class="fa fa-edit"></i>
                         </a>
-                        <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete tossup" class="delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">
+                        <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete" class="delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">
                             <i class="fa fa-minus-circle"></i>
                         </a>
                     </td>
@@ -344,10 +344,10 @@
                     <td>{{ bonus.category }}</td>
                     <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
                     <td>
-                        <a href="/edit_bonus/{{ bonus.id }}" rel="tooltip" title="Edit tossup">
+                        <a href="/edit_bonus/{{ bonus.id }}" rel="tooltip" title="Edit">
                             <i class="fa fa-edit"></i>
                         </a>
-                        <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete bonus" class="delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">
+                        <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete" class="delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">
                             <i class="fa fa-minus-circle"></i>
                         </a>
                     </td>
@@ -391,7 +391,7 @@
                         N/A
                     </td>
                     <td>
-                        <a href="/delete_packet/{{ packet.id }}" rel="tooltip" title="Delete packet" class="delete_packet" value="{{ packet.id }}">
+                        <a href="/delete_packet/{{ packet.id }}" rel="tooltip" title="Delete" class="delete_packet" value="{{ packet.id }}">
                         <i class="fa fa-minus-circle"></i>
                     </a>
                     </td>

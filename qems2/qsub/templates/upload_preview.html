@@ -9,74 +9,73 @@
 {% load filters %}
 {% block content %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Upload Preview</h3>
-    {% if message %}
-    <div class="{{ message_class }}">
-        {{ message }}
-    </div>
 
-    {% endif %}
-    <form action="/complete_upload/" method="post">
-        {% csrf_token %}
-        <div class="col-md-8 col-md-offset-1 text-left">
-            <h3>Uploaded Tossups</h3>
-            {% for tossup in tossups %}
-            <p>{{ tossup.question|safe }}<br>
-                {{ tossup.answer|safe }}</p>
-            <textarea name="tossup-text-{{ forloop.counter0 }}" style="display: none">
-                {{ tossup.question|safe }}
-            </textarea>
-            <textarea name="tossup-answer-{{ forloop.counter0 }}" style="display: none">
-                {{ tossup.answer|safe }}
-            </textarea>
-
-            {% endfor %}
-            <h3>Uploaded Bonuses</h3>
-            {% for bonus in bonuses %}
-            <p>{{ bonus.leadin|safe }}<br>
-                [{{ bonus.values.0 }}]
-                {{ bonus.parts.0|safe }}<br>
-                {{ bonus.answers.0|safe }}<br>
-                [{{ bonus.values.1 }}]
-                {{ bonus.parts.1|safe }}<br>
-                {{ bonus.answers.1|safe }}<br>
-                [{{ bonus.values.2 }}]
-                {{ bonus.parts.2|safe }}<br>
-                {{ bonus.answers.2|safe }}<br>
-            </p>
-
-            <textarea name="bonus-leadin-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.leadin|safe }}
-            </textarea>
-            <textarea name="bonus-part1-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.parts.0|safe }}
-            </textarea>
-            <textarea name="bonus-answer1-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.answers.0|safe }}
-            </textarea>
-            <textarea name="bonus-part2-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.parts.1|safe }}
-            </textarea>
-            <textarea name="bonus-answer2-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.answers.1|safe }}
-            </textarea>
-            <textarea name="bonus-part3-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.parts.2|safe }}
-            </textarea>
-            <textarea name="bonus-answer3-{{ forloop.counter0 }}" style="display: none">
-                {{ bonus.answers.2|safe }}
-            </textarea>
-
-            {% endfor %}
-
-            <input type="hidden" name="num-tossups" value="{{ tossups|length }}">
-            <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}">
-            <input type="hidden" name="qset-id" value="{{ qset.id }}">
-            <input type="submit" class="btn btn-primary" value="Submit"/>
-            <a href="/edit_question_set/{{ qset.id }}" class="btn btn-primary">Nevermind</a>
-        </div>
-    </form>
+<h3 class="page-header">Upload Preview</h3>
+{% if message %}
+<div class="{{ message_class }}">
+    {{ message }}
 </div>
+
+{% endif %}
+<form action="/complete_upload/" method="post">
+    {% csrf_token %}
+    <div class="small-8 small-centered columns">
+        <h3>Uploaded Tossups</h3>
+        {% for tossup in tossups %}
+        <p>{{ tossup.question|safe }}<br />
+           {{ tossup.answer|safe }}</p>
+        <textarea name="tossup-text-{{ forloop.counter0 }}" style="display: none">
+            {{ tossup.question|safe }}
+        </textarea>
+        <textarea name="tossup-answer-{{ forloop.counter0 }}" style="display: none">
+            {{ tossup.answer|safe }}
+        </textarea>
+
+        {% endfor %}
+        <h3>Uploaded Bonuses</h3>
+        {% for bonus in bonuses %}
+        <p>{{ bonus.leadin|safe }}<br>
+            [{{ bonus.values.0 }}]
+            {{ bonus.parts.0|safe }}<br>
+            {{ bonus.answers.0|safe }}<br>
+            [{{ bonus.values.1 }}]
+            {{ bonus.parts.1|safe }}<br>
+            {{ bonus.answers.1|safe }}<br>
+            [{{ bonus.values.2 }}]
+            {{ bonus.parts.2|safe }}<br>
+            {{ bonus.answers.2|safe }}<br>
+        </p>
+
+        <textarea name="bonus-leadin-{{ forloop.counter0 }}" style="display: none">
+            {{ bonus.leadin|safe }}
+        </textarea>
+        <textarea name="bonus-part1-{{ forloop.counter0 }}" style="display: none">
+            {{ bonus.parts.0|safe }}
+        </textarea>
+        <textarea name="bonus-answer1-{{ forloop.counter0 }}" style="display: none">
+            {{ bonus.answers.0|safe }}
+        </textarea>
+        <textarea name="bonus-part2-{{ forloop.counter0 }}" style="display: none">
+            {{ bonus.parts.1|safe }}
+        </textarea>
+        <textarea name="bonus-answer2-{{ forloop.counter0 }}" style="display: none">
+            {{ bonus.answers.1|safe }}
+        </textarea>
+        <textarea name="bonus-part3-{{ forloop.counter0 }}" style="display: none">
+            {{ bonus.parts.2|safe }}
+        </textarea>
+        <textarea name="bonus-answer3-{{ forloop.counter0 }}" style="display: none">
+            {{ bonus.answers.2|safe }}
+        </textarea>
+
+        {% endfor %}
+
+        <input type="hidden" name="num-tossups" value="{{ tossups|length }}">
+        <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}">
+        <input type="hidden" name="qset-id" value="{{ qset.id }}">
+        <input type="submit" class="button primary right" value="Submit"/>
+        <a href="/edit_question_set/{{ qset.id }}" class="button primary right">Nevermind</a>
+    </div>
+</form>
 
 {% endblock %}

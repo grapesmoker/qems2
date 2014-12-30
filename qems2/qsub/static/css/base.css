@@ -50,6 +50,7 @@ p {
 }
 .tabs dd a {
     font-size:0.875rem;
+    text-align:center;
 }
 .panel.callout {
     background-color:#b6edff;
@@ -67,6 +68,9 @@ p {
 }
 span.prefix.text-left {
     padding-left:1rem;
+}
+.label {
+    font-size:0.75rem;
 }
 /* modified JQuery spinner.css */
 .ui-spinner {

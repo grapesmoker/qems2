@@ -310,7 +310,7 @@ class NewPacketsForm(forms.Form):
 
 class TypeQuestionsForm(forms.Form):
 
-    questions = forms.CharField(label='', widget=forms.Textarea(attrs={'cols': 90, 'rows': 20}), required=False)
+    questions = forms.CharField(label='', widget=forms.Textarea(attrs={'rows': 10}), required=False)
 
 class MoveTossupForm(forms.Form):
     def __init__(self, *args, **kwargs):

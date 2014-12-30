@@ -29,7 +29,9 @@
 <body>
     {% block header %}{% endblock %}
     <div class="row">
-        {% block content %}{% endblock %}
+        <div class="small-11 small-centered columns">
+            {% block content %}{% endblock %}
+        </div>
     </div>
 
     <script src="{% static 'foundation/js/foundation.min.js' %}"></script>

@@ -9,31 +9,30 @@
 {% block content %}
 {% load static %}
 
-<div class="small-11 small-centered columns">
-    <h3 class="page-header">Add Editors to {{ qset.name }}</h3>
-    <form action="" method="post">
-        {% csrf_token %}
-        <div class="row">
-            <div class="small-8 small-centered columns">
-                <table class="tablesorter table-striped table-hover">
-                    <thead>
-                    <tr>
-                        <th>Available Editors</th>
-                        <th>Add to Set?</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for editor in available_editors %}
-                    <tr>
-                        <td>{{ editor }}</td>
-                        <td><input type="checkbox" value="{{ editor.id }}" name="editors_to_add"></td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+<h3 class="page-header">Add Editors to {{ qset.name }}</h3>
+<form action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="small-8 small-centered columns">
+            <table class="tablesorter table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Available Editors</th>
+                    <th>Add to Set?</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for editor in available_editors %}
+                <tr>
+                    <td>{{ editor }}</td>
+                    <td><input type="checkbox" value="{{ editor.id }}" name="editors_to_add"></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-        <input type="submit" value="Add Editors" class="button primary right" />
-    </form>
-</div>
+    </div>
+    <input type="submit" value="Add Editors" class="button primary right" />
+</form>
+
 {% endblock %}

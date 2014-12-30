@@ -11,131 +11,130 @@
 {% load static %}
 {% load filters %}
 
-<div class="small-11 small-centered columns">
-    <h3 class="page-header">Search</h3>
-    {% if message %}
-        <p class="{{ message_class }}">{{ message }}</p>
-    {% endif %}
-    <form action="" method="get">
-        <div class="row collapse">
-            <div class="small-3 columns">
-                <span class="prefix text-left" for="id_q">Search Term</span>
-            </div>
-            <div class="small-9 columns">
-                <input type="search" id="id_q" name="q" value="{% if search_term %}{{ search_term }}{% endif %}">
-            </div>
+<h3 class="page-header">Search</h3>
+{% if message %}
+    <p class="{{ message_class }}">{{ message }}</p>
+{% endif %}
+<form action="" method="get">
+    <div class="row collapse">
+        <div class="small-3 columns">
+            <span class="prefix text-left" for="id_q">Search Term</span>
         </div>
-        <div class="row">
-            <div class="small-6 columns">
-                <div class="row collapse">
-                    <div class="small-3 columns">
-                        <span class="prefix text-left" for="id-qset">Tournament</span>
-                    </div>
-                    <div class="small-9 columns">
-                        <select class="form-control" id="id_qset" name="qset">
-                            {% for qset in q_sets %}
-                            <option value="{{ qset.id }}"
-                            {% if search_qset %}
-                                 {% if qset == search_qset %} selected {% endif %}
-                            {% endif %}>{{ qset.name }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            </div>
-            <div class="small-6 columns">
-                <div class="row collapse">
-                    <div class="small-3 columns">
-                        <span class="prefix text-left" for="id_category">Category</span>
-                    </div>
-                    <div class="small-9 columns">
-                        <select class="form-control" id="id_category" name="category">
-                            <option value="All" {% if search_category == "All" %} selected {% endif %}>All Categories</option>
-                            {% for category in categories %}
-                            {% with category.0|add:" - "|add:category.1 as cat %}
-                            <option value="{{ cat }}" {% if search_category == cat %} selected {% endif %}>{{ cat }}</option>
-                            {% endwith %}
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="small-12 columns">
-                <label class="search">Question Types to Search</label>
-                {% if tossups_selected == "checked" %}
-                    <input checked="checked" id="id_models_0" name="models" type="checkbox" value="qsub.tossup" />
-                {% else %}
-                    <input id="id_models_0" name="models" type="checkbox" value="qsub.tossup" />
-                {% endif %}
-                <label for="id_models_0">Tossups</label>
-                {% if bonuses_selected == "checked" %}
-                    <input checked="checked" id="id_models_1" name="models" type="checkbox" value="qsub.bonus" />
-                {% else %}
-                    <input id="id_models_1" name="models" type="checkbox" value="qsub.bonus" />
-                {% endif%}
-                <label for="id_models_1">Bonuses</label>
-            </div>
-        </div>
-        <input type="submit" value="Search" class="button primary right" />
-    </form>
-
-    {% if result %}
-    <div class="panel callout radius text-center"><strong>Results</strong></div>
-    <table class="tablesorter table-striped table-hover">
-        <thead>
-        <tr>
-            <th>Author</th>
-            <th>Question</th>
-            <th>Category</th>
-            <th>Packet</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% autoescape off %}
-            {% for question in result %}
-            <tr>
-                <td>{{ question.author }}</td>
-                {% if question|class_name == "Tossup" %}
-                <td>{{ question.tossup_text|safe|question_html}}<br>
-                    ANSWER: {{ question.tossup_answer|safe|answer_html }}</td>
-                {% elif question|class_name == "Bonus" %}
-                <td>
-                    {{ question|bonus_html }}
-                {% endif %}
-                </td>
-                <td>{{ question.category }}</td>
-                <td>{% if question.packet %} {{ question.packet }} {% else %} Not in packet {% endif %}</td>
-                <td>
-                    {% if question|class_name == "Tossup" %}
-                    <a href="/edit_tossup/{{ question.id }}" title="Edit">
-                        <i class="fa fa-edit"></i>
-                    </a>
-                    <a href="/delete_tossup/{{ question.id }}" title="Delete" class="delete_tossup" value="{{ question.id }}">
-                        <i class="fa fa-minus-circle"></i>
-                    </a>
-                    {% elif question|class_name == "Bonus" %}
-                    <a href="/edit_bonus/{{ question.id }}" title="Edit">
-                        <i class="fa fa-edit"></i>
-                    </a>
-                    <a href="/delete_bonus/{{ question.id }}" title="Delete" class="delete_bonus" value="{{ question.id }}">
-                        <i class="fa fa-minus-circle"></i>
-                    </a>
-                    {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-        {% endautoescape %}
-        </tbody>
-    </table>
-    {% else %}
-    <div class="row">
-        <div class="small-12 columns">
-            <p>No results found.</p>
+        <div class="small-9 columns">
+            <input type="search" id="id_q" name="q" value="{% if search_term %}{{ search_term }}{% endif %}">
         </div>
     </div>
-    {% endif %}
+    <div class="row">
+        <div class="small-6 columns">
+            <div class="row collapse">
+                <div class="small-3 columns">
+                    <span class="prefix text-left" for="id-qset">Tournament</span>
+                </div>
+                <div class="small-9 columns">
+                    <select class="form-control" id="id_qset" name="qset">
+                        {% for qset in q_sets %}
+                        <option value="{{ qset.id }}"
+                        {% if search_qset %}
+                             {% if qset == search_qset %} selected {% endif %}
+                        {% endif %}>{{ qset.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div class="small-6 columns">
+            <div class="row collapse">
+                <div class="small-3 columns">
+                    <span class="prefix text-left" for="id_category">Category</span>
+                </div>
+                <div class="small-9 columns">
+                    <select class="form-control" id="id_category" name="category">
+                        <option value="All" {% if search_category == "All" %} selected {% endif %}>All Categories</option>
+                        {% for category in categories %}
+                        {% with category.0|add:" - "|add:category.1 as cat %}
+                        <option value="{{ cat }}" {% if search_category == cat %} selected {% endif %}>{{ cat }}</option>
+                        {% endwith %}
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="small-12 columns">
+            <label class="search">Question Types to Search</label>
+            {% if tossups_selected == "checked" %}
+                <input checked="checked" id="id_models_0" name="models" type="checkbox" value="qsub.tossup" />
+            {% else %}
+                <input id="id_models_0" name="models" type="checkbox" value="qsub.tossup" />
+            {% endif %}
+            <label for="id_models_0">Tossups</label>
+            {% if bonuses_selected == "checked" %}
+                <input checked="checked" id="id_models_1" name="models" type="checkbox" value="qsub.bonus" />
+            {% else %}
+                <input id="id_models_1" name="models" type="checkbox" value="qsub.bonus" />
+            {% endif%}
+            <label for="id_models_1">Bonuses</label>
+        </div>
+    </div>
+    <input type="submit" value="Search" class="button primary right" />
+</form>
+
+{% if result %}
+<div class="panel callout radius text-center"><strong>Results</strong></div>
+<table class="tablesorter table-striped table-hover">
+    <thead>
+    <tr>
+        <th>Author</th>
+        <th>Question</th>
+        <th>Category</th>
+        <th>Packet</th>
+        <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% autoescape off %}
+        {% for question in result %}
+        <tr>
+            <td>{{ question.author }}</td>
+            {% if question|class_name == "Tossup" %}
+            <td>{{ question.tossup_text|safe|question_html}}<br>
+                ANSWER: {{ question.tossup_answer|safe|answer_html }}</td>
+            {% elif question|class_name == "Bonus" %}
+            <td>
+                {{ question|bonus_html }}
+            {% endif %}
+            </td>
+            <td>{{ question.category }}</td>
+            <td>{% if question.packet %} {{ question.packet }} {% else %} Not in packet {% endif %}</td>
+            <td>
+                {% if question|class_name == "Tossup" %}
+                <a href="/edit_tossup/{{ question.id }}" title="Edit">
+                    <i class="fa fa-edit"></i>
+                </a>
+                <a href="/delete_tossup/{{ question.id }}" title="Delete" class="delete_tossup" value="{{ question.id }}">
+                    <i class="fa fa-minus-circle"></i>
+                </a>
+                {% elif question|class_name == "Bonus" %}
+                <a href="/edit_bonus/{{ question.id }}" title="Edit">
+                    <i class="fa fa-edit"></i>
+                </a>
+                <a href="/delete_bonus/{{ question.id }}" title="Delete" class="delete_bonus" value="{{ question.id }}">
+                    <i class="fa fa-minus-circle"></i>
+                </a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    {% endautoescape %}
+    </tbody>
+</table>
+{% else %}
+<div class="row">
+    <div class="small-12 columns">
+        <p>No results found.</p>
+    </div>
 </div>
+{% endif %}
+
 {% endblock %}

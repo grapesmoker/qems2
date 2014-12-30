@@ -3,6 +3,9 @@
 body {
     background-color:#f8f8ff;
 }
+p {
+    font-size:0.875rem;
+}
 .page-header {
     margin:24px 0 20px;
     border-bottom:1px solid #ddd;

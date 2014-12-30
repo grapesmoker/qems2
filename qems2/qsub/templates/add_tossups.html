@@ -17,7 +17,6 @@
     {% if message %}
     <div data-alert class="{{ message_class }}">
         {{ message }}{% if tossup_id %} <a href="/edit_tossup/{{ tossup_id }}">View your tossup.</a>{% endif %}
-        <a href="#" class="close">&times;</a>
     </div>
     {% endif %}
 {% endautoescape %}

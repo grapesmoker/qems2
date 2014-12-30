@@ -302,15 +302,15 @@ class Tossup (models.Model):
 
     def to_html(self, include_category=False, include_character_count=False):
         output = ''
-        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "</p>"
-        output = output + "<p>" + get_formatted_question_html(self.tossup_answer, True, True, False)
+        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "<br />"
+        output = output + "ANSWER: " + get_formatted_question_html(self.tossup_answer, True, True, False) + "<br />"
         if (include_category and self.category is not None):
-            output = output + " {" + str(self.category) + "}</p>"
+            output = output + "<strong>Category:</strong> " + str(self.category) + "<br />"
         else:
-            output = output + "</p>"
+            output = output
         
         if (include_character_count):
-            output = output + "<p>Character count: " + str(self.character_count()) + "</p>"
+            output = output + "<strong>Character Count:</strong> " + str(self.character_count()) + "</p>"
         
         return output
                 
@@ -495,23 +495,23 @@ class Bonus(models.Model):
     def to_html(self, include_category=False, include_character_count=False):
         output = ''
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
-            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False)
+            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<br />"
             
             if (include_category and self.category is not None):
-                output = output + " {" + str(self.category) + "}</p>"
+              output = output + "<strong>Category:</strong> " + str(self.category) + "<br />"
             else:
-                output = output + "</p>"
+              output = output
             
             if (include_character_count):
                 leadin_length, part1_length, part2_length, part3_length = self.character_count()
-                output = output + "<p>Character count (leadin / part 1 / part 2 / part 3): " 
-                output = output + str(leadin_length) + " / " + str(part1_length) + " / " + str(part2_length) + " / " + str(part3_length) + "</p>"
+                output = output + "<strong>Character Count:</strong> " + str(leadin_length) + " (leadin) / "
+                output = output + str(part1_length) + " (Part 1) / " + str(part2_length) + " (Part 2) / " + str(part3_length) + " (Part 3)</p>"
             
         elif (self.get_bonus_type() == VHSL_BONUS):
             output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"

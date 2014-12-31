@@ -9,13 +9,13 @@
                     <li{% if not packet %} class="current"{% endif %}><a href="/edit_question_set/{{ passed_q_set.id }}">{{ passed_q_set }}</a></li>
                 {% endif %}
                 {% if packet %}
-                    <li class="current"><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
+                    <li{% if not tossup and not bonus %} class="current"{% endif %}><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
                 {% endif %}
                 {% if tossup %}
                     <li class="current"><a href="/edit_tossup/{{ tossup.id }}">{{ tossup }}</a></li>
                 {% endif %}
                 {% if bonus %}
-                    <li class="current"><a href="/edit_bonus/{{ bonus.id }}">{{ tossup }}</a></li>
+                    <li class="current"><a href="/edit_bonus/{{ bonus.id }}">{{ bonus }}</a></li>
                 {% endif %}
             </nav>
             <ul class="right">

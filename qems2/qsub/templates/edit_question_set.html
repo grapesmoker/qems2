@@ -191,9 +191,11 @@
                     <td>{{ writer.bonus_written }}</td>
                     <td>
                         {% if writer.writer.user.username != qset.owner.user.username %}
-                        <a href="/delete_writer/{{ writer.id }}" rel="tooltip" title="Delete" class="delete_writer" value="{{ writer.id }}">
-                            <i class="fa fa-minus-circle"></i>
-                        </a>
+                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                            <a href="/delete_writer/{{ writer.id }}" class="delete_writer" value="{{ writer.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </span>
                         {% endif %}
                     </td>
                 </tr>
@@ -301,12 +303,16 @@
                     <td>{{ tossup.category }}</td>
                     <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
                     <td>
-                        <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit">
-                            <i class="fa fa-edit"></i>
-                        </a>
-                        <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete" class="delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">
-                            <i class="fa fa-minus-circle"></i>
-                        </a>
+                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
+                            <a href="/edit_tossup/{{ tossup.id }}">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                        </span>
+                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                            <a href="/delete_tossup/{{ tossup.id }}" class="delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </span>
                     </td>
                     <td>
                     {% get_comment_list for tossup as comment_list %}
@@ -344,12 +350,16 @@
                     <td>{{ bonus.category }}</td>
                     <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
                     <td>
-                        <a href="/edit_bonus/{{ bonus.id }}" rel="tooltip" title="Edit">
-                            <i class="fa fa-edit"></i>
-                        </a>
-                        <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete" class="delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">
-                            <i class="fa fa-minus-circle"></i>
-                        </a>
+                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
+                            <a href="/edit_bonus/{{ bonus.id }}">
+                                <i class="fa fa-edit"></i>
+                            </a>
+                        </span>
+                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                            <a href="/delete_bonus/{{ bonus.id }}" class="delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </span>
                     </td>
                     <td>
                     {% get_comment_list for bonus as comment_list %}
@@ -391,9 +401,11 @@
                         N/A
                     </td>
                     <td>
-                        <a href="/delete_packet/{{ packet.id }}" rel="tooltip" title="Delete" class="delete_packet" value="{{ packet.id }}">
-                        <i class="fa fa-minus-circle"></i>
-                    </a>
+                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                            <a href="/delete_packet/{{ packet.id }}" class="delete_packet" value="{{ packet.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </span>
                     </td>
                 </tr>
                 {% endfor %}

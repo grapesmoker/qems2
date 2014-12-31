@@ -128,12 +128,16 @@
                 <td>{{ tossup.tossup_answer|safe|answer_html|preview }}</td>
                 <td>{{ tossup.category }}</td>
                 <td>
-                    <a href="/edit_tossup/{{ tossup.id }}" rel="tooltip" title="Edit">
-                        <i class="fa fa-edit"></i>
-                    </a>
-                    <a href="/delete_tossup/{{ tossup.id }}" rel="tooltip" title="Delete" class="delete_tossup" value="{{ tossup.id }}">
-                        <i class="fa fa-minus-circle"></i>
-                    </a>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
+                        <a href="/edit_tossup/{{ tossup.id }}">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    </span>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                        <a href="/delete_tossup/{{ tossup.id }}" class="delete_tossup" value="{{ tossup.id }}">
+                            <i class="fa fa-minus-circle"></i>
+                        </a>
+                    </span>
                 </td>
             </tr>
             {% endfor %}
@@ -166,12 +170,16 @@
                 <td>{{ bonus|bonus_answers }}</td>
                 <td>{{ bonus.category }}</td>
                 <td>
-                    <a href="/edit_bonus/{{ bonus.id }}" rel="tooltip" title="Edit">
-                        <i class="fa fa-edit"></i>
-                    </a>
-                    <a href="/delete_bonus/{{ bonus.id }}" rel="tooltip" title="Delete" class="delete_bonus" value="{{ bonus.id }}">
-                        <i class="fa fa-minus-circle"></i>
-                    </a>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
+                        <a href="/edit_bonus/{{ bonus.id }}">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    </span>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                        <a href="/delete_bonus/{{ bonus.id }}" class="delete_bonus" value="{{ bonus.id }}">
+                            <i class="fa fa-minus-circle"></i>
+                        </a>
+                    </span>
                 </td>
             </tr>
             {% endfor %}

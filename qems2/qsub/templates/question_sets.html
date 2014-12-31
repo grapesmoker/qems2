@@ -9,42 +9,40 @@
 {% block content %}
 {% load static %}
 
-<div class="small-11 small-centered columns end">
-    <h3 class="page-header">Home</h3>
-    <ul class="button-group even">
-        <li><a href="/create_question_set/" class="button">Create Question Set</a></li>
-        <li><a href="/distributions/" class="button">Distribution Entry</a></li>
-    </ul>
+<h3 class="page-header">Home</h3>
+<ul class="button-group even">
+    <li><a href="/create_question_set/" class="button">Create Question Set</a></li>
+    <li><a href="/distributions/" class="button">Distribution Entry</a></li>
+</ul>
 
-    <ul class="accordion" data-accordion>
-        {% for qset_type in question_set_list %}
-        <li class="accordion-navigation">
-            <a href="#{{ qset_type.id }}">{{ qset_type.header }}</a>
-            <div class="content{% if forloop.first %} active{% endif %}" id="{{ qset_type.id }}">
-                <table class="tablesorter table-striped table-hover" id="{{ qset_type.id }}-table">
-                    <thead>
-                        <tr>
-                            <th>Question Set</th>
-                            <th>Due Date</th>
-                            <th>Host</th>
-                            <th>Location</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for qset in qset_type.qsets %}
+<ul class="accordion" data-accordion>
+    {% for qset_type in question_set_list %}
+    <li class="accordion-navigation">
+        <a href="#{{ qset_type.id }}">{{ qset_type.header }}</a>
+        <div class="content{% if forloop.first %} active{% endif %}" id="{{ qset_type.id }}">
+            <table class="tablesorter table-striped table-hover" id="{{ qset_type.id }}-table">
+                <thead>
                     <tr>
-                        <td><a href="/edit_question_set/{{ qset.id }}/">{{ qset.name }}</a></td>
-                        <td>{{ qset.date }}</td>
-                        <td>{{ qset.host }}</td>
-                        <td>{{ qset.location }}</td>
+                        <th>Question Set</th>
+                        <th>Due Date</th>
+                        <th>Host</th>
+                        <th>Location</th>
                     </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </li>
-        {% endfor %}
-    </ul>
-</div>
+                </thead>
+                <tbody>
+                {% for qset in qset_type.qsets %}
+                <tr>
+                    <td><a href="/edit_question_set/{{ qset.id }}/">{{ qset.name }}</a></td>
+                    <td>{{ qset.date }}</td>
+                    <td>{{ qset.host }}</td>
+                    <td>{{ qset.location }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </li>
+    {% endfor %}
+</ul>
 
 {% endblock %}

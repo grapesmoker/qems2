@@ -16,48 +16,42 @@
 <form action="" method="post">
     {% csrf_token %}
     <div class="row">
-        <div class="small-6 columns">
-            <div class="row collapse">
-                <div class="small-4 columns">
-                    <span class="prefix text-left" for="{{ form.username.id_for_label }}">Username</span>
-                </div>
-                <div class="small-8 columns">
-                    <input id="{{ form.username.id_for_label }}" name="{{ form.username.html_name }}" readonly="readonly" type="text" value="{{ form.username.value }}" />
-                </div>
-            </div>
-        </div>
-        <div class="small-6 columns">
-            <div class="row collapse">
-                <div class="small-4 columns">
-                    <span class="prefix text-left" for="{{ form.email.id_for_label }}">E-mail</span>
-                </div>
-                <div class="small-8 columns">
-                    <input id="{{ form.email.id_for_label }}" name="{{ form.email.html_name }}" type="text" value="{{ form.email.value }}" />
+    {% for field in form %}
+        {% if field.html_name == "username" or field.html_name == "email" %}
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "username" %}Username{% else %}E-mail{% endif %}</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ field }}
+                    </div>
                 </div>
             </div>
-        </div>
+            {% if field.errors %}
+                <small class="error">{{ field.errors }}</small>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
     </div>
     <div class="row">
-        <div class="small-6 columns">
-            <div class="row collapse">
-                <div class="small-4 columns">
-                    <span class="prefix text-left" for="{{ form.first_name.id_for_label }}">First Name</span>
-                </div>
-                <div class="small-8 columns">
-                    <input id="{{ form.first_name.id_for_label }}" name="{{ form.first_name.html_name }}" type="text" value="{{ form.first_name.value }}" />
-                </div>
-            </div>
-        </div>
-        <div class="small-6 columns">
-            <div class="row collapse">
-                <div class="small-4 columns">
-                    <span class="prefix text-left" for="{{ form.last_name.id_for_label }}">Last Name</span>
-                </div>
-                <div class="small-8 columns">
-                    <input id="{{ form.last_name.id_for_label }}" name="{{ form.last_name.html_name }}" type="text" value="{{ form.last_name.value }}" />
+    {% for field in form %}
+        {% if field.html_name == "first_name" or field.html_name == "last_name" %}
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "first_name" %}First Name{% else %}Last Name{% endif %}</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ field }}
+                    </div>
                 </div>
             </div>
-        </div>
+            {% if field.errors %}
+                <small class="error">{{ field.errors }}</small>
+            {% endif %}
+        {% endif %}
+    {% endfor %}
     </div>
 
     <div class="row">

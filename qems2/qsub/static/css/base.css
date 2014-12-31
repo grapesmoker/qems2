@@ -5,6 +5,8 @@ body {
 }
 p {
     font-size:0.875rem;
+    line-height:1.5;
+    margin:0.5rem;
 }
 .page-header {
     margin:24px 0 20px;
@@ -75,6 +77,9 @@ span.prefix.text-left {
 .label {
     font-size:0.75rem;
 }
+#id_honeypot {
+    display:none;
+}
 /* modified JQuery spinner.css */
 .ui-spinner {
     position:relative;
@@ -130,12 +135,8 @@ span.prefix.text-left {
     font-size:0.75rem;
     padding:6px 20px 6px 3px;
 }
-#qsets-write-table thead tr th,
-#qsets-write-table tfoot tr th,
-#qsets-edit-table thead tr th,
-#qsets-edit-table tfoot tr th,
-#qsets-owned-table thead tr th,
-#qsets-owned-table tfoot tr th {
+.accordion table thead tr th,
+.accordion table tfoot tr th {
     border:1px solid #fff;
     border-top:0;
     border-bottom:0;
@@ -165,9 +166,7 @@ span.prefix.text-left {
     vertical-align:top;
     font-size:0.6875rem;
 }
-#qsets-write-table tbody tr td,
-#qsets-edit-table tbody tr td,
-#qsets-owned-table tbody tr td {
+.accordion table tbody tr td {
     border:1px solid #fff;
     border-top:0;
     border-bottom:0;

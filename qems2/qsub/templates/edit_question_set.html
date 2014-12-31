@@ -141,9 +141,9 @@
             {% get_comment_form for qset as cform %}
             <form action="{% comment_form_target %}" method="POST" class="clearfix">
                 {% csrf_token %}
-                {{ cform.comment.label_tag }}
-                <textarea cols="40" rows="10" id="{{ cform.comment.id_for_label }}"
-                          name="{{ cform.comment.html_name }}" class="form-control"></textarea>
+                <label>Comment
+                    <textarea rows="5" id="{{ cform.comment.id_for_label }}" name="{{ cform.comment.html_name }}"></textarea>
+                </label>
                 {{ cform.honeypot }}
                 {{ cform.content_type }}
                 {{ cform.object_pk }}

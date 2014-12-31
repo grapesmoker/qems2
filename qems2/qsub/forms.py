@@ -29,15 +29,9 @@ class WriterChangeForm(forms.Form):
         self.fields['first_name'] = forms.CharField(max_length=200)
         self.fields['last_name'] = forms.CharField(max_length=200)
         self.fields['email'] = forms.EmailField(max_length=200)
-        self.fields['send_mail_on_comments'] = forms.BooleanField()
+        self.fields['send_mail_on_comments'] = forms.BooleanField(required=False)
 
-        self.fields['username'].widget.attrs.update({'class': 'form-control', 'readonly': 'readonly'})
-        self.fields['first_name'].widget.attrs.update({'class': 'form-control'})
-        self.fields['last_name'].widget.attrs.update({'class': 'form-control'})
-        self.fields['email'].widget.attrs.update({'class': 'form-control'})
-        self.fields['send_mail_on_comments'].widget.attrs.update({'class': 'form-control'})
-        
-
+        self.fields['username'].widget.attrs.update({'readonly': 'readonly'})
 
 class QuestionSetForm(forms.ModelForm):
     

@@ -15,7 +15,7 @@
 <h3 class="page-header">Edit Tossup</h3>
 {% autoescape off %}
     {% if message %}
-        <p class="{{ message_class }}">{{ message }}</p>
+        <div class="{{ message_class }}">{{ message }}</div>
     {% endif %}
 {% endautoescape %}
 {% if tossup %}
@@ -47,28 +47,23 @@
         </label>
         {% if form.tossup_answer.errors %}<small class="error">{{ form.tossup_answer.errors }}</small>{% endif %}
         <div class="row">
-            <div class="small-6 columns">
-                <div class="row collapse">
-                    <div class="small-4 columns">
-                        <span class="prefix text-left" for="form.category.id_for_label">Category</span>
+        {% for field in form %}
+            {% if field.html_name == "category" or field.html_name == "author" %}
+                <div class="small-6 columns">
+                    <div class="row collapse">
+                        <div class="small-4 columns">
+                            <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "category" %}Category{% else %}Author{% endif %}</span>
+                        </div>
+                        <div class="small-8 columns">
+                            {{ field }}
+                        </div>
                     </div>
-                    <div class="small-8 columns">
-                        {{ form.category }}
-                    </div>
-                    {% if form.category.errors %}<small class="error">{{ form.category.errors }}</small>{% endif %}
                 </div>
-            </div>
-            <div class="small-6 columns">
-                <div class="row collapse">
-                    <div class="small-4 columns">
-                        <span class="prefix text-left" for="form.author.id_for_label">Author</span>
-                    </div>
-                    <div class="small-8 columns">
-                        {{ form.author }}
-                    </div>
-                    {% if form.author.errors %}<small class="error">{{ form.author.errors }}</small>{% endif %}
-                </div>
-            </div>
+                {% if field.errors %}
+                    <small class="error">{{ field.errors }}</small>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
         </div>
         <div class="row">
             <!--<div class="small-6 columns">

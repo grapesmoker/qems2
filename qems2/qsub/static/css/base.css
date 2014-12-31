@@ -151,8 +151,14 @@ span.prefix.text-left {
 #packet-status-bonus-table tbody tr td {
     width:25%;
 }
-#distribution-table {
-    /* TODO */
+#distribution-table input {
+    height:2rem;
+    font-size:0.75rem;
+    margin:0;
+    padding:0.5rem;
+}
+#distribution-table input.spinner {
+    padding:0.625rem;
 }
 #set-wide-reqs-table tbody tr td,
 #tb-reqs-table tbody tr td {

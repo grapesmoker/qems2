@@ -99,8 +99,6 @@ def question_sets (request):
     return render_to_response('question_sets.html', {'question_set_list': all_sets, 'user': writer},
                               context_instance=RequestContext(request))
 
-
-
 def packet(request):
     if request.user.is_authenticated():
         player = request.user.get_profile()
@@ -111,10 +109,9 @@ def packet(request):
         return render_to_response('packetview.html',
                                   {'packet_list': packets},
                                   context_instance=RequestContext(request))
-        
+
     else:
         return HttpResponseRedirect('/accounts/login/')
-        
 
 @login_required
 def create_question_set (request):

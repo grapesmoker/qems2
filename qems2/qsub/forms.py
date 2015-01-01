@@ -235,7 +235,7 @@ class TieBreakDistributionForm(forms.ModelForm):
 class DistributionEntryForm(forms.ModelForm):
 
     entry_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
-    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}))
+    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}))
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
     min_tossups = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
     min_bonuses = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
@@ -251,7 +251,7 @@ class DistributionEntryForm(forms.ModelForm):
 class TieBreakDistributionEntryForm(forms.Form):
 
     entry_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
-    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}), required=False)
+    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
     num_tossups = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
     num_bonuses = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
@@ -290,7 +290,7 @@ class NewPacketsForm(forms.Form):
     packet_name = forms.CharField(max_length=200, required=False)
 
     name_base = forms.CharField(max_length=190, required=False)
-    num_packets = forms.IntegerField(widget=forms.TextInput(attrs={'class': 'spinner'}), required=False, min_value=0)
+    num_packets = forms.IntegerField(widget=forms.NumberInput(attrs={}), required=False, min_value=0)
 
 class TypeQuestionsForm(forms.Form):
 

@@ -103,19 +103,44 @@
         <div class="panel callout radius text-center"><strong>Set Information</strong></div>
         <form action="" method="post" class="clearfix">
             {% csrf_token %}
+            <div class="row">
             {% for field in form %}
-                <div class="row collapse">
-                    <div class="small-3 columns">
-                        <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
-                    </div>
-                    <div class="small-9 columns">
-                        {{ field }}
+                {% if field.html_name == "name" or field.html_name == "date" %}
+                    <div class="small-6 columns">
+                        <div class="row collapse">
+                            <div class="small-4 columns">
+                                <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
+                            </div>
+                            <div class="small-8 columns">
+                                {{ field }}
+                            </div>
+                        </div>
                     </div>
                     {% if field.errors %}
                         <small class="error">{{ field.errors }}</small>
                     {% endif %}
-                </div>
+                {% endif %}
             {% endfor %}
+            </div>
+            <div class="row">
+            {% for field in form %}
+                {% if field.html_name == "num_packets" or field.html_name == "distribution" %}
+                    <div class="small-6 columns">
+                        <div class="row collapse">
+                            <div class="small-4 columns">
+                                <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "num_packets" %}Number of Packets{% else %}Distribution{% endif %}</span>
+                            </div>
+                            <div class="small-8 columns">
+                                {{ field }}
+                            </div>
+                        </div>
+                    </div>
+                    {% if field.errors %}
+                        <small class="error">{{ field.errors }}</small>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            </div>
             {% if not read_only %}
                 <input type="submit" value="Submit Changes" class="button primary right" />
             {% endif %}

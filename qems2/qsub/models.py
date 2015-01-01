@@ -129,9 +129,9 @@ class QuestionSet (models.Model):
     address = models.TextField(max_length=200)
     owner = models.ForeignKey('Writer', related_name='owner')
     #public = models.BooleanField()
+    num_packets = models.PositiveIntegerField()
     distribution = models.ForeignKey('Distribution')
     #teams = models.ForeignKey('Team')
-    num_packets = models.PositiveIntegerField()
     #tiebreak_dist = models.ForeignKey('TieBreakDistribution')
 
     class Admin: pass

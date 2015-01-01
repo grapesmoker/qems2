@@ -2,7 +2,7 @@
 # typical ACF distribution and adds some questions
 
 from qems2.qsub.models import *
-from utils import *
+from qems2.qsub.utils import *
 from datetime import datetime
 
 # Set this to an existing user in the database
@@ -11,7 +11,29 @@ username = "admin2"
 
 print "Starting script"
 
-#distribution = Distribution.objects.get(name="Default Distribution")
+# Delete existing data
+for tossup in Tossup.objects.all():
+    tossup.delete()
+    
+for bonus in Bonus.objects.all():
+    bonus.delete()
+
+for de in DistributionEntry.objects.all():
+    de.delete()
+
+for distribution in Distribution.objects.all():
+    distribution.delete()
+    
+for question_type in QuestionType.objects.all():
+    question_type.delete()
+    
+for question_set in QuestionSet.objects.all():
+    question_set.delete()
+    
+for writer in Writer.objects.all():
+    if (writer.user.username != username):
+        writer.user.delete()
+        writer.delete()        
 
 distribution = Distribution(name="Default Distribution")
 distribution.save()
@@ -66,14 +88,14 @@ dist_entry = DistributionEntry(
                 max_bonuses=1)
 dist_entry.save()
 
-question_type = QuestionType(question_type=ACF_STYLE_TOSSUP)
-question_type.save()
+acf_style_tossup = QuestionType(question_type=ACF_STYLE_TOSSUP)
+acf_style_tossup.save()
 
-question_type = QuestionType(question_type=ACF_STYLE_BONUS)
-question_type.save()
+acf_style_bonus = QuestionType(question_type=ACF_STYLE_BONUS)
+acf_style_bonus.save()
 
-question_type = QuestionType(question_type=VHSL_BONUS)
-question_type.save()
+vhsl_bonus = QuestionType(question_type=VHSL_BONUS)
+vhsl_bonus.save()
 
 user = User.objects.get(username=username)
 writer = Writer.objects.get(user=user)
@@ -105,18 +127,16 @@ tossup = Tossup(
                     tossup_text="Test ~tossup 1~.",
                     tossup_answer="test _answer 1_",
                     author=writer,
-                    question_type=ACF_STYLE_TOSSUP)
-tossup.setup_search_fields()
-tossup.save()
+                    question_type=acf_style_tossup)
+tossup.save_question(QUESTION_CREATE, writer)
                     
 tossup = Tossup(
                     question_set=qset,
                     tossup_text="Test ~tossup 2~.",
                     tossup_answer="test _answer 2_",
                     author=writer,
-                    question_type=ACF_STYLE_TOSSUP)
-tossup.setup_search_fields()
-tossup.save()                    
+                    question_type=acf_style_tossup)
+tossup.save_question(QUESTION_CREATE, writer)               
 
 bonus = Bonus(
                     question_set=qset,
@@ -128,17 +148,15 @@ bonus = Bonus(
                     part3_text="Part 3",
                     part3_answer="_answer 3_",
                     author=writer,
-                    question_type=ACF_STYLE_BONUS)
-bonus.setup_search_fields()
-bonus.save()
+                    question_type=acf_style_bonus)
+bonus.save_question(QUESTION_CREATE, writer)
 
 bonus = Bonus(
                     question_set=qset,
                     part1_text="~Part 1~ for VHSL bonus.",
                     part1_answer="_vhsl answer 1_",
                     author=writer,
-                    question_type=VHSL_BONUS)
-bonus.setup_search_fields()
-bonus.save()
+                    question_type=vhsl_bonus)
+bonus.save_question(QUESTION_CREATE, writer)
 
 print "Done"

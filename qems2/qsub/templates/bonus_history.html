@@ -4,10 +4,6 @@
 {% include "header.html" %}
 {% endblock %}
 
-{% block sidebar %}
-{% include "sidebar.html" %}
-{% endblock %}
-
 {% load static %}
 {% load comments %}
 {% load filters %}
@@ -16,47 +12,36 @@
 
 {% block content %}
 
-<ol class="breadcrumb">
-    <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
-    {% if packet %}
-    <li><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
-    {% endif %}
-    {% if bonus %}
-    <li><a href="/edit_bonus/{{ bonus.id }}">{{ bonus }}</a></li>
-    {% endif %}
-</ol>
 <h3 class="page-header">Bonus History</h3>
 {% autoescape off %}        
     {% if message %}
-    <p class="{{ message_class }}">{{ message }}</p>
+        <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}
 {% endautoescape %}
 
 {% autoescape off %}
     {% if bonus %}
-        <p><strong>Current Bonus:</strong></p>            
+        <div class="panel callout radius text-center"><strong>Current Version</strong></div>
         {{ bonus|bonus_html_verbose }}
     {% endif %}
 {% endautoescape %}
 
-<p><strong>Previous Bonuses:</strong></p>
+<div class="panel callout radius text-center"><strong>Previous Versions</strong></div>
 
 {% autoescape off %}                            
     {% for bh in bonus_histories %}
-        {{ bh|bonus_history_html }}
+        {{ bh|bonus_html }}
         {% if not read_only %}
-            <p><a href="/restore_bonus/" class="restore_bonus" value="{{ bh.id }}" qset="{{ qset.id }}">Restore to this version</a></p>
-            <br><br>
+            <a href="/restore_bonus/" class="restore_bonus button primary" value="{{ bh.id }}" qset="{{ qset.id }}">Restore this version</a>
         {% endif %}
     {% endfor %}
-    
+
     {% for th in tossup_histories %}
-        {{ th|tossup_history_html }}
+        {{ th|tossup_html }}
         {% if not read_only %}
             <!-- In this case, need to switch this to be a tossup -->
             <!-- TODO: Do this after doing the rest of the convert question work -->
-            <p><a href="/restore_tossup/" class="restore_tossup" value="{{ th.id }}" qset="{{ qset.id }}">Restore to this version</a></p>
-            <br><br>
+            <a href="/restore_tossup/" class="restore_tossup button primary" value="{{ th.id }}" qset="{{ qset.id }}">Restore to this version</a>
         {% endif %}
     {% endfor %}
 {% endautoescape %}

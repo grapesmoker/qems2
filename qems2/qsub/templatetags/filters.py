@@ -49,9 +49,9 @@ def short_preview(text):
 
 @register.filter(name='bonus_answers')
 def bonus_answers(bonus):
-    return mark_safe('<p>' + answer_html(bonus.part1_answer[0:80].encode('utf-8')) + '</p><p>'
-    + answer_html(bonus.part2_answer[0:80].encode('utf-8')) + '</p><p>'
-    + answer_html(bonus.part3_answer[0:80].encode('utf-8')) + '</p>')
+    return mark_safe(answer_html(bonus.part1_answer[0:80].encode('utf-8')) + '<br />'
+    + answer_html(bonus.part2_answer[0:80].encode('utf-8')) + '<br />'
+    + answer_html(bonus.part3_answer[0:80].encode('utf-8')))
 
 @register.filter(name='percent')
 def percent(x, y):
@@ -181,14 +181,6 @@ def bonus_leadin(bonus):
 @register.filter(name='bonus_html_verbose')
 def bonus_html_verbose(bonus):
     return bonus.to_html(include_category=True, include_character_count=True)
-
-@register.filter(name='tossup_history_html')
-def tossup_history_html(tossup):
-    return tossup.to_html()
-
-@register.filter(name='bonus_history_html')    
-def bonus_history_html(bonus):
-    return bonus.to_html()
 
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

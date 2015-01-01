@@ -4,9 +4,9 @@
             <nav class="left breadcrumbs">
                 <li{% if not qset and not passed_q_set %} class="current"{% endif %}><a href="/main/">Home</a></li>
                 {% if qset %}
-                    <li{% if not packet %} class="current"{% endif %}><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
+                    <li{% if not packet and not tossup and not bonus %} class="current"{% endif %}><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
                 {% elif passed_q_set %}
-                    <li{% if not packet %} class="current"{% endif %}><a href="/edit_question_set/{{ passed_q_set.id }}">{{ passed_q_set }}</a></li>
+                    <li{% if not packet and not tossup and not bonus %} class="current"{% endif %}><a href="/edit_question_set/{{ passed_q_set.id }}">{{ passed_q_set }}</a></li>
                 {% endif %}
                 {% if packet %}
                     <li{% if not tossup and not bonus %} class="current"{% endif %}><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>

@@ -5,13 +5,11 @@ function add_row_to_cat_table() {
     after(sprintf(
         '<tr><td><input id="id_distentry-%d-category" width="100" type="text" name="categories" maxlength="100" /></td> \
 <td><input id="id_distentry-%d-subcategory" type="text" name="subcategories" maxlength="100" /></td> \
-<td><input id="id_distentry-%d-num_tossups" width="10" type="text" class="spinner" name="num_tossups" /></td> \
-<td><input id="id_distentry-%d-num_bonuses" width="10" type="text" class="spinner" name="num_bonuses" /></td> \
-<td><input id="id_distentry-%d-fin_tossups" width="10" type="text" class="spinner" name="fin_tossups" /></td> \
-<td><input id="id_distentry-%d-fin_bonuses" width="10" type="text" class="spinner" name="fin_bonuses" /></td> \
+<td><input id="id_distentry-%d-num_tossups" type="number" min="0" step="1"class="spinner" name="num_tossups" /></td> \
+<td><input id="id_distentry-%d-num_bonuses" type="number" min="0" step="1"class="spinner" name="num_bonuses" /></td> \
+<td><input id="id_distentry-%d-fin_tossups" type="number" min="0" step="1"class="spinner" name="fin_tossups" /></td> \
+<td><input id="id_distentry-%d-fin_bonuses" type="number" min="0" step="1" class="spinner" name="fin_bonuses" /></td> \
 <td>&nbsp;</td></tr>', next_form, next_form, next_form, next_form, next_form, next_form));
-
-    $('.spinner').width(10).spinner({'min': 0})
 }
 
 $.browser = {}
@@ -65,31 +63,6 @@ $(function () {
     // $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});
     // $('#bonus-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
-    /*tinymce.init({
-        selector: 'textarea.question_text',
-        menubar: false,
-        toolbar: 'undo redo | bold italic underline',
-        fontsize_formats: '12px 14px 16px',
-        setup: function(ed) {
-            ed.on('init', function() {
-                this.getDoc().body.style.fontSize = '18px';
-
-                // Needed so that what we write to the text area isn't overwritten
-                this.settings.add_form_submit_trigger = false;
-                this.on('submit', function (ed, e) {
-                    var jqueryId = "#" + this.id;
-                    $(jqueryId).val($(this.getBody()).html());
-                });
-            });
-        },
-        width: 900,
-        /*formats: {
-            underline: {inline: 'u', exact: true},
-            italic: {inline: 'i', exact: true},
-            bold: {inline: 'b', exact: true}
-        }
-    });*/
-
     $('#id_player_to_add').autocomplete({
     source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),
     select: function(event, ui) {
@@ -110,9 +83,6 @@ $(function () {
     }
     })
 
-    $(document).tooltip();
-
-    $('.spinner').width(25).spinner({'min': 0})
     $('#add-row').click(add_row_to_cat_table)
 
     $('.delete_tossup').click(function(e) {

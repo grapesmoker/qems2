@@ -113,7 +113,7 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
                     output += "<b><u>"
                     underlineFlag = True                    
                 else:
-                    output += "</b></u>"
+                    output += "</u></b>"
                     underlineFlag = False
             else:
                 output += c
@@ -128,7 +128,7 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
         output += "</strong>"
     
     if (allowNewLines):
-        output = output.replace("&lt;br&gt;", "<br>")
+        output = output.replace("&lt;br&gt;", "<br />")
             
     return output
     
@@ -217,10 +217,10 @@ class InvalidTossup(Exception):
         self.args = [a for a in args]
 
     def __str__(self):
-        s = '*' * 50 + '<br>'
-        s += 'Invalid tossup {0}!<br>'.format(self.args[2])
-        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
-        s += '*' * 50 + '<br>'
+        s = '*' * 50 + '<br />'
+        s += 'Invalid tossup {0}!<br />'.format(self.args[2])
+        s += 'The problem is in field: {0}, which has value: {1}<br />'.format(self.args[0], self.args[1])
+        s += '*' * 50 + '<br />'
 
         return s
 
@@ -231,10 +231,10 @@ class InvalidBonus(Exception):
         self.args = [a for a in args]
 
     def __str__(self):
-        s = '*' * 50 + '<br>'
-        s += 'Invalid bonus {0}!<br>'.format(self.args[2])
-        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
-        s += '*' * 50 + '<br>'
+        s = '*' * 50 + '<br />'
+        s += 'Invalid bonus {0}!<br />'.format(self.args[2])
+        s += 'The problem is in field: {0}, which has value: {1}<br />'.format(self.args[0], self.args[1])
+        s += '*' * 50 + '<br />'
 
         return s
 

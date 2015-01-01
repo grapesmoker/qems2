@@ -191,7 +191,7 @@
                     <td>{{ writer.bonus_written }}</td>
                     <td>
                         {% if writer.writer.user.username != qset.owner.user.username %}
-                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                        <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
                             <a href="/delete_writer/{{ writer.id }}" class="delete_writer" value="{{ writer.id }}">
                                 <i class="fa fa-minus-circle"></i>
                             </a>
@@ -285,7 +285,7 @@
             <thead>
                 <tr>
                     <th>Author</th>
-                    <th>Tossup Text</th>
+                    <th>Preview</th>
                     <th>Answer</th>
                     <th>Category</th>
                     <th>Packet</th>
@@ -303,12 +303,12 @@
                     <td>{{ tossup.category }}</td>
                     <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
                     <td>
-                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
+                        <span data-tooltip aria-haspopup="true" class="has-tip tip-left" title="Edit">
                             <a href="/edit_tossup/{{ tossup.id }}">
                                 <i class="fa fa-edit"></i>
                             </a>
                         </span>
-                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                        <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
                             <a href="/delete_tossup/{{ tossup.id }}" class="delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">
                                 <i class="fa fa-minus-circle"></i>
                             </a>
@@ -350,12 +350,12 @@
                     <td>{{ bonus.category }}</td>
                     <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
                     <td>
-                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
+                        <span data-tooltip aria-haspopup="true" class="has-tip tip-left" title="Edit">
                             <a href="/edit_bonus/{{ bonus.id }}">
                                 <i class="fa fa-edit"></i>
                             </a>
                         </span>
-                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                        <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
                             <a href="/delete_bonus/{{ bonus.id }}" class="delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">
                                 <i class="fa fa-minus-circle"></i>
                             </a>
@@ -401,7 +401,7 @@
                         N/A
                     </td>
                     <td>
-                        <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                        <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
                             <a href="/delete_packet/{{ packet.id }}" class="delete_packet" value="{{ packet.id }}">
                                 <i class="fa fa-minus-circle"></i>
                             </a>

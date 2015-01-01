@@ -46,8 +46,6 @@ class QuestionSetForm(forms.ModelForm):
             if read_only:
                 self.fields[field].widget.attrs['readonly'] = True
 
-            self.fields[field].widget.attrs['class'] = 'form-control'
-
 class AddUserForm(forms.ModelForm):
 
     add_user = forms.BooleanField(required=False)
@@ -72,8 +70,8 @@ class RoleAssignmentForm(forms.ModelForm):
     
 class TossupForm(forms.ModelForm):
     
-    tossup_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 5}))
-    tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'cols': 100, 'rows': 1}))
+    tossup_text = forms.CharField(widget=forms.Textarea(attrs={'rows': 5}))
+    tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'rows': 1}))
     search_tossup_text = forms.CharField(widget=forms.HiddenInput, required=False)
     search_tossup_answer = forms.CharField(widget=forms.HiddenInput, required=False)
     question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
@@ -235,14 +233,14 @@ class TieBreakDistributionForm(forms.ModelForm):
 
 
 class DistributionEntryForm(forms.ModelForm):
-    
+
     entry_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}))
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
-    min_tossups = forms.FloatField(widget=forms.TextInput(attrs={'type': 'number', 'min': 0, 'step': 1}), min_value=0)
-    min_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'type': 'number', 'min': 0, 'step': 1}), min_value=0)
-    max_tossups = forms.FloatField(widget=forms.TextInput(attrs={'type': 'number', 'min': 0, 'step': 1}), min_value=0)
-    max_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'type': 'number', 'min': 0, 'step': 1}), min_value=0)
+    min_tossups = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
+    min_bonuses = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
+    max_tossups = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
+    max_bonuses = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
     
     delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
     
@@ -255,8 +253,8 @@ class TieBreakDistributionEntryForm(forms.Form):
     entry_id = forms.IntegerField(widget=forms.HiddenInput, required=False)
     category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}), required=False)
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
-    num_tossups = forms.FloatField(widget=forms.TextInput(attrs={'type': 'number', 'min': 0, 'step': 1}), min_value=0)
-    num_bonuses = forms.FloatField(widget=forms.TextInput(attrs={'type': 'number', 'min': 0, 'step': 1}), min_value=0)
+    num_tossups = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
+    num_bonuses = forms.FloatField(widget=forms.NumberInput(attrs={}), min_value=0)
    
     delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
@@ -269,11 +267,11 @@ class SetWideDistributionEntryForm(forms.Form):
     entry_id = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'display: none'}))
     #dist_entry = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'display: none'}))
 
-    num_tossups = forms.IntegerField(widget=forms.TextInput(attrs={'type': 'number', 'min': 0, 'step': 1}), min_value=0)
-    num_bonuses = forms.IntegerField(widget=forms.TextInput(attrs={'type': 'number', 'min': 0, 'step': 1}), min_value=0)
+    num_tossups = forms.IntegerField(widget=forms.NumberInput(attrs={}), min_value=0)
+    num_bonuses = forms.IntegerField(widget=forms.NumberInput(attrs={}), min_value=0)
 
-    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}), required=False)
-    subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'width': 100}), required=False)
+    category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
+    subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
 
     #class Meta:
     #    model = SetWideDistributionEntry

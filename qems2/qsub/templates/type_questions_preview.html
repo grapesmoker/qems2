@@ -24,7 +24,7 @@
             {% if tossup_errors %}
             {% for tu_error in tossup_errors %}
             <div class="alert alert-danger">
-                {{ tu_error }}
+                {{ tu_error|safe }}
             </div>
             {% endfor %}
             {% endif %}
@@ -32,7 +32,7 @@
             {% if bonus_errors %}
             {% for bs_error in bonus_errors %}
             <div class="alert alert-danger">
-                {{ bs_error }}
+                {{ bs_error|safe }}
             </div>
             {% endfor %}
             {% endif %}

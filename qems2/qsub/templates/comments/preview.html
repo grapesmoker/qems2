@@ -5,10 +5,14 @@
 
 {% block content %}
   {% load comments %}
+  <h1>Error submitting comment</h1>
+  <p>You must have some text in your comment.  Go back and add some.</p>
+  
+<!--  
   <form action="{% comment_form_target %}" method="post">{% csrf_token %}
     {% if next %}<div><input type="hidden" name="next" value="{{ next }}" /></div>{% endif %}
     {% if form.errors %}
-    <h1>{% if form.errors|length == 1 %}{% trans "Please correct the error below" %}{% else %}{% trans "Please correct the errors below" %}{% endif %}</h1>
+    <h1>{% if form.errors|length == 1 %}{% trans "Please go back and correct the error below" %}{% else %}{% trans "Please go back and correct the errors below" %}{% endif %}</h1>
     {% else %}
     <h1>{% trans "Preview your comment" %}</h1>
       <blockquote>{{ comment|linebreaks }}</blockquote>
@@ -33,4 +37,5 @@
     <input type="submit" name="preview" class="submit-preview" value="{% trans "Preview" %}" />
     </p>
   </form>
+ --> 
 {% endblock %}

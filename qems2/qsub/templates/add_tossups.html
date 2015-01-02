@@ -30,12 +30,16 @@
             Tossup Text
             {{ form.tossup_text }}
         </label>
-        {% if form.tossup_text.errors %}<small class="error">{{ form.tossup_text.errors }}</small>{% endif %}
+        {% if form.tossup_text.errors %}
+            {{ form.tossup_text.errors }}
+        {% endif %}
         <label>
             Tossup Answer
             {{ form.tossup_answer }}
         </label>
-        {% if form.tossup_answer.errors %}<small class="error">{{ form.tossup_answer.errors }}</small>{% endif %}
+        {% if form.tossup_answer.errors %}
+            {{ form.tossup_answer.errors }}
+        {% endif %}
         <div class="row">
             <div class="small-6 columns">
                 <div class="row collapse">
@@ -45,7 +49,9 @@
                     <div class="small-8 columns">
                         {{ form.category }}
                     </div>
-                    {% if form.category.errors %}<small class="error">{{ form.category.errors }}</small>{% endif %}
+                    {% if form.category.errors %}
+                        {{ form.category.errors }}
+                    {% endif %}
                 </div>
             </div>
             <div class="small-6 columns">
@@ -56,7 +62,9 @@
                     <div class="small-8 columns">
                         {{ form.author }}
                     </div>
-                    {% if form.author.errors %}<small class="error">{{ form.author.errors }}</small>{% endif %}
+                    {% if form.author.errors %}
+                        {{ form.author.errors }}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -69,7 +77,9 @@
                     <div class="small-8 columns">
                         {{ form.question_type }}
                     </div>
-                    {% if form.question_type.errors %}<small class="error">{{ form.question_type.errors }}</small>{% endif %}
+                    {% if form.question_type.errors %}
+                        {{ form.question_type.errors }}
+                    {% endif %}
                 </div>
             </div>
             <div class="small-6 columns">
@@ -80,7 +90,9 @@
                     <div class="small-8 columns">
                         {{ form.packet }}
                     </div>
-                    {% if form.packet.errors %}<small class="error">{{ form.packet.errors }}</small>{% endif %}
+                    {% if form.packet.errors %}
+                        {{ form.packet.errors }}
+                    {% endif %}
                 </div>
             </div>
         </div>

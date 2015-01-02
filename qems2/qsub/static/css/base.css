@@ -84,6 +84,18 @@ span.prefix.text-left {
 .ui-helper-hidden-accessible {
     font-size:0.75rem;
 }
+.errorlist {
+  display:block;
+  padding:0.375rem 0.5625rem 0.5625rem;
+  margin-top:-1rem;
+  margin-bottom:1rem;
+  margin-left:auto;
+  font-size:0.75rem;
+  font-style:italic;
+  background:#f04124;
+  color:#fff;
+  list-style-type:none;
+}
 /* Tables */
 .tablesorter {
     margin:5px 0 5px;

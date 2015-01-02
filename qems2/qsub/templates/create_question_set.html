@@ -12,53 +12,44 @@
 <h3 class="page-header">Create Question Set</h3>
 <form action="" method="post" role="form" class="form-horizontal form-standard">
     {% csrf_token %}
+
     <div class="row">
-        <div class="small-6 columns">
-            <div class="row collapse">
-                <div class="small-4 columns">
-                    <span class="prefix text-left" for="{{ form.name.id_for_label }}">Set Name</span>
+    {% for field in form %}
+        {% if field.html_name == "name" or field.html_name == "date" %}
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "name" %}Set Name{% else %}Due Date{% endif %}</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ field }}
+                    </div>
                 </div>
-                <div class="small-8 columns">
-                    <input id="{{ form.name.id_for_label }}" name="{{ form.name.html_name }}" type="text"{% if form.name.value %} value="{{ form.name.value }}"{% endif %} />
-                </div>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
             </div>
-        </div>
-        <div class="small-6 columns">
-            <div class="row collapse">
-                <div class="small-4 columns">
-                    <span class="prefix text-left" for="{{ form.date.id_for_label }}">Due Date</span>
-                </div>
-                <div class="small-8 columns">
-                    <input id="{{ form.date.id_for_label }}" name="{{ form.date.html_name }}" type="text"{% if form.date.value %} value="{{ form.date.value }}"{% endif %} placeholder="mm/dd/yyyy" />
-                </div>
-            </div>
-        </div>
+        {% endif %}
+    {% endfor %}
     </div>
     <div class="row">
-        <div class="small-6 columns">
-            <div class="row collapse">
-                <div class="small-4 columns">
-                    <span class="prefix text-left" for="{{ form.num_packets.id_for_label }}">Number of Packets</span>
+    {% for field in form %}
+        {% if field.html_name == "num_packets" or field.html_name == "distribution" %}
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "num_packets" %}Number of Packets{% else %}Distribution{% endif %}</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ field }}
+                    </div>
                 </div>
-                <div class="small-8 columns">
-                    <input id="{{ form.num_packets.id_for_label }}" name="{{ form.num_packets.html_name }}" type="text"{% if form.num_packets.value %} value="{{ form.num_packets.value }}"{% endif %} />
-                </div>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
             </div>
-        </div>
-        <div class="small-6 columns">
-            <div class="row collapse">
-                <div class="small-4 columns">
-                    <span class="prefix text-left" for="{{ form.distribution.id_for_label }}">Distribution</span>
-                </div>
-                <div class="small-8 columns">
-                    <select id="{{ form.distribution.id_for_label }}" name="{{ form.distribution.html_name }}">
-                        {% for dist in distributions %}
-                            <option value="{{ dist.id }}">{{ dist }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-        </div>
+        {% endif %}
+    {% endfor %}
     </div>
     <input type="submit" value="Create Question Set" class="button primary right" />
 </form>

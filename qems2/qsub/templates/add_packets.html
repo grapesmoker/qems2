@@ -28,7 +28,7 @@
             {{ form.packet_name }}
         </div>
         {% if form.packet_name.errors %}
-            <small class="error">{{ form.packet_name.errors }}</small>
+            {{ form.packet_name.errors }}
         {% endif %}
     </div>
     <div class="alert-box info">...or enter a base name and the number of packets to create. For example, if the base name is "Round" and
@@ -41,7 +41,7 @@
             {{ form.name_base }}
         </div>
         {% if form.name_base.errors %}
-            <small class="error">{{ form.name_base.errors }}</small>
+            {{ form.name_base.errors }}
         {% endif %}
     </div>
     <div class="row collapse">
@@ -52,11 +52,11 @@
             {{ form.num_packets }}
         </div>
         {% if form.num_packets.errors %}
-            <small class="error">{{ form.num_packets.errors }}</small>
+            {{ form.num_packets.errors }}
         {% endif %}
     </div>
     {% if not read_only %}
-        <button class="button primary right" type="submit">Create Packets</button>
+        <input type="submit" value="Create Packets" class="button primary right" />
     {% endif %}
 </form>
 

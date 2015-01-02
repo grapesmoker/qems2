@@ -117,7 +117,7 @@
                         </div>
                     </div>
                     {% if field.errors %}
-                        <small class="error">{{ field.errors }}</small>
+                        {{ field.errors }}
                     {% endif %}
                 {% endif %}
             {% endfor %}
@@ -136,7 +136,7 @@
                         </div>
                     </div>
                     {% if field.errors %}
-                        <small class="error">{{ field.errors }}</small>
+                        {{ field.errors }}
                     {% endif %}
                 {% endif %}
             {% endfor %}

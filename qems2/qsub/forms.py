@@ -42,6 +42,8 @@ class QuestionSetForm(forms.ModelForm):
     def __init__(self, read_only=False, *args, **kwargs):
         super(QuestionSetForm, self).__init__(*args, **kwargs)
 
+        self.fields['date'].widget.attrs.update({'placeholder': 'mm/dd/yyyy'})
+
         for field in self.fields:
             if read_only:
                 self.fields[field].widget.attrs['readonly'] = True
@@ -106,9 +108,9 @@ class TossupForm(forms.ModelForm):
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)
-                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, initial=my_writer.pk, required=True)
+                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, initial=my_writer.pk, required=True, empty_label=None)
                 else:
-                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, required=True)
+                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, required=True, empty_label=None)
                 
                 dist = qset.distribution
                 dist_entries = dist.distributionentry_set.all()
@@ -117,7 +119,7 @@ class TossupForm(forms.ModelForm):
                     pack_label = None
                     packets = qset.packet_set.filter(id=packet_id)
                 else:
-                    pack_label = '---------'
+                    pack_label = 'N/A'
                     packets = qset.packet_set.all()
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
                 self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)
@@ -180,9 +182,9 @@ class BonusForm(forms.ModelForm):
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)
-                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, initial=my_writer.pk, required=True)
+                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, initial=my_writer.pk, required=True, empty_label=None)
                 else:
-                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, required=True)
+                    self.fields['author'] = forms.ModelChoiceField(queryset=all_writers, required=True, empty_label=None)
 
                 
                 dist = qset.distribution
@@ -192,7 +194,7 @@ class BonusForm(forms.ModelForm):
                     pack_label = None
                     packets = qset.packet_set.filter(id=packet_id)
                 else:
-                    pack_label = '---------'
+                    pack_label = 'N/A'
                     packets = qset.packet_set.all()
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
                 self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)
@@ -230,7 +232,6 @@ class TieBreakDistributionForm(forms.ModelForm):
 
     class Meta:
         model = TieBreakDistribution
-
 
 class DistributionEntryForm(forms.ModelForm):
 

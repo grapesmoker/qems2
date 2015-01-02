@@ -40,39 +40,53 @@
                 Leadin
                 {{ form.leadin }}
             </label>
-            {% if form.leadin.errors %}<small class="error">{{ form.leadin.errors }}</small>{% endif %}
+            {% if form.leadin.errors %}
+                {{ form.leadin.errors }}
+            {% endif %}
         {% endif %}
         <label>
             Part 1 Text
             {{ form.part1_text }}
-            {% if form.part1_text.errors %}<small class="error">{{ form.part1_text.errors }}</small>{% endif %}
+            {% if form.part1_text.errors %}
+                {{ form.part1_text.errors }}
+            {% endif %}
         </label>
         <label>
             Part 1 Answer
             {{ form.part1_answer }}
-            {% if form.part1_answer.errors %}<small class="error">{{ form.part1_answer.errors }}</small>{% endif %}
+            {% if form.part1_answer.errors %}
+                {{ form.part1_answer.errors }}
+            {% endif %}
         </label>
 
         {% if question_type == "ACF-style bonus" %}
             <label>
                 Part 2 Text
                 {{ form.part2_text }}
-                {% if form.part2_text.errors %}<small class="error">{{ form.part2_text.errors }}</small>{% endif %}
+                {% if form.part2_text.errors %}
+                    {{ form.part2_text.errors }}
+                {% endif %}
             </label>
             <label>
                 Part 2 Answer
                 {{ form.part2_answer }}
-                {% if form.part2_answer.errors %}<small class="error">{{ form.part2_answer.errors }}</small>{% endif %}
+                {% if form.part2_answer.errors %}
+                    {{ form.part2_answer.errors }}
+                {% endif %}
             </label>
             <label>
                 Part 3 Text
                 {{ form.part3_text }}
-                {% if form.part3_text.errors %}<small class="error">{{ form.part3_text.errors }}</small>{% endif %}
+                {% if form.part3_text.errors %}
+                    {{ form.part3_text.errors }}
+                {% endif %}
             </label>
             <label>
                 Part 3 Answer
                 {{ form.part3_answer }}
-                {% if form.part3_answer.errors %}<small class="error">{{ form.part3_answer.errors }}</small>{% endif %}
+                {% if form.part3_answer.errors %}
+                    {{ form.part3_answer.errors }}
+                {% endif %}
             </label> 
         {% endif %}
         <div class="row">
@@ -84,7 +98,9 @@
                     <div class="small-8 columns">
                         {{ form.category }}
                     </div>
-                    {% if form.category.errors %}<small class="error">{{ form.category.errors }}</small>{% endif %}
+                    {% if form.category.errors %}
+                        {{ form.category.errors }}
+                    {% endif %}
                 </div>
             </div>
             <div class="small-6 columns">
@@ -95,7 +111,9 @@
                     <div class="small-8 columns">
                         {{ form.author }}
                     </div>
-                    {% if form.author.errors %}<small class="error">{{ form.author.errors }}</small>{% endif %}
+                    {% if form.author.errors %}
+                        {{ form.author.errors }}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -108,7 +126,9 @@
                     <div class="small-8 columns">
                         {{ form.question_type }}
                     </div>
-                    {% if form.question_type.errors %}<small class="error">{{ form.question_type.errors }}</small>{% endif %}
+                    {% if form.question_type.errors %}
+                        {{ form.question_type.errors }}
+                    {% endif %}
                 </div>
             </div>
             <div class="small-6 columns">
@@ -119,7 +139,9 @@
                     <div class="small-8 columns">
                         {{ form.packet }}
                     </div>
-                    {% if form.packet.errors %}<small class="error">{{ form.packet.errors }}</small>{% endif %}
+                    {% if form.packet.errors %}
+                        {{ form.packet.errors }}
+                    {% endif %}
                 </div>
             </div>
         </div>

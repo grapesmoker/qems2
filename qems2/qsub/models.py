@@ -116,7 +116,7 @@ class Writer (models.Model):
     question_set_editor = models.ManyToManyField('QuestionSet', related_name='editor')
 
     administrator = models.BooleanField(default=False)
-    
+
     send_mail_on_comments = models.BooleanField(default=False)
 
     def __str__(self):
@@ -283,13 +283,13 @@ class Tossup (models.Model):
             category_id = self.category.id
             category_name = str(DistributionEntry.objects.get(id=self.category.id))
         return {'id': self.id,
-                           'packet': packet_id,
-                           'tossup_text': self.tossup_text.strip(),
-                           'tossup_answer': self.tossup_answer.strip(),
-                           'category': category_id,
-                           'category_name': category_name.strip(),
-                           'author': self.author.id,
-                           'question_number': self.question_number}
+                'packet': packet_id,
+                'tossup_text': self.tossup_text.strip(),
+                'tossup_answer': self.tossup_answer.strip(),
+                'category': category_id,
+                'category_name': category_name.strip(),
+                'author': self.author.id,
+                'question_number': self.question_number}
 
     def to_latex(self):
 
@@ -452,18 +452,18 @@ class Bonus(models.Model):
             category_name = str(DistributionEntry.objects.get(id=self.category.id))
 
         return {'id': self.id,
-                           'packet': packet_id,
-                           'leadin': self.leadin.strip(),
-                           'part1_text': self.part1_text,
-                           'part1_answer': self.part1_answer,
-                           'part2_text': self.part2_text,
-                           'part2_answer': self.part2_answer,
-                           'part3_text': self.part3_text,
-                           'part3_answer': self.part3_answer,
-                           'category': category_id,
-                           'category_name': category_name.strip(),
-                           'author': self.author.id,
-                           'question_number': self.question_number}
+                'packet': packet_id,
+                'leadin': self.leadin.strip(),
+                'part1_text': self.part1_text,
+                'part1_answer': self.part1_answer,
+                'part2_text': self.part2_text,
+                'part2_answer': self.part2_answer,
+                'part3_text': self.part3_text,
+                'part3_answer': self.part3_answer,
+                'category': category_id,
+                'category_name': category_name.strip(),
+                'author': self.author.id,
+                'question_number': self.question_number}
 
     def to_latex(self):
 
@@ -501,32 +501,41 @@ class Bonus(models.Model):
             output = output + "[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "<br />"
             output = output + "ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "<br />"
             output = output + "[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "<br />"
-            output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<br />"
-            
-            if (include_category and self.category is not None):
-              output = output + "<strong>Category:</strong> " + str(self.category) + "<br />"
+            if (not include_category and not include_character_count):
+                output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "</p>"
             else:
-              output = output
+                output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<br />"
+            
+            if (include_category and self.category is not None and not include_character_count):
+                output = output + "<strong>Category:</strong> " + str(self.category) + "</p>"
+
+            if (include_category and self.category is not None):
+                output = output + "<strong>Category:</strong> " + str(self.category) + "<br />"
             
             if (include_character_count):
                 leadin_length, part1_length, part2_length, part3_length = self.character_count()
                 output = output + "<strong>Character Count:</strong> " + str(leadin_length) + " (leadin) / "
                 output = output + str(part1_length) + " (Part 1) / " + str(part2_length) + " (Part 2) / " + str(part3_length) + " (Part 3)</p>"
-            
+
         elif (self.get_bonus_type() == VHSL_BONUS):
-            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False)
-            if (include_category and self.category is not None):
-                output = output + " {" + str(self.category) + "}</p>"
+            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
+            if (not include_category and not include_character_count):
+                output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
             else:
-                output = output + "</p>"
-            
+                output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"
+
+            if (include_category and self.category is not None and not include_character_count):
+                output = output + "<strong>Category:</strong> " + str(self.category) + "</p>"
+
+            if (include_category and self.category is not None):
+                output = output + "<strong>Category:</strong> " + str(self.category) + "<br />"
+
             if (include_character_count):
                 leadin_length, part1_length, part2_length, part3_length = self.character_count()
-                output = output + "<p>Character count: " + str(part1_length) + "</p>"
+                output = output + "<strong>Character Count:</strong> " + str(part1_length) + "</p>"
             
         return output        
-            
+
     def is_valid(self):
 
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
@@ -650,9 +659,9 @@ class TossupHistory(models.Model):
     
     def to_html(self):
         output = ''
-        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "</p>"
-        output = output + "<p>" + get_formatted_question_html(self.tossup_answer, True, True, False) + "</p>"
-        output = output + "<p>Changed by " + str(self.changer) + " on " + str(self.change_date) + "</p>"        
+        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "<br />"
+        output = output + get_formatted_question_html(self.tossup_answer, True, True, False) + "<br />"
+        output = output + "Changed by " + str(self.changer) + " on " + str(self.change_date) + "</p>"        
         return output
     
 class BonusHistory(models.Model):
@@ -671,18 +680,18 @@ class BonusHistory(models.Model):
     def to_html(self):
         output = ''
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
-            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<p>"
+            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<br />"
         else:
-            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"        
+            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"        
 
-        output = output + "<p>Changed by " + str(self.changer) + " on " + str(self.change_date) + "</p>"        
+        output = output + "Changed by <strong>" + str(self.changer) + "</strong> on <strong>" + str(self.change_date) + "</strong></p>"        
         return output
 
     def __unicode__(self):

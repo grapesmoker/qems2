@@ -2510,19 +2510,14 @@ def restore_tossup(request):
         th_id = request.POST['th_id']
         tossup_history = TossupHistory.objects.get(id=th_id)
         tossup = Tossup.objects.get(question_history=tossup_history.question_history)
-        print "foo1"
         if (tossup_history is None):
             message = 'Invalid tossup history restoration!'
             message_class = 'alert alert-warning'
         else:
             qset_id = request.POST['qset_id']
-            print "qset_id: " + str(qset_id)
             qset = QuestionSet.objects.get(id=qset_id)
-            print "qset: " + str(qset)
             if user == tossup.author or user == qset.owner or user in qset.editor.all():
-                print "foo1.5"
                 tossup = Tossup.objects.get(question_history=tossup_history.question_history)
-                print "foo2"
                 if (tossup is None):
                     message = 'Invalid tossup restoration!'
                     message_class = 'alert alert-warning'
@@ -2599,6 +2594,8 @@ def tossup_history(request, tossup_id):
                 q_set_writers = q_set.editor.all() | q_set.writer.all()
                 if (user in q_set_writers):                    
                     tossup_histories, bonus_histories = tossup.get_question_history()
+                    tossup_histories = tossup_histories.order_by('-id')
+                    bonus_histories = bonus_histories.order_by('-id')
                     message = ''
                     message_class = ''
                     
@@ -2652,6 +2649,8 @@ def bonus_history(request, bonus_id):
                     message_class = ''
                     
                     tossup_histories, bonus_histories = bonus.get_question_history()
+                    tossup_histories = tossup_histories.order_by('-id')
+                    bonus_histories = bonus_histories.order_by('-id')                    
                     return render_to_response('bonus_history.html',
                                         {'user': user,
                                          'qset': q_set,

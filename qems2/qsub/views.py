@@ -1944,7 +1944,10 @@ def complete_upload(request):
         num_tossups = int(request.POST['num-tossups'])
         num_bonuses = int(request.POST['num-bonuses'])
         categories = DistributionEntry.objects.all()
-        questionTypes = QuestionType.objects.all()       
+        questionTypes = QuestionType.objects.all()
+        
+        new_tossups = []
+        new_bonuses = []
 
         for tu_num in range(num_tossups):
             data="UTF-8 DATA"
@@ -1979,6 +1982,7 @@ def complete_upload(request):
             new_tossup.edited = False
             
             new_tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
+            new_tossups.append(new_tossup)
 
         for bs_num in range(num_bonuses):
             print "in bs_num"
@@ -2020,8 +2024,15 @@ def complete_upload(request):
                     break
 
             new_bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
+            new_bonuses.append(new_bonus)
 
         messages.success(request, 'Your questions have been uploaded!')
+        for tossup in new_tossups:
+            messages.success(request, 'View your tossup on <a href="/edit_tossup/{0}">{1}</a>.'.format(tossup.id, get_answer_no_formatting(tossup.tossup_answer)), extra_tags='safe')
+
+        for bonus in new_bonuses:
+            messages.success(request, 'View your bonus on <a href="/edit_bonus/{0}">{1}</a>.'.format(bonus.id, get_answer_no_formatting(bonus.part1_answer)), extra_tags='safe')
+
         return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
 
     else:

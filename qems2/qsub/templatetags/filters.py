@@ -3,6 +3,8 @@ from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from qems2.qsub.models import *
 from qems2.qsub.utils import sanitize_html, strip_markup, get_formatted_question_html, get_answer_no_formatting
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.comments import *
 
 @register.filter(name='lookup')
 def lookup(dict, key):
@@ -190,5 +192,23 @@ def tossup_history_html(tossup):
 def bonus_history_html(bonus):
     return bonus.to_html()
 
+@register.filter(name='tossup_last_comment_date')
+def tossup_last_comment_date(tossup):
+    tossup_content_type_id = ContentType.objects.get(name="tossup")
+    comments = Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id).order_by('-id')
+    if (len(comments) > 0):
+        return comments[0].submit_date
+    else:
+        return ''
+
+@register.filter(name='bonus_last_comment_date')
+def bonus_last_comment_date(bonus):
+    bonus_content_type_id = ContentType.objects.get(name="bonus")
+    comments = Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id).order_by('-id')
+    if (len(comments) > 0):
+        return comments[0].submit_date
+    else:
+        return ''
+    
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

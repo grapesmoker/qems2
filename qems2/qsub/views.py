@@ -1944,7 +1944,10 @@ def complete_upload(request):
         num_tossups = int(request.POST['num-tossups'])
         num_bonuses = int(request.POST['num-bonuses'])
         categories = DistributionEntry.objects.all()
-        questionTypes = QuestionType.objects.all()       
+        questionTypes = QuestionType.objects.all()
+        
+        new_tossups = []
+        new_bonuses = []
 
         for tu_num in range(num_tossups):
             data="UTF-8 DATA"
@@ -1979,6 +1982,7 @@ def complete_upload(request):
             new_tossup.edited = False
             
             new_tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
+            new_tossups.append(new_tossup)
 
         for bs_num in range(num_bonuses):
             print "in bs_num"
@@ -2020,8 +2024,15 @@ def complete_upload(request):
                     break
 
             new_bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
+            new_bonuses.append(new_bonus)
 
         messages.success(request, 'Your questions have been uploaded!')
+        for tossup in new_tossups:
+            messages.success(request, 'View your tossup on <a href="/edit_tossup/{0}">{1}</a>.'.format(tossup.id, get_answer_no_formatting(tossup.tossup_answer)), extra_tags='safe')
+
+        for bonus in new_bonuses:
+            messages.success(request, 'View your bonus on <a href="/edit_bonus/{0}">{1}</a>.'.format(bonus.id, get_answer_no_formatting(bonus.part1_answer)), extra_tags='safe')
+
         return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
 
     else:
@@ -2510,19 +2521,14 @@ def restore_tossup(request):
         th_id = request.POST['th_id']
         tossup_history = TossupHistory.objects.get(id=th_id)
         tossup = Tossup.objects.get(question_history=tossup_history.question_history)
-        print "foo1"
         if (tossup_history is None):
             message = 'Invalid tossup history restoration!'
             message_class = 'alert alert-warning'
         else:
             qset_id = request.POST['qset_id']
-            print "qset_id: " + str(qset_id)
             qset = QuestionSet.objects.get(id=qset_id)
-            print "qset: " + str(qset)
             if user == tossup.author or user == qset.owner or user in qset.editor.all():
-                print "foo1.5"
                 tossup = Tossup.objects.get(question_history=tossup_history.question_history)
-                print "foo2"
                 if (tossup is None):
                     message = 'Invalid tossup restoration!'
                     message_class = 'alert alert-warning'
@@ -2599,6 +2605,8 @@ def tossup_history(request, tossup_id):
                 q_set_writers = q_set.editor.all() | q_set.writer.all()
                 if (user in q_set_writers):                    
                     tossup_histories, bonus_histories = tossup.get_question_history()
+                    tossup_histories = tossup_histories.order_by('-id')
+                    bonus_histories = bonus_histories.order_by('-id')
                     message = ''
                     message_class = ''
                     
@@ -2652,6 +2660,8 @@ def bonus_history(request, bonus_id):
                     message_class = ''
                     
                     tossup_histories, bonus_histories = bonus.get_question_history()
+                    tossup_histories = tossup_histories.order_by('-id')
+                    bonus_histories = bonus_histories.order_by('-id')                    
                     return render_to_response('bonus_history.html',
                                         {'user': user,
                                          'qset': q_set,

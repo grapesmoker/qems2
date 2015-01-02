@@ -200,8 +200,10 @@ def get_bonus_type_from_question_type(question_type):
         print "bonus type none"
         return ACF_STYLE_BONUS
     elif (str(question_type) == VHSL_BONUS):
+        print "vhsl"
         return VHSL_BONUS
     else:
+        print "acf"
         return ACF_STYLE_BONUS        
 
 def get_tossup_type_from_question_type(question_type):

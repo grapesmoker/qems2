@@ -616,7 +616,6 @@ class Bonus(models.Model):
         return tossups, bonuses
 
     def save_question(self, edit_type, changer):
-        print "save question 1"
         if (self.question_history is None):
             qh = QuestionHistory()
             qh.save()
@@ -627,6 +626,13 @@ class Bonus(models.Model):
         if (edit_type == QUESTION_EDIT):
             self.editor = changer
             self.edited_date = timezone.now()
+        
+        if (self.get_bonus_type() == VHSL_BONUS):
+            self.leadin = ''
+            self.part2_text  = ''
+            self.part2_answer = ''
+            self.part3_text = ''
+            self.part3_answer = ''
         
         bonus_history = BonusHistory()
         bonus_history.leadin = self.leadin

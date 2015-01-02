@@ -103,14 +103,16 @@ def parse_packet_data(data):
                 tossup_category = get_category(tossup_answer)
                 tossup_answer = remove_category(tossup_answer)
 
-                tossup_text = question_stack.pop()            
-                tossup = create_tossup(tossup_text, tossup_answer, tossup_category)
+                tossup_text = question_stack.pop()
+                tossup = None        
                 try:
+                    tossup = create_tossup(tossup_text, tossup_answer, tossup_category)
+                    validate_tossup_category(tossup, tossup_category)                    
                     tossup.is_valid()
                     tossups.append(tossup)
                 except InvalidTossup as ex:
                     print ex
-                    tossup_errors.append(tossup)
+                    tossup_errors.append(ex)
                 tossup_flag = False
             
         # if we are in bonus mode and the line is not an answer or a bonus part
@@ -162,14 +164,16 @@ def parse_packet_data(data):
             
             if (i < len(data) - 1):
                 question_stack.append(next_question_line)
-                
-            bonus = create_bonus(leadin, parts, answers, values, question_type_text=ACF_STYLE_BONUS, category_text=category)            
+            
+            bonus = None
             try:
+                bonus = create_bonus(leadin, parts, answers, values, question_type_text=ACF_STYLE_BONUS, category_text=category)
+                validate_bonus_category(bonus, category)                
                 bonus.is_valid()
                 bonuses.append(bonus)
             except InvalidBonus as ex:
                 print ex
-                bonus_errors.append(bonus)
+                bonus_errors.append(ex)
             bonus_flag = False
 
         # special case for vhsl bonuses
@@ -183,16 +187,26 @@ def parse_packet_data(data):
             category = get_category(answer)
             answer = remove_category(answer)
             
-            bonus = create_bonus('', [question], [answer], [], question_type_text=VHSL_BONUS, category_text=category)
+            bonus = None
             try:
+                bonus = create_bonus('', [question], [answer], [], question_type_text=VHSL_BONUS, category_text=category)
+                validate_bonus_category(bonus, category)
                 bonus.is_valid()
                 bonuses.append(bonus)
             except InvalidBonus as ex:
                 print ex
-                bonus_errors.append(bonus)
+                bonus_errors.append(ex)
             vhsl_bonus_flag = False
  
     return tossups, bonuses, tossup_errors, bonus_errors
+
+def validate_tossup_category(tossup, category_text):
+    if (category_text is not None and category_text != '' and tossup.category is None):
+        raise InvalidTossup('category', category_text, tossup.tossup_answer)
+
+def validate_bonus_category(bonus, category_text):
+    if (category_text is not None and category_text != '' and bonus.category is None):
+        raise InvalidBonus('category', category_text, bonus.part1_answer)
 
 def create_tossup(question='', answer='', category_text='', question_type_text='ACF-style tossup'):
     
@@ -208,7 +222,7 @@ def create_tossup(question='', answer='', category_text='', question_type_text='
             print "setCategory"
             setCategory = category
             break
-    
+        
     questionTypes = QuestionType.objects.all()
     setQuestionType = None
     for questionType in questionTypes:
@@ -233,12 +247,6 @@ def create_bonus(leadin='', parts=[], answers=[], values=[], question_type_text=
     
     while (len(answers) < 3):
         answers.append('')
-        
-    # TODO: We don't do anything with values right now
-    #sanitizedValues = []
-    #for value in values:
-    #    sanitizedValues.append(escape(value))        
-    #values = sanitizedValues
     
     questionTypes = QuestionType.objects.all()
     setQuestionType = None

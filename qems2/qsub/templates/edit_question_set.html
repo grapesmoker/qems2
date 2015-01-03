@@ -329,6 +329,7 @@
                     <td>{{ tossup.author }}</td>
                     <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
                     <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
+                    <td>Tossup</td>
                     <td>{{ tossup.category }}</td>
                     <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
                     <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
@@ -370,8 +371,8 @@
                 {% for bonus in bonuses %}
                 <tr>
                     <td>{{ bonus.author }}</td>
-                    <td>{{ bonus.leadin|safe|preview|question_html }}</td>
-                    <td>{{ bonus|bonus_answers }}</td>
+                    <td><a href="/edit_bonus/{{ bonus.id }}">{{ bonus.leadin|safe|preview|question_html }}</a></td>
+                    <td><a href="/edit_bonus/{{ bonus.id }}">{{ bonus|bonus_answers }}</a></td>
                     <td>Bonus</td>
                     <td>{{ bonus.category }}</td>
                     <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
@@ -379,12 +380,12 @@
                     <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
                     <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
                     <td>
-                    {% get_comment_list for bonus as comment_list %}
-                    {% for comment in comment_list %}
-                        {% if not comment.is_removed %}
-                            {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
-                        {% endif %}
-                    {% endfor %}
+                        {% get_comment_list for bonus as comment_list %}
+                        {% for comment in comment_list %}
+                            {% if not comment.is_removed %}
+                                {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
+                            {% endif %}
+                        {% endfor %}
                     </td>
                     <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
                 </tr>

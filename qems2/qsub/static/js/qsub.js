@@ -63,8 +63,8 @@ $(function () {
     $('#qsets-owned-table').tablesorter();
     $('#distributions-table').tablesorter();
     $('#writer-stats-table').tablesorter();
-    $('#packet-tossup-table').tablesorter();
-    $('#packet-bonus-table').tablesorter();
+    $('#packet-tossup-table').tablesorter({widthFixed:true});
+    $('#packet-bonus-table').tablesorter({widthFixed:true});
     $('#packet-status-tossup-table').tablesorter();
     $('#packet-status-bonus-table').tablesorter();
     $('#tossup-table').tablesorter({widthFixed:true});
@@ -73,6 +73,7 @@ $(function () {
     // Make columns of some tables the same width
     make_table_same('#tossup-table','#bonus-table');
     make_table_same('#category-tossup-table','#category-bonus-table');
+    make_table_same('#packet-tossup-table','#packet-bonus-table');
     // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
     // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 

@@ -14,9 +14,12 @@ body {
     padding-top:40px;
 }
 p {
-    font-size:0.875rem;
+    font-size:0.90625rem;
     line-height:1.5;
     margin:0.5rem;
+}
+.row {
+    max-width:75rem;
 }
 .page-header {
     margin:24px 0 20px;
@@ -47,7 +50,7 @@ p {
     flex-grow:1;
 }
 .button {
-    font-size:0.8125rem;
+    font-size:0.84375rem;
     padding-top:0.875rem;
     padding-right:1.5rem;
     padding-bottom:0.9125rem;
@@ -64,7 +67,7 @@ p {
     align-items:baseline;
 }
 .tabs dd a {
-    font-size:0.875rem;
+    font-size:0.9125rem;
     text-align:center;
 }
 .panel.callout {
@@ -85,13 +88,10 @@ span.prefix.text-left {
     padding-left:1rem;
 }
 .label {
-    font-size:0.75rem;
+    font-size:0.8125rem;
 }
 #id_honeypot {
     display:none;
-}
-.ui-helper-hidden-accessible {
-    font-size:0.75rem;
 }
 .errorlist {
     display:block;
@@ -99,7 +99,7 @@ span.prefix.text-left {
     margin-top:-1rem;
     margin-bottom:1rem;
     margin-left:auto;
-    font-size:0.75rem;
+    font-size:0.8125rem;
     font-style:italic;
     background:#f04124;
     color:#fff;
@@ -121,7 +121,7 @@ span.prefix.text-left {
     border:1px solid #f8f8ff;
     border-top:0;
     border-bottom:0;
-    font-size:0.75rem;
+    font-size:0.8125rem;
     padding:6px 20px 6px 3px;
 }
 .accordion table thead tr th,
@@ -153,7 +153,7 @@ span.prefix.text-left {
     padding:4px 3px 4px;
     background-color:transparent;
     vertical-align:top;
-    font-size:0.6875rem;
+    font-size:0.78125rem;
 }
 .accordion table tbody tr td {
     border:1px solid #fff;
@@ -174,27 +174,16 @@ span.prefix.text-left {
 .table-striped tbody tr:nth-child(even) td {
     background-color:#ddd;
 }
-#packet-status-tossup-table tbody tr td,
-#packet-status-bonus-table tbody tr td {
-    width:25%;
+table input[type="text"],
+table input[type="number"],
+table input[type="checkbox"] {
+    float:left;
+    margin:auto;
+    width:100%;
 }
-#distribution-table input {
-    height:2rem;
-    font-size:0.75rem;
-    margin:0;
-    padding:0.5rem;
-}
-#distribution-table input.spinner {
-    padding:0.625rem;
-}
+#distribution-table tbody tr td,
 #set-wide-reqs-table tbody tr td,
 #tb-reqs-table tbody tr td {
     vertical-align:middle;
-}
-#set-wide-reqs-table input.spinner,
-#tb-reqs-table input.spinner {
-    height:2rem;
-    font-size:0.75rem;
-    margin:0;
-    padding:0.625rem;
+    padding:0.5rem;
 }

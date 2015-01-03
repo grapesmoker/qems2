@@ -9,12 +9,10 @@ h1, h2, h3, h4, h5, h6, body {
     font-family: 'Montserrat', sans-serif;
 }
 /* Global overrides */
-html {
-    background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAFUlEQVQImWNgQAJpaWn/SeUwMDAAACbFCMVxlCx0AAAAAElFTkSuQmCC) repeat #333;
-}
 body {
-    background-color:#f8f8ff;
     padding-top:40px;
+    background-color: #fffafa;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(248,248,255,.5) 2px, rgba(248,248,255,.5) 4px);
 }
 p {
     font-size:0.9125rem;

@@ -188,14 +188,14 @@
     </div>
 </div>
 
-<div id="tossup-dialog" title="Add tossups to set">
-    <table class="table table-striped table-hover">
+<div id="tossup-dialog" title="Add Tossups to Set">
+    <table class="tablesorter table-striped table-hover">
         <thead>
-        <tr>
-            <td>Tossup Answer</td>
-            <td>Tossup Category</td>
-            <td>Add to Packet?</td>
-        </tr>
+            <tr>
+                <th>Tossup Answer</th>
+                <th>Tossup Category</th>
+                <th>Add to Packet?</th>
+            </tr>
         </thead>
         <tbody>
 
@@ -203,26 +203,23 @@
     </table>
 </div>
 
-<div id="bonus-dialog" title="Add bonuses to set">
-    <table class="table table-striped table-hover">
+<div id="bonus-dialog" title="Add Bonuses to Set">
+    <table class="tablesorter table-striped table-hover">
         <thead>
-        <tr>
-            <td>Bonus Leadin</td>
-            <td>Bonus Category</td>
-            <td>Add to Packet?</td>
-        </tr>
+            <tr>
+                <th>Bonus Leadin</th>
+                <th>Bonus Category</th>
+                <th>Add to Packet?</th>
+            </tr>
         </thead>
         <tbody>
 
         </tbody>
     </table>
 </div>
-
-{% include "dialog.html" %}
 
 <input type="hidden" id="qset-id" value="{{ qset.id }}">
 <input type="hidden" id="packet-id" value="{{ packet.id }}">
 <script type="text/javascript" src="{% static 'js/packet_management.js' %}"></script>
-<!--<script type="text/javascript" src="{% static 'js/jquery.tablednd.js' %}"></script>-->
 
 {% endblock %}

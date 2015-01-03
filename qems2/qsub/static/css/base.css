@@ -9,6 +9,9 @@ h1, h2, h3, h4, h5, h6, body {
     font-family: 'Montserrat', sans-serif;
 }
 /* Global overrides */
+html {
+    background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAFUlEQVQImWNgQAJpaWn/SeUwMDAAACbFCMVxlCx0AAAAAElFTkSuQmCC) repeat #333;
+}
 body {
     background-color:#f8f8ff;
     padding-top:40px;
@@ -106,6 +109,33 @@ span.prefix.text-left {
 }
 .collapse > .errorlist {
     margin-top:0;
+}
+/* Modal Dialogs */
+.ui-dialog {
+    background-color:#f8f8ff;
+    box-shadow:0 0 4px 4px #333;
+}
+.ui-dialog > .ui-dialog-titlebar {
+    text-align:center;
+    padding:1rem;
+}
+.ui-dialog > .ui-dialog-titlebar > .ui-dialog-title {
+    font-size:1.375rem;
+}
+.ui-dialog > .ui-dialog-titlebar > .ui-dialog-titlebar-close {
+    display:none;
+}
+.ui-dialog > .ui-dialog-buttonpane > .ui-dialog-buttonset {
+    display:flex;
+    margin:0 auto;
+    padding:0 0.875rem;
+}
+.ui-dialog > .ui-dialog-buttonpane > .ui-dialog-buttonset > .ui-button {
+    flex-grow:1;
+}
+#tossup-dialog,
+#bonus-dialog {
+    padding:1.25rem;
 }
 /* Tables */
 .tablesorter {

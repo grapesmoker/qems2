@@ -189,7 +189,6 @@ LOGGING = {
 BOWER_INSTALLED_APPS = (
     'jquery',
     'jquery-ui',
-    'jquery.avgrund',
     'underscore',
     'backbone',
     'fontawesome',

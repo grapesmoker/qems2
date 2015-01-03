@@ -25,20 +25,20 @@
 
 <div class="tabs-content">
     <div class="content active" id="qset-info">
-        {% if message %}
-        <p>
-            <div class="alert {{ message_class }}">
-                {{ message }}
-            </div>
-        </p>
-        {% endif %}
-        {% if messages %}
-        <ul class="messages">
-            {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-            {% endfor %}
-        </ul>
-        {% endif %}
+        {% autoescape off %}
+            {% if message %}
+                <div class="{{ message_class }}">
+                    {{ message }}
+                </div>
+            {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endautoescape %}
         <ul class="button-group even">
             <li><a href="/add_tossups/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add Tossup</a></li>
             <li><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add ACF Bonus</a></li>
@@ -371,9 +371,17 @@
                 {% for bonus in bonuses %}
                 <tr>
                     <td>{{ bonus.author }}</td>
-                    <td><a href="/edit_bonus/{{ bonus.id }}">{{ bonus.leadin|safe|preview|question_html }}</a></td>
+                    <td>
+                        <a href="/edit_bonus/{{ bonus.id }}">
+                            {% if bonus.get_bonus_type == "ACF-style bonus" %}
+                                {{ bonus.leadin|safe|preview|question_html }}
+                            {% elif bonus.get_bonus_type == "VHSL bonus" %}
+                                {{ bonus.part1_text|safe|preview|question_html }}
+                            {% endif %}
+                        </a>
+                    </td>
                     <td><a href="/edit_bonus/{{ bonus.id }}">{{ bonus|bonus_answers }}</a></td>
-                    <td>Bonus</td>
+                    <td>{{ bonus.question_type }}</td>
                     <td>{{ bonus.category }}</td>
                     <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
                     <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>

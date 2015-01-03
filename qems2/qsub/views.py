@@ -706,7 +706,7 @@ def add_tossups(request, qset_id, packet_id=None):
                     else:
                         tossup.packet_id = packet_id
                         tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
-                    
+
                     tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
                     message = 'Your tossup has been added to the set.'
                     message_class = 'alert-box info radius'
@@ -2009,14 +2009,14 @@ def complete_upload(request):
             new_bonus.part2_answer = strip_markup(request.POST[bs_ans2_name])
             new_bonus.part3_text = strip_markup(request.POST[bs_part3_name])
             new_bonus.part3_answer = strip_markup(request.POST[bs_ans3_name])
-                        
+
             bonus_cat = request.POST[bs_cat_name]
             for category in categories:
                 formattedCategory = category.category + " - " + category.subcategory
                 if (formattedCategory == bonus_cat):
                     new_bonus.category = category
                     break
-            
+
             for questionType in questionTypes:
                 if (str(questionType) == bs_type):
                     new_bonus.question_type = questionType
@@ -2025,12 +2025,12 @@ def complete_upload(request):
             new_bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
             new_bonuses.append(new_bonus)
 
-        messages.success(request, 'Your questions have been uploaded!')
+        messages.success(request, 'Your questions have been uploaded.', extra_tags='alert-box success')
         for tossup in new_tossups:
-            messages.success(request, 'View your tossup on <a href="/edit_tossup/{0}">{1}</a>.'.format(tossup.id, get_answer_no_formatting(tossup.tossup_answer)), extra_tags='safe')
+            messages.success(request, 'View your tossup on <a href="/edit_tossup/{0}">{1}.</a>'.format(tossup.id, get_answer_no_formatting(tossup.tossup_answer)), extra_tags='safe alert-box info')
 
         for bonus in new_bonuses:
-            messages.success(request, 'View your bonus on <a href="/edit_bonus/{0}">{1}</a>.'.format(bonus.id, get_answer_no_formatting(bonus.part1_answer)), extra_tags='safe')
+            messages.success(request, 'View your bonus on <a href="/edit_bonus/{0}">{1}.</a>'.format(bonus.id, get_answer_no_formatting(bonus.part1_answer)), extra_tags='safe alert-box info')
 
         return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
 
@@ -2190,8 +2190,8 @@ def search(request, passed_qset_id=None):
 
 @login_required
 def logout_view(request):
-	logout(request)
-	return HttpResponseRedirect("/main/")
+    logout(request)
+    return HttpResponseRedirect("/main/")
 
 @login_required
 def move_tossup(request, q_set_id, tossup_id):
@@ -2200,23 +2200,23 @@ def move_tossup(request, q_set_id, tossup_id):
     q_set_editors = []
     q_set_editors.append(q_set.editor.all())
     q_set_editors.append(q_set.owner)
-    
+
     tossup = Tossup.objects.get(id=tossup_id)
     if (tossup is None or tossup.question_set != q_set):
         message = 'Invalid tossup'
         message_class = 'alert-box alert'
         tossup = None
-    
+
     move_sets = user.question_set_editor.exclude(id=q_set_id)
-    
+
     if request.method == 'GET':
-        if (user in q_set_editors):            
+        if (user in q_set_editors):
             if (tossup is not None):
                 form = MoveTossupForm(move_sets=move_sets)
-                
+
                 message = ''
                 message_class = ''
-                
+
                 return render_to_response('move_tossup.html',
                                     {'user': user,
                                      'q_set': q_set,
@@ -2234,7 +2234,7 @@ def move_tossup(request, q_set_id, tossup_id):
                                      'tossup': tossup,
                                      'message': message,
                                      'message_class': message_class},
-                                     context_instance=RequestContext(request))                
+                                     context_instance=RequestContext(request))
         else:
             form = []
             message = 'You do not have permissions to move this question.'
@@ -2248,26 +2248,26 @@ def move_tossup(request, q_set_id, tossup_id):
                                  'message': message,
                                  'message_class': message_class},
                                  context_instance=RequestContext(request))
-            
+
     else:
         # Update the question set for this tossup
         if (user in q_set_editors):
             form = MoveTossupForm(request.POST, move_sets=move_sets)
-            
+
             print "MoveTossupForm: " + str(form)
             if form.is_valid():
                 dest_qset_id = request.POST["move_sets"]
                 dest_qset = QuestionSet.objects.get(id=dest_qset_id)
-                
+
                 if (tossup is not None and dest_qset is not None):
                     tossup.question_set = dest_qset
                     tossup.packet = None
-                    
+
                     # It's not guaranteed that these categories exist, so clear them
                     tossup.category = None
                     tossup.subtype = ''
-                    
-                    tossup.save()                
+
+                    tossup.save()
                     message = "Successfully moved tossup to " + str(dest_qset)
                     message_class = 'alert-box success'
                     return render_to_response('move_tossup_success.html',
@@ -2277,11 +2277,11 @@ def move_tossup(request, q_set_id, tossup_id):
                                          'tossup': tossup,
                                          'message': message,
                                          'message_class': message_class},
-                                         context_instance=RequestContext(request))                                
+                                         context_instance=RequestContext(request))
                 else:
                     message = 'There was an error with your submission.  Hit the back button and make sure you selected a valid question set to move to.'
                     message_class = 'alert-box warning'
-                    
+
                     return render_to_response('move_tossup.html',
                                         {'user': user,
                                          'q_set': q_set,
@@ -2289,7 +2289,7 @@ def move_tossup(request, q_set_id, tossup_id):
                                          'tossup': tossup,
                                          'message': message,
                                          'message_class': message_class},
-                                         context_instance=RequestContext(request))   
+                                         context_instance=RequestContext(request))
             else:
                 message = 'There was an error moving your question.  Hit the back button and make sure you selected a valid question set to move to.'
                 message_class = 'alert-box warning'

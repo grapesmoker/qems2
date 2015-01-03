@@ -12,6 +12,17 @@ function add_row_to_cat_table() {
 <td>&nbsp;</td></tr>', next_form, next_form, next_form, next_form, next_form, next_form));
 }
 
+function make_table_same(source,dest) {
+    var cols = [];
+    $(source).find('th').each(function() {
+        cols.push($(this).width());
+    });
+    cols.reverse();
+    $(dest).find('th').each(function() {
+        $(this).width(cols.pop());
+    });
+}
+
 $.browser = {}
 
 $(function () {
@@ -41,12 +52,12 @@ $(function () {
     // Set up sorting for all tables
     $('#set-status-table').tablesorter();
     $('#editors-table').tablesorter();
-    $('#writers-table').tablesorter();    
+    $('#writers-table').tablesorter();
     $('#set-wide-reqs-table').tablesorter();
     $('#tb-reqs-table').tablesorter();
     $('#packets-table').tablesorter();
-    $('#category-tossup-table').tablesorter();
-    $('#category-bonus-table').tablesorter();
+    $('#category-tossup-table').tablesorter({widthFixed:true});
+    $('#category-bonus-table').tablesorter({widthFixed:true});
     $('#qsets-write-table').tablesorter();
     $('#qsets-edit-table').tablesorter();
     $('#qsets-owned-table').tablesorter();
@@ -56,9 +67,12 @@ $(function () {
     $('#packet-bonus-table').tablesorter();
     $('#packet-status-tossup-table').tablesorter();
     $('#packet-status-bonus-table').tablesorter();
-    $('#tossup-table').tablesorter();
-    $('#bonus-table').tablesorter();
+    $('#tossup-table').tablesorter({widthFixed:true});
+    $('#bonus-table').tablesorter({widthFixed:true});
 
+    // Make columns of some tables the same width
+    make_table_same('#tossup-table','#bonus-table');
+    make_table_same('#category-tossup-table','#category-bonus-table');
     // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
     // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
@@ -216,7 +230,7 @@ $(function () {
     });
 
     $('.restore_tossup').click(function(e) {
-        e.preventDefault();        
+        e.preventDefault();
         var result = confirm("Are you sure that you want to restore this question to this version?");
         if (result == true) {
             $.post('/restore_tossup/', {th_id: $(this).attr('value'), qset_id: $(this).attr('qset')}, function (response) {

@@ -214,3 +214,7 @@ table input[type="checkbox"] {
     vertical-align:middle;
     padding:0.5rem;
 }
+.over-char-limit {
+    color: red;
+    font-weight: bold;
+}

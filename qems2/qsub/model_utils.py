@@ -85,7 +85,7 @@ def reset_tiebreak_distro(qset):
 
 def get_role(user, qset):
 
-    role = 'viewer'
+    role = 'none'
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
 
@@ -100,7 +100,7 @@ def get_role(user, qset):
 
 def get_role_no_owner(user, qset):
 
-    role = 'viewer'
+    role = 'none'
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
 

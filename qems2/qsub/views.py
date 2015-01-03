@@ -2749,6 +2749,59 @@ def convert_bonus(request):
             
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
+@login_required
+def questions_remaining(request, qset_id):
+    print qset_id
+    message = ''
+
+    qset = QuestionSet.objects.get(id=qset_id)
+    user = request.user.writer
+    set_status = {}
+
+    total_tu_req = 0
+    total_bs_req = 0
+    total_tu_written = 0
+    total_bs_written = 0
+
+    role = get_role_no_owner(user, qset)
+
+    if role == 'none':
+        messages.error(request, 'You are not authorized to view information about this tournament!')
+        return HttpResponseRedirect('/failure.html/')
+
+    if request.method == 'GET':
+        entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
+        for entry in entries:
+            tu_required = entry.num_tossups
+            bs_required = entry.num_bonuses
+            tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
+            bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+            total_tu_req += tu_required
+            total_bs_req += bs_required
+            total_bs_written += bs_written
+            total_tu_written += tu_written
+            
+            # Only include categories with some questions left to write
+            if (tu_written < tu_required or bs_written < bs_required):
+                set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
+                                                         'tu_in_cat': tu_written,
+                                                         'bs_req': bs_required,
+                                                         'bs_in_cat': bs_written,
+                                                         'category_id': entry.dist_entry.id}
+        set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
+                
+    return render_to_response('questions_remaining.html',
+                              {'user': user,
+                               'set_status': set_status,
+                               'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
+                               'tu_needed': total_tu_req - total_tu_written,
+                               'bs_needed': total_bs_req - total_bs_written,
+                               'qset': qset,
+                               'message': message},
+                              context_instance=RequestContext(request))
+
+    
+
 # @login_required
 # def password(request):
 #

@@ -133,9 +133,9 @@ class QuestionSet (models.Model):
     #teams = models.ForeignKey('Team')
     num_packets = models.PositiveIntegerField()
     #tiebreak_dist = models.ForeignKey('TieBreakDistribution')
-    max_acf_tossup_length = models.PositiveIntegerField()
-    max_acf_bonus_length = models.PositiveIntegerField()
-    max_vhsl_bonus_length = models.PositiveIntegerField()    
+    max_acf_tossup_length = models.PositiveIntegerField(default=750)
+    max_acf_bonus_length = models.PositiveIntegerField(default=400)
+    max_vhsl_bonus_length = models.PositiveIntegerField(default=100)    
 
     class Admin: pass
 

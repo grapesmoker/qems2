@@ -137,7 +137,7 @@
     {% endif %}
 </form>
 {% if bonus %}
-    <ul class="button-group even">        
+    <ul class="button-group even">
         <li><a href="/move_bonus/{{ qset.id }}/{{ bonus.id }}" class="button primary">Move to another set</a></li>
         <li><a href="/bonus_history/{{ bonus.id }}" class="button primary">View bonus history</a></li>
         <li><a href="/delete_bonus/{{ bonus.id }}" class="button primary delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">Delete question</a></li>

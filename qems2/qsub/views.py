@@ -459,7 +459,7 @@ def edit_set_tiebreak(request, qset_id):
         else:
             return render_to_response('failure.html',
                                       {'message': 'Something went wrong. We\'re working on it.',
-                                       'message-class': 'alert-box alert'},
+                                       'message_class': 'alert-box alert'},
                                       context_instance=RequestContext(request))
 
 
@@ -483,7 +483,7 @@ def add_editor(request, qset_id):
             available_editors = []
             return render_to_response('failure.html',
                                      {'message': 'You are not authorized to make changes to this tournament!',
-                                      'message-class': 'alert-box alert'},
+                                      'message_class': 'alert-box alert'},
                                       context_instance=RequestContext(request))
 
         return render_to_response('add_editor.html',
@@ -521,7 +521,7 @@ def add_editor(request, qset_id):
             available_editors = []
             return render_to_response('failure.html',
                                      {'message': 'You are not authorized to make changes to this tournament!',
-                                      'message-class': 'alert-box alert'},
+                                      'message_class': 'alert-box alert'},
                                       context_instance=RequestContext(request))
 
         return render_to_response('add_editor.html',
@@ -550,7 +550,7 @@ def add_writer(request, qset_id):
             available_writers = []
             return render_to_response('failure.html',
                                      {'message': 'You are not authorized to make changes to this tournament!',
-                                      'message-class': 'alert-box alert'},
+                                      'message_class': 'alert-box alert'},
                                       context_instance=RequestContext(request))
 
         return render_to_response('add_writer.html',
@@ -585,7 +585,7 @@ def add_writer(request, qset_id):
             available_writers = []
             return render_to_response('failure.html',
                                      {'message': 'You are not authorized to make changes to this tournament!',
-                                      'message-class': 'alert-box alert'},
+                                      'message_class': 'alert-box alert'},
                                       context_instance=RequestContext(request))
 
         return render_to_response('add_writer.html',
@@ -767,7 +767,7 @@ def add_tossups(request, qset_id, packet_id=None):
     else:
         return render_to_response('failure.html',
             {'message': 'The request cannot be completed as specified',
-             'message-class': 'alert-box alert'},
+             'message_class': 'alert-box alert'},
             context_instance=RequestContext(request))
 
 @login_required
@@ -788,7 +788,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
         else:
             return render_to_response('failure.html',
                 {'message': 'The request cannot be completed as specified.  Bonus type is invalid.',
-                 'message-class': 'alert-box alert'},
+                 'message_class': 'alert-box alert'},
                 context_instance=RequestContext(request))
 
     if request.method == 'GET':
@@ -892,7 +892,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
     else:
         return render_to_response('failure.html',
             {'message': 'The request cannot be completed as specified',
-             'message-class': 'alert-box alert'},
+             'message_class': 'alert-box alert'},
             context_instance=RequestContext(request))
 
 @login_required

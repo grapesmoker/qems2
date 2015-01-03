@@ -1007,7 +1007,7 @@ def edit_tossup(request, tossup_id):
 def edit_bonus(request, bonus_id):
     user = request.user.writer
     bonus = Bonus.objects.get(id=bonus_id)
-    leadin_length, part1_length, part2_length, part3_length = bonus.character_count()   
+    char_count = bonus.character_count()   
     qset = bonus.question_set
     packet = bonus.packet
     message = ''
@@ -1043,10 +1043,7 @@ def edit_bonus(request, bonus_id):
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
-             'leadin_length': leadin_length,
-             'part1_length': part1_length,
-             'part2_length': part2_length,
-             'part3_length': part3_length,
+             'char_count': char_count,
              'question_type': question_type,
              'form': form,
              'qset': qset,
@@ -1088,7 +1085,7 @@ def edit_bonus(request, bonus_id):
                         change_type = QUESTION_EDIT
                     
                     bonus.save_question(edit_type=change_type, changer=user)
-                    leadin_length, part1_length, part2_length, part3_length = bonus.character_count()    
+                    char_count = bonus.character_count()    
 
                     message = 'Your changes have been saved!'
                     message_class = 'alert alert-success'
@@ -1119,10 +1116,7 @@ def edit_bonus(request, bonus_id):
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
-             'leadin_length': leadin_length,
-             'part1_length': part1_length,
-             'part2_length': part2_length,
-             'part3_length': part3_length,
+             'char_count': char_count,
              'question_type': question_type,
              'form': form,
              'qset': qset,

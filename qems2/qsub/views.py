@@ -1013,7 +1013,7 @@ def edit_bonus(request, bonus_id):
     message_class = ''
     read_only = True
     role = get_role_no_owner(user, qset)
-    
+
     question_type = ACF_STYLE_BONUS
     if (bonus.question_type is not None):
         question_type = bonus.question_type.question_type
@@ -1053,6 +1053,7 @@ def edit_bonus(request, bonus_id):
              'message': message,
              'message_class': message_class,
              'read_only': read_only,
+             'role': role,
              'user': user},
             context_instance=RequestContext(request))
 
@@ -1065,7 +1066,7 @@ def edit_bonus(request, bonus_id):
 
             if form.is_valid() and can_change:
                 is_bonus_already_edited = bonus.edited
-                
+
                 bonus.leadin = strip_markup(form.cleaned_data['leadin'])
                 bonus.part1_text = strip_markup(form.cleaned_data['part1_text'])
                 bonus.part1_answer = strip_markup(form.cleaned_data['part1_answer'])
@@ -1079,13 +1080,13 @@ def edit_bonus(request, bonus_id):
                 bonus.edited = form.cleaned_data['edited']
                 bonus.question_type = form.cleaned_data['question_type']
                 bonus.author = form.cleaned_data['author']
-                
+
                 try:
                     bonus.is_valid()
                     change_type = QUESTION_CHANGE
                     if (not is_bonus_already_edited and bonus.edited):
                         change_type = QUESTION_EDIT
-                    
+
                     bonus.save_question(edit_type=change_type, changer=user)
                     leadin_length, part1_length, part2_length, part3_length = bonus.character_count()    
 
@@ -1102,7 +1103,7 @@ def edit_bonus(request, bonus_id):
                 read_only = True
             else:
                 message = 'There was an error with the form: ' + str(form.errors)
-                message_class = 'alert-box warning'                
+                message_class = 'alert-box warning'
 
         elif user in qset.writer.all():
             form = None
@@ -1129,6 +1130,7 @@ def edit_bonus(request, bonus_id):
              'message': message,
              'message_class': message_class,
              'read_only': read_only,
+             'role': role,
              'user': user},
             context_instance=RequestContext(request))
 

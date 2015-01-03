@@ -481,7 +481,11 @@ def add_editor(request, qset_id):
             print available_editors
         else:
             available_editors = []
-            message = 'You are not authorized to make changes to this tournament!'
+            return render_to_response('failure.html',
+                                     {'message': 'You are not authorized to make changes to this tournament!',
+                                      'message-class': 'alert-box alert'},
+                                      context_instance=RequestContext(request))
+
         return render_to_response('add_editor.html',
                                  {'qset': qset,
                                   'available_editors': available_editors,
@@ -500,12 +504,12 @@ def add_editor(request, qset_id):
                     print editor_id
                     editor = Writer.objects.get(id=editor_id)
                     qset.editor.add(editor)
-                    
+
                     # Don't have someone be both a writer and editor--delete them
                     writer = qset.writer.get(id=editor_id)
                     if (writer is not None):
                         qset.writer.remove(writer)
-                    
+
                 qset.save()
                 current_editors = qset.editor.all()
                 available_editors = [writer for writer in Writer.objects.all()
@@ -515,14 +519,17 @@ def add_editor(request, qset_id):
                 available_editors = []
         else:
             available_editors = []
-            message = 'You are not authorized to make changes to this tournament!'
+            return render_to_response('failure.html',
+                                     {'message': 'You are not authorized to make changes to this tournament!',
+                                      'message-class': 'alert-box alert'},
+                                      context_instance=RequestContext(request))
 
         return render_to_response('add_editor.html',
-            {'qset': qset,
-             'available_editors': available_editors,
-             'message': message,
-             'user': user},
-            context_instance=RequestContext(request))
+                                 {'qset': qset,
+                                  'available_editors': available_editors,
+                                  'message': message,
+                                  'user': user},
+                                  context_instance=RequestContext(request))
 
 @login_required
 def add_writer(request, qset_id):
@@ -541,7 +548,11 @@ def add_writer(request, qset_id):
             print available_writers
         else:
             available_writers = []
-            message = 'You are not authorized to make changes to this tournament!'
+            return render_to_response('failure.html',
+                                     {'message': 'You are not authorized to make changes to this tournament!',
+                                      'message-class': 'alert-box alert'},
+                                      context_instance=RequestContext(request))
+
         return render_to_response('add_writer.html',
                                  {'qset': qset,
                                   'available_writers': available_writers,
@@ -572,7 +583,10 @@ def add_writer(request, qset_id):
                 available_writers = []
         else:
             available_writers = []
-            message = 'You are not authorized to make changes to this tournament!'
+            return render_to_response('failure.html',
+                                     {'message': 'You are not authorized to make changes to this tournament!',
+                                      'message-class': 'alert-box alert'},
+                                      context_instance=RequestContext(request))
 
         return render_to_response('add_writer.html',
             {'qset': qset,
@@ -649,8 +663,8 @@ def add_tossups(request, qset_id, packet_id=None):
     tossup = None
     read_only = True
     question_type_id = []
-    
-    if (QuestionType.objects.exists()):    
+
+    if (QuestionType.objects.exists()):
         question_type_id = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
 
     if request.method == 'GET':
@@ -681,18 +695,18 @@ def add_tossups(request, qset_id, packet_id=None):
 
             # The user may have set the packet ID through the POST body, so check for it there
             if packet_id == None and 'packet' in request.POST and request.POST['packet'] != '':
-                packet_id = int(request.POST['packet'])                
+                packet_id = int(request.POST['packet'])
             tossup_form = TossupForm(request.POST, qset_id=qset.id, packet_id=packet_id, writer=user.user.username)
 
             if tossup_form.is_valid():
-                tossup = tossup_form.save(commit=False)                
+                tossup = tossup_form.save(commit=False)
                 if (tossup.author is None):
                     tossup.author = user
                 tossup.question_set = qset
                 tossup.tossup_text = strip_markup(tossup.tossup_text)
                 tossup.tossup_answer = strip_markup(tossup.tossup_answer)
                 tossup.locked = False
-                
+
                 try:
                     tossup.is_valid()
 
@@ -702,7 +716,7 @@ def add_tossups(request, qset_id, packet_id=None):
                         # of the legal range of tossup numbers and it ends up getting set to 1 for some
                         # reason, except in the case where there are no packets in the system in which
                         # case there's an error adding the question
-                        tossup.question_number = 999                    
+                        tossup.question_number = 999
                     else:
                         tossup.packet_id = packet_id
                         tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
@@ -710,7 +724,7 @@ def add_tossups(request, qset_id, packet_id=None):
                     tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
                     message = 'Your tossup has been added to the set.'
                     message_class = 'alert-box info radius'
-                    
+
                     # In the success case, don't return the whole tossup object so as to clear the fields
                     return render_to_response('add_tossups.html',
                              {'form': TossupForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username),
@@ -722,7 +736,7 @@ def add_tossups(request, qset_id, packet_id=None):
                              'user': user,
                              'qset': qset},
                              context_instance=RequestContext(request))
-                    
+
                 except InvalidTossup as ex:
                     message = str(ex)
                     message_class = 'alert-box warning'
@@ -776,7 +790,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
                 {'message': 'The request cannot be completed as specified.  Bonus type is invalid.',
                  'message-class': 'alert-box alert'},
                 context_instance=RequestContext(request))
-    
+
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
             form = BonusForm(qset_id=qset.id, packet_id=packet_id, role=role, initial={'question_type': question_type_id}, writer=user.user.username, question_type=bonus_type)

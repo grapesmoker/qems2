@@ -92,3 +92,7 @@ body {
 #packet-status-bonus-table tbody tr td {
     width:25%;
 }
+.over-char-limit {
+    color: red;
+    font-weight: bold;
+}

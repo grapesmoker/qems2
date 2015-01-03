@@ -133,6 +133,9 @@ class QuestionSet (models.Model):
     #teams = models.ForeignKey('Team')
     num_packets = models.PositiveIntegerField()
     #tiebreak_dist = models.ForeignKey('TieBreakDistribution')
+    max_acf_tossup_length = models.PositiveIntegerField(default=750)
+    max_acf_bonus_length = models.PositiveIntegerField(default=400)
+    max_vhsl_bonus_length = models.PositiveIntegerField(default=100)    
 
     class Admin: pass
 
@@ -262,7 +265,7 @@ class Tossup (models.Model):
     # Calculates character count, ignoring special characters
     def character_count(self):
         return get_character_count(self.tossup_text)
-
+        
     def save(self, *args, **kwargs):
         self.setup_search_fields()
         super(Tossup, self).save(*args, **kwargs)
@@ -301,6 +304,10 @@ class Tossup (models.Model):
         return r'\tossup{{{0}}}{{{1}}}'.format(tossup_text, tossup_answer) + '\n'
 
     def to_html(self, include_category=False, include_character_count=False):
+        css_class = ''
+        if (self.character_count() > self.question_set.max_acf_tossup_length):
+            css_class = "class='over-char-limit'"
+        
         output = ''
         output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "</p>"
         output = output + "<p>" + get_formatted_question_html(self.tossup_answer, True, True, False)
@@ -310,7 +317,7 @@ class Tossup (models.Model):
             output = output + "</p>"
         
         if (include_character_count):
-            output = output + "<p>Character count: " + str(self.character_count()) + "</p>"
+            output = output + "<p " + css_class + ">Character count: " + str(self.character_count()) + "/" + str(self.question_set.max_acf_tossup_length) + "</p>"
         
         return output
                 
@@ -420,13 +427,13 @@ class Bonus(models.Model):
     edited_date = models.DateTimeField(null=True)
     editor = models.ForeignKey(Writer, null=True, related_name='bonus_editor')
 
-    # Calculates character count per part, ignoring special characters
+    # Calculates character count, ignoring special characters
     def character_count(self):
         leadin_count = get_character_count(self.leadin)
         part1_count = get_character_count(self.part1_text)
         part2_count = get_character_count(self.part2_text)
         part3_count = get_character_count(self.part3_text)
-        return leadin_count, part1_count, part2_count, part3_count
+        return leadin_count + part1_count + part2_count + part3_count
         
     def save(self, *args, **kwargs):
         self.setup_search_fields()
@@ -495,6 +502,10 @@ class Bonus(models.Model):
     def to_html(self, include_category=False, include_character_count=False):
         output = ''
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
+            css_class = ''
+            if (self.character_count() > self.question_set.max_acf_bonus_length):
+                css_class = "class='over-char-limit'"            
+            
             output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
             output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
             output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
@@ -509,11 +520,14 @@ class Bonus(models.Model):
                 output = output + "</p>"
             
             if (include_character_count):
-                leadin_length, part1_length, part2_length, part3_length = self.character_count()
-                output = output + "<p>Character count (leadin / part 1 / part 2 / part 3): " 
-                output = output + str(leadin_length) + " / " + str(part1_length) + " / " + str(part2_length) + " / " + str(part3_length) + "</p>"
+                char_count = self.character_count()
+                output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_acf_bonus_length) + "</p>"
             
         elif (self.get_bonus_type() == VHSL_BONUS):
+            css_class = ''
+            if (self.character_count() > self.question_set.max_vhsl_bonus_length):
+                css_class = "class='over-char-limit'"       
+                     
             output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
             output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False)
             if (include_category and self.category is not None):
@@ -522,8 +536,8 @@ class Bonus(models.Model):
                 output = output + "</p>"
             
             if (include_character_count):
-                leadin_length, part1_length, part2_length, part3_length = self.character_count()
-                output = output + "<p>Character count: " + str(part1_length) + "</p>"
+                char_count = self.character_count()
+                output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_vhsl_bonus_length) + "</p>"
             
         return output        
             

@@ -66,7 +66,7 @@
                     </div>-->
                 </div>
                 <div class="alert alert-info text-center">
-                    <strong>Set Completion Status: {{ set_pct_complete}} &ndash; {{ tu_needed }} tossups needed, {{ bs_needed }} bonuses needed</strong>
+                    <strong>Set Completion Status: {{ set_pct_complete}} &ndash; <a href="/questions_remaining/{{ qset.id }}">{{ tu_needed }} tossups needed, {{ bs_needed }} bonuses needed</a></strong>
                 </div>
 
                 <table class="tablesorter table-striped table-hover" id="set-status-table">

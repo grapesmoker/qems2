@@ -107,12 +107,13 @@ span.prefix.text-left {
 }
 .collapse > .errorlist {
     margin-top:0;
-
+}
 /* Tables */
 .tablesorter {
     margin:5px 0 5px;
     width:100%;
     text-align:left;
+    border:0;
 }
 .tablesorter thead tr th,
 .tablesorter tfoot tr th {

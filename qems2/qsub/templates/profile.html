@@ -27,10 +27,10 @@
                         {{ field }}
                     </div>
                 </div>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
             </div>
-            {% if field.errors %}
-                {{ field.errors }}
-            {% endif %}
         {% endif %}
     {% endfor %}
     </div>
@@ -46,10 +46,10 @@
                         {{ field }}
                     </div>
                 </div>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
             </div>
-            {% if field.errors %}
-                {{ field.errors }}
-            {% endif %}
         {% endif %}
     {% endfor %}
     </div>

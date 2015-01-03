@@ -14,12 +14,12 @@ body {
     padding-top:40px;
 }
 p {
-    font-size:0.90625rem;
+    font-size:0.9125rem;
     line-height:1.5;
     margin:0.5rem;
 }
 .row {
-    max-width:75rem;
+    max-width:72.5rem;
 }
 .page-header {
     margin:24px 0 20px;
@@ -50,7 +50,7 @@ p {
     flex-grow:1;
 }
 .button {
-    font-size:0.84375rem;
+    font-size:0.875rem;
     padding-top:0.875rem;
     padding-right:1.5rem;
     padding-bottom:0.9125rem;
@@ -67,7 +67,7 @@ p {
     align-items:baseline;
 }
 .tabs dd a {
-    font-size:0.9125rem;
+    font-size:1rem;
     text-align:center;
 }
 .panel.callout {
@@ -76,8 +76,7 @@ p {
     padding:0.625rem;
 }
 .panel.callout > strong {
-    font-size:0.84375rem;
-    line-height:0.84375rem;
+    font-size:0.9125rem;
 }
 .progress.edit-qset {
     background-color: #f8f8ff;
@@ -121,7 +120,7 @@ span.prefix.text-left {
     border:1px solid #f8f8ff;
     border-top:0;
     border-bottom:0;
-    font-size:0.8125rem;
+    font-size:0.875rem;
     padding:6px 20px 6px 3px;
 }
 .accordion table thead tr th,
@@ -153,7 +152,7 @@ span.prefix.text-left {
     padding:4px 3px 4px;
     background-color:transparent;
     vertical-align:top;
-    font-size:0.78125rem;
+    font-size:0.8125rem;
 }
 .accordion table tbody tr td {
     border:1px solid #fff;

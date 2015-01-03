@@ -1,37 +1,34 @@
-{% extends "base.html" %}
+{% extends "base-login.html" %}
 
 {% block title %}Login{% endblock %}
 
 {% if form.errors %}
-    <p class="error">shit done gone wrong</p>
+    <div class="alert-box warning">shit done gone wrong</p>
 {% endif %}
 
 {% block content %}
-<div class="row">
-    <div class="small-8 small-centered columns">
-        <h3 class="page-header">Login</h3>
-        <form action="" method="post">
-            {% csrf_token %}
-            <input type="hidden" name="next" value="{{ next }}" />
-            {% for field in form %}
-                <div class="row collapse">
-                    <div class="small-3 columns">
-                        <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
-                    </div>
-                    <div class="small-9 columns">
-                        {{ field }}
-                    </div>
-                    {% if field.errors %}
-                        {{ field.errors }}
-                    {% endif %}
-                </div>
-            {% endfor %}
-            <ul class="button-group even">
-                <li><input type="submit" value="Login" class="button primary" /></li>
-                <li><a href="/register/" class="button primary">Register</a></li>
-            </ul>
-        </form>
-    </div>
-</div>
+
+<h3 class="page-header">Login</h3>
+<form action="" method="post">
+    {% csrf_token %}
+    <input type="hidden" name="next" value="{{ next }}" />
+    {% for field in form %}
+        <div class="row collapse">
+            <div class="small-3 columns">
+                <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
+            </div>
+            <div class="small-9 columns">
+                {{ field }}
+            </div>
+            {% if field.errors %}
+                {{ field.errors }}
+            {% endif %}
+        </div>
+    {% endfor %}
+    <ul class="button-group even">
+        <li><input type="submit" value="Login" class="button primary" /></li>
+        <li><a href="/register/" class="button primary">Register</a></li>
+    </ul>
+</form>
 
 {% endblock %}

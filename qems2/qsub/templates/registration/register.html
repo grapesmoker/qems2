@@ -1,11 +1,12 @@
-{% extends "base.html" %}
+{% extends "base-login.html" %}
 
 {% block title %}Create an Account - QEMS2{% endblock %}
 
 {% block content %}
 
+<h3 class="page-header small-below">Create an Account</h3>
+<h3><small>All fields required.</small></h3>
 <form action="" method="post">
-    <h3 class="page-header">Create an Account</h3>
     {% csrf_token %}
     {% for field in form %}
         <div class="row collapse">

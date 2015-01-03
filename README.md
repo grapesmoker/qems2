@@ -82,6 +82,8 @@ Then follow the above instructions to set up the MySQL connection and the server
 
 As with any Django project, you should now be able to access the website at http://localhost:8000.
 
+If you have created a user 'admin2', you can populate the database with some default data by running `python manage.py shell < qems2/qsub/populate_db_with_default_data.py`.
+
 ## Usage
 
 QEMS2 is currently in heavy development. Although the core parts of the application are stable, features are being added all the time, so it's hard to give an exhaustive description of them all here. The foregoing will summarize the basic concepts involved in the question submission and editing workflow.

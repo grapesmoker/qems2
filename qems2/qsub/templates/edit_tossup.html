@@ -40,12 +40,12 @@
             Tossup Text
             {{ form.tossup_text }}
         </label>
-        {% if form.tossup_text.errors %}<small class="error">{{ form.tossup_text.errors }}</small>{% endif %}
+        {% if form.tossup_text.errors %}{{ form.tossup_text.errors }}{% endif %}
         <label>
             Tossup Answer
             {{ form.tossup_answer }}
         </label>
-        {% if form.tossup_answer.errors %}<small class="error">{{ form.tossup_answer.errors }}</small>{% endif %}
+        {% if form.tossup_answer.errors %}{{ form.tossup_answer.errors }}{% endif %}
         <div class="row">
         {% for field in form %}
             {% if field.html_name == "category" or field.html_name == "author" %}
@@ -60,7 +60,7 @@
                     </div>
                 </div>
                 {% if field.errors %}
-                    <small class="error">{{ field.errors }}</small>
+                    {{ field.errors }}
                 {% endif %}
             {% endif %}
         {% endfor %}
@@ -74,7 +74,7 @@
                     <div class="small-8 columns">
                         {{ form.question_type }}
                     </div>
-                    {% if form.question_type.errors %}<small class="error">{{ form.question_type.errors }}</small>{% endif %}
+                    {% if form.question_type.errors %}{{ form.question_type.errors }}{% endif %}
                 </div>
             </div>-->
             <div class="small-6 columns">
@@ -85,17 +85,17 @@
                     <div class="small-8 columns">
                         {{ form.packet }}
                     </div>
-                    {% if form.packet.errors %}<small class="error">{{ form.packet.errors }}</small>{% endif %}
+                    {% if form.packet.errors %}{{ form.packet.errors }}{% endif %}
                 </div>
             </div>
             {% if role == "editor" %}
                 <div class="small-6 columns">
                     {{ form.locked }}
                     <label>Locked</label>
-                    {% if form.locked.errors %}<small class="error">{{ form.locked.errors }}</small>{% endif %}
+                    {% if form.locked.errors %}{{ form.locked.errors }}{% endif %}
                     {{ form.edited }}
                     <label>Edited</label>
-                    {% if form.edited.errors %}<small class="error">{{ form.edited.errors }}</small>{% endif %}
+                    {% if form.edited.errors %}{{ form.edited.errors }}{% endif %}
                 </div>
             {% endif %}
         </div>

@@ -29,7 +29,7 @@
             {{ form.name }}
         </div>
         {% if form.name.errors %}
-            <small class="error">{{ form.name.errors }}</small>
+            {{ form.name.errors }}
         {% endif %}
     </div>
     <table class="tablesorter table-striped table-hover" id="distribution-table">

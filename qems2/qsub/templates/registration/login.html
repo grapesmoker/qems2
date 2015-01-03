@@ -9,8 +9,8 @@
 {% block content %}
 <div class="row">
     <div class="small-8 small-centered columns">
+        <h3 class="page-header">Login</h3>
         <form action="" method="post">
-            <h3 class="page-header">Login</h3>
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ next }}" />
             {% for field in form %}
@@ -22,7 +22,7 @@
                         {{ field }}
                     </div>
                     {% if field.errors %}
-                        <small class="error">{{ field.errors }}</small>
+                        {{ field.errors }}
                     {% endif %}
                 </div>
             {% endfor %}

@@ -39,39 +39,39 @@
                 Leadin
                 {{ form.leadin }}
             </label>
-            {% if form.leadin.errors %}<small class="error">{{ form.leadin.errors }}</small>{% endif %}
+            {% if form.leadin.errors %}{{ form.leadin.errors }}{% endif %}
         {% endif %}
         <label>
             Part 1 Text
             {{ form.part1_text }}
-            {% if form.part1_text.errors %}<small class="error">{{ form.part1_text.errors }}</small>{% endif %}
+            {% if form.part1_text.errors %}{{ form.part1_text.errors }}{% endif %}
         </label>
         <label>
             Part 1 Answer
             {{ form.part1_answer }}
-            {% if form.part1_answer.errors %}<small class="error">{{ form.part1_answer.errors }}</small>{% endif %}
+            {% if form.part1_answer.errors %}{{ form.part1_answer.errors }}{% endif %}
         </label>
 
         {% if question_type == "ACF-style bonus" %}
             <label>
                 Part 2 Text
                 {{ form.part2_text }}
-                {% if form.part2_text.errors %}<small class="error">{{ form.part2_text.errors }}</small>{% endif %}
+                {% if form.part2_text.errors %}{{ form.part2_text.errors }}{% endif %}
             </label>
             <label>
                 Part 2 Answer
                 {{ form.part2_answer }}
-                {% if form.part2_answer.errors %}<small class="error">{{ form.part2_answer.errors }}</small>{% endif %}
+                {% if form.part2_answer.errors %}{{ form.part2_answer.errors }}{% endif %}
             </label>
             <label>
                 Part 3 Text
                 {{ form.part3_text }}
-                {% if form.part3_text.errors %}<small class="error">{{ form.part3_text.errors }}</small>{% endif %}
+                {% if form.part3_text.errors %}{{ form.part3_text.errors }}{% endif %}
             </label>
             <label>
                 Part 3 Answer
                 {{ form.part3_answer }}
-                {% if form.part3_answer.errors %}<small class="error">{{ form.part3_answer.errors }}</small>{% endif %}
+                {% if form.part3_answer.errors %}{{ form.part3_answer.errors }}{% endif %}
             </label> 
         {% endif %}
         <div class="row">
@@ -88,7 +88,7 @@
                     </div>
                 </div>
                 {% if field.errors %}
-                    <small class="error">{{ field.errors }}</small>
+                    {{ field.errors }}
                 {% endif %}
             {% endif %}
         {% endfor %}
@@ -102,7 +102,7 @@
                     <div class="small-8 columns">
                         {{ form.question_type }}
                     </div>
-                    {% if form.question_type.errors %}<small class="error">{{ form.question_type.errors }}</small>{% endif %}
+                    {% if form.question_type.errors %}{{ form.question_type.errors }}{% endif %}
                 </div>
             </div>-->
             <div class="small-6 columns end">
@@ -113,17 +113,17 @@
                     <div class="small-8 columns">
                         {{ form.packet }}
                     </div>
-                    {% if form.packet.errors %}<small class="error">{{ form.packet.errors }}</small>{% endif %}
+                    {% if form.packet.errors %}{{ form.packet.errors }}{% endif %}
                 </div>
             </div>
             {% if role == "editor" %}
                 <div class="small-6 columns">
                     {{ form.locked }}
                     <label>Locked</label>
-                    {% if form.locked.errors %}<small class="error">{{ form.locked.errors }}</small>{% endif %}
+                    {% if form.locked.errors %}{{ form.locked.errors }}{% endif %}
                     {{ form.edited }}
                     <label>Edited</label>
-                    {% if form.edited.errors %}<small class="error">{{ form.edited.errors }}</small>{% endif %}
+                    {% if form.edited.errors %}{{ form.edited.errors }}{% endif %}
                 </div>
             {% endif %}
         </div>

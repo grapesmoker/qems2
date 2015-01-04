@@ -69,6 +69,8 @@ $(function () {
     $('#packet-status-bonus-table').tablesorter();
     $('#tossup-table').tablesorter({widthFixed:true});
     $('#bonus-table').tablesorter({widthFixed:true});
+    $('#bulk-change-tossup-table').tablesorter();
+    $('#bulk-change-bonus-table').tablesorter();
 
     // Make columns of some tables the same width
     make_table_same('#tossup-table','#bonus-table');

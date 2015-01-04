@@ -212,7 +212,7 @@ def get_tossup_type_from_question_type(question_type):
         return ACF_STYLE_TOSSUP
     else:
         return ACF_STYLE_TOSSUP        
-        
+    
 class InvalidTossup(Exception):
 
     def __init__(self, *args):

@@ -69,6 +69,7 @@ urlpatterns = patterns('',
     (r'^tossup_history/(?P<tossup_id>[0-9]+)/$', tossup_history),
     (r'^bonus_history/(?P<bonus_id>[0-9]+)/$', bonus_history),
     (r'^questions_remaining/(?P<qset_id>[0-9]+)/$', questions_remaining),
+    (r'^bulk_change_set/(?P<qset_id>[0-9]+)/$', bulk_change_set),   
               
     (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
     (r'^complete_upload/$', complete_upload),

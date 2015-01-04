@@ -9,20 +9,18 @@
 {% block content %}
 {% load static %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">{Title}</h3>
+<h3 class="page-header">{Title}</h3>
 
-    <div class="tabbable">
-        <ul class="nav nav-tabs nav-justified">
-            <li><a href=""></a></li>
-            <li><a href=""></a></li>
-        </ul>
+<dl class="tabs" data-tab>
+    <dd><a href=""></a></dd>
+    <dd><a href=""></a></dd>
+</dl>
 
-        <div class="tab-content">
-            <div id="" class="tab-pane active">
-            </div>
-            <div id="" class="tab-pane">
-            </div>
-        </div>
+<div class="tabs-content">
+    <div id="" class="content active">
+    </div>
+    <div id="" class="content">
     </div>
 </div>
+
+{% endblock %}

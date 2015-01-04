@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% load static %}
+{% load filters %}
+{% load comments %}
+
+{% block title %}Bulk Change Packet - QEMS2{% endblock %}
+
+
+{% block content %}
+
+<h3 class="page-header">Bulk Change Packet</h3>
+<form action="" method="post">
+    {% csrf_token %}
+
+    <p>Question set: {{ qset }}</p>
+
+    <h3>Tossups to change:</h3>
+    {% autoescape off %}
+        {% for tossup in tossups %}
+            <p>{{ tossup.tossup_answer|safe|preview|answer_html }}</p>
+            <input type="hidden" name="tossup-id-{{ forloop.counter0 }}" value="{{ tossup.id }}" />
+        {% endfor %}
+    {% endautoescape %}
+
+    <h3>Bonuses to change:</h3>
+    {% autoescape off %}
+        {% for bonus in bonuses %}
+            <p>{{ bonus|bonus_answers }}</p>
+            <input type="hidden" name="bonus-id-{{ forloop.counter0 }}" value="{{ bonus.id }}" />
+        {% endfor %}
+    {% endautoescape %}
+
+    <h3>Assign packet:</h3>
+    <select name="new-packet">
+        {% for packet in packets %}
+            <option value="{{ packet.id }}">{{ packet }}</option>
+        {% endfor %}
+    </select>
+
+    <input type="hidden" name="num-tossups" value="{{ tossups|length }}">
+    <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}">
+    <input type="hidden" name="confirm" value="True">
+    <input type="hidden" name="change-type" value="packet-step2">
+
+    <input type="submit" class="button primary right" value="Change Packet" />
+</form>
+
+{% endblock %}

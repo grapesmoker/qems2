@@ -10,17 +10,17 @@
 
 {% block content %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Upload Preview</h3>
-    {% if message %}
-    <div class="{{ message_class }}">
-        {{ message }}
-    </div>
+<h3 class="page-header">Upload Preview</h3>
+{% if message %}
+<div class="{{ message_class }}">
+    {{ message }}
+</div>
 
-    {% endif %}
-    <form action="/complete_upload/" method="post">
-        {% csrf_token %}
-        <div class="col-md-8 col-md-offset-1 text-left">
+{% endif %}
+<form action="/complete_upload/" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="small-10 small-centered columns">
             {% if tossup_errors %}
             {% for tu_error in tossup_errors %}
             <div class="alert alert-danger">
@@ -37,7 +37,7 @@
             {% endfor %}
             {% endif %}
 
-            <h3>Submitted Tossups</h3>
+            <h4>Submitted Tossups</h4>
             {% autoescape off %}
                 {% for tossup in tossups %}
                 <p>{{ tossup.tossup_text|safe|question_html }}<br>
@@ -53,8 +53,8 @@
                 <input type="hidden" name="tossup-type-{{ forloop.counter0 }}" value="{{ tossup.question_type|safe }}">  
                 {% endfor %}
             {% endautoescape %}
-                
-            <h3>Submitted Bonuses</h3>
+
+            <h4>Submitted Bonuses</h4>
             {% autoescape off %}
                 {% for bonus in bonuses %}
                 {{ bonus|bonus_html_verbose }}
@@ -73,13 +73,15 @@
                 {% endfor %}
             {% endautoescape %}
 
-            <input type="hidden" name="num-tossups" value="{{ tossups|length }}">
-            <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}">
-            <input type="hidden" name="qset-id" value="{{ qset.id }}">
-            <input type="submit" class="btn btn-primary" value="Submit"/>
-            <a href="/edit_question_set/{{ qset.id }}" class="btn btn-primary">Cancel</a>
+            <input type="hidden" name="num-tossups" value="{{ tossups|length }}" />
+            <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}" />
+            <input type="hidden" name="qset-id" value="{{ qset.id }}" />
+            <ul class="button-group right">
+                <li><input type="submit" class="button primary" value="Submit" /></li>
+                <li><a href="/edit_question_set/{{ qset.id }}" class="button primary">Cancel</a></li>
+            </ul>
         </div>
-    </form>
-</div>
+    </div>
+</form>
 
 {% endblock %}

@@ -1,14 +1,27 @@
-{% extends "base.html" %}
+{% extends "base-login.html" %}
 
-{% block title %}Create an account{% endblock %}
+{% block title %}Create an Account - QEMS2{% endblock %}
 
 {% block content %}
-<div class="container">
-    <form action="" method="post" class="form-signin">
-        <legend>Create an account:</legend>
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button class="btn btn-lg btn-primary btn-block" type="submit">Register</button>
-    </form>
-</div>
+
+<h3 class="page-header small-below">Create an Account</h3>
+<h3><small>All fields required.</small></h3>
+<form action="" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="row collapse">
+            <div class="small-3 columns">
+                <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
+            </div>
+            <div class="small-9 columns">
+                {{ field }}
+            </div>
+            {% if field.errors %}
+                {{ field.errors }}
+            {% endif %}
+        </div>
+    {% endfor %}
+    <input class="button primary right" type="submit" value="Register" />
+</form>
+
 {% endblock %}

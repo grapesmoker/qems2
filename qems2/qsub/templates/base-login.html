@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="{% static 'foundation/css/foundation.css' %}">
     <link rel="stylesheet" href="{% static 'fontawesome/css/font-awesome.css' %}">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
-    <link rel="stylesheet" href="{% static 'css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'css/login.css' %}">
 
     <link href='http://fonts.googleapis.com/css?family=Montserrat:400,700' rel='stylesheet' type='text/css'>
     <link href='http://fonts.googleapis.com/css?family=Karla:400,400italic,700,700italic' rel='stylesheet' type='text/css'>
@@ -24,13 +24,14 @@
     <script src="{% static 'jquery-ui/jquery-ui.min.js' %}"></script>
     <script src="{% static 'underscore/underscore-min.js' %}"></script>
     <script src="{% static 'tablesorter/jquery.tablesorter.js' %}"></script>
+    <script src="{% static 'jquery.avgrund/jquery.avgrund.min.js' %}"></script>
     <script src="{% static 'js/qsub.js' %}"></script>
 </head>
 
 <body>
     {% block header %}{% endblock %}
     <div class="row">
-        <div class="small-11 small-centered columns">
+        <div class="small-8 small-centered columns">
             {% block content %}{% endblock %}
         </div>
     </div>
@@ -41,4 +42,3 @@
     </script>
 </body>
 </html>
-

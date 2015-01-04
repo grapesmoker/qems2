@@ -85,7 +85,7 @@ def reset_tiebreak_distro(qset):
 
 def get_role(user, qset):
 
-    role = 'viewer'
+    role = 'none'
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
 
@@ -100,7 +100,7 @@ def get_role(user, qset):
 
 def get_role_no_owner(user, qset):
 
-    role = 'viewer'
+    role = 'none'
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
 
@@ -190,6 +190,53 @@ def export_packet_reportlab(packet_id):
     qset = packet.question_set
 
     pdf_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "pdf"),)
+    
+# Edits all of these questions
+def bulk_edit_questions(is_edited, tossups, bonuses, qset, user):
+    for tossup in tossups:
+        tossup.edited = is_edited
+        tossup.save_question(QUESTION_EDIT, user)
+        
+    for bonus in bonuses:
+        bonus.edited = is_edited
+        bonus.save_question(QUESTION_EDIT, user)
+        
+def bulk_lock_questions(is_locked, tossups, bonuses, qset, user):
+    for tossup in tossups:
+        tossup.locked = is_locked
+        tossup.save_question(QUESTION_EDIT, user)
+        
+    for bonus in bonuses:
+        bonus.locked = is_locked
+        bonus.save_question(QUESTION_EDIT, user)    
+
+def bulk_delete_questions(tossups, bonuses, qset, user):
+    for tossup in tossups:
+        tossup.delete()
+        
+    for bonus in bonuses:
+        bonus.delete()
+
+def bulk_convert_to_acf_style_tossup(tossups, bonuses, qset, user):
+    for tossup in tossups:
+        tossup_to_tossup(tossup, ACF_STYLE_TOSSUP)
+    
+    for bonus in bonuses:
+        bonus_to_tossup(bonus, ACF_STYLE_TOSSUP)
+
+def bulk_convert_to_acf_style_bonus(tossups, bonuses, qset, user):
+    for tossup in tossups:
+        tossup_to_bonus(tossup, ACF_STYLE_BONUS)
+    
+    for bonus in bonuses:
+        bonus_to_bonus(bonus, ACF_STYLE_BONUS)
+
+def bulk_convert_to_vhsl_bonus(tossups, bonuses, qset, user):
+    for tossup in tossups:
+        tossup_to_bonus(tossup, VHSL_BONUS)
+    
+    for bonus in bonuses:
+        bonus_to_bonus(bonus, VHSL_BONUS)
 
 def tossup_to_bonus(tossup, output_question_type):
     if (output_question_type == ACF_STYLE_BONUS):
@@ -312,3 +359,4 @@ def move_comments_to_bonus(tossup, bonus):
         comment.object_pk = bonus.id
         comment.content_type_id = bonus_content_type_id
         comment.save()
+

@@ -11,96 +11,119 @@
 {% block title %}{% if tossup %}{{ tossup.tossup_answer|answer_no_formatting|short_preview }} - QEMS2{% else %}Edit Tossup - QEMS2{% endif %}{% endblock %}
 
 {% block content %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Edit Tossup</h3>
-    <div class="col-xs-12 col-md-12">
-        {% autoescape off %}
-            {% if message %}
-                <p class="{{ message_class }}">{{ message }}</p>
-            {% endif %}
-        {% endautoescape %}
-        {% if tossup %}
-            {% autoescape off %}
-                {{ tossup|tossup_html_verbose }}
-                <p><strong>Written by:</strong> {{ tossup.author }} on {{ tossup.created_date }}<br>
-                <strong>Last modified:</strong> {{ tossup.last_changed_date }}<br>
-                {% if tossup.edited %}
-                    <strong>Edited by:</strong> {{ tossup.editor }} on {{ tossup.edited_date }}
-                {% endif %}
-                </p>
-            {% endautoescape %}
-        {% endif %}
 
-        <form action="" method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
+<h3 class="page-header">Edit Tossup</h3>
+{% autoescape off %}
+    {% if message %}
+        <div class="{{ message_class }}">{{ message }}</div>
+    {% endif %}
+{% endautoescape %}
+{% if tossup %}
+    {% autoescape off %}
+        <div class="panel callout radius">
+            {{ tossup|tossup_html_verbose }}
+            <p><strong>Written by:</strong> {{ tossup.author }} on {{ tossup.created_date }}<br />
+            <strong>Last modified:</strong> {{ tossup.last_changed_date }}<br />
+            {% if tossup.edited %}
+                <strong>Edited by:</strong> {{ tossup.editor }} on {{ tossup.edited_date }}
+            {% endif %}</p>
+        </div>
+    {% endautoescape %}
+{% endif %}
 
-            {% if not read_only %}
-                <div class="fieldWrapper">
-                    {{ form.tossup_text.errors }}
-                    <p><label for="{{ form.tossup_text.id_for_label }}">Tossup text:</label></p>
-                    <p>{{ form.tossup_text }}</p>
-                </div>
-                <div class="fieldWrapper">
-                    {{ form.tossup_answer.errors }}
-                    <p><label for="{{ form.tossup_answer.id_for_label }}">Tossup answer:</label></p>
-                    <p>{{ form.tossup_answer }}</p>
-                </div>
+<form action="" method="post" class="clearfix">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
 
-                <div class="fieldWrapper">
-                    {{ form.category.errors }}
-                    <label for="{{ form.category.id_for_label }}">Category:</label>
-                    {{ form.category }}
-                </div>
-
-                <div class="fieldWrapper">
-                    {{ form.author.errors }}
-                    <label for="{{ form.author.id_for_label }}">Author:</label>
-                    {{ form.author }}
-                </div>
-
-                <div class="fieldWrapper">
-                    {{ form.packet.errors }}
-                    <label for="{{ form.packet.id_for_label }}">Packet:</label>
-                    {{ form.packet }}
-                </div>
-
-                {% if role == "editor" %}
-                    <div class="fieldWrapper">
-                        {{ form.locked.errors }}
-                        <label for="{{ form.locked.id_for_label }}">Locked:</label>
-                        {{ form.locked }}
+    {% if not read_only %}
+        <label>
+            Tossup Text
+            {{ form.tossup_text }}
+        </label>
+        {% if form.tossup_text.errors %}{{ form.tossup_text.errors }}{% endif %}
+        <label>
+            Tossup Answer
+            {{ form.tossup_answer }}
+        </label>
+        {% if form.tossup_answer.errors %}{{ form.tossup_answer.errors }}{% endif %}
+        <div class="row">
+        {% for field in form %}
+            {% if field.html_name == "category" or field.html_name == "author" %}
+                <div class="small-6 columns">
+                    <div class="row collapse">
+                        <div class="small-4 columns">
+                            <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "category" %}Category{% else %}Author{% endif %}</span>
+                        </div>
+                        <div class="small-8 columns">
+                            {{ field }}
+                        </div>
                     </div>
-                    <div class="fieldWrapper">
-                        {{ form.edited.errors }}
-                        <label for="{{ form.edited.id_for_label }}">Edited:</label>
-                        {{ form.edited }}
-                    </div>
-                {% endif %}
-
-                <div class="fieldWrapper">
-                    {{ form.question_type.errors }}
-                    {{ form.question_type }}
                 </div>
-
-                <input type="submit" id="submit-bonus" value="Save"/>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
             {% endif %}
-        </form>
-        
-        {% if tossup %}
-            <div class="btn-group btn-group-justified">        
-                <a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}" class="btn btn-primary">Move to another set</a>
-                <a href="/tossup_history/{{ tossup.id }}" class="btn btn-primary">View tossup history</a>
-                <a href="/delete_tossup/{{ tossup.id }}" class="btn btn-primary delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">Delete question</a>                        
-                <a href="/convert_tossup/{{ tossup.id }}" class="btn btn-primary convert_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}" target-type="ACF-style bonus">Convert to ACF bonus</a>                        
-                <a href="/convert_tossup/{{ tossup.id }}" class="btn btn-primary convert_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}" target-type="VHSL bonus">Convert to VHSL bonus</a>                
+        {% endfor %}
+        </div>
+        <div class="row">
+            <!--<div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.question_type.id_for_label">Question Type</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.question_type }}
+                    </div>
+                    {% if form.question_type.errors %}{{ form.question_type.errors }}{% endif %}
+                </div>
+            </div>-->
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.packet.id_for_label">Packet</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.packet }}
+                    </div>
+                    {% if form.packet.errors %}{{ form.packet.errors }}{% endif %}
+                </div>
             </div>
-        {% endif %}        
-    </div>
+            {% if role == "editor" %}
+                <div class="small-6 columns">
+                    {{ form.locked }}
+                    <label>Locked</label>
+                    {% if form.locked.errors %}{{ form.locked.errors }}{% endif %}
+                    {{ form.edited }}
+                    <label>Edited</label>
+                    {% if form.edited.errors %}{{ form.edited.errors }}{% endif %}
+                </div>
+            {% endif %}
+        </div>
 
-    {% if tossup %}
-    <div class="col-xs-12 col-md-12 alert alert-info text-center"><strong>Comments</strong></div>
-    <div class="comments col-md-6">
+
+        <div class="fieldWrapper">
+            {{ form.question_type.errors }}
+            {{ form.question_type }}
+        </div>
+
+        <input type="submit" id="submit-bonus" value="Save" class="button primary right" />
+    {% endif %}
+</form>
+
+{% if tossup %}
+    <ul class="button-group even">        
+        <li><a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}" class="button primary">Move to another set</a></li>
+        <li><a href="/tossup_history/{{ tossup.id }}" class="button primary">View tossup history</a></li>
+        <li><a href="/delete_tossup/{{ tossup.id }}" class="button primary delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">Delete question</a></li>
+        <li><a href="/convert_tossup/{{ tossup.id }}" class="button primary convert_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}" target-type="ACF-style bonus">Convert to ACF bonus</a></li>
+        <li><a href="/convert_tossup/{{ tossup.id }}" class="button primary convert_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}" target-type="VHSL bonus">Convert to VHSL bonus</a></li>
+    </ul>
+{% endif %}
+
+{% if tossup %}
+<div class="panel callout radius text-center"><strong>Comments</strong></div>
+<div class="row">
+    <div class="small-6 columns end comments">
         {% autoescape off %}
             {% get_comment_list for tossup as comment_list %}
             {% for comment in comment_list %}
@@ -116,19 +139,19 @@
         {% get_comment_form for tossup as cform %}
         <form action="{% comment_form_target %}" method="POST">
             {% csrf_token %}
-            {{ cform.comment.label_tag }}
-            <textarea cols="40" rows="10" id="{{ cform.comment.id_for_label }}"
-                      name="{{ cform.comment.html_name }}" class="form-control"></textarea>
+            <label>Comment
+                <textarea rows="5" id="{{ cform.comment.id_for_label }}" name="{{ cform.comment.html_name }}"></textarea>
+            </label>
             {{ cform.content_type }}
             {{ cform.object_pk }}
             {{ cform.timestamp }}
             {{ cform.security_hash }}
-            <input type="submit" name="submit" value="Post" class="btn btn-primary">
+            <input type="submit" name="submit" value="Post" class="button primary right">
             <input type="hidden" name="next" value="/edit_tossup/{{ tossup.id }}/">
         </form>
     </div>
-    {% endif %}
 </div>
+{% endif %}
 
 {% include "dialog.html" %}
 

@@ -8,104 +8,145 @@
 
 {% block content %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    {% if question_type == "ACF-style bonus" %}
-        <h3 class="page-header">Add an ACF Bonus</h3>
-    {% else %}
-        <h3 class="page-header">Add a VHSL Bonus</h3>
-    {% endif %}
-    {% autoescape off %}
-        {% if message %}
-        <div class="{{ message_class }}">
-            {{ message }} {% if bonus_id %} - or see your <a href="/edit_bonus/{{ bonus_id }}">submitted bonus</a> {% endif %}
-        </div>
-        {% endif %}
-    {% endautoescape %}
-    <div class="btn-group btn-group-justified">
-        <a class="btn btn-primary" href="/add_tossups/{{ qset.id }}">Switch to adding a tossup</a>
-        {% if question_type == "ACF-style bonus" %}
-            <a class="btn btn-primary" href="/add_bonuses/{{ qset.id }}/VHSL bonus">Switch to adding a VHSL bonus</a>
-        {% else %}
-            <a class="btn btn-primary" href="/add_bonuses/{{ qset.id }}/ACF-style bonus">Switch to adding an ACF bonus</a>
-        {% endif %}
+{% if question_type == "ACF-style bonus" %}
+    <h3 class="page-header">Add an ACF Bonus</h3>
+{% else %}
+    <h3 class="page-header">Add a VHSL Bonus</h3>
+{% endif %}
+{% autoescape off %}
+    {% if message %}
+    <div data-alert class="{{ message_class }}">
+        {{ message }}{% if bonus_id %} <a href="/edit_bonus/{{ bonus_id }}">View your bonus.</a> {% endif %}
+        <a href="#" class="close">&times;</a>
     </div>
-    <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
-    <p>It is not necessary to include [10] labels to bonus parts or the word ANSWER: in answer lines.</p>
-    <p>If you're writing a VHSL bonus, only fill in Part1 text and Part1 answer.</p>
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-
-        {% if not read_only %}
-
-            {% if question_type == "ACF-style bonus" %}
-                <div class="fieldWrapper">
-                    {{ form.leadin.errors }}
-                    <p><label for="{{ form.leadin.id_for_label }}">Leadin:</label></p>
-                    <p>{{ form.leadin }}</p>
-                </div>
+    {% endif %}
+{% endautoescape %}
+<ul class="button-group even">
+    <li><a class="button primary" href="/add_tossups/{{ qset.id }}">Switch to adding a tossup</a></li>
+    {% if question_type == "ACF-style bonus" %}
+        <li><a class="button primary" href="/add_bonuses/{{ qset.id }}/VHSL bonus">Switch to adding a VHSL bonus</a></li>
+    {% else %}
+        <li><a class="button primary" href="/add_bonuses/{{ qset.id }}/ACF-style bonus">Switch to adding an ACF bonus</a></li>
+    {% endif %}
+</ul>
+<p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
+<p>Do not include [10] labels with bonus parts or the word ANSWER: in answer lines.</p>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% if not read_only %}
+        {% if question_type == "ACF-style bonus" %}
+            <label>
+                Leadin
+                {{ form.leadin }}
+            </label>
+            {% if form.leadin.errors %}
+                {{ form.leadin.errors }}
             {% endif %}
-
-            <div class="fieldWrapper">
-                {{ form.part1_text.errors }}
-                <p><label for="{{ form.part1_text.id_for_label }}">Part 1 text:</label></p>
-                <p>{{ form.part1_text }}</p>
-            </div>
-            <div class="fieldWrapper">
-                {{ form.part1_answer.errors }}
-                <p><label for="{{ form.part1_answer.id_for_label }}">Part 1 answer:</label></p>
-                <p>{{ form.part1_answer }}</p>
-            </div>
-
-            {% if question_type == "ACF-style bonus" %}
-                <div class="fieldWrapper">
-                    {{ form.part2_text.errors }}
-                    <p><label for="{{ form.part2_text.id_for_label }}">Part 2 text:</label></p>
-                    <p>{{ form.part2_text }}</p>
-                </div>
-                <div class="fieldWrapper">
-                    {{ form.part2_answer.errors }}
-                    <p><label for="{{ form.part2_answer.id_for_label }}">Part 2 answer:</label></p>
-                    <p>{{ form.part2_answer }}</p>
-                </div>
-                <div class="fieldWrapper">
-                    {{ form.part3_text.errors }}
-                    <p><label for="{{ form.part3_text.id_for_label }}">Part 3 text:</label></p>
-                    <p>{{ form.part3_text }}</p>
-                </div>
-                <div class="fieldWrapper">
-                    {{ form.part3_answer.errors }}
-                    <p><label for="{{ form.part3_answer.id_for_label }}">Part 3 answer:</label></p>
-                    <p>{{ form.part3_answer }}</p>
-                </div>            
-            {% endif %}
-            
-            <div class="fieldWrapper">
-                {{ form.category.errors }}
-                <label for="{{ form.category.id_for_label }}">Category:</label>
-                {{ form.category }}
-            </div>      
-
-            <div class="fieldWrapper">
-                {{ form.author.errors }}
-                <label for="{{ form.author.id_for_label }}">Author:</label>
-                {{ form.author }}
-            </div>      
-
-            <div class="fieldWrapper">
-                {{ form.packet.errors }}
-                <label for="{{ form.packet.id_for_label }}">Packet:</label>
-                {{ form.packet }}
-            </div>   
-
-            <div class="fieldWrapper">
-                {{ form.question_type.errors }}
-                {{ form.question_type }}
-            </div>
-
-            <input type="submit" id="submit-bonus" value="Save"/>
         {% endif %}
-    </form>
-</div>
+        <label>
+            Part 1 Text
+            {{ form.part1_text }}
+            {% if form.part1_text.errors %}
+                {{ form.part1_text.errors }}
+            {% endif %}
+        </label>
+        <label>
+            Part 1 Answer
+            {{ form.part1_answer }}
+            {% if form.part1_answer.errors %}
+                {{ form.part1_answer.errors }}
+            {% endif %}
+        </label>
+
+        {% if question_type == "ACF-style bonus" %}
+            <label>
+                Part 2 Text
+                {{ form.part2_text }}
+                {% if form.part2_text.errors %}
+                    {{ form.part2_text.errors }}
+                {% endif %}
+            </label>
+            <label>
+                Part 2 Answer
+                {{ form.part2_answer }}
+                {% if form.part2_answer.errors %}
+                    {{ form.part2_answer.errors }}
+                {% endif %}
+            </label>
+            <label>
+                Part 3 Text
+                {{ form.part3_text }}
+                {% if form.part3_text.errors %}
+                    {{ form.part3_text.errors }}
+                {% endif %}
+            </label>
+            <label>
+                Part 3 Answer
+                {{ form.part3_answer }}
+                {% if form.part3_answer.errors %}
+                    {{ form.part3_answer.errors }}
+                {% endif %}
+            </label> 
+        {% endif %}
+        <div class="row">
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.category.id_for_label">Category</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.category }}
+                    </div>
+                    {% if form.category.errors %}
+                        {{ form.category.errors }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.author.id_for_label">Author</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.author }}
+                    </div>
+                    {% if form.author.errors %}
+                        {{ form.author.errors }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row" style="display:none">
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.question_type.id_for_label">Question Type</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.question_type }}
+                    </div>
+                    {% if form.question_type.errors %}
+                        {{ form.question_type.errors }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.packet.id_for_label">Packet</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.packet }}
+                    </div>
+                    {% if form.packet.errors %}
+                        {{ form.packet.errors }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <input type="submit" id="submit-bonus" value="Submit Bonus" class="button primary right" />
+    {% endif %}
+</form>
 
 {% endblock %}

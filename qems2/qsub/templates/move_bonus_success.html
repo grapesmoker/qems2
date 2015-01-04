@@ -10,12 +10,12 @@
 {% block title %}Move Bonus Success - QEMS2{% endblock %}
 
 {% block content %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Move Bonus Success</h3>
-    {% if bonus %}
-        <p>Your bonus was successfully moved to {{ dest_q_set }}.</p>
-        <p>You will need to re-assign this bonus's category and packet and also make sure it meets style/length guidelines.  <a href="/edit_bonus/{{ bonus.id }}">Click here</a> to view the bonus in the <a href="/edit_question_set/{{ dest_q_set.id }}">{{ dest_q_set }}</a> set.</p>
-        <p>Click here to return to <a href="/edit_question_set/{{ q_set.id }}">{{ q_set }}</a>.</p>
-    {% endif %}
-</div>
+
+<h3 class="page-header">Move Bonus Success</h3>
+{% if bonus %}
+    <p>Your bonus was successfully moved to {{ dest_q_set }}.</p>
+    <p>You will need to re-assign this bonus's category and packet and also make sure it meets style/length guidelines. <a href="/edit_bonus/{{ bonus.id }}">Click here</a> to view the bonus in the <a href="/edit_question_set/{{ dest_q_set.id }}">{{ dest_q_set }}</a> set.</p>
+    <p>Click here to return to <a href="/edit_question_set/{{ q_set.id }}">{{ q_set }}</a>.</p>
+{% endif %}
+
 {% endblock %}

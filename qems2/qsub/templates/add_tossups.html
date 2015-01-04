@@ -8,64 +8,97 @@
 
 {% block content %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Add a Tossup</h3>
-    <div class="btn-group btn-group-justified">
-        <a class="btn btn-primary" href="/add_bonuses/{{ qset.id }}/ACF-style bonus/{% if packet %}{{ packet.id }}{% endif %}">Switch to adding an ACF bonus</a>
-        <a class="btn btn-primary" href="/add_bonuses/{{ qset.id }}/VHSL bonus/{% if packet %}{{ packet.id }}{% endif %}">Switch to adding a VHSL bonus</a>
+<h3 class="page-header">Add a Tossup</h3>
+<ul class="button-group even">
+    <li><a class="button primary" href="/add_bonuses/{{ qset.id }}/ACF-style bonus">Switch to adding an ACF bonus</a></li>
+    <li><a class="button primary" href="/add_bonuses/{{ qset.id }}/VHSL bonus">Switch to adding a VHSL bonus</a></li>
+</ul>
+{% autoescape off %}
+    {% if message %}
+    <div data-alert class="{{ message_class }}">
+        {{ message }}{% if tossup_id %} <a href="/edit_tossup/{{ tossup_id }}">View your tossup.</a>{% endif %}
     </div>
-    {% autoescape off %}
-        {% if message %}
-        <div class="{{ message_class }}">
-            {{ message }} {% if tossup_id %} - or see your <a href="/edit_tossup/{{ tossup_id }}">submitted tossup</a> {% endif %}
-        </div>
+    {% endif %}
+{% endautoescape %}
+<p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
+<p>Do not include ANSWER: in your answer line.</p>
+<form action="" method="post">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {% if not read_only %}
+        <label>
+            Tossup Text
+            {{ form.tossup_text }}
+        </label>
+        {% if form.tossup_text.errors %}
+            {{ form.tossup_text.errors }}
         {% endif %}
-    {% endautoescape %}
-    <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
-    <p>Do not include ANSWER: in your answer line.</p>
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ form.non_field_errors }}
-
-        {% if not read_only %}
-            <div class="fieldWrapper">
-                {{ form.tossup_text.errors }}
-                <p><label for="{{ form.tossup_text.id_for_label }}">Tossup text:</label></p>
-                <p>{{ form.tossup_text }}</p>
-            </div>
-            <div class="fieldWrapper">
-                {{ form.tossup_answer.errors }}
-                <p><label for="{{ form.tossup_answer.id_for_label }}">Tossup answer:</label></p>
-                <p>{{ form.tossup_answer }}</p>
-            </div>
-
-            <div class="fieldWrapper">
-                {{ form.category.errors }}
-                <label for="{{ form.category.id_for_label }}">Category:</label>
-                {{ form.category }}
-            </div>   
-
-            <div class="fieldWrapper">
-                {{ form.author.errors }}
-                <label for="{{ form.author.id_for_label }}">Author:</label>
-                {{ form.author }}
-            </div>      
-
-            <div class="fieldWrapper">
-                {{ form.packet.errors }}
-                <label for="{{ form.packet.id_for_label }}">Packet:</label>
-                {{ form.packet }}
-            </div>   
-
-                <div class="fieldWrapper">
-                    {{ form.question_type.errors }}
-                    {{ form.question_type }}
+        <label>
+            Tossup Answer
+            {{ form.tossup_answer }}
+        </label>
+        {% if form.tossup_answer.errors %}
+            {{ form.tossup_answer.errors }}
+        {% endif %}
+        <div class="row">
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.category.id_for_label">Category</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.category }}
+                    </div>
+                    {% if form.category.errors %}
+                        {{ form.category.errors }}
+                    {% endif %}
                 </div>
-        
-            <input type="submit" id="submit-bonus" value="Save"/>
-        {% endif %}
-        
-    </form>
-</div>
+            </div>
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.author.id_for_label">Author</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.author }}
+                    </div>
+                    {% if form.author.errors %}
+                        {{ form.author.errors }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="row" style="display:none">
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.question_type.id_for_label">Question Type</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.question_type }}
+                    </div>
+                    {% if form.question_type.errors %}
+                        {{ form.question_type.errors }}
+                    {% endif %}
+                </div>
+            </div>
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.packet.id_for_label">Packet</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.packet }}
+                    </div>
+                    {% if form.packet.errors %}
+                        {{ form.packet.errors }}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <input type="submit" id="submit-tossup" value="Submit Tossup" class="button primary right" />
+    {% endif %}
+    
+</form>
 
 {% endblock %}

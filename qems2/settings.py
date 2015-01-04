@@ -188,12 +188,12 @@ LOGGING = {
 
 BOWER_INSTALLED_APPS = (
     'jquery',
-    'underscore',
-    'bootstrap',
-    'backbone',
     'jquery-ui',
+    'underscore',
+    'backbone',
     'fontawesome',
     'tablesorter',
+    'foundation',
 )
 
 HAYSTACK_CONNECTIONS = {

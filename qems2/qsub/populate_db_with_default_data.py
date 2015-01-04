@@ -14,7 +14,7 @@ print "Starting script"
 # Delete existing data
 for tossup in Tossup.objects.all():
     tossup.delete()
-    
+
 for bonus in Bonus.objects.all():
     bonus.delete()
 
@@ -23,23 +23,23 @@ for de in DistributionEntry.objects.all():
 
 for distribution in Distribution.objects.all():
     distribution.delete()
-    
+
 for question_type in QuestionType.objects.all():
     question_type.delete()
-    
+
 for question_set in QuestionSet.objects.all():
     question_set.delete()
-    
+
 for writer in Writer.objects.all():
     if (writer.user.username != username):
         writer.user.delete()
-        writer.delete()        
+        writer.delete()
 
 distribution = Distribution(name="Default Distribution")
 distribution.save()
 
 dist_entry = DistributionEntry(
-                distribution=distribution, 
+                distribution=distribution,
                 category="History",
                 subcategory="European",
                 min_tossups=2,
@@ -49,7 +49,7 @@ dist_entry = DistributionEntry(
 dist_entry.save()
 
 dist_entry = DistributionEntry(
-                distribution=distribution, 
+                distribution=distribution,
                 category="History",
                 subcategory="American",
                 min_tossups=1,
@@ -59,7 +59,7 @@ dist_entry = DistributionEntry(
 dist_entry.save()
 
 dist_entry = DistributionEntry(
-                distribution=distribution, 
+                distribution=distribution,
                 category="History",
                 subcategory="World",
                 min_tossups=1,
@@ -69,7 +69,7 @@ dist_entry = DistributionEntry(
 dist_entry.save()
 
 dist_entry = DistributionEntry(
-                distribution=distribution, 
+                distribution=distribution,
                 category="Arts",
                 subcategory="Painting",
                 min_tossups=1,
@@ -79,7 +79,7 @@ dist_entry = DistributionEntry(
 dist_entry.save()
 
 dist_entry = DistributionEntry(
-                distribution=distribution, 
+                distribution=distribution,
                 category="Arts",
                 subcategory="Classical Music",
                 min_tossups=1,
@@ -108,7 +108,7 @@ qset = QuestionSet(
                     owner=writer,
                     distribution=distribution,
                     num_packets=10)
-qset.save()                    
+qset.save()
 
 writer.question_set_editor.add(qset)
 writer.save()

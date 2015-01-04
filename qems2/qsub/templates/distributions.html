@@ -7,30 +7,30 @@
 {% endblock %}
 
 {% block content %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Available Distributions</h3>
-    <div class="btn-group btn-group-justified">
-        <a href="/edit_distribution/" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Add Distribution</a>
-    </div>
-    <table class="tablesorter" id="distributions-table">
-        <thead>
-            <th>Distribution Name</th>
-        </thead>
-        <tbody>
-            {% if not dists %}
-                <td>No distributions available. Create one!</td>
-            {% else %}
-            {% for dist in dists %}
-            <tr>
-                <td>
-                    <a href="/edit_distribution/{{ dist.id }}/">
-                    {{ dist.name }}
-                    </a>
-                </td>
-            </tr>
-            {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
-</div>
+
+<h3 class="page-header">Available Distributions</h3>
+<ul class="button-group even">
+    <li><a href="/edit_distribution/" class="button primary"><i class="fa fa-plus-circle"></i> Add Distribution</a></li>
+</ul>
+<table class="tablesorter table-striped table-hover" id="distributions-table">
+    <thead>
+        <th>Distribution Name</th>
+    </thead>
+    <tbody>
+        {% if not dists %}
+            <td>No distributions available. Create one!</td>
+        {% else %}
+        {% for dist in dists %}
+        <tr>
+            <td>
+                <a href="/edit_distribution/{{ dist.id }}/">
+                {{ dist.name }}
+                </a>
+            </td>
+        </tr>
+        {% endfor %}
+        {% endif %}
+    </tbody>
+</table>
+
 {% endblock %}

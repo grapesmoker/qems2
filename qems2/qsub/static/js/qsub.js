@@ -50,7 +50,10 @@ $(function () {
     });
 
     // Set up sorting for all tables
-    $('#set-status-table').tablesorter();
+    $('table.tablesorter').tablesorter({
+        widthFixed:true
+    });
+    /*$('#set-status-table').tablesorter();
     $('#editors-table').tablesorter();
     $('#writers-table').tablesorter();
     $('#set-wide-reqs-table').tablesorter();
@@ -70,7 +73,7 @@ $(function () {
     $('#tossup-table').tablesorter({widthFixed:true});
     $('#bonus-table').tablesorter({widthFixed:true});
     $('#bulk-change-tossup-table').tablesorter({widthFixed:true});
-    $('#bulk-change-bonus-table').tablesorter({widthFixed:true});
+    $('#bulk-change-bonus-table').tablesorter({widthFixed:true});*/
 
     // Make columns of some tables the same width
     make_table_same('#tossup-table','#bonus-table');

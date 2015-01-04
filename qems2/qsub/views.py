@@ -2717,20 +2717,20 @@ def convert_tossup(request):
             message_class = 'alert-box warning'
         else:
             qset_id = request.POST['qset_id']
-            qset = QuestionSet.objects.get(id=qset_id)            
+            qset = QuestionSet.objects.get(id=qset_id)
             if user == tossup.author or user == qset.owner or user in qset.editor.all():
                 target_type = request.POST['target_type']
                 if (target_type == ACF_STYLE_TOSSUP):
                     tossup_to_tossup(tossup, target_type)
                 else:
                     tossup_to_bonus(tossup, target_type)
-                                    
+
                 message = 'Successfully changed tossup type'
-                message_class = 'alert-box success'                    
+                message_class = 'alert-box success'
             else:
                 message = 'You are not authorized to change this tossup type!'
                 message_class = 'alert-box warning'
-            
+
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
@@ -2750,21 +2750,21 @@ def convert_bonus(request):
             message_class = 'alert-box warning'
         else:
             qset_id = request.POST['qset_id']
-            qset = QuestionSet.objects.get(id=qset_id)            
+            qset = QuestionSet.objects.get(id=qset_id)
             if user == bonus.author or user == qset.owner or user in qset.editor.all():
                 target_type = request.POST['target_type']
                 print "target_type: " + str(target_type)
                 if (target_type == ACF_STYLE_BONUS or target_type == VHSL_BONUS):
-                    bonus_to_bonus(bonus, target_type)                
+                    bonus_to_bonus(bonus, target_type)
                 else:
                     bonus_to_tossup(bonus, target_type)
-                                    
+
                 message = 'Successfully changed bonus type'
-                message_class = 'alert-box success'                    
+                message_class = 'alert-box success'
             else:
                 message = 'You are not authorized to change this bonus type!'
                 message_class = 'alert-box warning'
-            
+
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
@@ -2798,7 +2798,7 @@ def questions_remaining(request, qset_id):
             total_bs_req += bs_required
             total_bs_written += bs_written
             total_tu_written += tu_written
-            
+
             # Only include categories with some questions left to write
             if (tu_written < tu_required or bs_written < bs_required):
                 set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
@@ -2807,15 +2807,16 @@ def questions_remaining(request, qset_id):
                                                          'bs_in_cat': bs_written,
                                                          'category_id': entry.dist_entry.id}
         set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
-                
+
     return render_to_response('questions_remaining.html',
-                              {'user': user,
-                               'set_status': set_status,
-                               'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
-                               'tu_needed': total_tu_req - total_tu_written,
-                               'bs_needed': total_bs_req - total_bs_written,
-                               'qset': qset,
-                               'message': message},
+                             {'user': user,
+                              'set_status': set_status,
+                              'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
+                              'set_pct_progress_bar': '{0:0.0f}%'.format(set_pct_complete),
+                              'tu_needed': total_tu_req - total_tu_written,
+                              'bs_needed': total_bs_req - total_bs_written,
+                              'qset': qset,
+                              'message': message},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -2824,21 +2825,21 @@ def bulk_change_set(request, qset_id):
     qset = QuestionSet.objects.get(id=qset_id)
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
-    
+
     message = ''
     message_class = ''
     tossups = []
     bonuses = []
     role = get_role_no_owner(user, qset)
-    
+
     if role != 'editor':
         message = 'You are not authorized to make bulk operations on this set'
         return HttpResponseRedirect('/failure.html/')
     else:
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-    
-    if request.method == 'GET':    
+
+    if request.method == 'GET':
         return render_to_response('bulk_change_set.html',
             {
             'user': user,
@@ -2857,28 +2858,28 @@ def bulk_change_set(request, qset_id):
                 return bulk_move_question(request, qset_id)
             elif (operation == "packet-step2"):
                 return bulk_change_packet(request, qset_id)
-            
+
             num_questions_selected = 0
             num_tossups = int(request.POST['num-tossups'])
             num_bonuses = int(request.POST['num-bonuses'])
-            
+
             change_tossups = []
             change_bonuses = []
-            
+
             for tu_num in range(num_tossups):
                 tu_checked_name = 'tossup-checked-{0}'.format(tu_num)
                 tu_id_name = 'tossup-id-{0}'.format(tu_num)
-                
+
                 if (tu_checked_name in request.POST):
                     tu_id = request.POST[tu_id_name]
                     tossup = Tossup.objects.get(id=tu_id)
                     change_tossups.append(tossup)
                     num_questions_selected += 1
-                
+
             for bs_num in range(num_bonuses):
                 bs_checked_name = 'bonus-checked-{0}'.format(bs_num)
                 bs_id_name = 'bonus-id-{0}'.format(bs_num)
-                
+
                 if (bs_checked_name in request.POST):
                     bs_id = request.POST[bs_id_name]
                     bonus = Bonus.objects.get(id=bs_id)
@@ -2887,12 +2888,12 @@ def bulk_change_set(request, qset_id):
 
             if (num_questions_selected > 0):
                 # Do the actual operation
-                
+
                 if (operation == 'edit'):
                     bulk_edit_questions(True, change_tossups, change_bonuses, qset, user)
-                    
+
                     message = "Successfully edited questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2901,12 +2902,12 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                    
+                        context_instance=RequestContext(request))
                 elif (operation == 'unedit'):
                     bulk_edit_questions(False, change_tossups, change_bonuses, qset, user)
-                    
+
                     message = "Successfully unedited questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2915,10 +2916,10 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                     
+                        context_instance=RequestContext(request))
                 elif (operation == 'packet'):
                     packets = Packet.objects.filter(question_set=qset)
-                    
+
                     return render_to_response('bulk_change_packet.html',
                         {
                         'user': user,
@@ -2928,12 +2929,12 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                      
+                        context_instance=RequestContext(request))
                 elif (operation == 'lock'):
                     bulk_lock_questions(True, change_tossups, change_bonuses, qset, user)
-                    
+
                     message = "Successfully locked questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2942,12 +2943,12 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                         
+                        context_instance=RequestContext(request))
                 elif (operation == 'unlock'):
                     bulk_lock_questions(False, change_tossups, change_bonuses, qset, user)
-                    
+
                     message = "Successfully unlocked questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2956,14 +2957,14 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                         
+                        context_instance=RequestContext(request))
                 elif (operation == 'delete'):
                     bulk_delete_questions(change_tossups, change_bonuses, qset, user)
                     message = "Successfully deleted questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-                                        
+
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2972,15 +2973,15 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                         
-                    
+                        context_instance=RequestContext(request))
+
                 elif (operation == 'convert-to-acf-style-tossup'):
                     bulk_convert_to_acf_style_tossup(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to ACF-style tossups."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-                                        
+
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2989,15 +2990,15 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                       
-                    
+                        context_instance=RequestContext(request))
+
                 elif (operation == 'convert-to-acf-style-bonus'):
                     bulk_convert_to_acf_style_bonus(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to ACF-style bonuses."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-                                        
+
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -3006,15 +3007,15 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                      
+                        context_instance=RequestContext(request))
                 elif (operation == 'convert-to-vhsl-bonus'):
                     bulk_convert_to_vhsl_bonus(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to VHSL bonuses."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
 
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-                                        
+
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -3023,11 +3024,11 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                      
+                        context_instance=RequestContext(request))
                 elif (operation == 'move'):
                     new_sets = user.question_set_editor.exclude(id=qset_id)
                     print "new sets: " + str(new_sets)
-                    
+
                     return render_to_response('bulk_move_questions.html',
                         {
                         'user': user,
@@ -3037,10 +3038,10 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                                          
+                        context_instance=RequestContext(request))
                 elif (operation == 'author'):
                     writers = qset.writer.all() | qset.editor.all()
-                    
+
                     return render_to_response('bulk_change_author.html',
                         {
                         'user': user,
@@ -3050,8 +3051,8 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                      
-                
+                        context_instance=RequestContext(request))
+
             else:
                 message = "Error!  You must select at least one question."
                 message_class = 'alert alert-warning'
@@ -3063,7 +3064,7 @@ def bulk_change_set(request, qset_id):
                     'qset': qset,
                     'message': message,
                     'message_class': message_class},
-                    context_instance=RequestContext(request))                  
+                    context_instance=RequestContext(request))
         else:
             message = "You didn't hit the confirm button."
             message_class = 'alert alert-warning'
@@ -3075,8 +3076,8 @@ def bulk_change_set(request, qset_id):
                 'qset': qset,
                 'message': message,
                 'message_class': message_class},
-                context_instance=RequestContext(request))        
-        
+                context_instance=RequestContext(request))
+
 @login_required
 def bulk_change_author(request, qset_id):
     print "bulk change author"
@@ -3120,7 +3121,7 @@ def bulk_change_author(request, qset_id):
             bonus.save()
 
         message = 'Successfully changed author'
-        message_class = 'alert alert-success'
+        message_class = 'alert-box success'
         
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')        
@@ -3174,7 +3175,7 @@ def bulk_change_packet(request, qset_id):
             bonus.save()
 
         message = 'Successfully changed packet'
-        message_class = 'alert alert-success'
+        message_class = 'alert-box success'
         
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')        
@@ -3246,7 +3247,7 @@ def bulk_move_question(request, qset_id):
             bonus.save()              
 
         message = 'Successfully moved questions'
-        message_class = 'alert alert-success'
+        message_class = 'alert-box success'
         
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')        

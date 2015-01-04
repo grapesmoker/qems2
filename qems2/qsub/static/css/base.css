@@ -73,7 +73,7 @@ p {
 }
 .panel.callout {
     background-color:#b6edff;
-    margin-bottom:0.625rem;
+    margin:0.625rem 0;
     padding:0.625rem;
 }
 .panel.callout > strong {
@@ -137,7 +137,7 @@ span.prefix.text-left {
 }
 /* Tables */
 .tablesorter {
-    margin:5px 0 5px;
+    margin:5px 0;
     width:100%;
     text-align:left;
     border:0;
@@ -207,6 +207,10 @@ table input[type="checkbox"] {
     float:left;
     margin:auto;
     width:100%;
+}
+table tbody tr td.checkbox{
+    vertical-align:middle;
+    padding:0.5rem;
 }
 #distribution-table tbody tr td,
 #set-wide-reqs-table tbody tr td,

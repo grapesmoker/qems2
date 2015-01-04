@@ -69,13 +69,14 @@ $(function () {
     $('#packet-status-bonus-table').tablesorter();
     $('#tossup-table').tablesorter({widthFixed:true});
     $('#bonus-table').tablesorter({widthFixed:true});
-    $('#bulk-change-tossup-table').tablesorter();
-    $('#bulk-change-bonus-table').tablesorter();
+    $('#bulk-change-tossup-table').tablesorter({widthFixed:true});
+    $('#bulk-change-bonus-table').tablesorter({widthFixed:true});
 
     // Make columns of some tables the same width
     make_table_same('#tossup-table','#bonus-table');
     make_table_same('#category-tossup-table','#category-bonus-table');
     make_table_same('#packet-tossup-table','#packet-bonus-table');
+    make_table_same('#bulk-change-tossup-table','#bulk-change-bonus-table');
     // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
     // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 

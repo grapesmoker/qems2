@@ -60,6 +60,8 @@ $(function () {
     $('#packet-status-bonus-table').tablesorter();
     $('#tossup-table').tablesorter();
     $('#bonus-table').tablesorter();
+    $('#bulk-change-tossup-table').tablesorter();
+    $('#bulk-change-bonus-table').tablesorter();    
 
     // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
     // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});

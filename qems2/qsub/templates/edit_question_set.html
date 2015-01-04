@@ -117,6 +117,11 @@
                 <div class="alert alert-info text-center">
                     <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
                 </div>
+                {% if not read_only %}
+                    <div class="alert alert-info text-center">
+                        <strong><a href="/bulk_change_set/{{ qset.id }}">Make bulk changes to questions in this set</a></strong>
+                    </div>
+                {% endif %}
                 <a id="#qset-comments"></a>
                 <div class="alert alert-info text-center"><strong>Comments</strong></div>
                 <div class="comments col-xs-6 col-md-6">

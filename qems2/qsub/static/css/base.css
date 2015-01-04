@@ -9,28 +9,44 @@ h1, h2, h3, h4, h5, h6, body {
     font-family: 'Montserrat', sans-serif;
 }
 /* Global overrides */
+html {
+    overflow-y: scroll;
+}
 body {
     padding-top:40px;
     background-color: #fffafa;
     background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(248,248,255,.5) 2px, rgba(248,248,255,.5) 4px);
+}
+.row {
+    max-width:72.5rem;
 }
 p {
     font-size:0.9125rem;
     line-height:1.5;
     margin:0.5rem;
 }
-.row {
-    max-width:72.5rem;
-}
 .page-header {
     margin:24px 0 20px;
     border-bottom:1px solid #ddd;
+}
+.label {
+    font-size:0.8125rem;
 }
 .fa-check {
     color:green;
 }
 .fa-times {
     color:red;
+}
+#id_honeypot {
+    display:none;
+}
+.button {
+    font-size:0.875rem;
+    padding-top:0.875rem;
+    padding-right:1.5rem;
+    padding-bottom:0.9125rem;
+    padding-left:1.5rem;
 }
 .button-group.even {
     display:flex;
@@ -49,13 +65,6 @@ p {
 }
 .button-group.even li input {
     flex-grow:1;
-}
-.button {
-    font-size:0.875rem;
-    padding-top:0.875rem;
-    padding-right:1.5rem;
-    padding-bottom:0.9125rem;
-    padding-left:1.5rem;
 }
 .tabs {
     display:flex;
@@ -86,12 +95,6 @@ p {
 }
 span.prefix.text-left {
     padding-left:1rem;
-}
-.label {
-    font-size:0.8125rem;
-}
-#id_honeypot {
-    display:none;
 }
 .errorlist {
     display:block;

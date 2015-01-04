@@ -33,27 +33,33 @@
     </div>
     <div class="alert-box info">...or enter a base name and the number of packets to create. For example, if the base name is "Round" and
     there are 10 packets, then packets having the names "Round 01, Round 02, ..., Round 10" will be created.</div>
-    <div class="row collapse">
-        <div class="small-3 columns">
-            <span class="prefix text-left" for="{{ form.name_base.id_for_label }}">Base Packet Name</span>
+    <div class="row">
+        <div class="small-6 columns">
+            <div class="row collapse">
+                <div class="small-4 columns">
+                    <span class="prefix text-left" for="{{ form.name_base.id_for_label }}">Base Packet Name</span>
+                </div>
+                <div class="small-8 columns">
+                    {{ form.name_base }}
+                </div>
+                {% if form.name_base.errors %}
+                    {{ form.name_base.errors }}
+                {% endif %}
+            </div>
         </div>
-        <div class="small-9 columns">
-            {{ form.name_base }}
+        <div class="small-6 columns">
+            <div class="row collapse">
+                <div class="small-3 columns">
+                    <span class="prefix text-left" for="{{ form.num_packets.id_for_label }}">Packets</span>
+                </div>
+                <div class="small-9 columns">
+                    {{ form.num_packets }}
+                </div>
+                {% if form.num_packets.errors %}
+                    {{ form.num_packets.errors }}
+                {% endif %}
+            </div>
         </div>
-        {% if form.name_base.errors %}
-            {{ form.name_base.errors }}
-        {% endif %}
-    </div>
-    <div class="row collapse">
-        <div class="small-3 columns">
-            <span class="prefix text-left" for="{{ form.num_packets.id_for_label }}">Number of Packets</span>
-        </div>
-        <div class="small-9 columns">
-            {{ form.num_packets }}
-        </div>
-        {% if form.num_packets.errors %}
-            {{ form.num_packets.errors }}
-        {% endif %}
     </div>
     {% if not read_only %}
         <input type="submit" value="Create Packets" class="button primary right" />

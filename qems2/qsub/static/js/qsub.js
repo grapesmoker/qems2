@@ -86,6 +86,10 @@ $(function () {
     // $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});
     // $('#bonus-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
+    // Setup autofocus on /type_questions/ & /add_tossups/
+    $('#id_questions').focus();
+    $('#id_tossup_text').focus();
+
     $('#id_player_to_add').autocomplete({
     source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),
     select: function(event, ui) {

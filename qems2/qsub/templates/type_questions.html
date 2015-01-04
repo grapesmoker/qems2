@@ -22,7 +22,7 @@
 </dl>
 <div class="tabs-content">
     <div id="type-questions" class="content active">
-        <form action="/type_questions/" method="post">
+        <form action="/type_questions/" method="post" id="type-questions">
             {% csrf_token %}
             {{ form }}
             <input type="hidden" name="qset_id" value="{{ qset.id }}">

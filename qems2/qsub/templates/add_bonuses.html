@@ -31,7 +31,7 @@
 </ul>
 <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
 <p>Do not include [10] labels with bonus parts or the word ANSWER: in answer lines.</p>
-<form action="" method="post">
+<form action="" method="post" id="add-bonuses">
     {% csrf_token %}
     {{ form.non_field_errors }}
     {% if not read_only %}
@@ -93,7 +93,7 @@
             <div class="small-6 columns">
                 <div class="row collapse">
                     <div class="small-4 columns">
-                        <span class="prefix text-left" for="form.category.id_for_label">Category</span>
+                        <span class="prefix text-left" for="{{ form.category.id_for_label }}">Category</span>
                     </div>
                     <div class="small-8 columns">
                         {{ form.category }}
@@ -106,7 +106,7 @@
             <div class="small-6 columns">
                 <div class="row collapse">
                     <div class="small-4 columns">
-                        <span class="prefix text-left" for="form.author.id_for_label">Author</span>
+                        <span class="prefix text-left" for="{{ form.author.id_for_label }}">Author</span>
                     </div>
                     <div class="small-8 columns">
                         {{ form.author }}
@@ -121,7 +121,7 @@
             <div class="small-6 columns">
                 <div class="row collapse">
                     <div class="small-4 columns">
-                        <span class="prefix text-left" for="form.question_type.id_for_label">Question Type</span>
+                        <span class="prefix text-left" for="{{ form.question_type.id_for_label }}">Question Type</span>
                     </div>
                     <div class="small-8 columns">
                         {{ form.question_type }}
@@ -134,7 +134,7 @@
             <div class="small-6 columns">
                 <div class="row collapse">
                     <div class="small-4 columns">
-                        <span class="prefix text-left" for="form.packet.id_for_label">Packet</span>
+                        <span class="prefix text-left" for="{{ form.packet.id_for_label }}">Packet</span>
                     </div>
                     <div class="small-8 columns">
                         {{ form.packet }}

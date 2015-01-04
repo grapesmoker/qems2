@@ -12,7 +12,7 @@ function add_row_to_cat_table() {
 <td>&nbsp;</td></tr>', next_form, next_form, next_form, next_form, next_form, next_form));
 }
 
-function make_table_same(source,dest) {
+function match_table(source,dest) {
     var cols = [];
     $(source).find('th').each(function() {
         cols.push($(this).width());
@@ -26,13 +26,6 @@ function make_table_same(source,dest) {
 $.browser = {}
 
 $(function () {
-
-    $.browser.msie = false;
-    /*$.browser.version = 0;
-    if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
-        jQuery.browser.msie = true;
-        jQuery.browser.version = RegExp.$1;
-    }*/
 
     var csrftoken = $.cookie('csrftoken');
 
@@ -49,37 +42,17 @@ $(function () {
         }
     });
 
-    // Set up sorting for all tables
+    // Set up sorting for all tables w/ tablesorter class
     $('table.tablesorter').tablesorter({
         widthFixed:true
     });
-    /*$('#set-status-table').tablesorter();
-    $('#editors-table').tablesorter();
-    $('#writers-table').tablesorter();
-    $('#set-wide-reqs-table').tablesorter();
-    $('#tb-reqs-table').tablesorter();
-    $('#packets-table').tablesorter();
-    $('#category-tossup-table').tablesorter({widthFixed:true});
-    $('#category-bonus-table').tablesorter({widthFixed:true});
-    $('#qsets-write-table').tablesorter();
-    $('#qsets-edit-table').tablesorter();
-    $('#qsets-owned-table').tablesorter();
-    $('#distributions-table').tablesorter();
-    $('#writer-stats-table').tablesorter();
-    $('#packet-tossup-table').tablesorter({widthFixed:true});
-    $('#packet-bonus-table').tablesorter({widthFixed:true});
-    $('#packet-status-tossup-table').tablesorter();
-    $('#packet-status-bonus-table').tablesorter();
-    $('#tossup-table').tablesorter({widthFixed:true});
-    $('#bonus-table').tablesorter({widthFixed:true});
-    $('#bulk-change-tossup-table').tablesorter({widthFixed:true});
-    $('#bulk-change-bonus-table').tablesorter({widthFixed:true});*/
 
     // Make columns of some tables the same width
-    make_table_same('#tossup-table','#bonus-table');
-    make_table_same('#category-tossup-table','#category-bonus-table');
-    make_table_same('#packet-tossup-table','#packet-bonus-table');
-    make_table_same('#bulk-change-tossup-table','#bulk-change-bonus-table');
+    match_table('#tossup-table','#bonus-table');
+    match_table('#category-tossup-table','#category-bonus-table');
+    match_table('#packet-tossup-table','#packet-bonus-table');
+    match_table('#bulk-change-tossup-table','#bulk-change-bonus-table');
+
     // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
     // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
@@ -87,8 +60,8 @@ $(function () {
     // $('#bonus-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
     // Setup autofocus on /type_questions/ & /add_tossups/
-    $('#id_questions').focus();
-    $('#id_tossup_text').focus();
+    $('form#type-questions #id_questions').focus();
+    $('form#add-tossups #id_tossup_text').focus();
 
     $('#id_player_to_add').autocomplete({
     source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),

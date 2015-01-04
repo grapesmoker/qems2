@@ -22,11 +22,11 @@
     {% autoescape off %}
         <div class="panel callout radius">
             {{ tossup|tossup_html_verbose }}
-            <p><strong>Written by:</strong> {{ tossup.author }} on {{ tossup.created_date }}<br />
-            <strong>Last modified:</strong> {{ tossup.last_changed_date }}<br />
+            <p><strong>Written by:</strong> {{ tossup.author }} on {{ tossup.created_date }}</p>
             {% if tossup.edited %}
-                <strong>Edited by:</strong> {{ tossup.editor }} on {{ tossup.edited_date }}
-            {% endif %}</p>
+                <p><strong>Edited by:</strong> {{ tossup.editor }} on {{ tossup.edited_date }}</p>
+            {% endif %}
+            <p><strong>Last modified:</strong> {{ tossup.last_changed_date }}</p>
         </div>
     {% endautoescape %}
 {% endif %}

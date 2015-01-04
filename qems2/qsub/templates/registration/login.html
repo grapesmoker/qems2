@@ -1,17 +1,12 @@
 {% extends "base-login.html" %}
 
-{% block title %}Login{% endblock %}
-
-{% if form.errors %}
-    <div class="alert-box warning">shit done gone wrong</p>
-{% endif %}
+{% block title %}Login - QEMS2{% endblock %}
 
 {% block content %}
 
 <h3 class="page-header">Login</h3>
-<form action="" method="post">
+<form method="post" action=".">
     {% csrf_token %}
-    <input type="hidden" name="next" value="{{ next }}" />
     {% for field in form %}
         <div class="row collapse">
             <div class="small-3 columns">
@@ -25,10 +20,17 @@
             {% endif %}
         </div>
     {% endfor %}
-    <ul class="button-group even">
-        <li><input type="submit" value="Login" class="button primary" /></li>
-        <li><a href="/register/" class="button primary">Register</a></li>
-    </ul>
+    <input type="submit" value="Login" class="button primary right" />
+    <input type="hidden" name="next" value="{{ next }}" />
+    <div class="row">
+        <div class="small-12 columns">
+            <ul class="button-group even">
+                <li><a href="{% url 'auth_password_reset' %}" class="button secondary">Reset Password</a></li>
+                <li><a href="{% url 'registration_register' %}" class="button secondary">Register</a></li>
+            </ul>
+        </div>
+    </div>
 </form>
+
 
 {% endblock %}

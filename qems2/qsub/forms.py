@@ -138,13 +138,13 @@ class TossupForm(forms.ModelForm):
 
 class BonusForm(forms.ModelForm):
 
-    leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
-    part1_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}))
-    part1_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 1}))
-    part2_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
-    part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 1}), required=False)
-    part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 2}), required=False)
-    part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'cols': 100, 'rows': 1}), required=False)
+    leadin = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'rows': 2}), required=False)
+    part1_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'rows': 2}))
+    part1_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'rows': 1}))
+    part2_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'rows': 2}), required=False)
+    part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'rows': 1}), required=False)
+    part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'rows': 2}), required=False)
+    part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'question_text', 'rows': 1}), required=False)
     search_leadin = forms.CharField(widget=forms.HiddenInput, required=False)
     search_part1_text = forms.CharField(widget=forms.HiddenInput, required=False)
     search_part1_answer = forms.CharField(widget=forms.HiddenInput, required=False)

@@ -45,6 +45,7 @@ Set up your MySQL connection as, for example, `mysql -u root -p`:
     CREATE USER django@localhost IDENTIFIED BY 'django';
     CREATE DATABASE qems2_stable;
     GRANT ALL PRIVILEGES ON qems2_stable.* TO django@localhost;
+    GRANT ALL PRIVILEGES ON test_qems2_stable.* TO django@localhost;
 
 Finally, use `manage.py` to populate the database, install the front-end packages, collect static files, and start the development server:
 

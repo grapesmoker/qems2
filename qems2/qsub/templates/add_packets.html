@@ -7,49 +7,57 @@
 {% block title %}Add Packets - QEMS2{% endblock %}
 
 {% block content %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Add Packets</h3>
-    {% if message %}
-        <p class="{{ message_class }}">{{ message }}</p>
-    {% endif %}
-    <form action="" method="post" class="form-group">
-        {% csrf_token %}
-        {% if form.non_field_errors %}
-        <div class="alert alert-warning">
+
+<h3 class="page-header">Add Packets</h3>
+{% if message %}
+    <div class="{{ message_class }}">{{ message }}</div>
+{% endif %}
+<form action="" method="post">
+    {% csrf_token %}
+    {% if form.non_field_errors %}
+        <div class="alert-box warning">
             {{ form.non_field_errors }}
         </div>
+    {% endif %}
+    <div class="alert-box info">Either enter a name for this packet...</div>
+    <div class="row collapse">
+        <div class="small-3 columns">
+            <span class="prefix text-left" for="{{ form.packet_name.id_for_label }}">Packet Name</span>
+        </div>
+        <div class="small-9 columns">
+            {{ form.packet_name }}
+        </div>
+        {% if form.packet_name.errors %}
+            {{ form.packet_name.errors }}
         {% endif %}
-        <p class="alert alert-info">Either enter a name for this packet...</p>
-        <div class="form-group">
-            {% if form.packet_name.errors %}
-            <div class="alert alert-warning">
-                {{ form.packet_name.errors }}
-            </div>
-            {% endif %}
-            <input id="id_packet_name" maxlength="200" name="packet_name" type="text" class="form-control" placeholder="Packet Name" />
+    </div>
+    <div class="alert-box info">...or enter a base name and the number of packets to create. For example, if the base name is "Round" and
+    there are 10 packets, then packets having the names "Round 01, Round 02, ..., Round 10" will be created.</div>
+    <div class="row collapse">
+        <div class="small-3 columns">
+            <span class="prefix text-left" for="{{ form.name_base.id_for_label }}">Base Packet Name</span>
         </div>
-        <p class="alert alert-info">...or enter a base name and the number of packets to create. For example, if the base name is "Round" and
-        there are 10 packets, then packets having the names "Round 01, Round 02, ..., Round 10" will be created.</p>
-        <div class="form-group">
-            {% if form.name_base.errors %}
-            <div class="alert alert-warning">
-                {{ form.name_base.errors }}
-            </div>
-            {% endif %}
-            <input id="id_name_base" maxlength="190" name="name_base" type="text" class="form-control" placeholder="Base Name"/>
+        <div class="small-9 columns">
+            {{ form.name_base }}
         </div>
-        <div class="form-group">
-            {% if form.num_packets.errors %}
-            <div class="alert alert-warning">
-                {{ form.num_packets.errors }}
-            </div>
-            {% endif %}
-            <input class="spinner" id="id_num_packets" name="num_packets" type="text" class="form-control" placeholder="Num"/>
-        </div>
-        {% if not read_only %}
-        <button class="btn btn-lg btn-primary pull-right" type="submit">Create Packets</button>
+        {% if form.name_base.errors %}
+            {{ form.name_base.errors }}
         {% endif %}
-    </form>
-</div>
+    </div>
+    <div class="row collapse">
+        <div class="small-3 columns">
+            <span class="prefix text-left" for="{{ form.num_packets.id_for_label }}">Number of Packets</span>
+        </div>
+        <div class="small-9 columns">
+            {{ form.num_packets }}
+        </div>
+        {% if form.num_packets.errors %}
+            {{ form.num_packets.errors }}
+        {% endif %}
+    </div>
+    {% if not read_only %}
+        <input type="submit" value="Create Packets" class="button primary right" />
+    {% endif %}
+</form>
 
 {% endblock %}

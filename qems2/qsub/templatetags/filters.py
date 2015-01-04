@@ -51,9 +51,9 @@ def short_preview(text):
 
 @register.filter(name='bonus_answers')
 def bonus_answers(bonus):
-    return mark_safe('<p>' + answer_html(bonus.part1_answer[0:80].encode('utf-8')) + '</p><p>'
-    + answer_html(bonus.part2_answer[0:80].encode('utf-8')) + '</p><p>'
-    + answer_html(bonus.part3_answer[0:80].encode('utf-8')) + '</p>')
+    return mark_safe(answer_html(bonus.part1_answer[0:80].encode('utf-8')) + '<br />'
+    + answer_html(bonus.part2_answer[0:80].encode('utf-8')) + '<br />'
+    + answer_html(bonus.part3_answer[0:80].encode('utf-8')))
 
 @register.filter(name='percent')
 def percent(x, y):
@@ -188,7 +188,7 @@ def bonus_html_verbose(bonus):
 def tossup_history_html(tossup):
     return tossup.to_html()
 
-@register.filter(name='bonus_history_html')    
+@register.filter(name='bonus_history_html')
 def bonus_history_html(bonus):
     return bonus.to_html()
 
@@ -209,6 +209,6 @@ def bonus_last_comment_date(bonus):
         return comments[0].submit_date
     else:
         return ''
-    
+
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

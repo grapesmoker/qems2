@@ -11,476 +11,443 @@
 {% load filters %}
 {% load comments %}
 {% if active_tab == 'qset_info' %} {{ 'active' }} {% endif %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Question Set Management</h3>
 
-    <div class="tabbable">
-        <ul class="nav nav-tabs nav-justified">
-            <li class="active"><a href="#qset-info" data-toggle="tab">Overall Info</a></li>
-            <li><a href="#questions" data-toggle="tab">All Questions</a></li>
-            <li><a href="#editors" data-toggle="tab">Contributors</a></li>
-            <li><a href="#packets" data-toggle="tab">Packets</a></li>
-            <li><a href="#set-wide-distribution" data-toggle="tab">Set-wide Distro</a></li>
-            <li><a href="#tiebreak-distribution" data-toggle="tab">Tiebreaker Distro</a></li>
-        </ul>
-        <div class="tab-content">
-            <div id="qset-info" class="tab-pane active">
-                {% if message %}
-                <p>
-                    <div class="alert {{ message_class }}">
+<h3 class="page-header">Question Set Management</h3>
+
+<dl class="tabs" data-tab>
+    <dd class="active"><a href="#qset-info">Overall Info</a></dd>
+    <dd><a href="#questions">All Questions</a></dd>
+    <dd><a href="#editors">Contributors</a></dd>
+    <dd><a href="#packets">Packets</a></dd>
+    <dd><a href="#set-wide-distribution">Set-wide Distro</a></dd>
+    <dd><a href="#tiebreak-distribution">Tiebreaker Distro</a></dd>
+</dl>
+
+<div class="tabs-content">
+    <div class="content active" id="qset-info">
+        {% autoescape off %}
+            {% if message %}
+                <div class="{{ message_class }}">
+                    {{ message }}
+                </div>
+            {% endif %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="{{ message.tags }}">
                         {{ message }}
                     </div>
-                </p>
-                {% endif %}
-                {% if messages %}
-                <ul class="messages">
-                    {% for message in messages %}
-                    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message|safe }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                <div class="btn-group btn-group-justified">
-                    <a href="/add_tossups/{{ qset.id }}" class="btn btn-primary">
-                        <i class="fa fa-plus-circle"></i> Add Tossup
-                    </a>
-                    <a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="btn btn-primary">
-                        <i class="fa fa-plus-circle"></i> Add ACF Bonus
-                    </a>
-                    <a href="/add_bonuses/{{ qset.id }}/VHSL bonus" class="btn btn-primary">
-                        <i class="fa fa-plus-circle"></i> Add VHSL Bonus
-                    </a>
-                    <a href="/type_questions/{{ qset.id }}" class="btn btn-primary">
-                        <i class="fa fa-file-text"></i> Type Questions
-                    </a>
-                    <a href="/search/{{ qset.id }}/" class="btn btn-primary">
-                        <i class="fa fa-search"></i> Search
-                    </a>
-                    <!--<a href="#" class="btn btn-primary" title="Upload questions" id="upload-questions">
-                        <i class="fa fa-upload"></i> Upload questions from file
-                    </a>
-                    <div id="upload-dialog" >
-                        <form action="/upload_questions/{{ qset.id }}/" method="POST" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            {{ upload_form }}
-                        </form>
-                    </div>-->
-                </div>
-                <div class="alert alert-info text-center">
-                    <strong>Set Completion Status: {{ set_pct_complete}} &ndash; <a href="/questions_remaining/{{ qset.id }}">{{ tu_needed }} tossups needed, {{ bs_needed }} bonuses needed</a></strong>
-                </div>
-
-                <table class="tablesorter table-striped table-hover" id="set-status-table">
-                    <thead>
-                        <tr>
-                            <th>Category</th>
-                            <th>Overall Completion</th>
-                            <th>Tossups Remaining</th>
-                            <th>Tossup Completion</th>
-                            <th>Bonuses Remaining</th>
-                            <th>Bonus Completion</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for cat, entry in set_status.items|sort %}
-                        <tr>
-                            <td>
-                                <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
-                            </td>
-                            <td>
-                                {{ entry|overall_percent }}
-                            </td>
-                            <td>
-                                {{ entry|tossups_remaining }}
-                            </td>
-                            <td>
-                                {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }} {{ entry.tu_in_cat|percent:entry.tu_req }}
-                            </td>
-                            <td>
-                                {{ entry|bonuses_remaining }}
-                            </td>
-                            <td>
-                                {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }} {{ entry.bs_in_cat|percent:entry.bs_req }}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                <div class="alert alert-info text-center"><strong>Set Information</strong></div>
-                <form action="" method="post">
+                {% endfor %}
+            {% endif %}
+        {% endautoescape %}
+        <ul class="button-group even">
+            <li><a href="/add_tossups/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add Tossup</a></li>
+            <li><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add ACF Bonus</a></li>
+            <li><a href="/add_bonuses/{{ qset.id }}/VHSL bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add VHSL Bonus</a></li>
+            <li><a href="/type_questions/{{ qset.id }}" class="button primary"><i class="fa fa-file-text"></i> Type Questions</a></li>
+            <li><a href="/search/{{ qset.id }}/" class="button primary"><i class="fa fa-search"></i> Search</a></li>
+            <!--<a href="#" class="btn btn-primary" title="Upload questions" id="upload-questions">
+                <i class="fa fa-upload"></i> Upload questions from file
+            </a>
+            <div id="upload-dialog" >
+                <form action="/upload_questions/{{ qset.id }}/" method="POST" enctype="multipart/form-data">
                     {% csrf_token %}
-                    {{ form.as_p }}
-                    {% if not read_only %}
-                    <input type="submit" value="Submit Changes"/>
-                    {% endif %}
+                    {{ upload_form }}
                 </form>
-                <br />
-                <div class="alert alert-info text-center">
-                    <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
+            </div>-->
+        </ul>
+        <div class="panel callout radius text-center">
+            <div class="small-7 small-centered columns">
+                <div class="progress success round edit-qset">
+                    <span class="meter text-center" style="width:{{ set_pct_progress_bar }}"></span>
                 </div>
-                {% if not read_only %}
-                    <div class="alert alert-info text-center">
-                        <strong><a href="/bulk_change_set/{{ qset.id }}">Make bulk changes to questions in this set</a></strong>
+            </div>
+            <strong>Set Completion Status: {{ set_pct_complete}} &ndash; <a href="/questions_remaining/{{ qset.id }}">{{ tu_needed }} tossups needed, {{ bs_needed }} bonuses needed</a></strong>
+        </div>
+
+        <table class="tablesorter table-striped table-hover" id="set-status-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Overall Completion</th>
+                    <th>Tossups Remaining</th>
+                    <th>Tossup Completion</th>
+                    <th>Bonuses Remaining</th>
+                    <th>Bonus Completion</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cat, entry in set_status.items|sort %}
+                <tr>
+                    <td>
+                        <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
+                    </td>
+                    <td>
+                        {{ entry|overall_percent }}
+                    </td>
+                    <td>
+                        {{ entry|tossups_remaining }}
+                    </td>
+                    <td>
+                        {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }} {{ entry.tu_in_cat|percent:entry.tu_req }}
+                    </td>
+                    <td>
+                        {{ entry|bonuses_remaining }}
+                    </td>
+                    <td>
+                        {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }} {{ entry.bs_in_cat|percent:entry.bs_req }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <div class="panel callout radius text-center"><strong>Set Information</strong></div>
+        <form action="" method="post" class="clearfix">
+            {% csrf_token %}
+            <div class="row">
+            {% for field in form %}
+                {% if field.html_name == "name" or field.html_name == "date" %}
+                    <div class="small-6 columns">
+                        <div class="row collapse">
+                            <div class="small-4 columns">
+                                <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
+                            </div>
+                            <div class="small-8 columns">
+                                {{ field }}
+                            </div>
+                        </div>
                     </div>
+                    {% if field.errors %}
+                        {{ field.errors }}
+                    {% endif %}
                 {% endif %}
-                <a id="#qset-comments"></a>
-                <div class="alert alert-info text-center"><strong>Comments</strong></div>
-                <div class="comments col-xs-6 col-md-6">
-                    {% autoescape off %}
-                        {% get_comment_list for qset as comment_list %}
-                        {% for comment in comment_list %}
-                            {% if not comment.is_removed %}
-                                <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br><br>
-                                {% if role == "editor" %}
-                                    <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br><br>
-                                {% endif %}
-                            {% endif %}
-                        {% endfor %}
-                    {% endautoescape %}
-
-                    {% get_comment_form for qset as cform %}
-                    <form action="{% comment_form_target %}" method="POST">
-                        {% csrf_token %}
-                        {{ cform.comment.label_tag }}
-                        <textarea cols="40" rows="10" id="{{ cform.comment.id_for_label }}"
-                                  name="{{ cform.comment.html_name }}" class="form-control"></textarea>
-                        {{ cform.honeypot }}
-                        {{ cform.content_type }}
-                        {{ cform.object_pk }}
-                        {{ cform.timestamp }}
-                        {{ cform.security_hash }}
-                        <input type="submit" name="submit" value="Post" class="btn btn-primary">
-                        <!--<input type="submit" name="preview" value="Preview" class="btn btn-primary">-->
-                        <input type="hidden" name="next" value="/edit_question_set/{{ qset.id }}/">
-                    </form>
-                </div>
-
-                <!--<button class="btn btn-primary comment-button" title="Leave Comment">Comment</button>-->
-
+            {% endfor %}
             </div>
-            <!--<div class="tab-pane" id="writer-stats">
-                <table class="tablesorter table-striped table-hover" id="writer-stats-table">
-                    <thead>
-                        <tr>
-                            <th>Writer</th>
-                            <th>Username</th>
-                            <th>Tossups Written</th>
-                            <th>Bonuses Written</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for username, writer in writer_stats.items %}
-                        <tr>
-                            <td>{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</td>
-                            <td>{{ writer.writer.user.username }}</td>
-                            <td>{{ writer.tu_written }}</td>
-                            <td>{{ writer.bonus_written }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                </div>-->
-
-            <div class="tab-pane" id="editors">
-                {% if not read_only %}
-                <div class="btn-group btn-group-justified">
-                    <a href="/add_editor/{{ qset.id }}" class="btn btn-primary" id="btn-add-editor">
-                        <i class="fa fa-plus-circle"></i> Add an Editor
-                    </a>
-                    <a href="/add_writer/{{ qset.id }}" class="btn btn-primary">
-                        <i class="fa fa-plus-circle"></i> Add a Writer
-                    </a>
-                </div>
-                <!--<div class="alert alert-info text-center h6"><strong>Editors</strong></div>
-                <table class="tablesorter table-striped table-hover" id="editors-table">
-                    <thead>
-                        <tr>
-                            <th>Editor</th>
-                            <th>Username</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>{{ qset.owner.user.first_name }} {{ qset.owner.user.last_name }} (Owner)</td>
-                            <td>{{ qset.owner.user.username }}</td>
-                        </tr>
-                        {% for editor in editors|sort %}
-                        <tr>
-                            <td>{{ editor.user.first_name }} {{ editor.user.last_name }}</td>
-                            <td>{{ editor.user.username }}</td>
-                            <td>
-                                <a href="/delete_editor/{{ editor.id }}" title="Delete" class="delete_editor" value="{{ editor.id }}">
-                                    <i class="fa fa-minus-circle"></i>
-                                </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                    </table>-->
-
-                <table class="tablesorter table-striped table-hover" id="writers-table">
-                    <thead>
-                        <tr>
-                            <th>Role</th>
-                            <th>Writer</th>
-                            <th>Username</th>
-                            <th>Tossups Written</th>
-                            <th>Bonuses Written</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for username, writer in writer_stats.items|sort %}
-                        <tr>
-                            {% if writer.writer.user.username == qset.owner.user.username %}
-                            <td>Owner</td>
-                            {% elif writer.writer in editors %}
-                            <td>Editor</td>
-                            {% elif writer.writer in writers %}
-                            <td>Writer</td>
-                            {% endif %}
-                            <td>{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</td>
-                            <td>{{ writer.writer.user.username }}</td>
-                            <td>{{ writer.tu_written }}</td>
-                            <td>{{ writer.bonus_written }}</td>
-                            <td>
-                                {% if writer.writer.user.username != qset.owner.user.username %}
-                                <a href="/delete_writer/{{ writer.id }}" title="Delete" class="delete_writer" value="{{ writer.id }}">
-                                    <i class="fa fa-minus-circle"></i>
-                                </a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-                {% else %}
-                <div class="alert alert-warning">
-                    You are not authorized to view this information
-                </div>
-
+            <div class="row">
+            {% for field in form %}
+                {% if field.html_name == "num_packets" or field.html_name == "distribution" %}
+                    <div class="small-6 columns">
+                        <div class="row collapse">
+                            <div class="small-4 columns">
+                                <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "num_packets" %}Number of Packets{% else %}Distribution{% endif %}</span>
+                            </div>
+                            <div class="small-8 columns">
+                                {{ field }}
+                            </div>
+                        </div>
+                    </div>
+                    {% if field.errors %}
+                        {{ field.errors }}
+                    {% endif %}
                 {% endif %}
+            {% endfor %}
             </div>
-            <div class="tab-pane" id="set-wide-distribution">
-                <div class="alert alert-warning">
-                    <i class="fa fa-exclamation-triangle"></i>
-                    The set-wide distribution controls the total number of questions of each kind that your set
-                    will contain. It is distinct from the "template" distribution; you cannot change the categories
-                    this way, only the <em>total</em> number of questions in those categories that will appear in
-                    this set. For example, if the ACF distribution calls for a minimum of 1 and a maximum of 2
-                    social science questions per packet, and you have 10 packets in your set, then any number
-                    between 10 and 20 social science questions might appear in your set unless you restrict it here,
-                    e.g. by setting the maximum allowed number of such questions to 15. Setting these values is
-                    crucial for the packet-level and set-level verification algorithms to work, so don't skip this section!
-                </div>
-                <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
-                    {% csrf_token %}
-                    <table class="tablesorter table-striped table-hover" id="set-wide-reqs-table">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Subcategory</th>
-                                <th>Total Tossups (per set)</th>
-                                <th>Total Bonuses (per set)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for entry in set_distro_formset %}
-                            <tr>
-                                <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
-                                <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
-                                <td>{{ entry.category.value }}</td>
-                                <td>{{ entry.subcategory.value }}</td>
-                                <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                                <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <input type="submit" class="btn btn-primary">
-                    {{ set_distro_formset.management_form }}
-                </form>
+            {% if not read_only %}
+                <input type="submit" value="Submit Changes" class="button primary right" />
+            {% endif %}
+        </form>
+        <div class="panel callout radius text-center">
+            <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
+        </div>
+        {% if not read_only %}
+            <div class="panel callout radius text-center">
+                <strong><a href="/bulk_change_set/{{ qset.id }}">Make Bulk Changes to this Set</a></strong>
             </div>
-            <div class="tab-pane" id="tiebreak-distribution">
-                <div class="alert alert-warning">
-                    <i class="fa fa-exclamation-triangle"></i>
-                    The tiebreaker distribution controls the total number of questions required as tiebreakers for the
-                    whole set. It is like the set-wide distribution in that you cannot change the categories, only
-                    the <em>total</em> number of questions in those categories that will appear as tiebreakers in the
-                    set. Keep in mind that in order for a question to be picked up as a tiebreaker, it must be
-                    <em>explicitly</em> designated as such.
-                </div>
-                <form action="/edit_set_tiebreak/{{ qset.id }}/" method="POST">
-                    {% csrf_token %}
-                    <table class="tablesorter table-striped table-hover" id ="tb-reqs-table">
-                        <thead>
-                            <tr>
-                                <th>Category</th>
-                                <th>Subcategory</th>
-                                <th>Total Tossups (per set)</th>
-                                <th>Total Bonuses (per set)</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for entry in tiebreak_formset %}
-                            <tr>
-                                <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
-                                <td>{{ entry.category.value }}</td>
-                                <td>{{ entry.subcategory.value }}</td>
-                                <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                                <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <input type="submit" class="btn btn-primary">
-                    {{ tiebreak_formset.management_form }}
-                </form>
-            </div>
-            <div class="tab-pane" id="questions">
-                <div class="alert alert-info text-center"><strong>Tossups</strong></div>
-                <table class="tablesorter table-striped table-hover" id="tossup-table">
-                    <thead>
-                        <tr>
-                            <th>Author</th>
-                            <th>Tossup Text</th>
-                            <th>Answer</th>
-                            <th>Category</th>
-                            <th>Packet</th>
-                            <th>Created</th>
-                            <th>Modified</th>
-                            <th>Edited</th>
-                            <th>Comments</th>
-                            <th>Last Comment</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% autoescape off %}
-                        {% for tossup in tossups %}
-                        <tr>
-                            <td>{{ tossup.author }}</td>
-                            <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
-                            <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
-                            <td>{{ tossup.category }}</td>
-                            <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
-                            <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
-                            <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
-                            <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
-                            <td>
-                            {% get_comment_list for tossup as comment_list %}
-                            {% for comment in comment_list %}
-                                {% if not comment.is_removed %}
-                                    {{ comment.user }}: {{ comment.comment|safe|comment_html|preview }}<br>
-                                {% endif %}
-                            {% endfor %}
-                            </td>
-                            <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
-                        </tr>
-                        {% endfor %}
-                    {% endautoescape %}
-                    </tbody>
-                </table>
-                <div class="alert alert-info text-center"><strong>Bonuses</strong></div>
-                <table class="tablesorter table-striped table-hover" id="bonus-table">
-                    <thead>
-                        <tr>
-                            <th>Author</th>
-                            <th>Bonus Preview</th>
-                            <th>Answer</th>
-                            <th>Category</th>
-                            <th>Packet</th>
-                            <th>Created</th>
-                            <th>Modified</th>
-                            <th>Edited</th>
-                            <th>Comments</th>
-                            <th>Last Comment</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% autoescape off %}
-                        {% for bonus in bonuses %}
-                        <tr>
-                            <td>{{ bonus.author }}</td>
-                            <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_leadin }}</a></td>
-                            <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_answers }}</a></td>
-                            <td>{{ bonus.category }}</td>
-                            <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
-                            <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
-                            <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
-                            <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
-                            <td>
-                            {% get_comment_list for bonus as comment_list %}
-                            {% for comment in comment_list %}
-                                {% if not comment.is_removed %}
-                                    {{comment.user}}: {{ comment.comment|safe|comment_html|preview }}<br>
-                                {% endif %}
-                            {% endfor %}
-                            </td>
-                            <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
-                        </tr>
-                        {% endfor %}
-                    {% endautoescape %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="tab-pane" id="packets">
-                <div class="btn-group btn-group-justified">
-                    <a href="/add_packets/{{ qset.id }}" class="btn btn-primary" title="Add packets">
-                        <i class="fa fa-plus-circle"></i> Add packets
-                    </a>
-                </div>
-                <table class="tablesorter table-striped table-hover" id="packets-table">
-                    <thead>
-                        <tr>
-                            <th>Packet name</th>
-                            <th>Completion status</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for packet in packets %}
-                        <tr>
-                            <td>
-                                {% if not read_only %}
-                                <a href="/edit_packet/{{ packet.id }}">{{ packet.packet_name }}</a>
-                                {% else %}
-                                {{ packet.packet_name }}
-                                {% endif %}
-                            </td>
-                            <td>
-                                N/A
-                            </td>
-                            <td>
-                                <a href="/delete_packet/{{ packet.id }}" rel="tooltip" title="Delete packet" class="delete_packet" value="{{ packet.id }}">
-                                <i class="fa fa-minus-circle"></i>
-                            </a>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
+        {% endif %}
+        <a id="#qset-comments"></a>
+        <div class="panel callout radius text-center"><strong>Comments</strong></div>
+        <div class="comments small-6 columns end">
+            {% autoescape off %}
+                {% get_comment_list for qset as comment_list %}
+                {% for comment in comment_list %}
+                    {% if not comment.is_removed %}
+                        <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br /><br />
+                        {% if role == "editor" %}
+                            <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br /><br />
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+            {% endautoescape %}
+
+            {% get_comment_form for qset as cform %}
+            <form action="{% comment_form_target %}" method="POST" class="clearfix">
+                {% csrf_token %}
+                <label>Comment
+                    <textarea rows="5" id="{{ cform.comment.id_for_label }}" name="{{ cform.comment.html_name }}"></textarea>
+                </label>
+                {{ cform.honeypot }}
+                {{ cform.content_type }}
+                {{ cform.object_pk }}
+                {{ cform.timestamp }}
+                {{ cform.security_hash }}
+                <input type="submit" name="submit" value="Comment" class="button primary right" />
+                <!--<input type="submit" name="preview" value="Preview" class="btn btn-primary">-->
+                <input type="hidden" name="next" value="/edit_question_set/{{ qset.id }}/">
+            </form>
         </div>
     </div>
+
+    <div class="content" id="editors">
+        {% if not read_only %}
+            <ul class="button-group even">
+                <li><a href="/add_editor/{{ qset.id }}" class="button primary" id="btn-add-editor"><i class="fa fa-plus-circle"></i> Add an Editor</a></li>
+                <li><a href="/add_writer/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add a Writer</a></li>
+            </ul>
+        {% endif %}
+
+        <table class="tablesorter table-striped table-hover" id="writers-table">
+            <thead>
+                <tr>
+                    <th>Role</th>
+                    <th>Writer</th>
+                    <th>Username</th>
+                    <th>Tossups Written</th>
+                    <th>Bonuses Written</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for username, writer in writer_stats.items|sort %}
+                <tr>
+                    {% if writer.writer.user.username == qset.owner.user.username %}
+                    <td>Owner</td>
+                    {% elif writer.writer in editors %}
+                    <td>Editor</td>
+                    {% elif writer.writer in writers %}
+                    <td>Writer</td>
+                    {% endif %}
+                    <td>{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</td>
+                    <td>{{ writer.writer.user.username }}</td>
+                    <td>{{ writer.tu_written }}</td>
+                    <td>{{ writer.bonus_written }}</td>
+                    <td>
+                        {% if writer.writer.user.username != qset.owner.user.username %}
+                        <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
+                            <a href="/delete_writer/{{ writer.id }}" class="delete_writer" value="{{ writer.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="content" id="set-wide-distribution">
+        <div class="alert-box warning radius">
+            <i class="fa fa-exclamation-triangle"></i>
+            The set-wide distribution controls the total number of questions of each kind that your set
+            will contain. It is distinct from the "template" distribution; you cannot change the categories
+            this way, only the <em>total</em> number of questions in those categories that will appear in
+            this set. For example, if the ACF distribution calls for a minimum of 1 and a maximum of 2
+            social science questions per packet, and you have 10 packets in your set, then any number
+            between 10 and 20 social science questions might appear in your set unless you restrict it here,
+            e.g. by setting the maximum allowed number of such questions to 15. Setting these values is
+            crucial for the packet-level and set-level verification algorithms to work, so don't skip this section!
+        </div>
+        <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
+            {% csrf_token %}
+            <table class="tablesorter table-striped table-hover" id="set-wide-reqs-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Total Tossups (per set)</th>
+                        <th>Total Bonuses (per set)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in set_distro_formset %}
+                    <tr>
+                        <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
+                        <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
+                        <td>{{ entry.category.value }}</td>
+                        <td>{{ entry.subcategory.value }}</td>
+                        <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                        <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="submit" class="button primary right">
+            {{ set_distro_formset.management_form }}
+        </form>
+    </div>
+    <div class="content" id="tiebreak-distribution">
+        <div class="alert-box warning radius">
+            <i class="fa fa-exclamation-triangle"></i>
+            The tiebreaker distribution controls the total number of questions required as tiebreakers for the
+            whole set. It is like the set-wide distribution in that you cannot change the categories, only
+            the <em>total</em> number of questions in those categories that will appear as tiebreakers in the
+            set. Keep in mind that in order for a question to be picked up as a tiebreaker, it must be
+            <em>explicitly</em> designated as such.
+        </div>
+        <form action="/edit_set_tiebreak/{{ qset.id }}/" method="POST">
+            {% csrf_token %}
+            <table class="tablesorter table-striped table-hover" id ="tb-reqs-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Total Tossups (per set)</th>
+                        <th>Total Bonuses (per set)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in tiebreak_formset %}
+                    <tr>
+                        <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
+                        <td>{{ entry.category.value }}</td>
+                        <td>{{ entry.subcategory.value }}</td>
+                        <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                        <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="submit" class="button primary right">
+            {{ tiebreak_formset.management_form }}
+        </form>
+    </div>
+    <div class="content" id="questions">
+        <div class="panel callout radius text-center"><strong>Tossups</strong></div>
+        <table class="tablesorter table-striped table-hover" id="tossup-table">
+            <thead>
+                <tr>
+                    <th>Author</th>
+                    <th>Preview</th>
+                    <th>Answer</th>
+                    <th>Question Type</th>
+                    <th>Category</th>
+                    <th>Packet</th>
+                    <th>Created</th>
+                    <th>Modified</th>
+                    <th>Edited</th>
+                    <th>Comments</th>
+                    <th>Last Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% autoescape off %}
+                {% for tossup in tossups %}
+                <tr>
+                    <td>{{ tossup.author }}</td>
+                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
+                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
+                    <td>Tossup</td>
+                    <td>{{ tossup.category }}</td>
+                    <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
+                    <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
+                    <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
+                    <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                    <td>
+                        {% get_comment_list for tossup as comment_list %}
+                        {% for comment in comment_list %}
+                            {% if not comment.is_removed %}
+                                {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
+                </tr>
+                {% endfor %}
+            {% endautoescape %}
+            </tbody>
+        </table>
+        <div class="panel callout radius text-center"><strong>Bonuses</strong></div>
+        <table class="tablesorter table-striped table-hover" id="bonus-table">
+            <thead>
+                <tr>
+                    <th>Author</th>
+                    <th>Preview</th>
+                    <th>Answer</th>
+                    <th>Question Type</th>
+                    <th>Category</th>
+                    <th>Packet</th>
+                    <th>Created</th>
+                    <th>Modified</th>
+                    <th>Edited</th>
+                    <th>Comments</th>
+                    <th>Last Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% autoescape off %}
+                {% for bonus in bonuses %}
+                <tr>
+                    <td>{{ bonus.author }}</td>
+                    <td>
+                        <a href="/edit_bonus/{{ bonus.id }}">
+                            {% if bonus.get_bonus_type == "ACF-style bonus" %}
+                                {{ bonus.leadin|safe|preview|question_html }}
+                            {% elif bonus.get_bonus_type == "VHSL bonus" %}
+                                {{ bonus.part1_text|safe|preview|question_html }}
+                            {% endif %}
+                        </a>
+                    </td>
+                    <td><a href="/edit_bonus/{{ bonus.id }}">{{ bonus|bonus_answers }}</a></td>
+                    <td>{{ bonus.question_type }}</td>
+                    <td>{{ bonus.category }}</td>
+                    <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                    <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
+                    <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
+                    <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                    <td>
+                        {% get_comment_list for bonus as comment_list %}
+                        {% for comment in comment_list %}
+                            {% if not comment.is_removed %}
+                                {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
+                </tr>
+                {% endfor %}
+            {% endautoescape %}
+            </tbody>
+        </table>
+    </div>
+    <div class="content" id="packets">
+        <ul class="button-group even">
+            <li><a href="/add_packets/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add Packets</a></li>
+        </ul>
+        <table class="tablesorter table-striped table-hover" id="packets-table">
+            <thead>
+                <tr>
+                    <th>Packet name</th>
+                    <th>Completion status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for packet in packets %}
+                <tr>
+                    <td>
+                        {% if not read_only %}
+                        <a href="/edit_packet/{{ packet.id }}">{{ packet.packet_name }}</a>
+                        {% else %}
+                        {{ packet.packet_name }}
+                        {% endif %}
+                    </td>
+                    <td>
+                        N/A
+                    </td>
+                    <td>
+                        <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
+                            <a href="/delete_packet/{{ packet.id }}" class="delete_packet" value="{{ packet.id }}">
+                                <i class="fa fa-minus-circle"></i>
+                            </a>
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 </div>
 
 <input type="hidden" id="qset-id" value="{{ qset.id }}">
 <script type="text/javascript" src="{% static 'js/comments.js' %}"></script>
-
-{% include "dialog.html" %}
-
-<!--<div id="comment-dialog" style="display: none">
-    <div class="comment-header">
-
-    </div>
-    <div class="comment-content">
-        <form action="/add_comment/" method="post" class="form-horizontal">
-            {% csrf_token %}
-            <input type="hidden" id="reply-to" name="reply-to" value="">
-            <input type="hidden" id="qset-id" name="qset-id" value="{{ qset.id }}">
-            <textarea rows="10" cols="64" id="comment-text" name="comment-text"></textarea>
-        </form>
-    </div>
-</div>-->
 
 {% endblock %}

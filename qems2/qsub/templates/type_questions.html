@@ -9,69 +9,52 @@
 {% load filters %}
 {% block content %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Type Questions</h3>
-    {% if message %}
-        <div class="{{ message_class }}">
-            {{ message }}
-        </div>
-        {% if tossup %}
-        <ol class="breadcrumb">
-            <li><a href="/edit_tossup/{{ tossup.id }}">{{ tossup }}</a></li>
-        </ol>
-        {% endif %}
-    {% endif %}
-    <div class="tabbable">
-        <ul class="nav nav-tabs">
-            <li class="active">
-                <a href="#type-questions" data-toggle="tab">Type Questions</a>
-            </li>
-            <li>
-                <a href="#categories" data-toggle="tab">Available Categories</a>
-            </li>
-            <li>
-                <a href="#examples" data-toggle="tab">Instructions and Examples</a>
-            </li>
+<h3 class="page-header">Type Questions</h3>
+{% if message %}
+    <div class="{{ message_class }}">
+        {{ message }}
+    </div>
+{% endif %}
+<dl class="tabs" data-tab>
+    <dd class="active"><a href="#type-questions">Type Questions</a></dd>
+    <dd><a href="#categories">Available Categories</a></dd>
+    <dd><a href="#examples">Instructions and Examples</a></dd>
+</dl>
+<div class="tabs-content">
+    <div id="type-questions" class="content active">
+        <form action="/type_questions/" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="hidden" name="qset_id" value="{{ qset.id }}">
+            <input type="submit" class="button primary right" value="Submit">
+        </form>
+    </div>
+    <div id="categories" class="content">
+        <ul class="small-block-grid-5">
+            {% for dist_entry in dist_entries %}
+                <li><span class="radius label">{{ dist_entry }}</span></li>
+            {% endfor %}
         </ul>
-        <div class="tab-content">
-            <div id="type-questions" class="tab-pane active">
-                <br />
-                <form action="/type_questions/" method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <input type="hidden" name="qset_id" value="{{ qset.id }}">
-                    <input type="submit" class="btn btn-primary" value="Submit">
-                </form>
-            </div>
-            <div id="categories" class="tab-pane">
-                <dl class="dl-horizontal">
-                    <dt>Categories</dt>
-                    {% for dist_entry in dist_entries %}
-                    <dd>{{ dist_entry }} </dd>
-                    {% endfor %}
-                </dl>
-            </div>
-            <div id="examples" class="tab-pane">
-                <h4>Instructions:</h4>
-                <p>Type questions into the box on the type questions tab. Questions must be formatted properly or the parser will reject them.</p>
-                <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).  You may type multiple questions at once.</p>
-                <p>You can tag your question with a category by adding {Category - Subcategory} to the end of any answer line.</p>
-                <h4>Example Tossup:</h4>
-                <p>The only man from the House of Hesse to hold this title gained the throne when his wife abdicated in his favor in 1715; that man nominally ruled during the so-called Age of Freedom and was named Frederick I. A man who tried to hold this title simultaneously with King of Poland and Lithuania lost the title in 1599 due to his Catholicism. That man in this position was Sigismund, who was a member of the (*) Vasa Dynasty started by the “father of the nation” who broke his country away from the Kalmar Union. Another man to hold this title saw his country’s army defeated in the Battle of Poltava, part of the Great Northern War. For 10 points, give this title held by monarchs like Charles XII and Gustavus Adolphus.<br />
-                ANSWER: _King_ of _Sweden_ [accept equivalents] {History - European}</p>
-                <h4>Example ACF Bonus:</h4>
-                <p>A recurring character in this play is the herald Talthybius, who bears the crushed body of Astyanax on his father’s shield. For 10 points each:<br />
-                [10] Identify this play that ends as Andromache, Hecuba, Cassandra, and Helen are led onto Greek ships.<br />
-                ANSWER: ~_The Trojan Women_~ [or ~_Troiades_~ (TROY-ad-ees)]<br />
-                [10] ~The Trojan Women~ was written by this ancient Greek playwright who also wrote ~Medea~, ~Alcestis~, and ~Cyclops~, the only extant complete satyr play.<br />
-                ANSWER: _Euripides_<br />
-                [10] Euripides and Aeschylus (ESS-cul-es) engage in a contest to determine which is the best tragic poet in this play, which opens as Dionysus and his slave Xanthias travel to Hades to fetch Euripides.<br />
-                ANSWER: ~_The Frogs~_ [or ~_Batrachoi_~] {Literature - European}<br />
-                <h4>Example VHSL Bonus:</h4>
-                <p>[V10] Name the character from ~Their Eyes Were Watching God~ who shoots her husband Tea Cake after he develops rabies.<br />
-                ANSWER: _Janie_ Crawford [or Janie _Crawford_] {Literature - American}</p>
-            </div>
-        </div>
+    </div>
+    <div id="examples" class="content">
+        <h4>Instructions:</h4>
+        <p>Type questions into the box on the type questions tab. Questions must be formatted properly or the parser will reject them.</p>
+        <p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).  You may type multiple questions at once.</p>
+        <p>You can tag your question with a category by adding {Category - Subcategory} to the end of any answer line.</p>
+        <h4>Example Tossup:</h4>
+        <p>The only man from the House of Hesse to hold this title gained the throne when his wife abdicated in his favor in 1715; that man nominally ruled during the so-called Age of Freedom and was named Frederick I. A man who tried to hold this title simultaneously with King of Poland and Lithuania lost the title in 1599 due to his Catholicism. That man in this position was Sigismund, who was a member of the (*) Vasa Dynasty started by the “father of the nation” who broke his country away from the Kalmar Union. Another man to hold this title saw his country’s army defeated in the Battle of Poltava, part of the Great Northern War. For 10 points, give this title held by monarchs like Charles XII and Gustavus Adolphus.<br />
+        ANSWER: _King_ of _Sweden_ [accept equivalents] {History - European}</p>
+        <h4>Example ACF Bonus:</h4>
+        <p>A recurring character in this play is the herald Talthybius, who bears the crushed body of Astyanax on his father’s shield. For 10 points each:<br />
+        [10] Identify this play that ends as Andromache, Hecuba, Cassandra, and Helen are led onto Greek ships.<br />
+        ANSWER: ~_The Trojan Women_~ [or ~_Troiades_~ (TROY-ad-ees)]<br />
+        [10] ~The Trojan Women~ was written by this ancient Greek playwright who also wrote ~Medea~, ~Alcestis~, and ~Cyclops~, the only extant complete satyr play.<br />
+        ANSWER: _Euripides_<br />
+        [10] Euripides and Aeschylus (ESS-cul-es) engage in a contest to determine which is the best tragic poet in this play, which opens as Dionysus and his slave Xanthias travel to Hades to fetch Euripides.<br />
+        ANSWER: ~_The Frogs~_ [or ~_Batrachoi_~] {Literature - European}<br />
+        <h4>Example VHSL Bonus:</h4>
+        <p>[V10] Name the character from ~Their Eyes Were Watching God~ who shoots her husband Tea Cake after he develops rabies.<br />
+        ANSWER: _Janie_ Crawford [or Janie _Crawford_] {Literature - American}</p>
     </div>
 </div>
 

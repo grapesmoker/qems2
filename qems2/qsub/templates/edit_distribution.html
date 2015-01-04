@@ -10,52 +10,62 @@
 {% load static %}
 
 {% if formset.total_error_count > 0 %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1 alert alert-error">
+<div class="alert-box error">
     Errors in your form! All question numbers are required!
 </div>
 {% endif %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1 main">
-    <h3 class="page-header">Question Sets</h3>
-    {% if message %}
-    <div class="alert {{ message_class }}">{{ message }}</div>
-    {% endif %}
-    <form action="" method="post">
-        {% csrf_token %}
-        <label for="id_name">Distribution Name:</label> {{ form.name}}
-        <table class="table table-striped" id="dist-table">
-            <thead>
-            <th>Category</th>
-            <th>Subcategory</th>
-            <th>Minimum tossups (per packet)</th>
-            <th>Minimum bonuses (per packet)</th>
-            <th>Maximum tossups (per packet)</th>
-            <th>Maximum bonuses (per packet)</th>
-            <th>Delete?</th>
-            </thead>
-            <tbody>
-            {% for entry in formset %}
-            <tr>
-                {{ entry.entry_id }}
-                <td>{{ entry.category }}</td>
-                <td>{{ entry.subcategory }}</td>
-                <td>{{ entry.min_tossups }}</td>
-                <td>{{ entry.min_bonuses }}</td>
-                <td>{{ entry.max_tossups }}</td>
-                <td>{{ entry.max_bonuses }}</td>
-                {% if formset.can_delete %}
-                <td>{{ entry.DELETE }}</td>
-                {% endif %}
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        {{ formset.management_form }}
-        <div class="row">
-            <div class="span4" style="text-align: left"><input type="submit" value="Submit changes"/></div>
-            <div class="offset5 span2" style="text-align: right">
-                <a href="javscript:void(0);" id="add-row" title="Add category"><i class="icon-plus-sign"></i></a>
-            </div>
+
+<h3 class="page-header">Question Sets</h3>
+{% if message %}
+<div class="alert {{ message_class }}">{{ message }}</div>
+{% endif %}
+<form action="" method="post">
+    {% csrf_token %}
+    <div class="row collapse">
+        <div class="small-3 columns">
+            <span class="prefix text-left" for="{{ form.name.id_for_label }}">Distribution Name</span>
         </div>
-    </form>
-</div>
+        <div class="small-9 columns">
+            {{ form.name }}
+        </div>
+        {% if form.name.errors %}
+            {{ form.name.errors }}
+        {% endif %}
+    </div>
+    <table class="tablesorter table-striped table-hover" id="distribution-table">
+        <thead>
+        <th>Category</th>
+        <th>Subcategory</th>
+        <th>Minimum tossups (per packet)</th>
+        <th>Minimum bonuses (per packet)</th>
+        <th>Maximum tossups (per packet)</th>
+        <th>Maximum bonuses (per packet)</th>
+        <th>Delete?</th>
+        </thead>
+        <tbody>
+        {% for entry in formset %}
+        <tr>
+            {{ entry.entry_id }}
+            <td>{{ entry.category }}</td>
+            <td>{{ entry.subcategory }}</td>
+            <td>{{ entry.min_tossups }}</td>
+            <td>{{ entry.min_bonuses }}</td>
+            <td>{{ entry.max_tossups }}</td>
+            <td>{{ entry.max_bonuses }}</td>
+            {% if formset.can_delete %}
+            <td>{{ entry.DELETE }}</td>
+            {% endif %}
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ formset.management_form }}
+    <input type="submit" value="Submit Changes" class="button primary right" />
+    <div class="row">
+        <div class="offset5 span2" style="text-align: right">
+            <a href="javscript:void(0);" id="add-row" rel="tooltip" title="Add category"><i class="icon-plus-sign"></i></a>
+        </div>
+    </div>
+</form>
+
 {% endblock %}

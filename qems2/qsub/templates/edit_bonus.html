@@ -11,131 +11,150 @@
 {% block title %}{% if bonus %}{{ bonus.part1_answer|answer_no_formatting|short_preview }}{% else %}Edit Bonus{% endif %} - QEMS2{% endblock %}
 
 {% block content %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Edit Bonus</h3>
-    <div class="col-xs-12 col-md-12">
-        {% autoescape off %}
-            {% if message %}
-                <p class="{{ message_class }}">{{ message }}</p>
-            {% endif %}
-            {% if bonus %}
-                {{ bonus|bonus_html_verbose }}
-                <p><strong>Written by:</strong> {{ bonus.author }} on {{ bonus.created_date }}<br>
-                <strong>Last modified:</strong> {{ bonus.last_changed_date }}<br>
-                {% if bonus.edited %}
-                    <strong>Edited by:</strong> {{ bonus.editor }} on {{ bonus.edited_date }}
-                {% endif %}
-                </p>                
-            {% endif %}
-        {% endautoescape %}
-    </div>
 
-    <div class="col-xs-12 col-md-12">
-        <form action="" method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-
-            {% if not read_only %}
-                {% if question_type == "ACF-style bonus" %}
-                    <div class="fieldWrapper">
-                        {{ form.leadin.errors }}
-                        <p><label for="{{ form.leadin.id_for_label }}">Leadin:</label></p>
-                        <p>{{ form.leadin }}</p>
-                    </div>
-                {% endif %}
-
-                <div class="fieldWrapper">
-                    {{ form.part1_text.errors }}
-                    <p><label for="{{ form.part1_text.id_for_label }}">Part 1 text:</label></p>
-                    <p>{{ form.part1_text }}</p>
-                </div>
-                <div class="fieldWrapper">
-                    {{ form.part1_answer.errors }}
-                    <p><label for="{{ form.part1_answer.id_for_label }}">Part 1 answer:</label></p>
-                    <p>{{ form.part1_answer }}</p>
-                </div>
-
-                {% if question_type == "ACF-style bonus" %}
-                    <div class="fieldWrapper">
-                        {{ form.part2_text.errors }}
-                        <p><label for="{{ form.part2_text.id_for_label }}">Part 2 text:</label></p>
-                        <p>{{ form.part2_text }}</p>
-                    </div>
-                    <div class="fieldWrapper">
-                        {{ form.part2_answer.errors }}
-                        <p><label for="{{ form.part2_answer.id_for_label }}">Part 2 answer:</label></p>
-                        <p>{{ form.part2_answer }}</p>
-                    </div>
-                    <div class="fieldWrapper">
-                        {{ form.part3_text.errors }}
-                        <p><label for="{{ form.part3_text.id_for_label }}">Part 3 text:</label></p>
-                        <p>{{ form.part3_text }}</p>
-                    </div>
-                    <div class="fieldWrapper">
-                        {{ form.part3_answer.errors }}
-                        <p><label for="{{ form.part3_answer.id_for_label }}">Part 3 answer:</label></p>
-                        <p>{{ form.part3_answer }}</p>
-                    </div>
-                {% endif %}
-
-                <div class="fieldWrapper">
-                    {{ form.category.errors }}
-                    <label for="{{ form.category.id_for_label }}">Category:</label>
-                    {{ form.category }}
-                </div>
-
-                <div class="fieldWrapper">
-                    {{ form.author.errors }}
-                    <label for="{{ form.author.id_for_label }}">Author:</label>
-                    {{ form.author }}
-                </div>
-
-                <div class="fieldWrapper">
-                    {{ form.packet.errors }}
-                    <label for="{{ form.packet.id_for_label }}">Packet:</label>
-                    {{ form.packet }}
-                </div>
-
-                {% if role == "editor" %}
-                    <div class="fieldWrapper">
-                        {{ form.locked.errors }}
-                        <label for="{{ form.locked.id_for_label }}">Locked:</label>
-                        {{ form.locked }}
-                    </div>
-                    <div class="fieldWrapper">
-                        {{ form.edited.errors }}
-                        <label for="{{ form.edited.id_for_label }}">Edited:</label>
-                        {{ form.edited }}
-                    </div>
-                {% endif %}
-
-                <div class="fieldWrapper">
-                    {{ form.question_type.errors }}
-                    {{ form.question_type }}
-                </div>
-
-                <input type="submit" id="submit-bonus" value="Save"/>
-            {% endif %}
-        </form>
-        {% if bonus %}
-        <div class="btn-group btn-group-justified">
-            <a href="/move_bonus/{{ qset.id }}/{{ bonus.id }}" class="btn btn-primary">Move to another set</a>
-            <a href="/bonus_history/{{ bonus.id }}" class="btn btn-primary">View bonus history</a>
-            <a href="/delete_bonus/{{ bonus.id }}" class="btn btn-primary delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">Delete question</a>                        
-            <a href="/convert_bonus/{{ bonus.id }}" class="btn btn-primary convert_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}" target-type="ACF-style tossup">Convert to ACF tossup</a>                                        
-            {% if question_type == "ACF-style bonus" %}
-                <a href="/convert_bonus/{{ bonus.id }}" class="btn btn-primary convert_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}" target-type="VHSL bonus">Convert to VHSL bonus</a>
-            {% endif %}                
-            {% if question_type == "VHSL bonus" %}
-                <a href="/convert_bonus/{{ bonus.id }}" class="btn btn-primary convert_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}" target-type="ACF-style bonus">Convert to ACF bonus</a>                
-            {% endif %}                
-        </div>
-        {% endif %}
-    </div>
-
+<h3 class="page-header">Edit Bonus</h3>
+{% autoescape off %}
+    {% if message %}
+        <div class="{{ message_class }}">{{ message }}</div>
+    {% endif %}
     {% if bonus %}
-    <div class="col-xs-12 col-md-12 alert alert-info text-center"><strong>Comments</strong></div>
-    <div class="comments col-xs-6 col-md-6">
+        <div class="panel callout radius">
+        {{ bonus|bonus_html_verbose }}
+            <p><strong>Written by:</strong> {{ bonus.author }} on {{ bonus.created_date }}<br />
+            <strong>Last modified:</strong> {{ bonus.last_changed_date }}<br />
+            {% if bonus.edited %}
+                <strong>Edited by:</strong> {{ bonus.editor }} on {{ bonus.edited_date }}
+            {% endif %}</p>
+        </div>
+    {% endif %}
+{% endautoescape %}
+
+<form action="" method="post" class="clearfix">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+
+    {% if not read_only %}
+        {% if question_type == "ACF-style bonus" %}
+            <label>
+                Leadin
+                {{ form.leadin }}
+            </label>
+            {% if form.leadin.errors %}{{ form.leadin.errors }}{% endif %}
+        {% endif %}
+        <label>
+            Part 1 Text
+            {{ form.part1_text }}
+            {% if form.part1_text.errors %}{{ form.part1_text.errors }}{% endif %}
+        </label>
+        <label>
+            Part 1 Answer
+            {{ form.part1_answer }}
+            {% if form.part1_answer.errors %}{{ form.part1_answer.errors }}{% endif %}
+        </label>
+
+        {% if question_type == "ACF-style bonus" %}
+            <label>
+                Part 2 Text
+                {{ form.part2_text }}
+                {% if form.part2_text.errors %}{{ form.part2_text.errors }}{% endif %}
+            </label>
+            <label>
+                Part 2 Answer
+                {{ form.part2_answer }}
+                {% if form.part2_answer.errors %}{{ form.part2_answer.errors }}{% endif %}
+            </label>
+            <label>
+                Part 3 Text
+                {{ form.part3_text }}
+                {% if form.part3_text.errors %}{{ form.part3_text.errors }}{% endif %}
+            </label>
+            <label>
+                Part 3 Answer
+                {{ form.part3_answer }}
+                {% if form.part3_answer.errors %}{{ form.part3_answer.errors }}{% endif %}
+            </label> 
+        {% endif %}
+        <div class="row">
+        {% for field in form %}
+            {% if field.html_name == "category" or field.html_name == "author" %}
+                <div class="small-6 columns">
+                    <div class="row collapse">
+                        <div class="small-4 columns">
+                            <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "category" %}Category{% else %}Author{% endif %}</span>
+                        </div>
+                        <div class="small-8 columns">
+                            {{ field }}
+                        </div>
+                    </div>
+                </div>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        </div>
+        <div class="row">
+            <!--<div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.question_type.id_for_label">Question Type</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.question_type }}
+                    </div>
+                    {% if form.question_type.errors %}{{ form.question_type.errors }}{% endif %}
+                </div>
+            </div>-->
+            <div class="small-6 columns end">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="form.packet.id_for_label">Packet</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ form.packet }}
+                    </div>
+                    {% if form.packet.errors %}{{ form.packet.errors }}{% endif %}
+                </div>
+            </div>
+            {% if role == "editor" %}
+                <div class="small-6 columns">
+                    {{ form.locked }}
+                    <label>Locked</label>
+                    {% if form.locked.errors %}{{ form.locked.errors }}{% endif %}
+                    {{ form.edited }}
+                    <label>Edited</label>
+                    {% if form.edited.errors %}{{ form.edited.errors }}{% endif %}
+                </div>
+            {% endif %}
+        </div>
+
+        <div class="fieldWrapper">
+            {{ form.question_type.errors }}
+            {{ form.question_type }}
+        </div>
+
+        <input type="submit" id="submit-bonus" value="Save" class="button primary right" />
+    {% endif %}
+</form>
+{% if bonus %}
+    <ul class="button-group even">
+        <li><a href="/move_bonus/{{ qset.id }}/{{ bonus.id }}" class="button primary">Move to another set</a></li>
+        <li><a href="/bonus_history/{{ bonus.id }}" class="button primary">View bonus history</a></li>
+        <li><a href="/delete_bonus/{{ bonus.id }}" class="button primary delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">Delete question</a></li>
+        <li><a href="/convert_bonus/{{ bonus.id }}" class="button primary convert_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}" target-type="ACF-style tossup">Convert to ACF tossup</a></li>
+        {% if question_type == "ACF-style bonus" %}
+            <li><a href="/convert_bonus/{{ bonus.id }}" class="button primary convert_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}" target-type="VHSL bonus">Convert to VHSL bonus</a></li>
+        {% endif %}
+        {% if question_type == "VHSL bonus" %}
+            <li><a href="/convert_bonus/{{ bonus.id }}" class="button primary convert_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}" target-type="ACF-style bonus">Convert to ACF bonus</a></li>
+        {% endif %}
+    </ul>
+{% endif %}
+
+{% if bonus %}
+<div class="panel callout radius text-center"><strong>Comments</strong></div>
+<div class="row">
+    <div class="small-6 columns end comments">
         {% autoescape off %}
             {% get_comment_list for bonus as comment_list %}
             {% for comment in comment_list %}
@@ -151,19 +170,19 @@
         {% get_comment_form for bonus as cform %}
         <form action="{% comment_form_target %}" method="POST">
             {% csrf_token %}
-            {{ cform.comment.label_tag }}
-            <textarea cols="40" rows="10" id="{{ cform.comment.id_for_label }}"
-                      name="{{ cform.comment.html_name }}" class="form-control"></textarea>
+            <label>Comment
+                <textarea rows="5" id="{{ cform.comment.id_for_label }}" name="{{ cform.comment.html_name }}"></textarea>
+            </label>
             {{ cform.content_type }}
             {{ cform.object_pk }}
             {{ cform.timestamp }}
             {{ cform.security_hash }}
-            <input type="submit" name="submit" value="Post" class="btn btn-primary">
+            <input type="submit" name="submit" value="Post" class="button primary right">
             <input type="hidden" name="next" value="/edit_bonus/{{ bonus.id }}/">
         </form>
     </div>
-    {% endif %}
 </div>
+{% endif %}
 
 {% include "dialog.html" %}
 

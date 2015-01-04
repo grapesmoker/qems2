@@ -13,48 +13,46 @@
 
 {% block content %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Categories with Questions Remaining</h3>
-    <div class="alert alert-info text-center">
-        <strong>Set Completion Status: {{ set_pct_complete}} &ndash; {{ tu_needed }} tossups needed, {{ bs_needed }} bonuses needed</strong>
-    </div>
-
-    <table class="tablesorter table-striped table-hover" id="set-status-table">
-        <thead>
-            <tr>
-                <th>Category</th>
-                <th>Overall Completion</th>
-                <th>Tossups Remaining</th>
-                <th>Tossup Completion</th>
-                <th>Bonuses Remaining</th>
-                <th>Bonus Completion</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for cat, entry in set_status.items|sort %}
-            <tr>
-                <td>
-                    <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
-                </td>
-                <td>
-                    {{ entry|overall_percent }}
-                </td>
-                <td>
-                    {{ entry|tossups_remaining }}
-                </td>
-                <td>
-                    {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }} {{ entry.tu_in_cat|percent:entry.tu_req }}
-                </td>
-                <td>
-                    {{ entry|bonuses_remaining }}
-                </td>
-                <td>
-                    {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }} {{ entry.bs_in_cat|percent:entry.bs_req }}
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+<h3 class="page-header">Categories with Questions Remaining</h3>
+<div class="panel callout radius text-center">
+    <strong>Set Completion Status: {{ set_pct_complete}} &ndash; {{ tu_needed }} tossups needed, {{ bs_needed }} bonuses needed</strong>
 </div>
+
+<table class="tablesorter table-striped table-hover" id="set-status-table">
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Overall Completion</th>
+            <th>Tossups Remaining</th>
+            <th>Tossup Completion</th>
+            <th>Bonuses Remaining</th>
+            <th>Bonus Completion</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for cat, entry in set_status.items|sort %}
+        <tr>
+            <td>
+                <a href="/categories/{{ qset.id }}/{{ entry.category_id }}">{{ cat }}</a>
+            </td>
+            <td>
+                {{ entry|overall_percent }}
+            </td>
+            <td>
+                {{ entry|tossups_remaining }}
+            </td>
+            <td>
+                {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }} {{ entry.tu_in_cat|percent:entry.tu_req }}
+            </td>
+            <td>
+                {{ entry|bonuses_remaining }}
+            </td>
+            <td>
+                {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }} {{ entry.bs_in_cat|percent:entry.bs_req }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 
 {% endblock %}

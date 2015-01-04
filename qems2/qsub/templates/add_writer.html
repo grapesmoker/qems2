@@ -9,27 +9,30 @@
 {% block content %}
 {% load static %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Add Writers to {{ qset.name }}</h3>
-    <form action="" method="post" role="form" class="form-horizontal form-standard">
-        {% csrf_token %}
-        <table class="table table-striped table-hover">
-            <thead>
-            <tr>
-                <th>Available writers</th>
-                <th>Add to set?</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for writer in available_writers %}
-            <tr>
-                <td>{{ writer }}</td>
-                <td><input type="checkbox" value="{{ writer.id }}" name="writers_to_add"></td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-        <button class="btn btn-lg btn-primary pull-right" type="submit">Submit</button>
-    </form>
-</div>
+<h3 class="page-header">Add Writers to {{ qset.name }}</h3>
+<form action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+        <div class="small-8 small-centered columns">
+            <table class="tablesorter table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Available Editors</th>
+                    <th>Add to Set?</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for writer in available_writers %}
+                <tr>
+                    <td>{{ writer }}</td>
+                    <td><input type="checkbox" value="{{ writer.id }}" name="writers_to_add"></td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <input type="submit" value="Add Writers" class="button primary right" />
+</form>
+
 {% endblock %}

@@ -13,43 +13,42 @@
 
 {% block content %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Bulk Move Questions</h3>
-    <form action="" method="post">
-        {% csrf_token %}
-        
-        <p>Question set: {{ qset }}</p>
-        
-        <h3>Tossups to change:</h3>
-        {% autoescape off %}
-            {% for tossup in tossups %}
-                <p>{{ tossup.tossup_answer|safe|preview|answer_html }}</p>
-                <input type="hidden" name="tossup-id-{{ forloop.counter0 }}" value="{{ tossup.id }}" />
-            {% endfor %}
-            
-            <h3>Bonuses to change:</h3>
-            {% for bonus in bonuses %}
-                <p>{{ bonus|bonus_answers }}</p>
-                <input type="hidden" name="bonus-id-{{ forloop.counter0 }}" value="{{ bonus.id }}" />
-            {% endfor %}
-        {% endautoescape %}
-        
-        <h3>Assign new set:</h3>
-        <select name="new-set">
-            {% for new_set in new_sets %}
-                <option value="{{ new_set.id }}">{{ new_set }}</option>            
-            {% endfor %}            
-        </select>
+<h3 class="page-header">Bulk Move Questions</h3>
+<form action="" method="post">
+    {% csrf_token %}
 
-        <input type="hidden" name="num-tossups" value="{{ tossups|length }}">
-        <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}">
-        
-        <input type="hidden" name="confirm" value="True">
-        <input type="hidden" name="change-type" value="move-step2">
-                
-        <p><input type="submit" value="Move question"/></p>
-    </form>
+    <p>Question set: {{ qset }}</p>
 
-</div>
+    <h3>Tossups to change:</h3>
+    {% autoescape off %}
+        {% for tossup in tossups %}
+            <p>{{ tossup.tossup_answer|safe|preview|answer_html }}</p>
+            <input type="hidden" name="tossup-id-{{ forloop.counter0 }}" value="{{ tossup.id }}" />
+        {% endfor %}
+    {% endautoescape %}
+
+    <h3>Bonuses to change:</h3>
+    {% autoescape off %}
+        {% for bonus in bonuses %}
+            <p>{{ bonus|bonus_answers }}</p>
+            <input type="hidden" name="bonus-id-{{ forloop.counter0 }}" value="{{ bonus.id }}" />
+        {% endfor %}
+    {% endautoescape %}
+
+    <h3>Assign new set:</h3>
+    <select name="new-set">
+        {% for new_set in new_sets %}
+            <option value="{{ new_set.id }}">{{ new_set }}</option>
+        {% endfor %}
+    </select>
+
+    <input type="hidden" name="num-tossups" value="{{ tossups|length }}">
+    <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}">
+
+    <input type="hidden" name="confirm" value="True">
+    <input type="hidden" name="change-type" value="move-step2">
+
+    <input type="submit" class="button primary right" value="Move question" />
+</form>
 
 {% endblock %}

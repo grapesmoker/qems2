@@ -13,131 +13,127 @@
 
 {% block content %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    {% if message %}
-    <div class="{{ message_class }}">
-        {{ message }}
-    </div>
-    {% endif %}
-        
-    <h3 class="page-header">Bulk Change {{ qset }}</h3>
-    <form action="" method="post">
-        {% csrf_token %}
-        
-        <table class="table table-striped table-hover tablesorter" id="bulk-change-tossup-table">
-            <thead>
-            <tr>
-                <th>Author</th>
-                <th>Tossup Text</th>
-                <th>Answer</th>
-                <th>Question Type</th>
-                <th>Category</th>
-                <th>Packet</th>
-                <th>Created</th>
-                <th>Modified</th>
-                <th>Edited</th>
-                <th>Comments</th>
-                <th>Last Comment</th>
-                <th>Selected</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% autoescape off %}
-                {% for tossup in tossups %}
-                <tr>
-                    <td>{{ tossup.author }}</td>
-                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
-                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
-                    <td>Tossup</td>
-                    <td>{{ tossup.category }}</td>
-                    <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
-                    <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
-                    <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
-                    <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
-                    <td>
-                    {% get_comment_list for tossup as comment_list %}
-                    {% for comment in comment_list %}
-                        {% if not comment.is_removed %}
-                            {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
-                        {% endif %}
-                    {% endfor %}
-                    </td>
-                    <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
-                    <td><input type="checkbox" name="tossup-checked-{{ forloop.counter0 }}" />
-                        <input type="hidden" name="tossup-id-{{ forloop.counter0 }}" value="{{ tossup.id }}" /></td>
-                </tr>
-                {% endfor %}
-            {% endautoescape %}
-            </tbody>
-        </table>
-        <table class="table table-striped table-hover tablesorter" id="bulk-change-bonus-table">
-            <thead>
-            <tr>
-                <th>Author</th>
-                <th>Bonus Preview</th>
-                <th>Answer</th>
-                <th>Question Type</th>
-                <th>Category</th>
-                <th>Packet</th>
-                <th>Created</th>
-                <th>Modified</th>
-                <th>Edited</th>
-                <th>Comments</th>
-                <th>Last Comment</th>
-                <th>Selected</th>
-            </tr>
-            </thead>
-            {% autoescape off %}
-                {% for bonus in bonuses %}
-                <tr>
-                    <td>{{ bonus.author }}</td>
-                    <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_leadin }}</a></td>
-                    <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_answers }}</a></td>
-                    <td>Bonus</td>
-                    <td>{{ bonus.category }}</td>
-                    <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
-                    <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
-                    <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
-                    <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
-                    <td>
-                    {% get_comment_list for bonus as comment_list %}
-                    {% for comment in comment_list %}
-                        {% if not comment.is_removed %}
-                            {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
-                        {% endif %}
-                    {% endfor %}
-                    </td>
-                    <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
-                    <td><input type="checkbox" name="bonus-checked-{{ forloop.counter0 }}" />
-                        <input type="hidden" name="bonus-id-{{ forloop.counter0 }}" value="{{ bonus.id }}" />
-                    </td>
-                </tr>
-                {% endfor %}
-            {% endautoescape %}
-            </tbody>
-        </table>
-            
-        {% if not read_only %}
-            <input type="radio" name="change-type" value="edit" checked/>Mark question as edited<br>
-            <input type="radio" name="change-type" value="unedit"/>Mark question as unedited<br>            
-            <input type="radio" name="change-type" value="packet"/>Change Packet<br>
-            <input type="radio" name="change-type" value="lock"/>Lock<br>
-            <input type="radio" name="change-type" value="unlock"/>Unlock<br>            
-            <input type="radio" name="change-type" value="delete"/>Delete<br>
-            <input type="radio" name="change-type" value="convert-to-acf-style-tossup"/>Convert to ACF-style tossup<br>
-            <input type="radio" name="change-type" value="convert-to-acf-style-bonus"/>Convert to ACF-style bonus<br>
-            <input type="radio" name="change-type" value="convert-to-vhsl-bonus"/>Convert to VHSL bonus<br>
-            <input type="radio" name="change-type" value="move"/>Move to another set<br>
-            <input type="radio" name="change-type" value="author"/>Change the author<br><br>
+{% if message %}
+    <div class="{{ message_class }}">{{ message }}</div>
+{% endif %}
 
-            <input type="hidden" name="num-tossups" value="{{ tossups|length }}">
-            <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}">
-            
-            <p><input type="checkbox" name="confirm" />Confirm that you want to make these changes</p>
-            <p><input type="submit" value="Submit Changes"/></p>
-        {% endif %}
-    </form>
-    
-</div>
+<h3 class="page-header">Bulk Change {{ qset }}</h3>
+<form action="" method="post">
+    {% csrf_token %}
+
+    <table class="table table-striped table-hover tablesorter" id="bulk-change-tossup-table">
+        <thead>
+        <tr>
+            <th>Author</th>
+            <th>Tossup Text</th>
+            <th>Answer</th>
+            <th>Question Type</th>
+            <th>Category</th>
+            <th>Packet</th>
+            <th>Created</th>
+            <th>Modified</th>
+            <th>Edited</th>
+            <th>Comments</th>
+            <th>Last Comment</th>
+            <th>Selected</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% autoescape off %}
+            {% for tossup in tossups %}
+            <tr>
+                <td>{{ tossup.author }}</td>
+                <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
+                <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
+                <td>Tossup</td>
+                <td>{{ tossup.category }}</td>
+                <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
+                <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
+                <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
+                <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                <td>
+                {% get_comment_list for tossup as comment_list %}
+                {% for comment in comment_list %}
+                    {% if not comment.is_removed %}
+                        {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
+                    {% endif %}
+                {% endfor %}
+                </td>
+                <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
+                <td><input type="checkbox" name="tossup-checked-{{ forloop.counter0 }}" />
+                    <input type="hidden" name="tossup-id-{{ forloop.counter0 }}" value="{{ tossup.id }}" /></td>
+            </tr>
+            {% endfor %}
+        {% endautoescape %}
+        </tbody>
+    </table>
+    <table class="table table-striped table-hover tablesorter" id="bulk-change-bonus-table">
+        <thead>
+        <tr>
+            <th>Author</th>
+            <th>Bonus Preview</th>
+            <th>Answer</th>
+            <th>Question Type</th>
+            <th>Category</th>
+            <th>Packet</th>
+            <th>Created</th>
+            <th>Modified</th>
+            <th>Edited</th>
+            <th>Comments</th>
+            <th>Last Comment</th>
+            <th>Selected</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% autoescape off %}
+            {% for bonus in bonuses %}
+            <tr>
+                <td>{{ bonus.author }}</td>
+                <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_leadin }}</a></td>
+                <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_answers }}</a></td>
+                <td>Bonus</td>
+                <td>{{ bonus.category }}</td>
+                <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
+                <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
+                <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                <td>
+                {% get_comment_list for bonus as comment_list %}
+                {% for comment in comment_list %}
+                    {% if not comment.is_removed %}
+                        {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
+                    {% endif %}
+                {% endfor %}
+                </td>
+                <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
+                <td><input type="checkbox" name="bonus-checked-{{ forloop.counter0 }}" />
+                    <input type="hidden" name="bonus-id-{{ forloop.counter0 }}" value="{{ bonus.id }}" />
+                </td>
+            </tr>
+            {% endfor %}
+        {% endautoescape %}
+        </tbody>
+    </table>
+
+    {% if not read_only %}
+        <input type="radio" name="change-type" value="edit" checked /><label>Mark question as edited</label>
+        <input type="radio" name="change-type" value="unedit" /><label>Mark question as unedited</label>
+        <input type="radio" name="change-type" value="packet" /><label>Change Packet</label>
+        <input type="radio" name="change-type" value="lock" /><label>Lock</label>
+        <input type="radio" name="change-type" value="unlock" /><label>Unlock</label>
+        <input type="radio" name="change-type" value="delete" /><label>Delete</label>
+        <input type="radio" name="change-type" value="convert-to-acf-style-tossup" /><label>Convert to ACF-style tossup</label>
+        <input type="radio" name="change-type" value="convert-to-acf-style-bonus" /><label>Convert to ACF-style bonus</label>
+        <input type="radio" name="change-type" value="convert-to-vhsl-bonus" /><label>Convert to VHSL bonus</label>
+        <input type="radio" name="change-type" value="move" /><label>Move to another set</label>
+        <input type="radio" name="change-type" value="author" /><label>Change the author</label>
+
+        <input type="hidden" name="num-tossups" value="{{ tossups|length }}">
+        <input type="hidden" name="num-bonuses" value="{{ bonuses|length }}">
+
+        <input type="checkbox" name="confirm" /><label for="confirm">Confirm that you want to make these changes</label>
+        <input type="submit" class="button primary right" value="Submit Changes" />
+    {% endif %}
+</form>
 
 {% endblock %}

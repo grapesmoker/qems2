@@ -87,7 +87,7 @@ def get_answer_no_formatting(line):
     output = output.replace('_', '')
     output = output.replace('~', '')
     return output
-    
+
 def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLines):
     italicsFlag = False
     parensFlag = False
@@ -98,40 +98,40 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
             if (not italicsFlag):
                 output += "<i>"
                 italicsFlag = True
-            else:                
+            else:
                 output += "</i>"
                 italicsFlag = False
         elif (c == "(" and allowParens):
             output += "<strong>("
             parensFlag = True
         elif (c == ")" and allowParens):
-            output += ")</strong>"                
+            output += ")</strong>"
             parensFlag = False
         else:
             if (c == "_" and allowUnderlines):
                 if (not underlineFlag):
                     output += "<b><u>"
-                    underlineFlag = True                    
+                    underlineFlag = True
                 else:
-                    output += "</b></u>"
+                    output += "</u></b>"
                     underlineFlag = False
             else:
                 output += c
-    
+
     if (italicsFlag):
         output += "</i>"
-        
+
     if (underlineFlag):
-        output += "</b></u>"
-    
+        output += "</u></b>"
+
     if (parensFlag):
         output += "</strong>"
-    
+
     if (allowNewLines):
-        output = output.replace("&lt;br&gt;", "<br>")
-            
+        output = output.replace("&lt;br&gt;", "<br />")
+
     return output
-    
+
 def get_character_count(line):
     count = 0
     parensFlag = False # Parentheses indicate pronunciation guide
@@ -219,10 +219,10 @@ class InvalidTossup(Exception):
         self.args = [a for a in args]
 
     def __str__(self):
-        s = '*' * 50 + '<br>'
-        s += 'Invalid tossup {0}!<br>'.format(self.args[2])
-        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
-        s += '*' * 50 + '<br>'
+        s = '*' * 50 + '<br />'
+        s += 'Invalid tossup {0}!<br />'.format(self.args[2])
+        s += 'The problem is in field: {0}, which has value: {1}<br />'.format(self.args[0], self.args[1])
+        s += '*' * 50 + '<br />'
 
         return s
 
@@ -233,10 +233,10 @@ class InvalidBonus(Exception):
         self.args = [a for a in args]
 
     def __str__(self):
-        s = '*' * 50 + '<br>'
-        s += 'Invalid bonus {0}!<br>'.format(self.args[2])
-        s += 'The problem is in field: {0}, which has value: {1}<br>'.format(self.args[0], self.args[1])
-        s += '*' * 50 + '<br>'
+        s = '*' * 50 + '<br />'
+        s += 'Invalid bonus {0}!<br />'.format(self.args[2])
+        s += 'The problem is in field: {0}, which has value: {1}<br />'.format(self.args[0], self.args[1])
+        s += '*' * 50 + '<br />'
 
         return s
 

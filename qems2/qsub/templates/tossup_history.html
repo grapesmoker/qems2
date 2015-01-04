@@ -11,51 +11,39 @@
 {% block title %}{% if tossup %}{{ tossup.tossup_answer|answer_no_formatting|short_preview }} - History - QEMS2{% else %}Tossup History - QEMS2{% endif %}{% endblock %}
 
 {% block content %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    {% if tossup %}
-        <ol class="breadcrumb">
-            <li><a href="/edit_tossup/{{ tossup.id }}">{{ tossup }}</a></li>
-        </ol>
-    {% endif %}
-    <h3 class="page-header">Tossup History</h3>
-    {% autoescape off %}        
-        {% if message %}
+
+<h3 class="page-header">Tossup History</h3>
+{% autoescape off %}        
+    {% if message %}
         <p class="{{ message_class }}">{{ message }}</p>
+    {% endif %}
+{% endautoescape %}
+{% autoescape off %}
+    {% if tossup %}
+        <div class="panel callout radius text-center"><strong>Current Version</strong></div>
+        {{ tossup|tossup_html_verbose }}
+    {% endif %}
+{% endautoescape %}
+
+<div class="panel callout radius text-center"><strong>Previous Versions</strong></div>
+
+{% autoescape off %}
+    {% for th in tossup_histories %}
+        {{ th|tossup_html }}
+        {% if not read_only %}
+            <a href="/restore_tossup/" class="restore_tossup button primary" value="{{ th.id }}" qset="{{ qset.id }}">Restore to this version</a>
         {% endif %}
-    {% endautoescape %}
-    <div class="col-md-10">
-        {% autoescape off %}
-            {% if tossup %}
-                <h3>Current Tossup:</h3>
-                {{ tossup|tossup_html_verbose }}
-            {% endif %}
-        {% endautoescape %}
+    {% endfor %}
 
-        <h3>Previous Tossups:</h3>
-
-        {% autoescape off %}
-            {% for th in tossup_histories %}
-                {{ th|tossup_history_html }}
-                {% if not read_only %}
-                    <p><a href="/restore_tossup/" class="restore_tossup" value="{{ th.id }}" qset="{{ qset.id }}">Restore to this version</a></p>
-                    <br><br>
-                {% endif %}
-            {% endfor %}
-
-                                
-            {% for bh in bonus_histories %}
-                {{ bh|bonus_history_html }}
-                {% if not read_only %}
-                    <!-- In this case, need to switch this to be a bonus -->
-                    <!-- TODO: Do this after doing the rest of the convert question work -->            
-                    <p><a href="/restore_bonus/" class="restore_bonus" value="{{ bh.id }}" qset="{{ qset.id }}">Restore to this version</a></p>
-                    <br><br>
-                {% endif %}
-            {% endfor %}
-        {% endautoescape %}
-        
-    </div>
-</div>
+    {% for bh in bonus_histories %}
+        {{ bh|bonus_html }}
+        {% if not read_only %}
+            <!-- In this case, need to switch this to be a bonus -->
+            <!-- TODO: Do this after doing the rest of the convert question work -->            
+            <a href="/restore_bonus/" class="restore_bonus button primary" value="{{ bh.id }}" qset="{{ qset.id }}">Restore this version</a>
+        {% endif %}
+    {% endfor %}
+{% endautoescape %}
 
 {% include "dialog.html" %}
 

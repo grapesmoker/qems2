@@ -11,200 +11,191 @@
 {% load filters %}
 {% load comments %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Editing Packet: {{ packet.packet_name }}</h3>
-    {% if message %}
+<h3 class="page-header">Editing Packet: {{ packet.packet_name }}</h3>
+{% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
-    {% endif %}
+{% endif %}
 
-    <div class="tabbable">
-        <ul class="nav nav-tabs nav-justified">
-            <li class="active">
-                <a href="#status" data-toggle="tab">Packet Status</a>
-            </li>
-            <li>
-                <a href="#tossups" data-toggle="tab">Tossups</a>
-            </li>
-            <li>
-                <a href="#bonuses" data-toggle="tab">Bonuses</a>
-            </li>
-        </ul>
-        <div class="tab-content">
-            <div class="tab-pane active" id="status">
-                <div class="alert alert-info text-center"><strong>Packet Completion Status</strong></div>
-                <table class="tablesorter table-striped table-hover" id="packet-status-tossup-table">
-                    <thead>
-                    <tr>
-                        <th>Tossup Category</th>
-                        <th>Tossups in Packet</th>
-                        <th>Tossups Required</th>
-                        <th>Percent Complete</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for cat, entry in tossup_status.items|sort %}
-                    <tr>
-                        <td>
-                            {{ cat }}
-                        </td>
-                        <td>
-                            {{ entry.tu_in_cat }}
-                        </td>
-                        <td>
-                            {{ entry.tu_req }}
-                        </td>
-                        <td>
-                            {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }} {{ entry.tu_in_cat|percent:entry.tu_req }}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <table class="tablesorter table-striped table-hover" id="packet-status-bonus-table">
-                    <thead>
-                    <tr>
-                        <th>Bonus Category</th>
-                        <th>Bonuses in Packet</th>
-                        <th>Bonuses Required</th>
-                        <th>Percent Complete</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {% for cat, entry in bonus_status.items|sort %}
-                    <tr>
-                        <td>
-                            {{ cat }}
-                        </td>
-                        <td>
-                            {{ entry.bs_in_cat }}
-                        </td>
-                        <td>
-                            {{ entry.bs_req }}
-                        </td>
-                        <td>
-                            {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }} {{ entry.bs_in_cat|percent:entry.bs_req }}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-                <div class="alert alert-info" style="text-align: center"><strong>Comments</strong></div>
-                <div class="comments col-md-6">
-                    {% render_comment_list for packet %}
-                    {% get_comment_form for packet as cform %}
-                    <form action="{% comment_form_target %}" method="POST">
-                        {% csrf_token %}
-                        {{ cform.comment.label_tag }}
-                        <textarea cols="40" rows="10" id="{{ cform.comment.id_for_label }}"
-                                  name="{{ cform.comment.html_name }}" class="form-control">
-                        </textarea>
-                        {{ cform.honeypot }}
-                        {{ cform.content_type }}
-                        {{ cform.object_pk }}
-                        {{ cform.timestamp }}
-                        {{ cform.security_hash }}
-                        <input type="submit" name="submit" value="Post" class="btn btn-primary">
-                        <!--<input type="submit" name="preview" value="Preview" class="btn btn-primary">-->
-                        <input type="hidden" name="next" value="/edit_packet/{{ packet.id }}/">
-                    </form>
-                </div>
-            </div>
-            <div class="tab-pane" id="tossups">
-                <div class="btn-group btn-group-justified">
-                    <a class="btn btn-primary" href="/add_tossups/{{ qset.id }}/{{ packet.id }}">
-                        <i class="fa fa-plus-circle"></i> Add new tossups
-                    </a>
-                    <a class="btn btn-primary" id="add-existing-tossups">
-                        <i class="fa fa-plus-circle"></i> Add existing tossups
-                    </a>
-                </div>
-                <div class="alert alert-info text-center"><strong>Tossups</strong></div>
-                <table class="tablesorter table-striped table-hover" id="packet-tossup-table">
-                    <thead>
-                    <tr>
-                        <th>Order in Packet</th>
-                        <th>Author</th>
-                        <th>Tossup Text</th>
-                        <th>Answer</th>
-                        <th>Category</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody class="tossup_table_body">
-                    {% for tossup in tossups %}
-                    <tr class="tossup-row" id="tossup-order-{{ tossup.id }}" value="{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}" tossup-id="{{ tossup.id }}">
-                        <td>{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}</td>
-                        <td>{{ tossup.author }}</td>
-                        <td>{{ tossup.tossup_text|safe|question_html|preview }}</td>
-                        <td>{{ tossup.tossup_answer|safe|answer_html|preview }}</td>
-                        <td>{{ tossup.category }}</td>
-                        <td>
-                            <a href="/edit_tossup/{{ tossup.id }}" title="Edit">
-                                <i class="fa fa-edit"></i>
-                            </a>
-                            <a href="/delete_tossup/{{ tossup.id }}" title="Delete" class="delete_tossup" value="{{ tossup.id }}">
-                                <i class="fa fa-minus-circle"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="tab-pane" id="bonuses">
-                <div class="btn-group btn-group-justified">
-                    <a class="btn btn-primary" href="/add_bonuses/{{ qset.id }}/{{ packet.id }}">
-                        <i class="fa fa-plus-circle"></i> Add new bonuses
-                    </a>
-                    <a class="btn btn-primary" id="add-existing-bonuses">
-                        <i class="fa fa-plus-circle"></i> Add existing bonuses
-                    </a>
-                </div>
-                <div class="alert alert-info text-center"><strong>Bonuses</strong></div>
-                <table class="tablesorter table-striped table-hover" id="packet-bonus-table">
-                    <thead>
-                    <tr>
-                        <th>Order in Packet</th>
-                        <th>Author</th>
-                        <th>Leadin</th>
-                        <th>Answers</th>
-                        <th>Category</th>
-                        <th>Actions</th>
-                    </tr>
-                    </thead>
-                    <tbody class="bonus_table_body">
-                    {% for bonus in bonuses %}
-                    <tr class="bonus_row" id="bonus-order-{{ bonus.id }}" value="{% if bonus.question_number %} {{ bonus.question_number}} {% endif %}" bonus-id="{{ bonus.id }}">
-                        <td>{% if bonus.question_number %} {{ bonus.question_number }} {% endif %}</td>
-                        <td>{{ bonus.author }}</td>
-                        <td>{{ bonus.leadin|preview }}</td>
-                        <td>{{ bonus|bonus_answers }}</td>
-                        <td>{{ bonus.category }}</td>
-                        <td>
-                            <a href="/edit_bonus/{{ bonus.id }}" title="Edit">
-                                <i class="fa fa-edit"></i>
-                            </a>
-                            <a href="/delete_bonus/{{ bonus.id }}" title="Delete" class="delete_bonus" value="{{ bonus.id }}">
-                                <i class="fa fa-minus-circle"></i>
-                            </a>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
+<dl class="tabs" data-tab>
+    <dd class="active"><a href="#status">Packet Status</a></dd>
+    <dd><a href="#tossups">Tossups</a></dd>
+    <dd><a href="#bonuses">Bonuses</a></dd>
+</dl>
+<div class="tabs-content">
+    <div class="content active" id="status">
+        <div class="panel callout radius text-center"><strong>Packet Completion Status</strong></div>
+        <table class="tablesorter table-striped table-hover" id="packet-status-tossup-table">
+            <thead>
+            <tr>
+                <th>Tossup Category</th>
+                <th>Tossups in Packet</th>
+                <th>Tossups Required</th>
+                <th>Percent Complete</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for cat, entry in tossup_status.items|sort %}
+            <tr>
+                <td>
+                    {{ cat }}
+                </td>
+                <td>
+                    {{ entry.tu_in_cat }}
+                </td>
+                <td>
+                    {{ entry.tu_req }}
+                </td>
+                <td>
+                    {{ entry.tu_in_cat|check_mark_if_100_pct:entry.tu_req }} {{ entry.tu_in_cat|percent:entry.tu_req }}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <table class="tablesorter table-striped table-hover" id="packet-status-bonus-table">
+            <thead>
+            <tr>
+                <th>Bonus Category</th>
+                <th>Bonuses in Packet</th>
+                <th>Bonuses Required</th>
+                <th>Percent Complete</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for cat, entry in bonus_status.items|sort %}
+            <tr>
+                <td>
+                    {{ cat }}
+                </td>
+                <td>
+                    {{ entry.bs_in_cat }}
+                </td>
+                <td>
+                    {{ entry.bs_req }}
+                </td>
+                <td>
+                    {{ entry.bs_in_cat|check_mark_if_100_pct:entry.bs_req }} {{ entry.bs_in_cat|percent:entry.bs_req }}
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        <div class="panel callout radius text-center"><strong>Comments</strong></div>
+        <div class="row">
+            <div class="small-6 columns end comments">
+                {% render_comment_list for packet %}
+                {% get_comment_form for packet as cform %}
+                <form action="{% comment_form_target %}" method="POST">
+                    {% csrf_token %}
+                    <label>Comment
+                        <textarea rows="5" id="{{ cform.comment.id_for_label }}" name="{{ cform.comment.html_name }}"></textarea>
+                    </label>
+                    {{ cform.honeypot }}
+                    {{ cform.content_type }}
+                    {{ cform.object_pk }}
+                    {{ cform.timestamp }}
+                    {{ cform.security_hash }}
+                    <input type="submit" name="submit" value="Post" class="button primary right">
+                    <!--<input type="submit" name="preview" value="Preview" class="btn btn-primary">-->
+                    <input type="hidden" name="next" value="/edit_packet/{{ packet.id }}/">
+                </form>
             </div>
         </div>
     </div>
+    <div class="content" id="tossups">
+        <ul class="button-group even">
+            <li><a class="button primary" href="/add_tossups/{{ qset.id }}/{{ packet.id }}"><i class="fa fa-plus-circle"></i> Add new tossups</a></li>
+            <li><a class="button primary" id="add-existing-tossups"><i class="fa fa-plus-circle"></i> Add existing tossups</a></li>
+        </ul>
+        <div class="panel callout radius text-center"><strong>Tossups</strong></div>
+        <table class="tablesorter table-striped table-hover" id="packet-tossup-table">
+            <thead>
+            <tr>
+                <th>Order in Packet</th>
+                <th>Author</th>
+                <th>Tossup Text</th>
+                <th>Answer</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody class="tossup_table_body">
+            {% for tossup in tossups %}
+            <tr class="tossup-row" id="tossup-order-{{ tossup.id }}" value="{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}" tossup-id="{{ tossup.id }}">
+                <td>{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}</td>
+                <td>{{ tossup.author }}</td>
+                <td>{{ tossup.tossup_text|safe|question_html|preview }}</td>
+                <td>{{ tossup.tossup_answer|safe|answer_html|preview }}</td>
+                <td>{{ tossup.category }}</td>
+                <td>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
+                        <a href="/edit_tossup/{{ tossup.id }}">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    </span>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                        <a href="/delete_tossup/{{ tossup.id }}" class="delete_tossup" value="{{ tossup.id }}">
+                            <i class="fa fa-minus-circle"></i>
+                        </a>
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="content" id="bonuses">
+        <ul class="button-group even">
+            <li><a class="button primary" href="/add_bonuses/{{ qset.id }}/{{ packet.id }}"><i class="fa fa-plus-circle"></i> Add new bonuses</a></li>
+            <li><a class="button primary" id="add-existing-bonuses"><i class="fa fa-plus-circle"></i> Add existing bonuses</a></li>
+        </ul>
+        <div class="panel callout radius text-center"><strong>Bonuses</strong></div>
+        <table class="tablesorter table-striped table-hover" id="packet-bonus-table">
+            <thead>
+            <tr>
+                <th>Order in Packet</th>
+                <th>Author</th>
+                <th>Leadin</th>
+                <th>Answers</th>
+                <th>Category</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+            <tbody class="bonus_table_body">
+            {% for bonus in bonuses %}
+            <tr class="bonus_row" id="bonus-order-{{ bonus.id }}" value="{% if bonus.question_number %} {{ bonus.question_number}} {% endif %}" bonus-id="{{ bonus.id }}">
+                <td>{% if bonus.question_number %} {{ bonus.question_number }} {% endif %}</td>
+                <td>{{ bonus.author }}</td>
+                <td>{{ bonus.leadin|preview }}</td>
+                <td>{{ bonus|bonus_answers }}</td>
+                <td>{{ bonus.category }}</td>
+                <td>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
+                        <a href="/edit_bonus/{{ bonus.id }}">
+                            <i class="fa fa-edit"></i>
+                        </a>
+                    </span>
+                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
+                        <a href="/delete_bonus/{{ bonus.id }}" class="delete_bonus" value="{{ bonus.id }}">
+                            <i class="fa fa-minus-circle"></i>
+                        </a>
+                    </span>
+                </td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 
-<div id="tossup-dialog" title="Add tossups to set">
-    <table class="table table-striped table-hover">
+<div id="tossup-dialog" title="Add Tossups to Set">
+    <table class="tablesorter table-striped table-hover">
         <thead>
-        <tr>
-            <td>Tossup Answer</td>
-            <td>Tossup Category</td>
-            <td>Add to Packet?</td>
-        </tr>
+            <tr>
+                <th>Tossup Answer</th>
+                <th>Tossup Category</th>
+                <th>Add to Packet?</th>
+            </tr>
         </thead>
         <tbody>
 
@@ -212,26 +203,23 @@
     </table>
 </div>
 
-<div id="bonus-dialog" title="Add bonuses to set">
-    <table class="table table-striped table-hover">
+<div id="bonus-dialog" title="Add Bonuses to Set">
+    <table class="tablesorter table-striped table-hover">
         <thead>
-        <tr>
-            <td>Bonus Leadin</td>
-            <td>Bonus Category</td>
-            <td>Add to Packet?</td>
-        </tr>
+            <tr>
+                <th>Bonus Leadin</th>
+                <th>Bonus Category</th>
+                <th>Add to Packet?</th>
+            </tr>
         </thead>
         <tbody>
 
         </tbody>
     </table>
 </div>
-
-{% include "dialog.html" %}
 
 <input type="hidden" id="qset-id" value="{{ qset.id }}">
 <input type="hidden" id="packet-id" value="{{ packet.id }}">
 <script type="text/javascript" src="{% static 'js/packet_management.js' %}"></script>
-<!--<script type="text/javascript" src="{% static 'js/jquery.tablednd.js' %}"></script>-->
 
 {% endblock %}

@@ -1,36 +1,30 @@
+/* Font overrides */
+.accordion .accordion-navigation > a, .accordion dd > a,
+.button, select, .label, .tabs dd > a,
+h1, h2, h3, h4, h5, h6, body {
+    font-family: 'Karla', sans-serif;
+}
+.top-bar-section,
+.top-bar-section ul li > a {
+    font-family: 'Montserrat', sans-serif;
+}
 /* Global overrides */
-
-/*div#container {
-    margin: 5px;
-    position: relative;
-    left: 250px;
-    width: 800px;
-}
-
-div#content {
-    padding: 10px;
-    margin-top: 75px;
-    width: 70%;
-    position: absolute;
-    background-color: #e0e0e0;
-}*/
-
 body {
-    padding-top:50px;
-    background-color:#fcfcfc;
+    padding-top:40px;
+    background-color: #fffafa;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(248,248,255,.5) 2px, rgba(248,248,255,.5) 4px);
 }
-.form-standard {
-    max-width:660px;
-    padding:15px;
-    margin:0 auto;
+p {
+    font-size:0.9125rem;
+    line-height:1.5;
+    margin:0.5rem;
 }
-.alert {
-    margin:5px 0 5px;
-    padding:8px;
-    font-size:0.9em;
+.row {
+    max-width:72.5rem;
 }
 .page-header {
     margin:24px 0 20px;
+    border-bottom:1px solid #ddd;
 }
 .fa-check {
     color:green;
@@ -38,20 +32,130 @@ body {
 .fa-times {
     color:red;
 }
-
+.button-group.even {
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+}
+.button-group.even li {
+    flex-grow:1;
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+    margin:0;
+}
+.button-group.even li a {
+    flex-grow:1;
+}
+.button-group.even li input {
+    flex-grow:1;
+}
+.button {
+    font-size:0.875rem;
+    padding-top:0.875rem;
+    padding-right:1.5rem;
+    padding-bottom:0.9125rem;
+    padding-left:1.5rem;
+}
+.tabs {
+    display:flex;
+    flex-direction:row;
+    justify-content:center;
+    border-bottom:1px solid #ddd;
+}
+.tabs dd {
+    flex-grow:1;
+    align-items:baseline;
+}
+.tabs dd a {
+    font-size:1rem;
+    text-align:center;
+}
+.panel.callout {
+    background-color:#b6edff;
+    margin-bottom:0.625rem;
+    padding:0.625rem;
+}
+.panel.callout > strong {
+    font-size:0.9125rem;
+}
+.progress.edit-qset {
+    background-color: #f8f8ff;
+    border:1px solid #f8f8ff;
+    padding:0;
+}
+span.prefix.text-left {
+    padding-left:1rem;
+}
+.label {
+    font-size:0.8125rem;
+}
+#id_honeypot {
+    display:none;
+}
+.errorlist {
+    display:block;
+    padding:0.375rem 0.5625rem 0.5625rem;
+    margin-top:-1rem;
+    margin-bottom:1rem;
+    margin-left:auto;
+    font-size:0.8125rem;
+    font-style:italic;
+    background:#f04124;
+    color:#fff;
+    list-style-type:none;
+}
+.collapse > .errorlist {
+    margin-top:0;
+}
+/* Modal Dialogs */
+.ui-dialog {
+    background-color:#f8f8ff;
+    box-shadow:0 0 4px 4px #333;
+}
+.ui-dialog > .ui-dialog-titlebar {
+    text-align:center;
+    padding:1rem;
+}
+.ui-dialog > .ui-dialog-titlebar > .ui-dialog-title {
+    font-size:1.375rem;
+}
+.ui-dialog > .ui-dialog-titlebar > .ui-dialog-titlebar-close {
+    display:none;
+}
+.ui-dialog > .ui-dialog-buttonpane > .ui-dialog-buttonset {
+    display:flex;
+    margin:0 auto;
+    padding:0 0.875rem;
+}
+.ui-dialog > .ui-dialog-buttonpane > .ui-dialog-buttonset > .ui-button {
+    flex-grow:1;
+}
+#tossup-dialog,
+#bonus-dialog {
+    padding:1.25rem;
+}
 /* Tables */
 .tablesorter {
     margin:5px 0 5px;
-    font-size:0.8em;
     width:100%;
     text-align:left;
+    border:0;
 }
 .tablesorter thead tr th,
 .tablesorter tfoot tr th {
     background-color:#bbb;
-    border:2px solid #fcfcfc;
-    font-size:1em;
+    border:1px solid #f8f8ff;
+    border-top:0;
+    border-bottom:0;
+    font-size:0.875rem;
     padding:6px 20px 6px 3px;
+}
+.accordion table thead tr th,
+.accordion table tfoot tr th {
+    border:1px solid #fff;
+    border-top:0;
+    border-bottom:0;
 }
 .tablesorter thead tr .header {
     background-image:url(../images/blueskin/bg.gif);
@@ -70,10 +174,19 @@ body {
     background-color:#8dbdd8;
 }
 .tablesorter tbody tr td {
-    border-right:2px solid #fcfcfc;
+    border:1px solid #f8f8ff;
+    border-top:0;
+    border-bottom:0;
     padding:4px 3px 4px;
     background-color:transparent;
     vertical-align:top;
+    font-size:0.8125rem;
+}
+.accordion table tbody tr td {
+    border:1px solid #fff;
+    border-top:0;
+    border-bottom:0;
+    background-color:#f8f8ff;
 }
 .tablesorter tbody tr td a:hover,
 .tablesorter tbody tr td a:focus {
@@ -88,9 +201,18 @@ body {
 .table-striped tbody tr:nth-child(even) td {
     background-color:#ddd;
 }
-#packet-status-tossup-table tbody tr td,
-#packet-status-bonus-table tbody tr td {
-    width:25%;
+table input[type="text"],
+table input[type="number"],
+table input[type="checkbox"] {
+    float:left;
+    margin:auto;
+    width:100%;
+}
+#distribution-table tbody tr td,
+#set-wide-reqs-table tbody tr td,
+#tb-reqs-table tbody tr td {
+    vertical-align:middle;
+    padding:0.5rem;
 }
 .over-char-limit {
     color: red;

@@ -7,19 +7,60 @@
 {% block title %}Profile - QEMS2{% endblock %}
 
 {% block content %}
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Profile for {{ user.user.username }}</h3>
-    <p class="alert alert-info">
-        You can change your profile information here, except your username.
-    </p>
-    {% if message %}
+
+<h3 class="page-header">Profile for {{ user.user.first_name }} {{ user.user.last_name }}</h3>
+<div data-alert class="alert-box info">You can change your profile information here, except for your username. To change your password, <a href="/password_change/">use this form</a>.</div>
+{% if message %}
     <p class="{{ message_class }}">{{ message }}</p>
-    {% endif %}
-    <form action="" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <p>To change your password, use <a href="/password_change/">this form</a>.</p>
-        <input type="submit" value="Update" class="btn btn-primary">
-    </form>
-</div>
+{% endif %}
+<form action="" method="post">
+    {% csrf_token %}
+    <div class="row">
+    {% for field in form %}
+        {% if field.html_name == "username" or field.html_name == "email" %}
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "username" %}Username{% else %}E-mail{% endif %}</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ field }}
+                    </div>
+                </div>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+    </div>
+    <div class="row">
+    {% for field in form %}
+        {% if field.html_name == "first_name" or field.html_name == "last_name" %}
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "first_name" %}First Name{% else %}Last Name{% endif %}</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ field }}
+                    </div>
+                </div>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+    </div>
+
+    <div class="row">
+        <div class="small-6 small-offset-6 columns">
+            {{ form.send_mail_on_comments }}
+            <label>Send Mail on Comments?</label>
+        </div>
+    </div>
+    <input type="submit" value="Update" class="button primary right" />
+</form>
+
 {% endblock %}

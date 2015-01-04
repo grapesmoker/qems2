@@ -9,57 +9,40 @@
 {% block content %}
 {% load static %}
 
+<h3 class="page-header">Home</h3>
+<ul class="button-group even">
+    <li><a href="/create_question_set/" class="button">Create Question Set</a></li>
+    <li><a href="/distributions/" class="button">Distribution Entry</a></li>
+</ul>
 
-
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1 main">
-    <h3 class="page-header">Home</h3>
-    <div class="tabbable">
-        <ul class="nav nav-tabs nav-stacked">
-            <li>
-                <a href="/distributions/">Distribution Entry</a>
-            </li>
-            <li>
-                <a href="/create_question_set/">Create Question Set</a>
-            </li>
-            <li class="active">
-                <a href="#qset-entry">Question Sets</a>
-            </li>
-        </ul>
-
-        <div class="tab-content">
-            <ul class="nav nav-tabs nav-justified" id="#qset-entry">
-                {% for qset_type in question_set_list %}
-                <li class="{% if forloop.first %}active{% endif %}">
-                    <a href="#{{ qset_type.id }}" role="tab" data-toggle="tab">{{ qset_type.header }}</a>
-                </li>
-                {% endfor %}
-            </ul>
-            {% for qset_type in question_set_list  %}
-            <div class="tab-pane{% if forloop.first %} active{% endif %}" id="{{ qset_type.id }}">
-                <table class="tablesorter table-striped table-hover" id="{{ qset_type.id }}-table">
-                    <thead>
-                        <tr>
-                            <th>Question Set</th>
-                            <th>Due Date</th>
-                            <th>Host</th>
-                            <th>Location</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                    {% for qset in qset_type.qsets %}
+<ul class="accordion" data-accordion>
+    {% for qset_type in question_set_list %}
+    <li class="accordion-navigation">
+        <a href="#{{ qset_type.id }}">{{ qset_type.header }}</a>
+        <div class="content{% if forloop.first %} active{% endif %}" id="{{ qset_type.id }}">
+            <table class="tablesorter table-striped table-hover" id="{{ qset_type.id }}-table">
+                <thead>
                     <tr>
-                        <td><a href="/edit_question_set/{{ qset.id }}/">{{ qset.name }}</a></td>
-                        <td>{{ qset.date }}</td>
-                        <td>{{ qset.host }}</td>
-                        <td>{{ qset.location }}</td>
+                        <th>Question Set</th>
+                        <th>Due Date</th>
+                        <th>Host</th>
+                        <th>Location</th>
                     </tr>
-                    {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            {% endfor %}
+                </thead>
+                <tbody>
+                {% for qset in qset_type.qsets %}
+                <tr>
+                    <td><a href="/edit_question_set/{{ qset.id }}/">{{ qset.name }}</a></td>
+                    <td>{{ qset.date }}</td>
+                    <td>{{ qset.host }}</td>
+                    <td>{{ qset.location }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
         </div>
-    </div>
-</div>
+    </li>
+    {% endfor %}
+</ul>
 
 {% endblock %}

@@ -116,7 +116,7 @@ class Writer (models.Model):
     question_set_editor = models.ManyToManyField('QuestionSet', related_name='editor')
 
     administrator = models.BooleanField(default=False)
-    
+
     send_mail_on_comments = models.BooleanField(default=False)
 
     def __str__(self):
@@ -129,9 +129,9 @@ class QuestionSet (models.Model):
     address = models.TextField(max_length=200)
     owner = models.ForeignKey('Writer', related_name='owner')
     #public = models.BooleanField()
+    num_packets = models.PositiveIntegerField()
     distribution = models.ForeignKey('Distribution')
     #teams = models.ForeignKey('Team')
-    num_packets = models.PositiveIntegerField()
     #tiebreak_dist = models.ForeignKey('TieBreakDistribution')
     max_acf_tossup_length = models.PositiveIntegerField(default=750)
     max_acf_bonus_length = models.PositiveIntegerField(default=400)
@@ -286,13 +286,13 @@ class Tossup (models.Model):
             category_id = self.category.id
             category_name = str(DistributionEntry.objects.get(id=self.category.id))
         return {'id': self.id,
-                           'packet': packet_id,
-                           'tossup_text': self.tossup_text.strip(),
-                           'tossup_answer': self.tossup_answer.strip(),
-                           'category': category_id,
-                           'category_name': category_name.strip(),
-                           'author': self.author.id,
-                           'question_number': self.question_number}
+                'packet': packet_id,
+                'tossup_text': self.tossup_text.strip(),
+                'tossup_answer': self.tossup_answer.strip(),
+                'category': category_id,
+                'category_name': category_name.strip(),
+                'author': self.author.id,
+                'question_number': self.question_number}
 
     def to_latex(self):
 
@@ -303,27 +303,28 @@ class Tossup (models.Model):
 
         return r'\tossup{{{0}}}{{{1}}}'.format(tossup_text, tossup_answer) + '\n'
 
-    def to_html(self, include_category=False, include_character_count=False):        
+    def to_html(self, include_category=False, include_character_count=False):
+
         output = ''
-        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "</p>"
-        output = output + "<p>" + get_formatted_question_html(self.tossup_answer, True, True, False)
+        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "<br />"
+        output = output + "ANSWER: " + get_formatted_question_html(self.tossup_answer, True, True, False) + "<br />"
         if (include_category and self.category is not None):
-            output = output + " {" + str(self.category) + "}</p>"
+            output = output + "<strong>Category:</strong> " + str(self.category) + "<br />"
         else:
-            output = output + "</p>"
-        
+            output = output
+
         if (include_character_count):
-            char_count = self.character_count()                
+            char_count = self.character_count()
             css_class = ''
             if (self.get_question_set() is not None):
                 if (self.character_count() > self.question_set.max_acf_tossup_length):
-                    css_class = "class='over-char-limit'"     
-                output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_acf_tossup_length) + "</p>"
+                    css_class = "class='over-char-limit'"
+                output = output + "<strong " + css_class + ">Character Count:</strong> " + str(self.character_count()) + "/" + str(self.question_set.max_acf_tossup_length) + "</p>"
             else:
-                output = output + "<p>Character count: " + str(char_count) + "</p>"
-                            
+                output = output + "<strong>Character Count:</strong> " + str(char_count) + "</p>"
+
         return output
-                
+
     def is_valid(self):
 
         if self.tossup_text == '':
@@ -331,18 +332,18 @@ class Tossup (models.Model):
 
         if self.tossup_answer == '':
             raise InvalidTossup('answer', self.tossup_answer, self.question_number)
-            
+
         if (not are_special_characters_balanced(self.tossup_text)):
             raise InvalidTossup('question', self.tossup_text, self.question_number)
 
         if (not are_special_characters_balanced(self.tossup_answer)):
             raise InvalidTossup('answer', self.tossup_answer, self.question_number)
-        
+
         if (not does_answerline_have_underlines(self.tossup_answer)):
-            raise InvalidTossup('answer', self.tossup_answer, self.question_number)        
-            
+            raise InvalidTossup('answer', self.tossup_answer, self.question_number)
+
         return True
-        
+
     def setup_search_fields(self):
         self.search_tossup_text = strip_special_chars(self.tossup_text)
         self.search_tossup_answer = strip_special_chars(self.tossup_answer)
@@ -356,29 +357,29 @@ class Tossup (models.Model):
     def get_question_history(self):
         tossups = []
         bonuses = []
-        
+
         if (self.question_history is not None):
-            tossups = TossupHistory.objects.filter(question_history=self.question_history)            
+            tossups = TossupHistory.objects.filter(question_history=self.question_history)
             bonuses = BonusHistory.objects.filter(question_history=self.question_history)
-        
+
         return tossups, bonuses
-        
+
     def save_question(self, edit_type, changer):
         print "Changer: " + str(changer)
-        
+
         if (self.question_history is None):
             qh = QuestionHistory()
             qh.save()
             self.question_history = qh
             self.created_date = timezone.now()
-        
+
         self.last_changed_date = timezone.now()
         if (edit_type == QUESTION_EDIT):
             self.editor = changer
             self.edited_date = timezone.now()
-        
+
         print "Question History: " + str(self.question_history)
-        
+
         tossup_history = TossupHistory()
         tossup_history.tossup_text = self.tossup_text
         tossup_history.tossup_answer = self.tossup_answer
@@ -387,16 +388,16 @@ class Tossup (models.Model):
         tossup_history.changer = changer
         tossup_history.change_date = timezone.now()
         tossup_history.save()
-        
+
         self.save()
 
     def get_tossup_type(self):
         return get_tossup_type_from_question_type(self.question_type)
-                
-class Bonus(models.Model):    
+
+class Bonus(models.Model):
     packet = models.ForeignKey(Packet, null=True)
     question_set = models.ForeignKey(QuestionSet)
-    
+
     # Leadins and part 2 and 3 aren't required in VHSL, so allow nulls
     # The is_valid method will make sure that ACF bonuses have these values
     leadin = models.CharField(max_length=500, null=True)
@@ -406,7 +407,7 @@ class Bonus(models.Model):
     part2_answer = models.TextField(null=True)
     part3_text = models.TextField(null=True)
     part3_answer = models.TextField(null=True)
-    
+
     category = models.ForeignKey(DistributionEntry, null=True)
     subtype = models.CharField(max_length=500)
     time_period = models.CharField(max_length=500)
@@ -416,13 +417,13 @@ class Bonus(models.Model):
     question_history = models.ForeignKey(QuestionHistory, null=True)
 
     author = models.ForeignKey(Writer)
-    
+
     locked = models.BooleanField(default=False)
     edited = models.BooleanField(default=False)
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
-    
+
     search_leadin = models.CharField(max_length=500, null=True, default='')
     search_part1_text = models.TextField(default='')
     search_part1_answer = models.TextField(default='')
@@ -430,8 +431,8 @@ class Bonus(models.Model):
     search_part2_answer = models.TextField(null=True, default='')
     search_part3_text = models.TextField(null=True, default='')
     search_part3_answer = models.TextField(null=True, default='')
-    
-    created_date = models.DateTimeField()    
+
+    created_date = models.DateTimeField()
     last_changed_date = models.DateTimeField()
     edited_date = models.DateTimeField(null=True)
     editor = models.ForeignKey(Writer, null=True, related_name='bonus_editor')
@@ -443,7 +444,7 @@ class Bonus(models.Model):
         part2_count = get_character_count(self.part2_text)
         part3_count = get_character_count(self.part3_text)
         return leadin_count + part1_count + part2_count + part3_count
-        
+
     def save(self, *args, **kwargs):
         self.setup_search_fields()
         super(Bonus, self).save(*args, **kwargs)
@@ -468,18 +469,18 @@ class Bonus(models.Model):
             category_name = str(DistributionEntry.objects.get(id=self.category.id))
 
         return {'id': self.id,
-                           'packet': packet_id,
-                           'leadin': self.leadin.strip(),
-                           'part1_text': self.part1_text,
-                           'part1_answer': self.part1_answer,
-                           'part2_text': self.part2_text,
-                           'part2_answer': self.part2_answer,
-                           'part3_text': self.part3_text,
-                           'part3_answer': self.part3_answer,
-                           'category': category_id,
-                           'category_name': category_name.strip(),
-                           'author': self.author.id,
-                           'question_number': self.question_number}
+                'packet': packet_id,
+                'leadin': self.leadin.strip(),
+                'part1_text': self.part1_text,
+                'part1_answer': self.part1_answer,
+                'part2_text': self.part2_text,
+                'part2_answer': self.part2_answer,
+                'part3_text': self.part3_text,
+                'part3_answer': self.part3_answer,
+                'category': category_id,
+                'category_name': category_name.strip(),
+                'author': self.author.id,
+                'question_number': self.question_number}
 
     def to_latex(self):
 
@@ -510,51 +511,60 @@ class Bonus(models.Model):
 
     def to_html(self, include_category=False, include_character_count=False):
         output = ''
-        
+
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
-            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False)
-            
-            if (include_category and self.category is not None):
-                output = output + " {" + str(self.category) + "}</p>"
+            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "<br />"
+            if (not include_category and not include_character_count):
+                output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "</p>"
             else:
-                output = output + "</p>"
-            
+                output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<br />"
+
+            if (include_category and self.category is not None and not include_character_count):
+                output = output + "<strong>Category:</strong> " + str(self.category) + "</p>"
+
+            if (include_category and self.category is not None):
+                output = output + "<strong>Category:</strong> " + str(self.category) + "<br />"
+
             if (include_character_count):
-                char_count = self.character_count()                
+                char_count = self.character_count()
                 css_class = ''
                 if (self.get_question_set() is not None):
                     if (self.character_count() > self.question_set.max_acf_bonus_length):
-                        css_class = "class='over-char-limit'"     
-                    output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_acf_bonus_length) + "</p>"
+                        css_class = "class='over-char-limit'"
+                    output = output + "<strong " + css_class + ">Character Count:</strong> " + str(char_count) + "/" + str(self.question_set.max_acf_bonus_length) + "</p>"
                 else:
-                    output = output + "<p>Character count: " + str(char_count) + "</p>"
-                                
+                    output = output + "<strong>Character Count:</strong> " + str(char_count) + "</p>"
+
         elif (self.get_bonus_type() == VHSL_BONUS):
-            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False)
-            if (include_category and self.category is not None):
-                output = output + " {" + str(self.category) + "}</p>"
+            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
+            if (not include_category and not include_character_count):
+                output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
             else:
-                output = output + "</p>"
-            
+                output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"
+
+            if (include_category and self.category is not None and not include_character_count):
+                output = output + "<strong>Category:</strong> " + str(self.category) + "</p>"
+
+            if (include_category and self.category is not None):
+                output = output + "<strong>Category:</strong> " + str(self.category) + "<br />"
+
             if (include_character_count):
-                char_count = self.character_count()                
+                char_count = self.character_count()
                 css_class = ''
                 if (self.get_question_set() is not None):
                     if (self.character_count() > self.question_set.max_vhsl_bonus_length):
-                        css_class = "class='over-char-limit'"     
-                    output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_vhsl_bonus_length) + "</p>"
+                        css_class = "class='over-char-limit'"
+                    output = output + "<strong " + css_class + ">Character Count:</strong> " + str(char_count)  + "/" + str(self.question_set.max_vhsl_bonus_length) + "</p>"
                 else:
-                    output = output + "<p>Character count: " + str(char_count) + "</p>"
-                            
-        return output        
-            
+                    output = output + "<strong>Character Count:</strong> " + str(char_count) + "</p>"
+
+        return output
+
     def is_valid(self):
 
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
@@ -690,9 +700,9 @@ class TossupHistory(models.Model):
     
     def to_html(self):
         output = ''
-        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "</p>"
-        output = output + "<p>" + get_formatted_question_html(self.tossup_answer, True, True, False) + "</p>"
-        output = output + "<p>Changed by " + str(self.changer) + " on " + str(self.change_date) + "</p>"        
+        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "<br />"
+        output = output + get_formatted_question_html(self.tossup_answer, True, True, False) + "<br />"
+        output = output + "Changed by " + str(self.changer) + " on " + str(self.change_date) + "</p>"        
         return output
     
 class BonusHistory(models.Model):
@@ -711,18 +721,18 @@ class BonusHistory(models.Model):
     def to_html(self):
         output = ''
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
-            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "</p>"
-            output = output + "<p>[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<p>"
+            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<br />"
         else:
-            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
-            output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"        
+            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"        
 
-        output = output + "<p>Changed by " + str(self.changer) + " on " + str(self.change_date) + "</p>"        
+        output = output + "Changed by <strong>" + str(self.changer) + "</strong> on <strong>" + str(self.change_date) + "</strong></p>"        
         return output
 
     def __unicode__(self):

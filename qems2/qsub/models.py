@@ -303,11 +303,7 @@ class Tossup (models.Model):
 
         return r'\tossup{{{0}}}{{{1}}}'.format(tossup_text, tossup_answer) + '\n'
 
-    def to_html(self, include_category=False, include_character_count=False):
-        css_class = ''
-        if (self.character_count() > self.question_set.max_acf_tossup_length):
-            css_class = "class='over-char-limit'"
-        
+    def to_html(self, include_category=False, include_character_count=False):        
         output = ''
         output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "</p>"
         output = output + "<p>" + get_formatted_question_html(self.tossup_answer, True, True, False)
@@ -317,8 +313,15 @@ class Tossup (models.Model):
             output = output + "</p>"
         
         if (include_character_count):
-            output = output + "<p " + css_class + ">Character count: " + str(self.character_count()) + "/" + str(self.question_set.max_acf_tossup_length) + "</p>"
-        
+            char_count = self.character_count()                
+            css_class = ''
+            if (self.get_question_set() is not None):
+                if (self.character_count() > self.question_set.max_acf_tossup_length):
+                    css_class = "class='over-char-limit'"     
+                output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_acf_tossup_length) + "</p>"
+            else:
+                output = output + "<p>Character count: " + str(char_count) + "</p>"
+                            
         return output
                 
     def is_valid(self):
@@ -343,6 +346,12 @@ class Tossup (models.Model):
     def setup_search_fields(self):
         self.search_tossup_text = strip_special_chars(self.tossup_text)
         self.search_tossup_answer = strip_special_chars(self.tossup_answer)
+
+    def get_question_set(self):
+        try:
+            return self.question_set
+        except:
+            return None
 
     def get_question_history(self):
         tossups = []
@@ -501,11 +510,8 @@ class Bonus(models.Model):
 
     def to_html(self, include_category=False, include_character_count=False):
         output = ''
+        
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
-            css_class = ''
-            if (self.character_count() > self.question_set.max_acf_bonus_length):
-                css_class = "class='over-char-limit'"            
-            
             output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "</p>"
             output = output + "<p>[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
             output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
@@ -520,14 +526,16 @@ class Bonus(models.Model):
                 output = output + "</p>"
             
             if (include_character_count):
-                char_count = self.character_count()
-                output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_acf_bonus_length) + "</p>"
-            
+                char_count = self.character_count()                
+                css_class = ''
+                if (self.get_question_set() is not None):
+                    if (self.character_count() > self.question_set.max_acf_bonus_length):
+                        css_class = "class='over-char-limit'"     
+                    output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_acf_bonus_length) + "</p>"
+                else:
+                    output = output + "<p>Character count: " + str(char_count) + "</p>"
+                                
         elif (self.get_bonus_type() == VHSL_BONUS):
-            css_class = ''
-            if (self.character_count() > self.question_set.max_vhsl_bonus_length):
-                css_class = "class='over-char-limit'"       
-                     
             output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "</p>"
             output = output + "<p>ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False)
             if (include_category and self.category is not None):
@@ -536,9 +544,15 @@ class Bonus(models.Model):
                 output = output + "</p>"
             
             if (include_character_count):
-                char_count = self.character_count()
-                output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_vhsl_bonus_length) + "</p>"
-            
+                char_count = self.character_count()                
+                css_class = ''
+                if (self.get_question_set() is not None):
+                    if (self.character_count() > self.question_set.max_vhsl_bonus_length):
+                        css_class = "class='over-char-limit'"     
+                    output = output + "<p " + css_class + ">Character count: " + str(char_count) + "/" + str(self.question_set.max_vhsl_bonus_length) + "</p>"
+                else:
+                    output = output + "<p>Character count: " + str(char_count) + "</p>"
+                            
         return output        
             
     def is_valid(self):
@@ -605,7 +619,13 @@ class Bonus(models.Model):
         self.search_part2_answer = strip_special_chars(self.part2_answer)
         self.search_part3_text = strip_special_chars(self.part3_text)
         self.search_part3_answer = strip_special_chars(self.part3_answer)
-        
+    
+    def get_question_set(self):
+        try:
+            return self.question_set
+        except:
+            return None
+                
     def get_bonus_type(self):
         return get_bonus_type_from_question_type(self.question_type)
         
@@ -713,7 +733,7 @@ class BonusHistory(models.Model):
     
     def get_bonus_type(self):
         return get_bonus_type_from_question_type(self.question_type)
-        
+
 class Tag(models.Model):
 
     pass

@@ -327,3 +327,4 @@ class MoveBonusForm(forms.Form):
         super(MoveBonusForm, self).__init__(*args, **kwargs)
 
         self.fields['move_sets'] = forms.ModelChoiceField(queryset=move_sets, required=True)
+        

@@ -1,29 +1,4 @@
-function add_row_to_cat_table() {
-    var current_forms = parseInt($('#id_distentry-INITIAL_FORMS')[0].value);
-    var next_form = current_forms + 1;
-    $('#dist-table > tbody > tr:last').
-    after(sprintf(
-        '<tr><td><input id="id_distentry-%d-category" width="100" type="text" name="categories" maxlength="100" /></td> \
-<td><input id="id_distentry-%d-subcategory" type="text" name="subcategories" maxlength="100" /></td> \
-<td><input id="id_distentry-%d-num_tossups" width="10" type="text" class="spinner" name="num_tossups" /></td> \
-<td><input id="id_distentry-%d-num_bonuses" width="10" type="text" class="spinner" name="num_bonuses" /></td> \
-<td><input id="id_distentry-%d-fin_tossups" width="10" type="text" class="spinner" name="fin_tossups" /></td> \
-<td><input id="id_distentry-%d-fin_bonuses" width="10" type="text" class="spinner" name="fin_bonuses" /></td> \
-<td>&nbsp;</td></tr>', next_form, next_form, next_form, next_form, next_form, next_form));
-
-    $('.spinner').width(10).spinner({'min': 0})
-}
-
-$.browser = {}
-
 $(function () {
-
-    $.browser.msie = false;
-    /*$.browser.version = 0;
-    if (navigator.userAgent.match(/MSIE ([0-9]+)\./)) {
-        jQuery.browser.msie = true;
-        jQuery.browser.version = RegExp.$1;
-    }*/
 
     var csrftoken = $.cookie('csrftoken');
 
@@ -40,28 +15,48 @@ $(function () {
         }
     });
 
-    // Set up sorting for all tables
-    $('#set-status-table').tablesorter();
-    $('#editors-table').tablesorter();
-    $('#writers-table').tablesorter();    
-    $('#set-wide-reqs-table').tablesorter();
-    $('#tb-reqs-table').tablesorter();
-    $('#packets-table').tablesorter();
-    $('#category-tossup-table').tablesorter();
-    $('#category-bonus-table').tablesorter();
-    $('#qsets-write-table').tablesorter();
-    $('#qsets-edit-table').tablesorter();
-    $('#qsets-owned-table').tablesorter();
-    $('#distributions-table').tablesorter();
-    $('#writer-stats-table').tablesorter();
-    $('#packet-tossup-table').tablesorter();
-    $('#packet-bonus-table').tablesorter();
-    $('#packet-status-tossup-table').tablesorter();
-    $('#packet-status-bonus-table').tablesorter();
-    $('#tossup-table').tablesorter();
-    $('#bonus-table').tablesorter();
-    $('#bulk-change-tossup-table').tablesorter();
-    $('#bulk-change-bonus-table').tablesorter();    
+    // Set up adding rows on /edit_distribution/
+    function add_rows() {
+        var current = parseInt($('#id_distentry-INITIAL_FORMS')[0].value);
+        var next = current + 1;
+        $('#distribution-table > tbody > tr:last').after(sprintf(
+            '<tr><input id="id_distentry-%d-entry_id" type="hidden" /> \
+            <td><input id="id_distentry-%d-category" type="text" name="categories" maxlength="100" /></td> \
+            <td><input id="id_distentry-%d-subcategory" type="text" name="subcategories" maxlength="100" /></td> \
+            <td><input id="id_distentry-%d-num_tossups" type="number" min="0" step="1" name="num_tossups" /></td> \
+            <td><input id="id_distentry-%d-num_bonuses" type="number" min="0" step="1" name="num_bonuses" /></td> \
+            <td><input id="id_distentry-%d-fin_tossups" type="number" min="0" step="1" name="fin_tossups" /></td> \
+            <td><input id="id_distentry-%d-fin_bonuses" type="number" min="0" step="1" name="fin_bonuses" /></td> \
+            <td><input id="id_distentry-%d-DELETE" type="checkbox" /></td></tr>',
+            next, next, next, next, next, next, next, next));
+    }
+
+    $('#add-rows').click(function() {
+        var num_rows = $('#num-rows').val();
+        add_rows();
+    });
+
+    // Set up sorting for all tables w/ tablesorter class
+    $('table.tablesorter').tablesorter({
+        widthFixed:true
+    });
+
+    // Make columns of some tables the same width
+    function match_table(source,dest) {
+        var cols = [];
+        $(source).find('th').each(function() {
+            cols.push($(this).width());
+        });
+        cols.reverse();
+        $(dest).find('th').each(function() {
+            $(this).width(cols.pop());
+        });
+    }
+
+    match_table('#tossup-table','#bonus-table');
+    match_table('#category-tossup-table','#category-bonus-table');
+    match_table('#packet-tossup-table','#packet-bonus-table');
+    match_table('#bulk-change-tossup-table','#bulk-change-bonus-table');
 
     // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
     // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
@@ -69,32 +64,11 @@ $(function () {
     // $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});
     // $('#bonus-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
-    /*tinymce.init({
-        selector: 'textarea.question_text',
-        menubar: false,
-        toolbar: 'undo redo | bold italic underline',
-        fontsize_formats: '12px 14px 16px',
-        setup: function(ed) {
-            ed.on('init', function() {
-                this.getDoc().body.style.fontSize = '18px';
+    // Set up autofocus on /type_questions/ & /add_tossups/
+    $('form#type-questions #id_questions').focus();
+    $('form#add-tossups #id_tossup_text').focus();
 
-                // Needed so that what we write to the text area isn't overwritten
-                this.settings.add_form_submit_trigger = false;
-                this.on('submit', function (ed, e) {
-                    var jqueryId = "#" + this.id;
-                    $(jqueryId).val($(this.getBody()).html());
-                });
-            });
-        },
-        width: 900,
-        /*formats: {
-            underline: {inline: 'u', exact: true},
-            italic: {inline: 'i', exact: true},
-            bold: {inline: 'b', exact: true}
-        }
-    });*/
-
-    $('#id_player_to_add').autocomplete({
+    /*$('#id_player_to_add').autocomplete({
     source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),
     select: function(event, ui) {
         $('#id_player_to_add').val(ui.item.label);
@@ -112,12 +86,7 @@ $(function () {
 
         return false;
     }
-    })
-
-    $(document).tooltip();
-
-    $('.spinner').width(25).spinner({'min': 0})
-    $('#add-row').click(add_row_to_cat_table)
+    })*/
 
     $('.delete_tossup').click(function(e) {
         e.preventDefault();
@@ -248,7 +217,7 @@ $(function () {
     });
 
     $('.restore_tossup').click(function(e) {
-        e.preventDefault();        
+        e.preventDefault();
         var result = confirm("Are you sure that you want to restore this question to this version?");
         if (result == true) {
             $.post('/restore_tossup/', {th_id: $(this).attr('value'), qset_id: $(this).attr('qset')}, function (response) {

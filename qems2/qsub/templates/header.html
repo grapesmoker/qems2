@@ -1,27 +1,30 @@
-<div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <ol class="breadcrumb">
-                <li><a href="/main/">Home</a></li>
+<div class="fixed">
+    <nav class="top-bar">
+        <section class="top-bar-section">
+            <nav class="left breadcrumbs">
+                <li{% if not qset and not passed_q_set %} class="current"{% endif %}><a href="/main/">Home</a></li>
                 {% if qset %}
-                    <li><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
+                    <li{% if not packet and not tossup and not bonus %} class="current"{% endif %}><a href="/edit_question_set/{{ qset.id }}">{{ qset }}</a></li>
                 {% elif passed_q_set %}
-                    <li><a href="/edit_question_set/{{ passed_q_set.id }}">{{ passed_q_set }}</a></li>
+                    <li{% if not packet and not tossup and not bonus %} class="current"{% endif %}><a href="/edit_question_set/{{ passed_q_set.id }}">{{ passed_q_set }}</a></li>
                 {% endif %}
                 {% if packet %}
-                    <li><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
+                    <li{% if not tossup and not bonus %} class="current"{% endif %}><a href="/edit_packet/{{ packet.id }}">{{ packet }}</a></li>
                 {% endif %}
-            </ol>
-        </div>
-        <div class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-right">
+                {% if tossup %}
+                    <li class="current"><a href="/edit_tossup/{{ tossup.id }}">{{ tossup }}</a></li>
+                {% endif %}
+                {% if bonus %}
+                    <li class="current"><a href="/edit_bonus/{{ bonus.id }}">{{ bonus }}</a></li>
+                {% endif %}
+            </nav>
+            <ul class="right">
                 <li><a href="/search/">Search</a></li>
                 <!--<li><a href="/settings/">Settings</a></li>-->
                 <li><a href="/profile/">Profile ({{ user.user.username }})</a></li>
                 <li><a href="/logout/">Log Out</a></li>
                 <!--<li><a href="/help/">Help</a></li>-->
             </ul>
-        </div>
-    </div>
+        </section>
+    </nav>
 </div>
-

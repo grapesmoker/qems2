@@ -1,0 +1,26 @@
+{% extends "base-login.html" %}
+
+{% block title %}Register - QEMS2{% endblock %}
+
+{% block content %}
+
+<form method="post" action=".">
+    {% csrf_token %}
+    {% for field in form %}
+        <div class="row collapse">
+            <div class="small-3 columns">
+                <span class="prefix text-left" for="{{ field.id_for_label }}">{{ field.label }}</span>
+            </div>
+            <div class="small-9 columns">
+                {{ field }}
+            </div>
+            {% if field.errors %}
+                {{ field.errors }}
+            {% endif %}
+        </div>
+    {% endfor %}
+
+    <input type="submit" value="Register" class="button primary right" />
+</form>
+
+{% endblock %}

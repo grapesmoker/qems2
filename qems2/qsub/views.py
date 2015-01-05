@@ -64,7 +64,7 @@ def sidebar (request):
     owned_sets = QuestionSet.objects.filter(owner=writer)
     # the tournaments for which this user is an editor
     editor_sets = writer.question_set_editor.all()
-    
+
     # all_sets = list(set(writer_sets + editors_sets + owned_sets))
     all_sets = editor_sets
     print 'All sets object:'
@@ -82,13 +82,13 @@ def question_sets (request):
     # the tournaments for which this user is an editor
     editor_sets = writer.question_set_editor.all()
     # the tournaments for which this user is a writer
-    # by definition this includes sets you're editing and owning    
-    # Python is having trouble unioning these sets by default, 
+    # by definition this includes sets you're editing and owning
+    # Python is having trouble unioning these sets by default,
     # so be more explicit about what to union by using IDs as a key in a dict
     writer_sets_dict = {}
     for qset in (owned_sets | editor_sets | writer.question_set_writer.all()):
         writer_sets_dict[qset.id] = qset
-   
+
     writer_sets = writer_sets_dict.values()
 
     all_sets  = [{'header': 'All your question sets', 'qsets': writer_sets, 'id': 'qsets-write'},
@@ -99,22 +99,19 @@ def question_sets (request):
     return render_to_response('question_sets.html', {'question_set_list': all_sets, 'user': writer},
                               context_instance=RequestContext(request))
 
-
-
 def packet(request):
     if request.user.is_authenticated():
         player = request.user.get_profile()
         packets = player.packet_set.filter(date_submitted=None)
-        
+
         print 'packets: ', packets
-        
+
         return render_to_response('packetview.html',
                                   {'packet_list': packets},
                                   context_instance=RequestContext(request))
-        
+
     else:
         return HttpResponseRedirect('/accounts/login/')
-        
 
 @login_required
 def create_question_set (request):
@@ -128,10 +125,10 @@ def create_question_set (request):
             question_set = form.save(commit=False)
             question_set.owner = user
             question_set.editors = []
-            question_set.editors.append(user)           
+            question_set.editors.append(user)
             #question_set.distribution = dist
             question_set.save()
-            form.save_m2m()            
+            form.save_m2m()
             user.question_set_editor.add(question_set)
             user.save()
 
@@ -157,7 +154,7 @@ def create_question_set (request):
 
             return render_to_response('edit_question_set.html',
                                       {'message': 'Your question set has been successfully created!',
-                                       'message_class': 'alert alert-success',
+                                       'message_class': 'alert-box success',
                                        'qset': question_set,
                                        'user': user,
                                        'form': form,
@@ -174,7 +171,7 @@ def create_question_set (request):
             distributions = Distribution.objects.all()
             return render_to_response('create_question_set.html',
                                       {'message': 'There was an error in creating your question set!',
-                                       'message_class': 'alert alert-warning',
+                                       'message_class': 'alert-box warning',
                                        'form': form,
                                        'distributions': distributions,
                                        'user': user},
@@ -275,6 +272,7 @@ def edit_question_set(request, qset_id):
                                        'upload_form': QuestionUploadForm(),
                                        'set_status': set_status,
                                        'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
+                                       'set_pct_progress_bar': '{0:0.0f}%'.format(set_pct_complete),
                                        'tu_needed': total_tu_req - total_tu_written,
                                        'bs_needed': total_bs_req - total_bs_written,
                                        'tossups': tossups,
@@ -331,7 +329,7 @@ def edit_question_set(request, qset_id):
                                                      'bs_in_cat': bs_written,
                                                      'category_id': entry.dist_entry.id}
         set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
-        
+
         for writer in qset_writers:
             print "Writer: " + str(writer)
             writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
@@ -342,9 +340,9 @@ def edit_question_set(request, qset_id):
             writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
                                                         'bonus_written': len(qset.bonus_set.filter(author=writer)),
                                                         'writer': writer}
-        
+
         print "writer_stats: " + str(writer_stats)
-        
+
     return render_to_response('edit_question_set.html',
                               {'form': form,
                                'user': user,
@@ -355,6 +353,7 @@ def edit_question_set(request, qset_id):
                                'tiebreak_formset': tiebreak_formset,
                                'set_status': set_status,
                                'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
+                               'set_pct_progress_bar': '{0:0.0f}%'.format(set_pct_complete),
                                'tu_needed': total_tu_req - total_tu_written,
                                'bs_needed': total_bs_req - total_bs_written,
                                'upload_form': QuestionUploadForm(),
@@ -373,7 +372,7 @@ def categories(request, qset_id, category_id):
     qset = QuestionSet.objects.get(id=qset_id)
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
-    
+
     category_object = DistributionEntry.objects.get(id=category_id)
 
     entry = qset.setwidedistributionentry_set.get(dist_entry=category_object)
@@ -387,7 +386,7 @@ def categories(request, qset_id, category_id):
                          'bs_req': bs_required,
                          'bs_in_cat': bs_written
                          }
-    
+
     message = category_object.category
     tossups = []
     bonuses = []
@@ -460,7 +459,7 @@ def edit_set_tiebreak(request, qset_id):
         else:
             return render_to_response('failure.html',
                                       {'message': 'Something went wrong. We\'re working on it.',
-                                       'message-class': 'alert alert-error'},
+                                       'message_class': 'alert-box alert'},
                                       context_instance=RequestContext(request))
 
 
@@ -482,7 +481,11 @@ def add_editor(request, qset_id):
             print available_editors
         else:
             available_editors = []
-            message = 'You are not authorized to make changes to this tournament!'
+            return render_to_response('failure.html',
+                                     {'message': 'You are not authorized to make changes to this tournament!',
+                                      'message_class': 'alert-box alert'},
+                                      context_instance=RequestContext(request))
+
         return render_to_response('add_editor.html',
                                  {'qset': qset,
                                   'available_editors': available_editors,
@@ -501,7 +504,7 @@ def add_editor(request, qset_id):
                     print editor_id
                     editor = Writer.objects.get(id=editor_id)
                     qset.editor.add(editor)
-                    
+
                     # Don't have someone be both a writer and editor--delete them
                     try:
                         writer = qset.writer.get(id=editor_id)
@@ -509,7 +512,7 @@ def add_editor(request, qset_id):
                             qset.writer.remove(writer)
                     except:
                         print "No writer to delete" # TODO: Come up with a better way of handling this
-                    
+
                 qset.save()
                 current_editors = qset.editor.all()
                 available_editors = [writer for writer in Writer.objects.all()
@@ -519,14 +522,17 @@ def add_editor(request, qset_id):
                 available_editors = []
         else:
             available_editors = []
-            message = 'You are not authorized to make changes to this tournament!'
+            return render_to_response('failure.html',
+                                     {'message': 'You are not authorized to make changes to this tournament!',
+                                      'message_class': 'alert-box alert'},
+                                      context_instance=RequestContext(request))
 
         return render_to_response('add_editor.html',
-            {'qset': qset,
-             'available_editors': available_editors,
-             'message': message,
-             'user': user},
-            context_instance=RequestContext(request))
+                                 {'qset': qset,
+                                  'available_editors': available_editors,
+                                  'message': message,
+                                  'user': user},
+                                  context_instance=RequestContext(request))
 
 @login_required
 def add_writer(request, qset_id):
@@ -545,7 +551,11 @@ def add_writer(request, qset_id):
             print available_writers
         else:
             available_writers = []
-            message = 'You are not authorized to make changes to this tournament!'
+            return render_to_response('failure.html',
+                                     {'message': 'You are not authorized to make changes to this tournament!',
+                                      'message_class': 'alert-box alert'},
+                                      context_instance=RequestContext(request))
+
         return render_to_response('add_writer.html',
                                  {'qset': qset,
                                   'available_writers': available_writers,
@@ -576,7 +586,10 @@ def add_writer(request, qset_id):
                 available_writers = []
         else:
             available_writers = []
-            message = 'You are not authorized to make changes to this tournament!'
+            return render_to_response('failure.html',
+                                     {'message': 'You are not authorized to make changes to this tournament!',
+                                      'message_class': 'alert-box alert'},
+                                      context_instance=RequestContext(request))
 
         return render_to_response('add_writer.html',
             {'qset': qset,
@@ -620,7 +633,7 @@ def edit_packet(request, packet_id):
 
         else:
             message = 'You are not authorized to view or edit this packet!'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
             tossups = None
             bonuses = None
 
@@ -646,8 +659,8 @@ def add_tossups(request, qset_id, packet_id=None):
     tossup = None
     read_only = True
     question_type_id = []
-    
-    if (QuestionType.objects.exists()):    
+
+    if (QuestionType.objects.exists()):
         question_type_id = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
 
     if request.method == 'GET':
@@ -660,7 +673,7 @@ def add_tossups(request, qset_id, packet_id=None):
         else:
             tossup_form = []
             message = 'You are not authorized to add questions to this tournament!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
             read_only = True
 
         return render_to_response('add_tossups.html',
@@ -678,18 +691,18 @@ def add_tossups(request, qset_id, packet_id=None):
 
             # The user may have set the packet ID through the POST body, so check for it there
             if packet_id == None and 'packet' in request.POST and request.POST['packet'] != '':
-                packet_id = int(request.POST['packet'])                
+                packet_id = int(request.POST['packet'])
             tossup_form = TossupForm(request.POST, qset_id=qset.id, packet_id=packet_id, writer=user.user.username)
 
             if tossup_form.is_valid():
-                tossup = tossup_form.save(commit=False)                
+                tossup = tossup_form.save(commit=False)
                 if (tossup.author is None):
                     tossup.author = user
                 tossup.question_set = qset
                 tossup.tossup_text = strip_markup(tossup.tossup_text)
                 tossup.tossup_answer = strip_markup(tossup.tossup_answer)
                 tossup.locked = False
-                
+
                 try:
                     tossup.is_valid()
 
@@ -699,15 +712,15 @@ def add_tossups(request, qset_id, packet_id=None):
                         # of the legal range of tossup numbers and it ends up getting set to 1 for some
                         # reason, except in the case where there are no packets in the system in which
                         # case there's an error adding the question
-                        tossup.question_number = 999                    
+                        tossup.question_number = 999
                     else:
                         tossup.packet_id = packet_id
                         tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
-                    
+
                     tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
-                    message = 'Your tossup has been successfully added to the set! Write more questions!'
-                    message_class = 'alert alert-success'                     
-                    
+                    message = 'Your tossup has been added to the set.'
+                    message_class = 'alert-box info radius'
+
                     # In the success case, don't return the whole tossup object so as to clear the fields
                     return render_to_response('add_tossups.html',
                              {'form': TossupForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username),
@@ -719,19 +732,19 @@ def add_tossups(request, qset_id, packet_id=None):
                              'user': user,
                              'qset': qset},
                              context_instance=RequestContext(request))
-                    
+
                 except InvalidTossup as ex:
                     message = str(ex)
-                    message_class = 'alert alert-warning'
+                    message_class = 'alert-box warning'
 
             else:
                 message = 'Problem adding a tossup.  Make sure that all required fields are filled out!'
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
 
         else:
             tossup = None
             message = 'You are not authorized to add questions to this tournament!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
             tossup_form = []
             read_only = True
 
@@ -750,7 +763,7 @@ def add_tossups(request, qset_id, packet_id=None):
     else:
         return render_to_response('failure.html',
             {'message': 'The request cannot be completed as specified',
-             'message-class': 'alert alert-error'},
+             'message_class': 'alert-box alert'},
             context_instance=RequestContext(request))
 
 @login_required
@@ -771,9 +784,9 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
         else:
             return render_to_response('failure.html',
                 {'message': 'The request cannot be completed as specified.  Bonus type is invalid.',
-                 'message-class': 'alert alert-error'},
+                 'message_class': 'alert-box alert'},
                 context_instance=RequestContext(request))
-    
+
     if request.method == 'GET':
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
             form = BonusForm(qset_id=qset.id, packet_id=packet_id, role=role, initial={'question_type': question_type_id}, writer=user.user.username, question_type=bonus_type)
@@ -781,7 +794,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
         else:
             form = None
             message = 'You are not authorized to add questions to this tournament!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
             read_only = True
 
         return render_to_response('add_bonuses.html',
@@ -789,7 +802,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
              'message': message,
              'message_class': message_class,
              'read_only': read_only,
-             'question_type': bonus_type,             
+             'question_type': bonus_type,
              'user': user,
              'qset': qset},
             context_instance=RequestContext(request))
@@ -804,7 +817,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
                 bonus = form.save(commit=False)
                 if (bonus.author is None):
                     bonus.author = user
-                    
+
                 bonus.question_set = qset
                 bonus.leadin = strip_markup(bonus.leadin)
                 bonus.part1_text = strip_markup(bonus.part1_text)
@@ -814,7 +827,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
                 bonus.part3_text = strip_markup(bonus.part3_text)
                 bonus.part3_answer = strip_markup(bonus.part3_answer)
                 bonus.locked = False
-                
+
                 if packet_id is None or packet_id == '':
                     # If the bonus doesn't have a packet, set its number to be the magic number
                     # of 999, meaning that it's unassigned.  Can't assign -1 because this is outside
@@ -829,34 +842,34 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
                 try:
                     bonus.is_valid()
                     bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
-                    message = 'Your bonus has been successfully added to the set! Write more questions!'
-                    message_class = 'alert alert-success'
-                    
+                    message = 'Your bonus has been added to the set.'
+                    message_class = 'alert-box success'
+
                     # On success case, don't return the full bonus so that field gets cleared
                     return render_to_response('add_bonuses.html',
                              {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username, question_type=bonus_type),
                              'message': message,
                              'message_class': message_class,
                              'bonus': None,
-                             'bonus_id': bonus.id, 
+                             'bonus_id': bonus.id,
                              'read_only': read_only,
                              'question_type': bonus_type,
                              'user': user,
                              'qset': qset},
                              context_instance=RequestContext(request))
-                 
+
                 except InvalidBonus as ex:
                     message = str(ex)
-                    message_class = 'alert alert-warning'
+                    message_class = 'alert-box warning'
 
             else:
                 message = 'There was an error with the form: ' + str(form.errors)
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
 
             read_only = False
         else:
             message = 'You are not authorized to add questions to this tournament!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
             bonus_form = []
             bonus = None
             read_only = True
@@ -866,7 +879,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
                  'message': message,
                  'message_class': message_class,
                  'bonus': bonus,
-                 'bonus_id': None, 
+                 'bonus_id': None,
                  'read_only': read_only,
                  'user': user,
                  'qset': qset},
@@ -875,7 +888,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
     else:
         return render_to_response('failure.html',
             {'message': 'The request cannot be completed as specified',
-             'message-class': 'alert alert-error'},
+             'message_class': 'alert-box alert'},
             context_instance=RequestContext(request))
 
 @login_required
@@ -896,7 +909,7 @@ def edit_tossup(request, tossup_id):
             if user == tossup.author and not user == qset.owner and not user in qset.editor.all() and tossup.locked:
                 read_only = True
                 message = 'This tossup has been locked by an editor. It cannot be changed except by another editor.'
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
             else:
                 read_only = False
 
@@ -904,13 +917,13 @@ def edit_tossup(request, tossup_id):
             read_only = True
             form = None
             message = 'You are only authorized to view, not to edit, this question!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
         else:
             read_only = True
             tossup = None
             form = None
             message = 'You are not authorized to view or edit this question!'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
 
         return render_to_response('edit_tossup.html',
             {'tossup': tossup,
@@ -936,10 +949,10 @@ def edit_tossup(request, tossup_id):
                 print "Tossup post data:"
                 print form.cleaned_data['tossup_text']
                 print form.cleaned_data['tossup_answer']
-                
+
                 read_only = False
-                
-                is_tossup_already_edited = tossup.edited                
+
+                is_tossup_already_edited = tossup.edited
 
                 tossup.tossup_text = strip_markup(form.cleaned_data['tossup_text'])
                 tossup.tossup_answer = strip_markup(form.cleaned_data['tossup_answer'])
@@ -949,46 +962,46 @@ def edit_tossup(request, tossup_id):
                 tossup.edited = form.cleaned_data['edited']
                 tossup.question_type = form.cleaned_data['question_type']
                 tossup.author = form.cleaned_data['author']
-                
+
                 try:
                     tossup.is_valid()
                     change_type = QUESTION_CHANGE
                     if (not is_tossup_already_edited and tossup.edited == True):
                         change_type = QUESTION_EDIT
-                    
+
                     tossup.save_question(edit_type=change_type, changer=user)
                     tossup_length = tossup.character_count()
                     print "Tossup saved"
                     message = 'Your changes have been saved!'
-                    message_class = 'alert alert-success'
-                                    
+                    message_class = 'alert-box success'
+
                 except InvalidTossup as ex:
                     message = str(ex)
-                    message_class = 'alert alert-warning'
-                    
+                    message_class = 'alert-box warning'
+
             elif form.is_valid() and not can_change:
                 message = 'This tossup is locked and can only be changed by an editor!'
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
                 read_only = True
             else:
                 message = 'There was an error with the form: ' + str(form.errors)
-                message_class = 'alert alert-warning'
-                
+                message_class = 'alert-box warning'
+
 
         elif user in qset.writer.all():
             read_only = True
             form = None
             message = 'You are only authorized to view, not to edit, this question!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
         else:
             read_only = True
             tossup = None
             message = 'You are not authorized to view or edit this question!'
-            message_class = 'alert alert-error'
+            message_class = 'alert-box alert'
 
         return render_to_response('edit_tossup.html',
             {'tossup': tossup,
-             'tossup_length': tossup_length,            
+             'tossup_length': tossup_length,
              'form': form,
              'role': role,
              'qset': qset,
@@ -1004,14 +1017,14 @@ def edit_bonus(request, bonus_id):
     print "edit bonus"
     user = request.user.writer
     bonus = Bonus.objects.get(id=bonus_id)
-    char_count = bonus.character_count()   
+    char_count = bonus.character_count()
     qset = bonus.question_set
     packet = bonus.packet
     message = ''
     message_class = ''
     read_only = True
     role = get_role_no_owner(user, qset)
-    
+
     question_type = ACF_STYLE_BONUS
     if (bonus.question_type is not None):
         question_type = bonus.question_type.question_type
@@ -1024,7 +1037,7 @@ def edit_bonus(request, bonus_id):
             if user == bonus.author and not user == qset.owner and not user in qset.editor.all() and bonus.locked:
                 read_only = True
                 message = 'This bonus has been locked by an editor. It cannot be changed except by another editor.'
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
             else:
                 read_only = False
 
@@ -1032,13 +1045,13 @@ def edit_bonus(request, bonus_id):
             read_only = True
             form = None
             message = 'You are only authorized to view, not to edit, this question!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
         else:
             read_only = True
             bonus = None
             form = None
             message = 'You are not authorized to view or edit this question!'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
@@ -1065,7 +1078,7 @@ def edit_bonus(request, bonus_id):
 
             if form.is_valid() and can_change:
                 is_bonus_already_edited = bonus.edited
-                
+
                 bonus.leadin = strip_markup(form.cleaned_data['leadin'])
                 bonus.part1_text = strip_markup(form.cleaned_data['part1_text'])
                 bonus.part1_answer = strip_markup(form.cleaned_data['part1_answer'])
@@ -1079,42 +1092,42 @@ def edit_bonus(request, bonus_id):
                 bonus.edited = form.cleaned_data['edited']
                 bonus.question_type = form.cleaned_data['question_type']
                 bonus.author = form.cleaned_data['author']
-                
+
                 try:
                     bonus.is_valid()
                     change_type = QUESTION_CHANGE
                     if (not is_bonus_already_edited and bonus.edited):
                         change_type = QUESTION_EDIT
-                    
+
                     bonus.save_question(edit_type=change_type, changer=user)
-                    char_count = bonus.character_count()    
+                    char_count = bonus.character_count()
 
                     message = 'Your changes have been saved!'
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     read_only = False
                 except InvalidBonus as ex:
                     message = str(ex)
-                    message_class = 'alert alert-warning'
+                    message_class = 'alert-box warning'
 
             elif form.is_valid() and not can_change:
                 message = 'This bonus is locked and can only be changed by an editor!'
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
                 read_only = True
             else:
                 message = 'There was an error with the form: ' + str(form.errors)
-                message_class = 'alert alert-warning'                
+                message_class = 'alert-box warning'
 
         elif user in qset.writer.all():
             form = None
             read_only = True
             message = 'You are only authorized to view, not to edit, this question!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
         else:
             form = None
             bonus = None
             read_only = True
             message = 'You are not authorized to view or edit this question!'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
 
         return render_to_response('edit_bonus.html',
             {'bonus': bonus,
@@ -1144,11 +1157,11 @@ def delete_tossup(request):
         if user == tossup.author or user == qset.owner or user in qset.editor.all():
             tossup.delete()
             message = 'Tossup deleted'
-            message_class = 'alert alert-success'
+            message_class = 'alert-box success'
             read_only = False
         else:
             message = 'You are not authorized to delete questions from this set!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
@@ -1166,11 +1179,11 @@ def delete_bonus(request):
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
             bonus.delete()
             message = 'Bonus deleted'
-            message_class = 'alert alert-success'
+            message_class = 'alert-box success'
             read_only = False
         else:
             message = 'You are not authorized to delete questions from this set!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
@@ -1190,10 +1203,10 @@ def delete_writer(request):
         if user == qset.owner:
             qset.writer.remove(writer)
             message = 'Writer removed'
-            message_class = 'alert alert-success'
+            message_class = 'alert-box success'
         else:
             message = 'You are not authorized to remove writers from this set!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
@@ -1213,10 +1226,10 @@ def delete_editor(request):
         if user == qset.owner:
             qset.editor.remove(editor)
             message = 'Editor removed'
-            message_class = 'alert alert-success'
+            message_class = 'alert-box success'
         else:
             message = 'You are not authorized to remove editors from this set!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
@@ -1234,19 +1247,19 @@ def delete_comment(request):
         qset_editors = qset.editor.all()
         comment_id = request.POST['comment_id']
         comment = Comment.objects.get(id=comment_id)
-        
+
         if (comment is None):
             message = 'Error retrieving comment.'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
         else:
             if user in qset_editors:
                 comment.is_removed = True
                 comment.save()
                 message = 'Comment removed'
-                message_class = 'alert alert-success'
+                message_class = 'alert-box success'
             else:
                 message = 'You are not authorized to remove comments from this set!'
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
@@ -1274,8 +1287,8 @@ def add_packets(request, qset_id):
                     new_packet.created_by = user
                     new_packet.question_set = qset
                     new_packet.save()
-                    message = 'Your packet named {0} has been created!'.format(name_base)
-                    message_class = 'alert alert-success'
+                    message = 'Your packet named {0} has been created.'.format(packet_name)
+                    message_class = 'alert-box success'
 
                 elif name_base is not None and num_packets is not None:
                     for i in range(1, num_packets + 1):
@@ -1284,23 +1297,23 @@ def add_packets(request, qset_id):
                         new_packet.created_by = user
                         new_packet.question_set = qset
                         new_packet.save()
-                    message = 'Your {0} packets with the base name {1} have been created!'.format(num_packets, name_base)
-                    message_class = 'alert alert-success'
+                    message = 'Your {0} packets with the base name {1} have been created.'.format(num_packets, name_base)
+                    message_class = 'alert-box success'
                 else:
                     message = 'You must enter either the name for an individual packet or a base name and the number of packets to create!'
-                    message_class = 'alert alert-warning'
+                    message_class = 'alert-box warning'
 
             else:
                 message = 'Invalid information entered into form!'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box danger'
         else:
             message = 'Invalid method!'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box danger'
             form = None
 
     else:
         message = 'You are not authorized to add packets to this set!'
-        message_class = 'alert alert-danger'
+        message_class = 'alert-box danger'
         form = None
 
     return render_to_response('add_packets.html',
@@ -1325,11 +1338,11 @@ def delete_packet(request):
         if user == qset.owner:
             packet.delete()
             message = 'Packet deleted'
-            message_class = 'alert alert-success'
+            message_class = 'alert-box success'
             read_only = False
         else:
             message = 'You are not authorized to delete packets from this set!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
@@ -1354,15 +1367,15 @@ def get_unassigned_tossups(request):
             else:
                 available_tossups = []
                 message = 'Only the set owner has the power to add questions to it!'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box alert'
 
         else:
             message = 'Invalid request!'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
     except Exception as ex:
         print ex
         message = 'Unable to retrieve question set; qset_id either missing or incorrect!'
-        message_class = 'alert alert-danger'
+        message_class = 'alert-box alert'
 
     return HttpResponse(json.dumps(data))
 
@@ -1385,15 +1398,15 @@ def get_unassigned_bonuses(request):
             else:
                 available_tossups = []
                 message = 'Only the set owner has the power to add questions to it!'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box alert'
 
         else:
             message = 'Invalid request!'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
     except Exception as ex:
         print ex
         message = 'Unable to retrieve question set; qset_id either missing or incorrect!'
-        message_class = 'alert alert-danger'
+        message_class = 'alert-box alert'
 
     return HttpResponse(json.dumps(data))
 
@@ -1417,15 +1430,15 @@ def assign_tossups_to_packet(request):
                 # Potential race condition?
                 tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
                 message = 'Your tossups have been added to the set!'
-                message_class = 'alert alert-success'
+                message_class = 'alert-box success'
                 tossup.save()
         else:
             message = 'Only the set owner is authorized to add questions to the set!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
 
     else:
         message = 'Invalid request!'
-        message_class = 'alert alert-danger'
+        message_class = 'alert-box alert'
 
     return HttpResponse(json.dumps({'message': message,
                                     'message_class': message_class}))
@@ -1448,15 +1461,15 @@ def assign_bonuses_to_packet(request):
                 bonus.packet = packet
                 print packet, bonus
                 message = 'Your bonuses have been added to the set!'
-                message_class = 'alert alert-success'
+                message_class = 'alert-box success'
                 bonus.save()
         else:
             message = 'Only the set owner is authorized to add questions to the set!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
 
     else:
         message = 'Invalid request!'
-        message_class = 'alert alert-danger'
+        message_class = 'alert-box alert'
 
     return HttpResponse(json.dumps({'message': message,
                                     'message_class': message_class}))
@@ -1491,14 +1504,14 @@ def change_question_order(request):
             except Exception as ex:
                 print ex
                 message = 'Something went terribly wrong!'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box alert'
 
         else:
             message = 'Only the owner of the set is allowed to change the order of questions!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
     else:
         message = 'Invalid request!'
-        message_class = 'alert alert-warning'
+        message_class = 'alert-box warning'
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
@@ -1520,10 +1533,10 @@ def change_question_order(request):
 #             message_class = ''
 #         else:
 #             message = 'Only the set owner is authorized to change question order'
-#             message_class = 'alert alert-warning'
+#             message_class = 'alert-box warning'
 #     else:
 #         message = 'Invalid request!'
-#         message_class = 'alert alert-danger'
+#         message_class = 'alert-box alert'
 #
 #     return HttpResponse(json.dumps({'message': message,
 #                                     'message_class': message_class}))
@@ -1542,10 +1555,10 @@ def change_question_order(request):
 #             message_class = ''
 #         else:
 #             message = 'Only the set owner is authorized to change question order'
-#             message_class = 'alert alert-warning'
+#             message_class = 'alert-box warning'
 #     else:
 #         message = 'Invalid request!'
-#         message_class = 'alert alert-danger'
+#         message_class = 'alert-box alert'
 #     return HttpResponse(json.dumps({'message': message,
 #                                     'message_class': message_class}))
 #
@@ -1573,16 +1586,16 @@ def change_question_order(request):
 
 @login_required
 def distributions (request):
-    
+
     data = []
     all_dists = Distribution.objects.all()
-        
+
     return render_to_response('distributions.html',
                               {'dists': all_dists, 'user': request.user.writer},
                               context_instance=RequestContext(request))
 
 def edit_distribution(request, dist_id=None):
-    
+
     data = []
 
     if request.user.is_authenticated():
@@ -1596,7 +1609,7 @@ def edit_distribution(request, dist_id=None):
                     new_dist = Distribution()
                     new_dist.name = dist_form.cleaned_data['name']
                     new_dist.save()
-                    
+
                     for form in formset:
                         if form.cleaned_data != {}:
                             new_entry = DistributionEntry()
@@ -1615,7 +1628,7 @@ def edit_distribution(request, dist_id=None):
                             new_entry.save()
 
                     return HttpResponseRedirect('/edit_distribution/' + str(new_dist.id))
-                        
+
             else:
                 formset = DistributionEntryFormset(data=request.POST, prefix='distentry')
                 dist_form = DistributionForm(data=request.POST)
@@ -1623,7 +1636,7 @@ def edit_distribution(request, dist_id=None):
                 print formset.is_valid()
                 print formset.errors
                 if dist_form.is_valid() and formset.is_valid():
-                    
+
                     dist = Distribution.objects.get(id=dist_id)
                     dist.name = dist_form.cleaned_data['name']
                     qsets = dist.questionset_set.all()
@@ -1665,7 +1678,7 @@ def edit_distribution(request, dist_id=None):
                                         new_set_wide_entry.num_tossups = qset.num_packets * entry.min_tossups
                                         new_set_wide_entry.num_bonuses = qset.num_packets * entry.min_bonuses
                                         new_set_wide_entry.save()
-                            
+
                     entries = dist.distributionentry_set.all()
                     initial_data = []
                     for entry in entries:
@@ -1677,12 +1690,12 @@ def edit_distribution(request, dist_id=None):
                                              'max_tossups': entry.max_tossups,
                                              'max_bonuses': entry.max_bonuses})
                     formset = DistributionEntryFormset(initial=initial_data, prefix='distentry')
-                    
+
                 else:
                     dist = Distribution.objects.get(id=dist_id)
                     dist_form = DistributionForm(instance=dist)
                     formset = DistributionEntryFormset(data=request.POST, prefix='distentry')
-                    
+
             return render_to_response('edit_distribution.html',
                                       {'form': dist_form,
                                        'formset': formset,
@@ -1706,7 +1719,7 @@ def edit_distribution(request, dist_id=None):
             else:
                 dist_form = DistributionForm()
                 formset = DistributionEntryFormset(prefix='distentry')
-            
+
             return render_to_response('edit_distribution.html',
                                       {'form': dist_form,
                                        'formset': formset,
@@ -1821,7 +1834,7 @@ def edit_tiebreak(request, dist_id=None):
         else:
             dist_form = TieBreakDistributionForm()
             formset = TiebreakDistributionEntryFormset(prefix='tiebreak')
-            
+
         return render_to_response('edit_tiebreak.html',
         {'form': dist_form,
         'formset': formset,},
@@ -1860,7 +1873,7 @@ def upload_questions(request, qset_id):
                 'bonuses': uploaded_bonuses,
                 'message': mark_safe('Please verify that this data is correct. Hitting "Submit" will upload these questions '\
                 'If you see any mistakes in the submissions, please correct them in the <strong><em>original file</em></strong> and reupload.'),
-                'message_class': 'alert alert-warning',
+                'message_class': 'alert-box warning',
                 'qset': qset},
                 context_instance=RequestContext(request))
             else:
@@ -1877,7 +1890,7 @@ def type_questions(request, qset_id=None):
         qset = QuestionSet.objects.get(id=request.POST['qset_id'])
 
     user = request.user.writer
-    
+
     if request.method == 'POST':
         if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
             form = TypeQuestionsForm(request.POST)
@@ -1887,48 +1900,48 @@ def type_questions(request, qset_id=None):
                 print "type questions post"
                 for tossup in tossups:
                     print tossup.tossup_answer
-                
+
                 return render_to_response('type_questions_preview.html',
-                                          {'tossups': tossups,
-                                           'bonuses': bonuses,
-                                           'tossup_errors': tossup_errors,
-                                           'bonus_errors': bonus_errors,
-                                           'message': 'Please verify that these questions have been correctly parsed. Hitting "Submit" will '\
-                                           'commit these questions to the database. If you see any mistakes, hit "Cancel" and correct your mistakes.',
-                                           'qset': qset,
-                                           'user': user},
+                                         {'tossups': tossups,
+                                          'bonuses': bonuses,
+                                          'tossup_errors': tossup_errors,
+                                          'bonus_errors': bonus_errors,
+                                          'message': 'Please verify that these questions have been correctly parsed. Hitting "Submit" will '\
+                                          'commit these questions to the database. If you see any mistakes, hit "Cancel" and correct your mistakes.',
+                                          'qset': qset,
+                                          'user': user},
                                           context_instance=RequestContext(request))
             else:
                 question_data = request.POST['questions']
                 tossups, bonuses = parse_packet_data(question_data)
                 messages.error(request, form.questions.errors)
-                
+
         else:
             tossups = None
             bonuses = None
             messages.error(request, 'You do not have permission to add questions to this set')
             return render_to_response('type_questions.html',
-                                      {'tossups': tossups,
-                                       'bonuses': bonuses,
-                                       'qset': qset,
-                                       'user': user},
+                                     {'tossups': tossups,
+                                      'bonuses': bonuses,
+                                      'qset': qset,
+                                      'user': user},
                                       context_instance=RequestContext(request))
     elif request.method == 'GET':
         if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
             dist_entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
-                        
+
             form = TypeQuestionsForm(request.POST)
             return render_to_response('type_questions.html',
-                                      {'user': user,
-                                       'qset': qset,
-                                       'form': form,
-                                       'dist_entries': dist_entries},
+                                     {'user': user,
+                                      'qset': qset,
+                                      'form': form,
+                                      'dist_entries': dist_entries},
                                       context_instance=RequestContext(request))
         else:
             messages.error(request, 'You do not have permission to add questions to this set')
             return render_to_response('type_questions.html',
-                                      {'qset': qset,
-                                       'user': user},
+                                     {'qset': qset,
+                                      'user': user},
                                       context_instance=RequestContext(request))
 
 @login_required
@@ -1942,7 +1955,7 @@ def complete_upload(request):
         num_bonuses = int(request.POST['num-bonuses'])
         categories = DistributionEntry.objects.all()
         questionTypes = QuestionType.objects.all()
-        
+
         new_tossups = []
         new_bonuses = []
 
@@ -1963,21 +1976,21 @@ def complete_upload(request):
             new_tossup.tossup_answer = tu_ans
             new_tossup.author = user
             new_tossup.question_set = qset
-            
+
             for category in categories:
                 formattedCategory = category.category + " - " + category.subcategory
                 if (formattedCategory == tu_cat):
                     new_tossup.category = category
                     break
-            
+
             for questionType in questionTypes:
                 if (str(questionType) == tu_type):
                     new_tossup.question_type = questionType
-                    break            
-            
+                    break
+
             new_tossup.locked = False
             new_tossup.edited = False
-            
+
             new_tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
             new_tossups.append(new_tossup)
 
@@ -2007,14 +2020,14 @@ def complete_upload(request):
             new_bonus.part2_answer = strip_markup(request.POST[bs_ans2_name])
             new_bonus.part3_text = strip_markup(request.POST[bs_part3_name])
             new_bonus.part3_answer = strip_markup(request.POST[bs_ans3_name])
-                        
+
             bonus_cat = request.POST[bs_cat_name]
             for category in categories:
                 formattedCategory = category.category + " - " + category.subcategory
                 if (formattedCategory == bonus_cat):
                     new_bonus.category = category
                     break
-            
+
             for questionType in questionTypes:
                 if (str(questionType) == bs_type):
                     new_bonus.question_type = questionType
@@ -2023,12 +2036,12 @@ def complete_upload(request):
             new_bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
             new_bonuses.append(new_bonus)
 
-        messages.success(request, 'Your questions have been uploaded!')
+        messages.success(request, 'Your questions have been uploaded.', extra_tags='alert-box success')
         for tossup in new_tossups:
-            messages.success(request, 'View your tossup on <a href="/edit_tossup/{0}">{1}</a>.'.format(tossup.id, get_answer_no_formatting(tossup.tossup_answer)), extra_tags='safe')
+            messages.success(request, 'View your tossup on <a href="/edit_tossup/{0}">{1}.</a>'.format(tossup.id, get_answer_no_formatting(tossup.tossup_answer)), extra_tags='safe alert-box info')
 
         for bonus in new_bonuses:
-            messages.success(request, 'View your bonus on <a href="/edit_bonus/{0}">{1}</a>.'.format(bonus.id, get_answer_no_formatting(bonus.part1_answer)), extra_tags='safe')
+            messages.success(request, 'View your bonus on <a href="/edit_bonus/{0}">{1}.</a>'.format(bonus.id, get_answer_no_formatting(bonus.part1_answer)), extra_tags='safe alert-box info')
 
         return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
 
@@ -2098,8 +2111,8 @@ def search(request, passed_qset_id=None):
 
     if request.method == 'GET':
 
-        print request.GET        
-        
+        print request.GET
+
         all_categories = [(cat.category, cat.subcategory) for cat in DistributionEntry.objects.all()]
         categories = []
         for cat in all_categories:
@@ -2153,7 +2166,7 @@ def search(request, passed_qset_id=None):
                     question_type = fields[1]
                     question_id = int(fields[2])
                     if question_type == 'tossup':
-                        question = Tossup.objects.get(id=question_id)                        
+                        question = Tossup.objects.get(id=question_id)
                     elif question_type == 'bonus':
                         question = Bonus.objects.get(id=question_id)
 
@@ -2168,7 +2181,7 @@ def search(request, passed_qset_id=None):
             else:
                 result = []
                 message = 'You are not authorized to view questions from this set.'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box alert'
 
             print result
             return render_to_response('search/search.html',
@@ -2188,8 +2201,8 @@ def search(request, passed_qset_id=None):
 
 @login_required
 def logout_view(request):
-	logout(request)
-	return HttpResponseRedirect("/main/")
+    logout(request)
+    return HttpResponseRedirect("/main/")
 
 @login_required
 def move_tossup(request, q_set_id, tossup_id):
@@ -2198,23 +2211,23 @@ def move_tossup(request, q_set_id, tossup_id):
     q_set_editors = []
     q_set_editors.append(q_set.editor.all())
     q_set_editors.append(q_set.owner)
-    
+
     tossup = Tossup.objects.get(id=tossup_id)
     if (tossup is None or tossup.question_set != q_set):
         message = 'Invalid tossup'
-        message_class = 'alert alert-danger'
+        message_class = 'alert-box alert'
         tossup = None
-    
+
     move_sets = user.question_set_editor.exclude(id=q_set_id)
-    
+
     if request.method == 'GET':
-        if (user in q_set_editors):            
+        if (user in q_set_editors):
             if (tossup is not None):
                 form = MoveTossupForm(move_sets=move_sets)
-                
+
                 message = ''
                 message_class = ''
-                
+
                 return render_to_response('move_tossup.html',
                                     {'user': user,
                                      'q_set': q_set,
@@ -2232,11 +2245,11 @@ def move_tossup(request, q_set_id, tossup_id):
                                      'tossup': tossup,
                                      'message': message,
                                      'message_class': message_class},
-                                     context_instance=RequestContext(request))                
+                                     context_instance=RequestContext(request))
         else:
             form = []
             message = 'You do not have permissions to move this question.'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
             q_set = []
             return render_to_response('move_tossup.html',
                                 {'user': user,
@@ -2246,28 +2259,28 @@ def move_tossup(request, q_set_id, tossup_id):
                                  'message': message,
                                  'message_class': message_class},
                                  context_instance=RequestContext(request))
-            
+
     else:
         # Update the question set for this tossup
         if (user in q_set_editors):
             form = MoveTossupForm(request.POST, move_sets=move_sets)
-            
+
             print "MoveTossupForm: " + str(form)
             if form.is_valid():
                 dest_qset_id = request.POST["move_sets"]
                 dest_qset = QuestionSet.objects.get(id=dest_qset_id)
-                
+
                 if (tossup is not None and dest_qset is not None):
                     tossup.question_set = dest_qset
                     tossup.packet = None
-                    
+
                     # It's not guaranteed that these categories exist, so clear them
                     tossup.category = None
                     tossup.subtype = ''
-                    
-                    tossup.save()                
+
+                    tossup.save()
                     message = "Successfully moved tossup to " + str(dest_qset)
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     return render_to_response('move_tossup_success.html',
                                         {'user': user,
                                          'q_set': q_set,
@@ -2275,11 +2288,11 @@ def move_tossup(request, q_set_id, tossup_id):
                                          'tossup': tossup,
                                          'message': message,
                                          'message_class': message_class},
-                                         context_instance=RequestContext(request))                                
+                                         context_instance=RequestContext(request))
                 else:
                     message = 'There was an error with your submission.  Hit the back button and make sure you selected a valid question set to move to.'
-                    message_class = 'alert alert-warning'
-                    
+                    message_class = 'alert-box warning'
+
                     return render_to_response('move_tossup.html',
                                         {'user': user,
                                          'q_set': q_set,
@@ -2287,10 +2300,10 @@ def move_tossup(request, q_set_id, tossup_id):
                                          'tossup': tossup,
                                          'message': message,
                                          'message_class': message_class},
-                                         context_instance=RequestContext(request))   
+                                         context_instance=RequestContext(request))
             else:
                 message = 'There was an error moving your question.  Hit the back button and make sure you selected a valid question set to move to.'
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
                 q_set = []
                 return render_to_response('move_tossup.html',
                                     {'user': user,
@@ -2300,10 +2313,10 @@ def move_tossup(request, q_set_id, tossup_id):
                                      'message': message,
                                      'message_class': message_class},
                                      context_instance=RequestContext(request))
-                
+
         else:
             message = 'You do not have permissions to move this question.'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
             q_set = []
             form = []
             return render_to_response('move_tossup.html',
@@ -2322,23 +2335,23 @@ def move_bonus(request, q_set_id, bonus_id):
     q_set_editors = []
     q_set_editors.append(q_set.editor.all())
     q_set_editors.append(q_set.owner)
-    
+
     bonus = Bonus.objects.get(id=bonus_id)
     if (bonus is None or bonus.question_set != q_set):
         message = 'Invalid bonus'
-        message_class = 'alert alert-danger'
+        message_class = 'alert-box alert'
         bonus = None
-    
+
     move_sets = user.question_set_editor.exclude(id=q_set_id)
-    
+
     if request.method == 'GET':
-        if (user in q_set_editors):            
+        if (user in q_set_editors):
             if (bonus is not None):
                 form = MoveBonusForm(move_sets=move_sets)
-                
+
                 message = ''
                 message_class = ''
-                
+
                 return render_to_response('move_bonus.html',
                                     {'user': user,
                                      'q_set': q_set,
@@ -2356,11 +2369,11 @@ def move_bonus(request, q_set_id, bonus_id):
                                      'bonus': bonus,
                                      'message': message,
                                      'message_class': message_class},
-                                     context_instance=RequestContext(request))                
+                                     context_instance=RequestContext(request))
         else:
             form = []
             message = 'You do not have permissions to move this question.'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
             q_set = []
             return render_to_response('move_bonus.html',
                                 {'user': user,
@@ -2370,7 +2383,7 @@ def move_bonus(request, q_set_id, bonus_id):
                                  'message': message,
                                  'message_class': message_class},
                                  context_instance=RequestContext(request))
-            
+
     else:
         # Update the question set for this bonus
         if (user in q_set_editors):
@@ -2378,26 +2391,26 @@ def move_bonus(request, q_set_id, bonus_id):
             if form.is_valid():
                 dest_qset_id = request.POST["move_sets"]
                 dest_qset = QuestionSet.objects.get(id=dest_qset_id)
-                
+
                 if (bonus is not None and dest_qset is not None):
                     bonus.question_set = dest_qset
                     bonus.packet = None
-                    
+
                     # It's not guaranteed that these categories exist, so clear them
                     bonus.category = None
                     bonus.subtype = ''
-                    
-                    bonus.save()                
+
+                    bonus.save()
                     return render_to_response('move_bonus_success.html',
                                         {'user': user,
                                          'q_set': q_set,
                                          'dest_q_set': dest_qset,
                                          'bonus': bonus},
-                                         context_instance=RequestContext(request))                                
+                                         context_instance=RequestContext(request))
                 else:
                     message = 'There was an error with your submission.  Hit the back button and make sure you selected a valid question set to move to.'
-                    message_class = 'alert alert-warning'
-                    
+                    message_class = 'alert-box warning'
+
                     return render_to_response('move_bonus.html',
                                         {'user': user,
                                          'q_set': q_set,
@@ -2405,10 +2418,10 @@ def move_bonus(request, q_set_id, bonus_id):
                                          'bonus': bonus,
                                          'message': message,
                                          'message_class': message_class},
-                                         context_instance=RequestContext(request))   
+                                         context_instance=RequestContext(request))
             else:
                 message = 'There was an error moving your question.  Hit the back button and make sure you selected a valid question set to move to.'
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
                 q_set = []
                 return render_to_response('move_bonus.html',
                                     {'user': user,
@@ -2418,10 +2431,10 @@ def move_bonus(request, q_set_id, bonus_id):
                                      'message': message,
                                      'message_class': message_class},
                                      context_instance=RequestContext(request))
-                
+
         else:
             message = 'You do not have permissions to move this question.'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
             q_set = []
             form = []
             return render_to_response('move_bonus.html',
@@ -2443,18 +2456,18 @@ def export_question_set(request, qset_id, output_format):
             if (output_format == "csv"):
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)
-                
+
                 response = HttpResponse(content_type='text/csv')
                 response['Content-Disposition'] = 'attachment; filename="packet2.csv"'
-                
+
                 writer = unicodecsv.writer(response, encoding='utf-8', quoting=csv.QUOTE_ALL)
-                
+
                 writer.writerow(["Tossup Question", "Answer", "Category", "Author", "Edited", "Packet", "Question Number"])
-                for tossup in tossups:                
+                for tossup in tossups:
                     writer.writerow([tossup.tossup_text, tossup.tossup_answer, tossup.category, tossup.author, tossup.edited, tossup.packet, tossup.question_number])
 
                 writer.writerow([])
-                
+
                 writer.writerow(["Bonus Leadin", "Bonus Part 1", "Bonus Answer 1", "Bonus Part 2", "Bonus Answer 2", "Bonus Part 3", "Bonus Answer 3", "Category", "Author", "Edited", "Packet", "Question Number"])
                 for bonus in bonuses:
                     writer.writerow([bonus.leadin, bonus.part1_text, bonus.part1_answer, bonus.part2_text, bonus.part2_answer, bonus.part3_text, bonus.part3_answer, bonus.category, bonus.author, bonus.edited, bonus.packet, bonus.question_number])
@@ -2463,7 +2476,7 @@ def export_question_set(request, qset_id, output_format):
             elif (output_format == "pdf"):
                 # TODO: Experiment with one of those PDF libraries
                 message = 'Not supported yet.'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box alert'
                 q_set = []
                 tossups = []
                 bonuses = []
@@ -2477,7 +2490,7 @@ def export_question_set(request, qset_id, output_format):
                                      context_instance=RequestContext(request))
             else:
                 message = 'Unsupported export format.'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box alert'
                 q_set = []
                 tossups = []
                 bonuses = []
@@ -2488,11 +2501,11 @@ def export_question_set(request, qset_id, output_format):
                                      'bonuses': bonuses,
                                      'message': message,
                                      'message_class': message_class},
-                                     context_instance=RequestContext(request))                 
-            
+                                     context_instance=RequestContext(request))
+
         else:
             message = 'You are not authorized to export questions from this set.'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
             q_set = []
             tossups = []
             bonuses = []
@@ -2520,7 +2533,7 @@ def restore_tossup(request):
         tossup = Tossup.objects.get(question_history=tossup_history.question_history)
         if (tossup_history is None):
             message = 'Invalid tossup history restoration!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
         else:
             qset_id = request.POST['qset_id']
             qset = QuestionSet.objects.get(id=qset_id)
@@ -2528,17 +2541,17 @@ def restore_tossup(request):
                 tossup = Tossup.objects.get(question_history=tossup_history.question_history)
                 if (tossup is None):
                     message = 'Invalid tossup restoration!'
-                    message_class = 'alert alert-warning'
+                    message_class = 'alert-box warning'
                 else:
                     tossup.tossup_answer = tossup_history.tossup_answer
                     tossup.tossup_text = tossup_history.tossup_text
                     tossup.save_question(edit_type=QUESTION_RESTORE, changer=user)
                     message = 'Successfully restored question'
-                    message_class = 'alert alert-success'                    
+                    message_class = 'alert-box success'
             else:
                 message = 'You are not authorized to restore this question!'
-                message_class = 'alert alert-warning'
-            
+                message_class = 'alert-box warning'
+
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
@@ -2552,10 +2565,10 @@ def restore_bonus(request):
     if request.method == 'POST':
         bh_id = request.POST['bh_id']
         bonus_history = BonusHistory.objects.get(id=bh_id)
-        bonus = Bonus.objects.get(question_history=bonus_history.question_history)        
+        bonus = Bonus.objects.get(question_history=bonus_history.question_history)
         if (bonus_history is None):
             message = 'Invalid bonus history restoration!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
         else:
             qset_id = request.POST['qset_id']
             qset = QuestionSet.objects.get(id=qset_id)
@@ -2563,7 +2576,7 @@ def restore_bonus(request):
                 bonus = Bonus.objects.get(question_history=bonus_history.question_history)
                 if (bonus is None):
                     message = 'Invalid bonus restoration!'
-                    message_class = 'alert alert-warning'
+                    message_class = 'alert-box warning'
                 else:
                     bonus.question_type = bonus_history.question_type
                     bonus.leadin = bonus_history.leadin
@@ -2572,14 +2585,14 @@ def restore_bonus(request):
                     bonus.part2_text = bonus_history.part2_text
                     bonus.part2_answer = bonus_history.part2_answer
                     bonus.part3_text = bonus_history.part3_text
-                    bonus.part3_answer = bonus_history.part3_answer                                        
+                    bonus.part3_answer = bonus_history.part3_answer
                     bonus.save_question(edit_type=QUESTION_RESTORE, changer=user)
                     message = 'Successfully restored question'
-                    message_class = 'alert alert-success'                    
+                    message_class = 'alert-box success'
             else:
                 message = 'You are not authorized to restore this question!'
-                message_class = 'alert alert-warning'
-            
+                message_class = 'alert-box warning'
+
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
@@ -2589,24 +2602,24 @@ def tossup_history(request, tossup_id):
         tossup = Tossup.objects.get(id=tossup_id)
         if (tossup is None):
             message = 'Invalid tossup'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
             tossup = None
         else:
             q_set = tossup.question_set
             print "q_Set: " + str(q_set)
             if (q_set is None):
                 message = 'Invalid question set'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box alert'
                 tossup = None
             else:
                 q_set_writers = q_set.editor.all() | q_set.writer.all()
-                if (user in q_set_writers):                    
+                if (user in q_set_writers):
                     tossup_histories, bonus_histories = tossup.get_question_history()
                     tossup_histories = tossup_histories.order_by('-id')
                     bonus_histories = bonus_histories.order_by('-id')
                     message = ''
                     message_class = ''
-                    
+
                     return render_to_response('tossup_history.html',
                                         {'user': user,
                                          'qset': q_set,
@@ -2616,12 +2629,12 @@ def tossup_history(request, tossup_id):
                                          'message': message,
                                          'message_class': message_class},
                                          context_instance=RequestContext(request))
-                    
+
                 else:
                     message = "You don't have permission to view this question"
-                    message_class = 'alert alert-danger'
+                    message_class = 'alert-box alert'
                     tossup = None
-                    
+
 
     return render_to_response('tossup_history.html',
                         {'user': user,
@@ -2636,29 +2649,29 @@ def tossup_history(request, tossup_id):
 @login_required
 def bonus_history(request, bonus_id):
     user = request.user.writer
-    if request.method == 'GET':        
+    if request.method == 'GET':
         bonus = Bonus.objects.get(id=bonus_id)
         if (bonus is None):
             message = 'Invalid bonus'
-            message_class = 'alert alert-danger'
+            message_class = 'alert-box alert'
             bonus = None
         else:
             q_set = bonus.question_set
             if (q_set is None):
                 message = 'Invalid question set'
-                message_class = 'alert alert-danger'
+                message_class = 'alert-box alert'
                 bonus = None
             else:
                 q_set_writers = q_set.editor.all() | q_set.writer.all()
                 print q_set_writers
-                print user        
+                print user
                 if (user in q_set_writers):
                     message = ''
                     message_class = ''
-                    
+
                     tossup_histories, bonus_histories = bonus.get_question_history()
                     tossup_histories = tossup_histories.order_by('-id')
-                    bonus_histories = bonus_histories.order_by('-id')                    
+                    bonus_histories = bonus_histories.order_by('-id')
                     return render_to_response('bonus_history.html',
                                         {'user': user,
                                          'qset': q_set,
@@ -2668,12 +2681,12 @@ def bonus_history(request, bonus_id):
                                          'message': message,
                                          'message_class': message_class},
                                          context_instance=RequestContext(request))
-                    
+
                 else:
                     message = "You don't have permission to view this question"
-                    message_class = 'alert alert-danger'
+                    message_class = 'alert-box alert'
                     bonus = None
-                    
+
 
     return render_to_response('bonus_history.html',
                         {'user': user,
@@ -2699,23 +2712,23 @@ def convert_tossup(request):
         tossup = Tossup.objects.get(id=tossup_id)
         if (tossup is None):
             message = 'Invalid tossup!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
         else:
             qset_id = request.POST['qset_id']
-            qset = QuestionSet.objects.get(id=qset_id)            
+            qset = QuestionSet.objects.get(id=qset_id)
             if user == tossup.author or user == qset.owner or user in qset.editor.all():
                 target_type = request.POST['target_type']
                 if (target_type == ACF_STYLE_TOSSUP):
                     tossup_to_tossup(tossup, target_type)
                 else:
                     tossup_to_bonus(tossup, target_type)
-                                    
+
                 message = 'Successfully changed tossup type'
-                message_class = 'alert alert-success'                    
+                message_class = 'alert-box success'
             else:
                 message = 'You are not authorized to change this tossup type!'
-                message_class = 'alert alert-warning'
-            
+                message_class = 'alert-box warning'
+
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
@@ -2732,24 +2745,24 @@ def convert_bonus(request):
         bonus = Bonus.objects.get(id=bonus_id)
         if (bonus is None):
             message = 'Invalid bonus!'
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
         else:
             qset_id = request.POST['qset_id']
-            qset = QuestionSet.objects.get(id=qset_id)            
+            qset = QuestionSet.objects.get(id=qset_id)
             if user == bonus.author or user == qset.owner or user in qset.editor.all():
                 target_type = request.POST['target_type']
                 print "target_type: " + str(target_type)
                 if (target_type == ACF_STYLE_BONUS or target_type == VHSL_BONUS):
-                    bonus_to_bonus(bonus, target_type)                
+                    bonus_to_bonus(bonus, target_type)
                 else:
                     bonus_to_tossup(bonus, target_type)
-                                    
+
                 message = 'Successfully changed bonus type'
-                message_class = 'alert alert-success'                    
+                message_class = 'alert-box success'
             else:
                 message = 'You are not authorized to change this bonus type!'
-                message_class = 'alert alert-warning'
-            
+                message_class = 'alert-box warning'
+
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
@@ -2783,7 +2796,7 @@ def questions_remaining(request, qset_id):
             total_bs_req += bs_required
             total_bs_written += bs_written
             total_tu_written += tu_written
-            
+
             # Only include categories with some questions left to write
             if (tu_written < tu_required or bs_written < bs_required):
                 set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
@@ -2792,15 +2805,16 @@ def questions_remaining(request, qset_id):
                                                          'bs_in_cat': bs_written,
                                                          'category_id': entry.dist_entry.id}
         set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
-                
+
     return render_to_response('questions_remaining.html',
-                              {'user': user,
-                               'set_status': set_status,
-                               'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
-                               'tu_needed': total_tu_req - total_tu_written,
-                               'bs_needed': total_bs_req - total_bs_written,
-                               'qset': qset,
-                               'message': message},
+                             {'user': user,
+                              'set_status': set_status,
+                              'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
+                              'set_pct_progress_bar': '{0:0.0f}%'.format(set_pct_complete),
+                              'tu_needed': total_tu_req - total_tu_written,
+                              'bs_needed': total_bs_req - total_bs_written,
+                              'qset': qset,
+                              'message': message},
                               context_instance=RequestContext(request))
 
 @login_required
@@ -2809,21 +2823,21 @@ def bulk_change_set(request, qset_id):
     qset = QuestionSet.objects.get(id=qset_id)
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
-    
+
     message = ''
     message_class = ''
     tossups = []
     bonuses = []
     role = get_role_no_owner(user, qset)
-    
+
     if role != 'editor':
         message = 'You are not authorized to make bulk operations on this set'
         return HttpResponseRedirect('/failure.html/')
     else:
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-    
-    if request.method == 'GET':    
+
+    if request.method == 'GET':
         return render_to_response('bulk_change_set.html',
             {
             'user': user,
@@ -2842,28 +2856,28 @@ def bulk_change_set(request, qset_id):
                 return bulk_move_question(request, qset_id)
             elif (operation == "packet-step2"):
                 return bulk_change_packet(request, qset_id)
-            
+
             num_questions_selected = 0
             num_tossups = int(request.POST['num-tossups'])
             num_bonuses = int(request.POST['num-bonuses'])
-            
+
             change_tossups = []
             change_bonuses = []
-            
+
             for tu_num in range(num_tossups):
                 tu_checked_name = 'tossup-checked-{0}'.format(tu_num)
                 tu_id_name = 'tossup-id-{0}'.format(tu_num)
-                
+
                 if (tu_checked_name in request.POST):
                     tu_id = request.POST[tu_id_name]
                     tossup = Tossup.objects.get(id=tu_id)
                     change_tossups.append(tossup)
                     num_questions_selected += 1
-                
+
             for bs_num in range(num_bonuses):
                 bs_checked_name = 'bonus-checked-{0}'.format(bs_num)
                 bs_id_name = 'bonus-id-{0}'.format(bs_num)
-                
+
                 if (bs_checked_name in request.POST):
                     bs_id = request.POST[bs_id_name]
                     bonus = Bonus.objects.get(id=bs_id)
@@ -2872,12 +2886,12 @@ def bulk_change_set(request, qset_id):
 
             if (num_questions_selected > 0):
                 # Do the actual operation
-                
+
                 if (operation == 'edit'):
                     bulk_edit_questions(True, change_tossups, change_bonuses, qset, user)
-                    
+
                     message = "Successfully edited questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2886,12 +2900,12 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                    
+                        context_instance=RequestContext(request))
                 elif (operation == 'unedit'):
                     bulk_edit_questions(False, change_tossups, change_bonuses, qset, user)
-                    
+
                     message = "Successfully unedited questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2900,10 +2914,10 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                     
+                        context_instance=RequestContext(request))
                 elif (operation == 'packet'):
                     packets = Packet.objects.filter(question_set=qset)
-                    
+
                     return render_to_response('bulk_change_packet.html',
                         {
                         'user': user,
@@ -2913,12 +2927,12 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                      
+                        context_instance=RequestContext(request))
                 elif (operation == 'lock'):
                     bulk_lock_questions(True, change_tossups, change_bonuses, qset, user)
-                    
+
                     message = "Successfully locked questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2927,12 +2941,12 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                         
+                        context_instance=RequestContext(request))
                 elif (operation == 'unlock'):
                     bulk_lock_questions(False, change_tossups, change_bonuses, qset, user)
-                    
+
                     message = "Successfully unlocked questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2941,14 +2955,14 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                         
+                        context_instance=RequestContext(request))
                 elif (operation == 'delete'):
                     bulk_delete_questions(change_tossups, change_bonuses, qset, user)
                     message = "Successfully deleted questions."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-                                        
+
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2957,15 +2971,15 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                         
-                    
+                        context_instance=RequestContext(request))
+
                 elif (operation == 'convert-to-acf-style-tossup'):
                     bulk_convert_to_acf_style_tossup(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to ACF-style tossups."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-                                        
+
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2974,15 +2988,15 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                       
-                    
+                        context_instance=RequestContext(request))
+
                 elif (operation == 'convert-to-acf-style-bonus'):
                     bulk_convert_to_acf_style_bonus(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to ACF-style bonuses."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-                                        
+
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -2991,15 +3005,15 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                      
+                        context_instance=RequestContext(request))
                 elif (operation == 'convert-to-vhsl-bonus'):
                     bulk_convert_to_vhsl_bonus(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to VHSL bonuses."
-                    message_class = 'alert alert-success'
+                    message_class = 'alert-box success'
 
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
-                                        
+
                     return render_to_response('bulk_change_set.html',
                         {
                         'user': user,
@@ -3008,11 +3022,11 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                      
+                        context_instance=RequestContext(request))
                 elif (operation == 'move'):
                     new_sets = user.question_set_editor.exclude(id=qset_id)
                     print "new sets: " + str(new_sets)
-                    
+
                     return render_to_response('bulk_move_questions.html',
                         {
                         'user': user,
@@ -3022,10 +3036,10 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                                          
+                        context_instance=RequestContext(request))
                 elif (operation == 'author'):
                     writers = qset.writer.all() | qset.editor.all()
-                    
+
                     return render_to_response('bulk_change_author.html',
                         {
                         'user': user,
@@ -3035,8 +3049,8 @@ def bulk_change_set(request, qset_id):
                         'qset': qset,
                         'message': message,
                         'message_class': message_class},
-                        context_instance=RequestContext(request))                      
-                
+                        context_instance=RequestContext(request))
+
             else:
                 message = "Error!  You must select at least one question."
                 message_class = 'alert alert-warning'
@@ -3048,7 +3062,7 @@ def bulk_change_set(request, qset_id):
                     'qset': qset,
                     'message': message,
                     'message_class': message_class},
-                    context_instance=RequestContext(request))                  
+                    context_instance=RequestContext(request))
         else:
             message = "You didn't hit the confirm button."
             message_class = 'alert alert-warning'
@@ -3060,8 +3074,8 @@ def bulk_change_set(request, qset_id):
                 'qset': qset,
                 'message': message,
                 'message_class': message_class},
-                context_instance=RequestContext(request))        
-        
+                context_instance=RequestContext(request))
+
 @login_required
 def bulk_change_author(request, qset_id):
     print "bulk change author"
@@ -3074,7 +3088,7 @@ def bulk_change_author(request, qset_id):
     read_only = True
 
     role = get_role_no_owner(user, qset)
-    
+
     if role != 'editor':
         message = 'You are not authorized to make bulk operations on this set'
         return HttpResponseRedirect('/failure.html/')
@@ -3084,12 +3098,12 @@ def bulk_change_author(request, qset_id):
         num_bonuses = int(request.POST['num-bonuses'])
         new_author_id = request.POST['new-author']
         new_author = Writer.objects.get(id=new_author_id)
-        
+
         new_author_role = get_role_no_owner(new_author, qset)
         if (new_author_role == 'none'):
             message = 'Could not change author to ' + str(new_author)
             return HttpResponseRedirect('/failure.html/')
-                    
+
         for tu_num in range(num_tossups):
             tu_id_name = 'tossup-id-{0}'.format(tu_num)
             tu_id = request.POST[tu_id_name]
@@ -3105,11 +3119,11 @@ def bulk_change_author(request, qset_id):
             bonus.save()
 
         message = 'Successfully changed author'
-        message_class = 'alert alert-success'
-        
+        message_class = 'alert-box success'
+
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
-        bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')        
-        
+        bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
+
         return render_to_response('bulk_change_set.html',
             {
             'user': user,
@@ -3118,8 +3132,8 @@ def bulk_change_author(request, qset_id):
             'qset': qset,
             'message': message,
             'message_class': message_class},
-            context_instance=RequestContext(request))         
-            
+            context_instance=RequestContext(request))
+
 @login_required
 def bulk_change_packet(request, qset_id):
     print "bulk change packet"
@@ -3132,7 +3146,7 @@ def bulk_change_packet(request, qset_id):
     read_only = True
 
     role = get_role_no_owner(user, qset)
-    
+
     if role != 'editor':
         message = 'You are not authorized to make bulk operations on this set'
         return HttpResponseRedirect('/failure.html/')
@@ -3142,7 +3156,7 @@ def bulk_change_packet(request, qset_id):
         num_bonuses = int(request.POST['num-bonuses'])
         new_packet_id = request.POST['new-packet']
         new_packet = Packet.objects.get(id=new_packet_id)
-        
+
         # TODO: We may want to clear the numbers from these questions in the future
         for tu_num in range(num_tossups):
             tu_id_name = 'tossup-id-{0}'.format(tu_num)
@@ -3159,11 +3173,11 @@ def bulk_change_packet(request, qset_id):
             bonus.save()
 
         message = 'Successfully changed packet'
-        message_class = 'alert alert-success'
-        
+        message_class = 'alert-box success'
+
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
-        bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')        
-        
+        bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
+
         return render_to_response('bulk_change_set.html',
             {
             'user': user,
@@ -3186,7 +3200,7 @@ def bulk_move_question(request, qset_id):
     read_only = True
 
     role = get_role_no_owner(user, qset)
-    
+
     if role != 'editor':
         message = 'You are not authorized to make bulk operations on this set'
         return HttpResponseRedirect('/failure.html/')
@@ -3196,46 +3210,46 @@ def bulk_move_question(request, qset_id):
         num_bonuses = int(request.POST['num-bonuses'])
         new_set_id = request.POST['new-set']
         new_set = QuestionSet.objects.get(id=new_set_id)
-        
+
         new_set_role = get_role_no_owner(user, new_set)
         if (new_set_role != 'editor'):
             message = 'Could not move questions to ' + str(new_set)
             return HttpResponseRedirect('/failure.html/')
-                    
+
         for tu_num in range(num_tossups):
             tu_id_name = 'tossup-id-{0}'.format(tu_num)
             tu_id = request.POST[tu_id_name]
             tossup = Tossup.objects.get(id=tu_id)
-            
+
             tossup.question_set = new_set
             tossup.packet = None
-            
+
             # It's not guaranteed that these categories exist, so clear them
             tossup.category = None
             tossup.subtype = ''
-            
-            tossup.save()            
+
+            tossup.save()
 
         for bs_num in range(num_bonuses):
             bs_id_name = 'bonus-id-{0}'.format(bs_num)
             bs_id = request.POST[bs_id_name]
             bonus = Bonus.objects.get(id=bs_id)
-            
+
             bonus.question_set = new_set
             bonus.packet = None
-            
+
             # It's not guaranteed that these categories exist, so clear them
             bonus.category = None
             bonus.subtype = ''
-            
-            bonus.save()              
+
+            bonus.save()
 
         message = 'Successfully moved questions'
-        message_class = 'alert alert-success'
-        
+        message_class = 'alert-box success'
+
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
-        bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')        
-        
+        bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
+
         return render_to_response('bulk_change_set.html',
             {
             'user': user,
@@ -3244,8 +3258,8 @@ def bulk_move_question(request, qset_id):
             'qset': qset,
             'message': message,
             'message_class': message_class},
-            context_instance=RequestContext(request))         
-            
+            context_instance=RequestContext(request))
+
 
 # @login_required
 # def password(request):

@@ -7,7 +7,7 @@ QEMS2 is a successor to a system called, intuitively enough, QEMS, which was use
 
 ## Stack
 
-QEMS2 is based on a technology stack that uses MySQL for storage, Python (in the form of Django) for the backend, and jQuery/Bootstrap for frontend manipulations. 
+QEMS2 is based on a technology stack that uses MySQL for storage, Python (in the form of Django) for the backend, and jQuery/Foundation for frontend manipulations. 
 
 ## Installation
 
@@ -25,18 +25,17 @@ To run QEMS2, you'll need the following prerequisites.
 
     python2 >= 2.7, MySQL, nodejs
 
-Once you have those installed, you should use `pip` to get the necessary Python packages
+Once you have those installed, you should use `pip` to get the necessary Python packages. It's generally recommended that you use `virtualenv` to set up a virtual environment for your project.
 
-    sudo pip install django
-    sudo pip install beautifulsoup4
-    sudo pip install django-bower
-    sudo pip install django-contrib-comments
-    sudo pip install django-haystack
-    sudo pip install whoosh
-    sudo pip install mysql-python
-    sudo pip install unicodecsv
-
-It's generally recommended that you use `virtualenv` to set up a virtual environment for your project. 
+    pip install django
+    pip install beautifulsoup4
+    pip install django-bower
+    pip install django-contrib-comments
+    pip install django-haystack
+    pip install django-registration-redux
+    pip install whoosh
+    pip install mysql-python
+    pip install unicodecsv
 
 Next, grab `bower` using `npm` for front-end package management:
 
@@ -47,7 +46,7 @@ Set up your MySQL connection as, for example, `mysql -u root -p`:
     CREATE USER django@localhost IDENTIFIED BY 'django';
     CREATE DATABASE qems2_stable;
     GRANT ALL PRIVILEGES ON qems2_stable.* TO django@localhost;
-    GRANT ALL PRIVILEGES ON test_qems2.* TO django@localhost;
+    GRANT ALL PRIVILEGES ON test_qems2_stable.* TO django@localhost;
 
 Finally, use `manage.py` to populate the database, install the front-end packages, collect static files, and start the development server:
 
@@ -71,6 +70,7 @@ Run an instance of Windows PowerShell as an administrator and:
     pip install django-bower
     pip install django-contrib-comments
     pip install django-haystack
+    pip install django-registration-redux
     pip install whoosh
     pip install unicodecsv
 
@@ -81,6 +81,8 @@ Then follow the above instructions to set up the MySQL connection and the server
 ### Running QEMS2
 
 As with any Django project, you should now be able to access the website at http://localhost:8000.
+
+You can populate the database with some default data by running `python manage.py shell < qems2/qsub/populate_db_with_default_data.py`.
 
 ## Usage
 

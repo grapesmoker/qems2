@@ -9,44 +9,61 @@
 {% block content %}
 {% load static %}
 
-<div class="col-xs-10 col-xs-offset-1 col-md-10 col-md-offset-1">
-    <h3 class="page-header">Create Question Set</h3>
-    <form action="" method="post" role="form" class="form-horizontal form-standard">
-        {% csrf_token %}
-        <div class="form-group">
-            {{ form.name.errors }}
-            <input class="form-control" id="id_name" name="name" maxlength="200" type="text" placeholder="Name">
-        </div>
-        <div class="form-group">
-            {{ form.date.errors }}
-            <input class="form-control" id="id_date" name="date" maxlength="200" type="datetime" placeholder="Due Date (mm/dd/yyyy)">
-        </div>
-        <div class="form-group">
-            {{ form.num_packets.errors }}
-            <input class="form-control" id="id_num_packets" name="num_packets" type="text" placeholder="Number of Packets">
-        </div>       
-        <div class="form-group">
-            {{ form.distribution.errors }}
-            <select class="form-control" id="id_distribution" name="distribution" placeholder="Distribution">
-                <option selected="true" style="display:none;">Distribution</option>
-                {% for dist in distributions %}
-                    <option value="{{ dist.id }}">{{ dist }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="form-group">
-            {{ form.max_acf_tossup_length.errors }}
-            <input class="form-control" id="id_max_acf_tossup_length" name="max_acf_tossup_length" type="text" placeholder="ACF Tossup Character Limit">
-        </div>            
-        <div class="form-group">
-            {{ form.max_acf_bonus_length.errors }}
-            <input class="form-control" id="id_max_acf_bonus_length" name="max_acf_bonus_length" type="text" placeholder="ACF Bonus Total Character Limit">
-        </div>            
-        <div class="form-group">
-            {{ form.max_vhsl_bonus_length.errors }}
-            <input class="form-control" id="id_max_vhsl_bonus_length" name="max_vhsl_bonus_length" type="text" placeholder="VHSL Bonus Total Character Limit">
-        </div>                    
-        <button class="btn btn-primary pull-right" type="submit">Create Question Set</button>
-    </form>
-</div>
+<h3 class="page-header">Create Question Set</h3>
+<form action="" method="post" role="form" class="form-horizontal form-standard">
+    {% csrf_token %}
+
+    <div class="row">
+    {% for field in form %}
+        {% if field.html_name == "name" or field.html_name == "date" %}
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "name" %}Set Name{% else %}Due Date{% endif %}</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ field }}
+                    </div>
+                </div>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+    </div>
+    <div class="row">
+    {% for field in form %}
+        {% if field.html_name == "num_packets" or field.html_name == "distribution" %}
+            <div class="small-6 columns">
+                <div class="row collapse">
+                    <div class="small-4 columns">
+                        <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "num_packets" %}Number of Packets{% else %}Distribution{% endif %}</span>
+                    </div>
+                    <div class="small-8 columns">
+                        {{ field }}
+                    </div>
+                </div>
+                {% if field.errors %}
+                    {{ field.errors }}
+                {% endif %}
+            </div>
+        {% endif %}
+    {% endfor %}
+    </div>
+    <div class="form-group">
+        {{ form.max_acf_tossup_length.errors }}
+        <input class="form-control" id="id_max_acf_tossup_length" name="max_acf_tossup_length" type="text" placeholder="ACF Tossup Character Limit">
+    </div>
+    <div class="form-group">
+        {{ form.max_acf_bonus_length.errors }}
+        <input class="form-control" id="id_max_acf_bonus_length" name="max_acf_bonus_length" type="text" placeholder="ACF Bonus Total Character Limit">
+    </div>
+    <div class="form-group">
+        {{ form.max_vhsl_bonus_length.errors }}
+        <input class="form-control" id="id_max_vhsl_bonus_length" name="max_vhsl_bonus_length" type="text" placeholder="VHSL Bonus Total Character Limit">
+    </div>
+    <input type="submit" value="Create Question Set" class="button primary right" />
+</form>
+
 {% endblock %}

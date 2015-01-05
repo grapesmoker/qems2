@@ -1,6 +1,5 @@
-
 $(function () {
-  
+
     function addTossupsToSet(e) {
         var data = $("#tossup-dialog tbody tr td input:checked");
         var qset_id = $("#qset-id").val();
@@ -11,7 +10,7 @@ $(function () {
             var tossup_id = $(this).val();
             tossup_ids.push(tossup_id);
         });
-        
+
         $.post('/assign_tossups_to_packet/',
                {packet_id: packet_id, tossup_ids: tossup_ids}, function(resp, status) {
                    var resp_data = $.parseJSON(resp)
@@ -34,7 +33,7 @@ $(function () {
             var bonus_id = $(this).val();
             bonus_ids.push(bonus_id);
         });
-        
+
         $.post('/assign_bonuses_to_packet/',
                {packet_id: packet_id, bonus_ids: bonus_ids}, function(resp, status) {
                    var resp_data = $.parseJSON(resp)
@@ -46,7 +45,7 @@ $(function () {
                    }
                });
     }
-  
+
     $("#add-existing-tossups").click(function (e) {
         data = $.ajax({url: "/get_unassigned_tossups/", data: {qset_id: $("#qset-id").val()}}).done(function (data) {
             var json_data = $.parseJSON(data);
@@ -54,22 +53,21 @@ $(function () {
 
             if (_.isEmpty(json_data)) {
                 dialog.empty();
-                dialog.append("<div class='alert alert-warning'>There are no unassigned tossups to add!</div>")
-                dialog.dialog("option", "buttons", [ { text: "Ok", click: function() { $(this).dialog("close") }}])
+                dialog.append("<div class='alert-box warning'>There are no unassigned tossups to add!</div>")
+                dialog.dialog("option", "buttons", [ { text: "OK", click: function() { $(this).dialog("close") }}])
                 dialog.dialog("open");
             }
             else {
-
                 dialog.dialog("open");
                 _.each(json_data, function (item) {
                     console.log(item['tossup_answer']);
                     dialog_tbody = $("#tossup-dialog tbody");
-                    var html = "<tr><td>" + item.tossup_answer.substr(0,40) + "...</td>" + 
-                        "<td>" + item.category_name + "</td>" + 
+                    var html = "<tr><td>" + item.tossup_answer.substr(0,40) + "...</td>" +
+                        "<td>" + item.category_name + "</td>" +
                         "<td><input type='checkbox' value='" + item.id + "'/></td></tr>";
-                    // console.log(html);
                     dialog_tbody.append(html);
                 })
+                $("#tossup-dialog").dialog("option","height",$("#tossup-dialog table").height()+200);
             }
         })
     })
@@ -81,35 +79,32 @@ $(function () {
 
             if (_.isEmpty(json_data)) {
                 dialog.empty();
-                dialog.append("<div class='alert alert-warning'>There are no unassigned bonuses to add!</div>")
-                dialog.dialog("option", "buttons", [ { text: "Ok", click: function() { $(this).dialog("close") }}])
+                dialog.append("<div class='alert-box warning'>There are no unassigned bonuses to add!</div>")
+                dialog.dialog("option", "buttons", [ { text: "OK", click: function() { $(this).dialog("close") }}])
                 dialog.dialog("open");
             }
             else {
-
                 dialog.dialog("open");
                 _.each(json_data, function (item) {
-                    // console.log(item);
                     dialog_tbody = $("#bonus-dialog tbody");
-                    var html = "<tr><td>" + item.leadin.substr(0,40) + "...</td>" + 
-                        "<td>" + item.category_name + "</td>" + 
+                    var html = "<tr><td>" + item.leadin.substr(0,40) + "...</td>" +
+                        "<td>" + item.category_name + "</td>" +
                         "<td><input type='checkbox' value='" + item.id + "'/></td></tr>";
-                    // console.log(html);
                     dialog_tbody.append(html);
                 })
+                $("#bonus-dialog").dialog("option","height",$("#bonus-dialog table").height()+200);
             }
         })
     })
 
     $("#tossup-dialog").dialog({
         autoOpen: false,
-        height: 480,
-        width: 600,
+        closeOnEscape: true,
+        width: 640,
         modal: true,
         buttons: {
-            "Add selected tossups": addTossupsToSet,
+            "Add Selected Tossups": addTossupsToSet,
             Cancel: function() {
-                //$("#tossup-dialog tbody").empty();
                 $(this).dialog("close");
             }
         },
@@ -120,18 +115,17 @@ $(function () {
 
     $("#bonus-dialog").dialog({
         autoOpen: false,
-        height: 480,
-        width: 600,
+        closeOnEscape: true,
+        width: 640,
         modal: true,
         buttons: {
-            "Add selected bonuses": addBonusesToSet,
+            "Add Selected Bonuses": addBonusesToSet,
             Cancel: function() {
-                //$("#tossup-dialog tbody").empty();
                 $(this).dialog("close");
             }
         },
         close: function() {
-            $("#tossup-dialog tbody").empty();
+            $("#bonus-dialog tbody").empty();
         }
     })
 

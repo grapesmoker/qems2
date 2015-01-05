@@ -40,7 +40,7 @@ SITE_ID = 1
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
-USE_I18N = True
+USE_I18N = False
 
 # If you set this to False, Django will not format dates, numbers and
 # calendars according to the current locale.
@@ -145,12 +145,23 @@ INSTALLED_APPS = (
     # 'debug_toolbar',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'registration',
 
     'qems2.qsub',
 )
 
 LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL='/main/'
+ACCOUNT_ACTIVATION_DAYS = 3
+REGISTRATION_AUTO_LOGIN = True
+REGISTRATION_OPEN = True
+EMAIL_USE_SSL = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 465
+EMAIL_HOST_USER = '{username}'
+EMAIL_HOST_PASSWORD = '{password}'
+# You'll need to allow access for less secure apps to test.
+# https://www.google.com/settings/security/lesssecureapps
 
 # A sample logging configuration. The only tangible logging
 # performed by this configuration is to send an email to
@@ -188,12 +199,14 @@ LOGGING = {
 
 BOWER_INSTALLED_APPS = (
     'jquery',
-    'underscore',
-    'bootstrap',
-    'backbone',
     'jquery-ui',
+    'underscore',
+    'backbone',
     'fontawesome',
     'tablesorter',
+    'foundation',
+    'sprintf',
+    'expanding-textareas',
 )
 
 HAYSTACK_CONNECTIONS = {
@@ -203,5 +216,6 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 #COMMENTS_APP = "django_comments_xtd"
 #COMMENTS_XTD_MAX_THREAD_LEVEL = 1

@@ -1,0 +1,16 @@
+body {
+    display:flex;
+    padding:0;
+}
+div.row {
+    margin:auto;
+}
+form {
+    padding-bottom:40%;
+}
+h4 {
+    padding-bottom:40%;
+}
+.small-below {
+    margin:0;
+}

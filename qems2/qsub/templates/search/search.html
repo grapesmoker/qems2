@@ -77,7 +77,7 @@
     <input type="submit" value="Search" class="button primary right" />
 </form>
 
-{% if result %}
+{% if search_term and result %}
 <div class="panel callout radius text-center"><strong>Results</strong></div>
 <table class="tablesorter table-striped table-hover">
     <thead>
@@ -126,7 +126,7 @@
     {% endautoescape %}
     </tbody>
 </table>
-{% else %}
+{% elif search_term %}
 <div class="row">
     <div class="small-12 columns">
         <p>No results found.</p>

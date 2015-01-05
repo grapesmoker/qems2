@@ -37,7 +37,12 @@
 
     <script src="{% static 'foundation/js/foundation.min.js' %}"></script>
     <script>
-        $(document).foundation();
+        $(document).foundation({
+            tab: {
+                deep_linking:true,
+                scroll_to_content:false,
+            },
+        });
     </script>
 </body>
 </html>

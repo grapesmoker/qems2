@@ -637,13 +637,6 @@ def edit_packet(request, packet_id):
          'user': user},
         context_instance=RequestContext(request))
 
-
-def edit_tossups(request, packet_id):
-    pass
-
-def edit_bonuses(request, packet_id):
-    pass
-
 @login_required
 def add_tossups(request, qset_id, packet_id=None):
     user = request.user.writer
@@ -1008,6 +1001,7 @@ def edit_tossup(request, tossup_id):
 
 @login_required
 def edit_bonus(request, bonus_id):
+    print "edit bonus"
     user = request.user.writer
     bonus = Bonus.objects.get(id=bonus_id)
     char_count = bonus.character_count()   
@@ -1021,6 +1015,8 @@ def edit_bonus(request, bonus_id):
     question_type = ACF_STYLE_BONUS
     if (bonus.question_type is not None):
         question_type = bonus.question_type.question_type
+        
+    print "question_type 1: " + question_type
 
     if request.method == 'GET':
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
@@ -1061,6 +1057,8 @@ def edit_bonus(request, bonus_id):
     elif request.method == 'POST':
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
             form = BonusForm(request.POST, qset_id=qset.id, role=role, question_type=question_type)
+            print "question_type: " + str(question_type)
+            
             can_change = True
             if user == bonus.author and bonus.locked:
                 can_change = False

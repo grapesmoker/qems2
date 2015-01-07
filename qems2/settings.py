@@ -206,6 +206,7 @@ BOWER_INSTALLED_APPS = (
     'tablesorter',
     'foundation',
     'sprintf',
+    'expanding-textareas',
 )
 
 HAYSTACK_CONNECTIONS = {

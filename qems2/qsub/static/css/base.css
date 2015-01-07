@@ -47,6 +47,13 @@ p {
     line-height:1.5;
     margin:0.5rem;
 }
+textarea {
+    vertical-align:top;
+    display:block;
+}
+label + div.row {
+    padding-top:1rem;
+}
 .page-header {
     margin:24px 0 20px;
     border-bottom:1px solid #ddd;

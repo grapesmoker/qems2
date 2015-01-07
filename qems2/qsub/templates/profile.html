@@ -11,7 +11,7 @@
 <h3 class="page-header">Profile for {{ user.user.first_name }} {{ user.user.last_name }}</h3>
 <div data-alert class="alert-box info">You can change your profile information here, except for your username. To change your password, <a href="/password_change/">use this form</a>.</div>
 {% if message %}
-    <p class="{{ message_class }}">{{ message }}</p>
+    <div class="{{ message_class }}">{{ message }}</div>
 {% endif %}
 <form action="" method="post">
     {% csrf_token %}
@@ -26,10 +26,10 @@
                     <div class="small-8 columns">
                         {{ field }}
                     </div>
+                    {% if field.errors %}
+                        {{ field.errors }}
+                    {% endif %}
                 </div>
-                {% if field.errors %}
-                    {{ field.errors }}
-                {% endif %}
             </div>
         {% endif %}
     {% endfor %}
@@ -45,10 +45,10 @@
                     <div class="small-8 columns">
                         {{ field }}
                     </div>
+                    {% if field.errors %}
+                        {{ field.errors }}
+                    {% endif %}
                 </div>
-                {% if field.errors %}
-                    {{ field.errors }}
-                {% endif %}
             </div>
         {% endif %}
     {% endfor %}

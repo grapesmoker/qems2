@@ -865,20 +865,20 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
 
                 except InvalidBonus as ex:
                     message = str(ex)
-                    message_class = 'alert-box warning'
+                    message_class = 'alert-box alert'
 
             else:
                 message = 'There was an error with the form: ' + str(bonus_form.errors)
-                message_class = 'alert-box warning'
+                message_class = 'alert-box alert'
 
             read_only = False
         else:
             message = 'You are not authorized to add questions to this tournament!'
-            message_class = 'alert-box warning'
+            message_class = 'alert-box alert'
             bonus_form = []
             bonus = None
             read_only = True
-            
+
         if (bonus_form is None):
             bonus_form = BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username)
 

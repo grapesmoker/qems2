@@ -122,7 +122,6 @@ h1, h2, h3, h4, h5, h6 {
 /* New panel class for our "headers" */
 .panel.header {
     @include panel(scale-color($primary-color, $lightness: 80%), rem-calc(9));
-    //background-color: #b6edff;
     margin: rem-calc(10 0);
     //padding: 0.625rem;
 
@@ -139,20 +138,26 @@ h1, h2, h3, h4, h5, h6 {
 
 /* Input error formatting */
 .errorlist {
-    display: block;
-    padding: rem-calc(6 9 9);
-    margin-top: -1rem;
-    margin-bottom: 1rem;
-    margin-left: auto;
     font-size: rem-calc(12);
     font-style: italic;
-    background: rgba($alert-color, 0.1);/*#f04124;*/
     color: $white;
-    list-style-type: none;
+    margin-top: 0;
+    margin-left: auto;
+    padding: rem-calc(6 9 9);
+
+    form & {
+        display: block;
+        list-style-type: none;
+        background: rgba($alert-color, 1);
+    }
 
     .collapse > & {
         margin-top: 0;
-        margin-bottom: rem-calc(32);
+    }
+
+    .alert > & {
+        margin-bottom: 0;
+        padding-bottom: 0;
     }
 }
 

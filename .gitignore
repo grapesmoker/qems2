@@ -1,8 +1,7 @@
 .idea/
 components/
 whoosh_index/
-static/
+/static/
 # but keep qsub/static
-!qsub/static/
 *.py[cdo]
 secret

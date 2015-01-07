@@ -18,7 +18,7 @@
         <div class="{{ message_class }}">{{ message }}</div>
     {% endif %}
     {% if bonus %}
-        <div class="panel header radius">
+        <div class="panel question radius">
         {{ bonus|bonus_html_verbose }}
             <p><strong>Written by:</strong> {{ bonus.author }} on {{ bonus.created_date }}</p>
             {% if bonus.edited %}

@@ -20,7 +20,7 @@
 {% endautoescape %}
 {% if tossup %}
     {% autoescape off %}
-        <div class="panel header radius">
+        <div class="panel question radius">
             {{ tossup|tossup_html_verbose }}
             <p><strong>Written by:</strong> {{ tossup.author }} on {{ tossup.created_date }}</p>
             {% if tossup.edited %}

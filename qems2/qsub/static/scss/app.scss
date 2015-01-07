@@ -75,9 +75,6 @@ body {
 
 p {
     line-height: 1.5;
-    & + p {
-        margin-top: 0;
-    }
 }
 
 div.fixed + div.row {
@@ -85,7 +82,6 @@ div.fixed + div.row {
 }
 
 h1, h2, h3, h4, h5, h6 {
-    margin-top: 0;
     text-rendering: optimizeLegibility;
 }
 
@@ -133,6 +129,19 @@ h1, h2, h3, h4, h5, h6 {
         background-color: $white;
         border: 1px solid $white;
         padding: 0;
+    }
+}
+
+/* New panel for question text */
+.panel.question {
+    @include panel($smoke, rem-calc(9));
+    font: rem-calc(0.75rem)/1.1 "Times New Roman", Times, serif;
+    width: 6.6875in;
+
+    p + p {
+        font-family: $font-family-sans-serif;
+        margin-top: 0;
+        margin-bottom: 0;
     }
 }
 

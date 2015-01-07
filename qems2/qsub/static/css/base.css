@@ -8,6 +8,28 @@ h1, h2, h3, h4, h5, h6, body {
 .top-bar-section ul li > a {
     font-family: 'Montserrat', sans-serif;
 }
+/* Header */
+.top-bar-section .breadcrumbs {
+    background-color:transparent;
+    border:0 none;
+    padding:0 0.875rem 0;
+}
+.top-bar-section .breadcrumbs * a {
+    color:#ccc;
+    text-decoration:none;
+    font-size: 0.75rem;
+    line-height: 0.75rem;
+}
+.top-bar-section .breadcrumbs *.current a {
+    color:#fff;
+    cursor:pointer;
+}
+.top-bar-section .breadcrumbs *:before {
+    margin:0 0.125rem;
+}
+.top-bar-section .breadcrumbs *:first-child:before {
+    margin:0;
+}
 /* Global overrides */
 html {
     overflow-y: scroll;
@@ -139,14 +161,14 @@ span.prefix.text-left {
     padding:1.25rem;
 }
 /* Tables */
-.tablesorter {
+table {
     margin:5px 0;
     width:100%;
     text-align:left;
     border:0;
 }
-.tablesorter thead tr th,
-.tablesorter tfoot tr th {
+table thead tr th,
+table tfoot tr th {
     background-color:#bbb;
     border:1px solid #f8f8ff;
     border-top:0;
@@ -176,7 +198,7 @@ span.prefix.text-left {
 .tablesorter thead tr .headerSortUp {
     background-color:#8dbdd8;
 }
-.tablesorter tbody tr td {
+table tbody tr td {
     border:1px solid #f8f8ff;
     border-top:0;
     border-bottom:0;
@@ -191,8 +213,8 @@ span.prefix.text-left {
     border-bottom:0;
     background-color:#f8f8ff;
 }
-.tablesorter tbody tr td a:hover,
-.tablesorter tbody tr td a:focus {
+table tbody tr td a:hover,
+table tbody tr td a:focus {
     text-decoration:none;
 }
 .table-hover tbody tr.even:hover td,

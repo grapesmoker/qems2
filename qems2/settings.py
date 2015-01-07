@@ -205,6 +205,7 @@ BOWER_INSTALLED_APPS = (
     'fontawesome',
     'tablesorter',
     'foundation',
+    'sprintf',
 )
 
 HAYSTACK_CONNECTIONS = {

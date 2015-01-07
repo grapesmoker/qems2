@@ -1,30 +1,3 @@
-function add_row_to_cat_table() {
-    var current_forms = parseInt($('#id_distentry-INITIAL_FORMS')[0].value);
-    var next_form = current_forms + 1;
-    $('#dist-table > tbody > tr:last').
-    after(sprintf(
-        '<tr><td><input id="id_distentry-%d-category" width="100" type="text" name="categories" maxlength="100" /></td> \
-<td><input id="id_distentry-%d-subcategory" type="text" name="subcategories" maxlength="100" /></td> \
-<td><input id="id_distentry-%d-num_tossups" type="number" min="0" step="1"class="spinner" name="num_tossups" /></td> \
-<td><input id="id_distentry-%d-num_bonuses" type="number" min="0" step="1"class="spinner" name="num_bonuses" /></td> \
-<td><input id="id_distentry-%d-fin_tossups" type="number" min="0" step="1"class="spinner" name="fin_tossups" /></td> \
-<td><input id="id_distentry-%d-fin_bonuses" type="number" min="0" step="1" class="spinner" name="fin_bonuses" /></td> \
-<td>&nbsp;</td></tr>', next_form, next_form, next_form, next_form, next_form, next_form));
-}
-
-function match_table(source,dest) {
-    var cols = [];
-    $(source).find('th').each(function() {
-        cols.push($(this).width());
-    });
-    cols.reverse();
-    $(dest).find('th').each(function() {
-        $(this).width(cols.pop());
-    });
-}
-
-$.browser = {}
-
 $(function () {
 
     var csrftoken = $.cookie('csrftoken');
@@ -42,12 +15,44 @@ $(function () {
         }
     });
 
+    // Set up adding rows on /edit_distribution/
+    function add_rows() {
+        var current = parseInt($('#id_distentry-INITIAL_FORMS')[0].value);
+        var next = current + 1;
+        $('#distribution-table > tbody > tr:last').after(sprintf(
+            '<tr><input id="id_distentry-%d-entry_id" type="hidden" /> \
+            <td><input id="id_distentry-%d-category" type="text" name="categories" maxlength="100" /></td> \
+            <td><input id="id_distentry-%d-subcategory" type="text" name="subcategories" maxlength="100" /></td> \
+            <td><input id="id_distentry-%d-num_tossups" type="number" min="0" step="1" name="num_tossups" /></td> \
+            <td><input id="id_distentry-%d-num_bonuses" type="number" min="0" step="1" name="num_bonuses" /></td> \
+            <td><input id="id_distentry-%d-fin_tossups" type="number" min="0" step="1" name="fin_tossups" /></td> \
+            <td><input id="id_distentry-%d-fin_bonuses" type="number" min="0" step="1" name="fin_bonuses" /></td> \
+            <td><input id="id_distentry-%d-DELETE" type="checkbox" /></td></tr>',
+            next, next, next, next, next, next, next, next));
+    }
+
+    $('#add-rows').click(function() {
+        var num_rows = $('#num-rows').val();
+        add_rows();
+    });
+
     // Set up sorting for all tables w/ tablesorter class
     $('table.tablesorter').tablesorter({
         widthFixed:true
     });
 
     // Make columns of some tables the same width
+    function match_table(source,dest) {
+        var cols = [];
+        $(source).find('th').each(function() {
+            cols.push($(this).width());
+        });
+        cols.reverse();
+        $(dest).find('th').each(function() {
+            $(this).width(cols.pop());
+        });
+    }
+
     match_table('#tossup-table','#bonus-table');
     match_table('#category-tossup-table','#category-bonus-table');
     match_table('#packet-tossup-table','#packet-bonus-table');
@@ -59,11 +64,11 @@ $(function () {
     // $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});
     // $('#bonus-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
-    // Setup autofocus on /type_questions/ & /add_tossups/
+    // Set up autofocus on /type_questions/ & /add_tossups/
     $('form#type-questions #id_questions').focus();
     $('form#add-tossups #id_tossup_text').focus();
 
-    $('#id_player_to_add').autocomplete({
+    /*$('#id_player_to_add').autocomplete({
     source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),
     select: function(event, ui) {
         $('#id_player_to_add').val(ui.item.label);
@@ -81,9 +86,7 @@ $(function () {
 
         return false;
     }
-    })
-
-    $('#add-row').click(add_row_to_cat_table)
+    })*/
 
     $('.delete_tossup').click(function(e) {
         e.preventDefault();

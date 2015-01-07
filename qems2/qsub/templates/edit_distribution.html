@@ -10,15 +10,16 @@
 {% load static %}
 
 {% if formset.total_error_count > 0 %}
-<div class="alert-box error">
-    Errors in your form! All question numbers are required!
-</div>
+    <div class="alert-box error">
+        Errors in your form! All question numbers are required!
+    </div>
 {% endif %}
 
 <h3 class="page-header">Question Sets</h3>
 {% if message %}
-<div class="alert {{ message_class }}">{{ message }}</div>
+    <div class="{{ message_class }}">{{ message }}</div>
 {% endif %}
+<div class="alert-box info">All question numbers are required and are per packet.</div>
 <form action="" method="post">
     {% csrf_token %}
     <div class="row collapse">
@@ -32,15 +33,17 @@
             {{ form.name.errors }}
         {% endif %}
     </div>
-    <table class="tablesorter table-striped table-hover" id="distribution-table">
+    <table class="table-striped table-hover" id="distribution-table">
         <thead>
         <th>Category</th>
         <th>Subcategory</th>
-        <th>Minimum tossups (per packet)</th>
-        <th>Minimum bonuses (per packet)</th>
-        <th>Maximum tossups (per packet)</th>
-        <th>Maximum bonuses (per packet)</th>
-        <th>Delete?</th>
+        <th>Minimum Tossups</th>
+        <th>Minimum Bonuses</th>
+        <th>Maximum Tossups</th>
+        <th>Maximum Bonuses</th>
+        {% if formset.can_delete %}
+            <th>Delete?</th>
+        {% endif %}
         </thead>
         <tbody>
         {% for entry in formset %}
@@ -53,17 +56,26 @@
             <td>{{ entry.max_tossups }}</td>
             <td>{{ entry.max_bonuses }}</td>
             {% if formset.can_delete %}
-            <td>{{ entry.DELETE }}</td>
+                <td>{{ entry.DELETE }}</td>
             {% endif %}
         </tr>
         {% endfor %}
         </tbody>
     </table>
     {{ formset.management_form }}
-    <input type="submit" value="Submit Changes" class="button primary right" />
     <div class="row">
-        <div class="offset5 span2" style="text-align: right">
-            <a href="javscript:void(0);" id="add-row" rel="tooltip" title="Add category"><i class="icon-plus-sign"></i></a>
+        <div class="small-6 columns">
+            <div class="row">
+                <div class="small-4 columns">
+                    <a href="#" id="add-rows" class="button secondary left"><i class="fa fa-plus-circle"></i> Add Rows</a>
+                </div>
+                <div class="small-2 columns end">
+                    <input type="number" id="num-rows" />
+                </div>
+            </div>
+        </div>
+        <div class="small-6 columns">
+            <input type="submit" value="Submit Changes" class="button primary right" />
         </div>
     </div>
 </form>

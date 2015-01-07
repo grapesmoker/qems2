@@ -13,7 +13,7 @@
 
 <h3 class="page-header">Editing Packet: {{ packet.packet_name }}</h3>
 {% if message %}
-    <p class="{{ message_class }}">{{ message }}</p>
+    <div class="{{ message_class }}">{{ message }}</p>
 {% endif %}
 
 <dl class="tabs" data-tab>
@@ -110,37 +110,45 @@
         <div class="panel callout radius text-center"><strong>Tossups</strong></div>
         <table class="tablesorter table-striped table-hover" id="packet-tossup-table">
             <thead>
-            <tr>
-                <th>Order in Packet</th>
-                <th>Author</th>
-                <th>Tossup Text</th>
-                <th>Answer</th>
-                <th>Category</th>
-                <th>Actions</th>
-            </tr>
+                <tr>
+                    <th>Order in Packet</th>
+                    <th>Author</th>
+                    <th>Preview</th>
+                    <th>Answer</th>
+                    <th>Question Type</th>
+                    <th>Category</th>
+                    <th>Created</th>
+                    <th>Modified</th>
+                    <th>Edited</th>
+                    <th>Comments</th>
+                    <th>Last Comment</th>
+                </tr>
             </thead>
-            <tbody class="tossup_table_body">
-            {% for tossup in tossups %}
-            <tr class="tossup-row" id="tossup-order-{{ tossup.id }}" value="{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}" tossup-id="{{ tossup.id }}">
-                <td>{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}</td>
-                <td>{{ tossup.author }}</td>
-                <td>{{ tossup.tossup_text|safe|question_html|preview }}</td>
-                <td>{{ tossup.tossup_answer|safe|answer_html|preview }}</td>
-                <td>{{ tossup.category }}</td>
-                <td>
-                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
-                        <a href="/edit_tossup/{{ tossup.id }}">
-                            <i class="fa fa-edit"></i>
-                        </a>
-                    </span>
-                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
-                        <a href="/delete_tossup/{{ tossup.id }}" class="delete_tossup" value="{{ tossup.id }}">
-                            <i class="fa fa-minus-circle"></i>
-                        </a>
-                    </span>
-                </td>
-            </tr>
-            {% endfor %}
+            <tbody>
+            {% autoescape off %}
+                {% for tossup in tossups %}
+                <tr class="tossup-row" id="tossup-order-{{ tossup.id }}" value="{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}" tossup-id="{{ tossup.id }}">
+                    <td>{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}</td>
+                    <td>{{ tossup.author }}</td>
+                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
+                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
+                    <td>Tossup</td>
+                    <td>{{ tossup.category }}</td>
+                    <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
+                    <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
+                    <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                    <td>
+                        {% get_comment_list for tossup as comment_list %}
+                        {% for comment in comment_list %}
+                            {% if not comment.is_removed %}
+                                {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
+                </tr>
+                {% endfor %}
+            {% endautoescape %}
             </tbody>
         </table>
     </div>
@@ -152,37 +160,54 @@
         <div class="panel callout radius text-center"><strong>Bonuses</strong></div>
         <table class="tablesorter table-striped table-hover" id="packet-bonus-table">
             <thead>
-            <tr>
-                <th>Order in Packet</th>
-                <th>Author</th>
-                <th>Leadin</th>
-                <th>Answers</th>
-                <th>Category</th>
-                <th>Actions</th>
-            </tr>
+                <tr>
+                    <th>Order in Packet</th>
+                    <th>Author</th>
+                    <th>Preview</th>
+                    <th>Answer</th>
+                    <th>Question Type</th>
+                    <th>Category</th>
+                    <th>Created</th>
+                    <th>Modified</th>
+                    <th>Edited</th>
+                    <th>Comments</th>
+                    <th>Last Comment</th>
+                </tr>
             </thead>
-            <tbody class="bonus_table_body">
-            {% for bonus in bonuses %}
-            <tr class="bonus_row" id="bonus-order-{{ bonus.id }}" value="{% if bonus.question_number %} {{ bonus.question_number}} {% endif %}" bonus-id="{{ bonus.id }}">
-                <td>{% if bonus.question_number %} {{ bonus.question_number }} {% endif %}</td>
-                <td>{{ bonus.author }}</td>
-                <td>{{ bonus.leadin|preview }}</td>
-                <td>{{ bonus|bonus_answers }}</td>
-                <td>{{ bonus.category }}</td>
-                <td>
-                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Edit">
+            <tbody>
+            {% autoescape off %}
+                {% for bonus in bonuses %}
+                <tr id="bonus-order-{{ bonus.id }}" value="{% if bonus.question_number %} {{ bonus.question_number}} {% endif %}" bonus-id="{{ bonus.id }}">
+                    <td>{% if bonus.question_number %} {{ bonus.question_number }} {% endif %}</td>
+                    <td>{{ bonus.author }}</td>
+                    <td>
                         <a href="/edit_bonus/{{ bonus.id }}">
-                            <i class="fa fa-edit"></i>
+                            {% if bonus.get_bonus_type == "ACF-style bonus" %}
+                                {{ bonus.leadin|safe|preview|question_html }}
+                            {% elif bonus.get_bonus_type == "VHSL bonus" %}
+                                {{ bonus.part1_text|safe|preview|question_html }}
+                            {% endif %}
                         </a>
-                    </span>
-                    <span data-tooltip aria-haspopup="true" class="has-tip" title="Delete">
-                        <a href="/delete_bonus/{{ bonus.id }}" class="delete_bonus" value="{{ bonus.id }}">
-                            <i class="fa fa-minus-circle"></i>
-                        </a>
-                    </span>
-                </td>
-            </tr>
-            {% endfor %}
+                    </td>
+                    <td><a href="/edit_bonus/{{ bonus.id }}">{{ bonus|bonus_answers }}</a></td>
+                    <td>{{ bonus.question_type }}</td>
+                    <td>{{ bonus.category }}</td>
+                    <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                    <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
+                    <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
+                    <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                    <td>
+                        {% get_comment_list for bonus as comment_list %}
+                        {% for comment in comment_list %}
+                            {% if not comment.is_removed %}
+                                {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
+                </tr>
+                {% endfor %}
+            {% endautoescape %}
             </tbody>
         </table>
     </div>

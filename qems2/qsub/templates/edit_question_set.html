@@ -57,7 +57,7 @@
         </ul>
         <div class="panel callout radius text-center">
             <div class="small-7 small-centered columns">
-                <div class="progress success round edit-qset">
+                <div class="progress success round">
                     <span class="meter text-center" style="width:{{ set_pct_progress_bar }}"></span>
                 </div>
             </div>
@@ -247,7 +247,7 @@
         </div>
         <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
             {% csrf_token %}
-            <table class="tablesorter table-striped table-hover" id="set-wide-reqs-table">
+            <table class="table-striped table-hover" id="set-wide-reqs-table">
                 <thead>
                     <tr>
                         <th>Category</th>
@@ -284,7 +284,7 @@
         </div>
         <form action="/edit_set_tiebreak/{{ qset.id }}/" method="POST">
             {% csrf_token %}
-            <table class="tablesorter table-striped table-hover" id ="tb-reqs-table">
+            <table class="table-striped table-hover" id ="tb-reqs-table">
                 <thead>
                     <tr>
                         <th>Category</th>

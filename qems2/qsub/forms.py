@@ -35,6 +35,8 @@ class WriterChangeForm(forms.Form):
 
 class QuestionSetForm(forms.ModelForm):
 
+    distribution = forms.ModelChoiceField(Distribution.objects.all(), empty_label=None)
+
     class Meta:
         model = QuestionSet
         exclude = ['owner', 'public', 'address', 'host']
@@ -72,8 +74,8 @@ class RoleAssignmentForm(forms.ModelForm):
 
 class TossupForm(forms.ModelForm):
 
-    tossup_text = forms.CharField(widget=forms.Textarea(attrs={'rows': 5}))
-    tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'rows': 1}))
+    tossup_text = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'class': 'expanding'}))
+    tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'rows': 1, 'class': 'expanding'}))
     search_tossup_text = forms.CharField(widget=forms.HiddenInput, required=False)
     search_tossup_answer = forms.CharField(widget=forms.HiddenInput, required=False)
     question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
@@ -119,7 +121,7 @@ class TossupForm(forms.ModelForm):
                     pack_label = None
                     packets = qset.packet_set.filter(id=packet_id)
                 else:
-                    pack_label = 'N/A'
+                    pack_label = 'None'
                     packets = qset.packet_set.all()
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
                 self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)
@@ -192,7 +194,7 @@ class BonusForm(forms.ModelForm):
                     pack_label = None
                     packets = qset.packet_set.filter(id=packet_id)
                 else:
-                    pack_label = 'N/A'
+                    pack_label = 'None'
                     packets = qset.packet_set.all()
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
                 self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)

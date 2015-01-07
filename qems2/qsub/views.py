@@ -1315,23 +1315,24 @@ def add_packets(request, qset_id):
 
             else:
                 message = 'Invalid information entered into form!'
-                message_class = 'alert-box danger'
+                message_class = 'alert-box alert'
         else:
             message = 'Invalid method!'
-            message_class = 'alert-box danger'
+            message_class = 'alert-box alert'
             form = None
 
     else:
         message = 'You are not authorized to add packets to this set!'
-        message_class = 'alert-box danger'
+        message_class = 'alert-box alert'
         form = None
 
     return render_to_response('add_packets.html',
-        {'message': message,
-         'message_class': message_class,
-         'form': form,
-         'user': user},
-        context_instance=RequestContext(request))
+                             {'message': message,
+                              'message_class': message_class,
+                              'form': form,
+                              'qset': qset,
+                              'user': user},
+                              context_instance=RequestContext(request))
 
 @login_required
 def delete_packet(request):

@@ -1,0 +1,305 @@
+@import "normalize";
+@import "foundation/components/global";
+@import "foundation/functions";
+@import "settings";
+
+@import
+   "foundation/components/accordion",
+   "foundation/components/alert-boxes",
+   "foundation/components/block-grid",
+   "foundation/components/breadcrumbs",
+   "foundation/components/buttons",
+   "foundation/components/button-groups",
+   "foundation/components/forms",
+   "foundation/components/grid",
+   "foundation/components/inline-lists",
+   "foundation/components/labels",
+   "foundation/components/panels",
+   "foundation/components/progress-bars",
+   "foundation/components/tables",
+   "foundation/components/tabs",
+   "foundation/components/tooltips",
+   "foundation/components/top-bar",
+   "foundation/components/type",
+   "foundation/components/visibility";
+//   "foundation/components/clearing",
+//   "foundation/components/dropdown",
+//   "foundation/components/dropdown-buttons",
+//   "foundation/components/flex-video",
+//   "foundation/components/joyride",
+//   "foundation/components/keystrokes",
+//   "foundation/components/magellan",
+//   "foundation/components/orbit",
+//   "foundation/components/pagination",
+//   "foundation/components/pricing-tables",
+//   "foundation/components/reveal",
+//   "foundation/components/side-nav",
+//   "foundation/components/split-buttons",
+//   "foundation/components/sub-nav",
+//   "foundation/components/switches",
+//   "foundation/components/thumbs",
+//   "foundation/components/offcanvas",
+
+// Variables
+$tablesorter-bg: #8dbdd8;
+
+// Placeholder selectors
+%flex {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+
+// CSS
+/* Header */
+.top-bar-section {
+    font-family: 'Montserrat', sans-serif;
+
+    .breadcrumbs * a {
+        line-height: 1;
+    }
+
+    .breadcrumbs *.current a {
+        cursor: pointer;
+    }
+}
+
+/* Global overrides */
+html {
+    overflow-y: scroll;
+}
+
+body {
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, rgba(248,248,255,.5) 2px, rgba(248,248,255,.5) 4px);
+}
+
+p {
+    line-height: 1.5;
+    & + p {
+        margin-top: 0;
+    }
+}
+
+div.fixed + div.row {
+    padding-top: $topbar-height;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    margin-top: 0;
+    text-rendering: optimizeLegibility;
+}
+
+.button-group.even {
+    @extend %flex;
+
+    li {
+        @extend %flex;
+        flex-grow: 1;
+        margin: 0;
+
+        a, input {
+            flex-grow: 1;
+        }
+    }
+}
+
+/* Make tabs take up the full column-width */
+.tabs {
+    @extend %flex;
+    border-bottom: 1px solid $gainsboro;
+
+    dd {
+        flex-grow: 1;
+        align-items: baseline;
+
+        a {
+            font-size: rem-calc(16);
+            text-align: center;
+        }
+    }
+}
+
+/* New panel class for our "headers" */
+.panel.header {
+    @include panel(scale-color($primary-color, $lightness: 80%), rem-calc(9));
+    //background-color: #b6edff;
+    margin: rem-calc(10 0);
+    //padding: 0.625rem;
+
+    & > strong {
+        font-size: rem-calc(14.5);
+    }
+
+    .progress {
+        background-color: $white;
+        border: 1px solid $white;
+        padding: 0;
+    }
+}
+
+/* Input error formatting */
+.errorlist {
+    display: block;
+    padding: rem-calc(6 9 9);
+    margin-top: -1rem;
+    margin-bottom: 1rem;
+    margin-left: auto;
+    font-size: rem-calc(12);
+    font-style: italic;
+    background: rgba($alert-color, 0.1);/*#f04124;*/
+    color: $white;
+    list-style-type: none;
+
+    .collapse > & {
+        margin-top: 0;
+        margin-bottom: rem-calc(32);
+    }
+}
+
+textarea {
+    vertical-align: top;
+    overflow-x: hidden;
+}
+
+label + div.row {
+    padding-top: rem-calc(16);
+}
+
+.page-header {
+    margin: 1.5rem 0 1.25rem;
+    border-bottom: 1px solid $gainsboro;
+}
+
+.fa-check {
+    color: $success-color;
+}
+
+.fa-times, .over-char-limit {
+    color: $alert-color;
+}
+
+span.prefix.text-left {
+    padding-left: 1rem;
+}
+
+#id_honeypot {
+    display: none;
+}
+
+/*textarea {
+    vertical-align: top;
+    overflow-x: hidden;
+}*/
+
+/* Modal Dialogs */
+.ui-dialog {
+    background-color: $ghost;
+    box-shadow: 0 0 4px 4px #333;
+
+    & > .ui-dialog-titlebar {
+        text-align: center;
+        padding: rem-calc(16);
+
+        & > .ui-dialog-title {
+            font-size: rem-calc(22);
+        }
+
+        & > .ui-dialog-titlebar-close {
+            display: none;
+            visibility: hidden;
+        }
+    }
+
+    #tossup-dialog, #bonus-dialog {
+        padding: rem-calc(20);
+    }
+
+    & > .ui-dialog-buttonpane > .ui-dialog-buttonset {
+        //display: flex;
+        @extend %flex;
+        margin: 0 auto;
+        padding: rem-calc(0 14);
+
+        & > .ui-button {
+            flex-grow: 1;
+        }
+    }
+}
+
+/* Tables */
+table {
+    margin: rem-calc(6 0);
+    width: 100%;
+    text-align: left;
+    border: 0;
+
+    .tablesorter thead tr {
+        .header {
+            background-image: url(../images/blueskin/bg.gif);
+            background-repeat: no-repeat;
+            background-position: center right;
+            cursor: pointer;
+        }
+
+        .headerSortUp {
+            background-image: url(../images/blueskin/asc.gif);
+            background-color: $tablesorter-bg;
+        }
+
+        .headerSortDown {
+            background-image: url(../images/blueskin/desc.gif);
+            background-color: $tablesorter-bg;
+        }
+    }
+
+    thead tr th {
+        background-color: $base;
+        border: 1px solid $white;
+        border-top: 0;
+        border-bottom: 0;
+    }
+
+    tbody tr td {
+        vertical-align: top;
+        border: 1px solid $white;
+        border-top: 0;
+        border-bottom: 0;
+
+        a:hover, a:focus {
+            text-decoration: none;
+        }
+
+        &.checkbox{
+            vertical-align: middle;
+            padding: rem-calc(8);
+        }
+    }
+
+    #{text-inputs(all, 'input')} {
+        float: left;
+        margin: auto;
+        width: 100%;
+    }
+}
+
+.accordion table {
+    thead tr th, tbody tr td {
+        border: 1px solid $white;
+        border-top: 0;
+        border-bottom: 0;
+    }
+    tbody tr td {
+        background-color: $ghost;
+    }
+}
+tr.even:hover td, tr:nth-child(even):hover td, tr:hover td {
+    .table-hover tbody & {
+        background-color: $info-color;
+    }
+}
+tbody tr td {
+    #distribution-table &, #set-wide-reqs-table &, #tb-reqs-table & {
+        vertical-align: middle;
+        padding: rem-calc(8);
+    }
+}

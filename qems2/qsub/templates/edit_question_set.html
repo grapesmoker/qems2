@@ -55,7 +55,7 @@
                 </form>
             </div>-->
         </ul>
-        <div class="panel callout radius text-center">
+        <div class="panel header radius text-center">
             <div class="small-7 small-centered columns">
                 <div class="progress success round">
                     <span class="meter text-center" style="width:{{ set_pct_progress_bar }}"></span>
@@ -100,7 +100,7 @@
                 {% endfor %}
             </tbody>
         </table>
-        <div class="panel callout radius text-center"><strong>Set Information</strong></div>
+        <div class="panel header radius text-center"><strong>Set Information</strong></div>
         <form action="" method="post" class="clearfix">
             {% csrf_token %}
             <div class="row">
@@ -145,16 +145,16 @@
                 <input type="submit" value="Submit Changes" class="button primary right" />
             {% endif %}
         </form>
-        <div class="panel callout radius text-center">
+        <div class="panel header radius text-center">
             <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
         </div>
         {% if not read_only %}
-            <div class="panel callout radius text-center">
+            <div class="panel header radius text-center">
                 <strong><a href="/bulk_change_set/{{ qset.id }}">Make Bulk Changes to this Set</a></strong>
             </div>
         {% endif %}
         <a id="#qset-comments"></a>
-        <div class="panel callout radius text-center"><strong>Comments</strong></div>
+        <div class="panel header radius text-center"><strong>Comments</strong></div>
         <div class="comments small-6 columns end">
             {% autoescape off %}
                 {% get_comment_list for qset as comment_list %}
@@ -310,7 +310,7 @@
         </form>
     </div>
     <div class="content" id="questions">
-        <div class="panel callout radius text-center"><strong>Tossups</strong></div>
+        <div class="panel header radius text-center"><strong>Tossups</strong></div>
         <table class="tablesorter table-striped table-hover" id="tossup-table">
             <thead>
                 <tr>
@@ -354,7 +354,7 @@
             {% endautoescape %}
             </tbody>
         </table>
-        <div class="panel callout radius text-center"><strong>Bonuses</strong></div>
+        <div class="panel header radius text-center"><strong>Bonuses</strong></div>
         <table class="tablesorter table-striped table-hover" id="bonus-table">
             <thead>
                 <tr>

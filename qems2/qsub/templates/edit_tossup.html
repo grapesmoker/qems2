@@ -20,7 +20,7 @@
 {% endautoescape %}
 {% if tossup %}
     {% autoescape off %}
-        <div class="panel callout radius">
+        <div class="panel header radius">
             {{ tossup|tossup_html_verbose }}
             <p><strong>Written by:</strong> {{ tossup.author }} on {{ tossup.created_date }}</p>
             {% if tossup.edited %}
@@ -121,7 +121,7 @@
 {% endif %}
 
 {% if tossup %}
-<div class="panel callout radius text-center"><strong>Comments</strong></div>
+<div class="panel header radius text-center"><strong>Comments</strong></div>
 <div class="row">
     <div class="small-6 columns end comments">
         {% autoescape off %}

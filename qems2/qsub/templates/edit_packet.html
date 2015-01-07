@@ -23,7 +23,7 @@
 </dl>
 <div class="tabs-content">
     <div class="content active" id="status">
-        <div class="panel callout radius text-center"><strong>Packet Completion Status</strong></div>
+        <div class="panel header radius text-center"><strong>Packet Completion Status</strong></div>
         <table class="tablesorter table-striped table-hover" id="packet-status-tossup-table">
             <thead>
             <tr>
@@ -80,7 +80,7 @@
             {% endfor %}
             </tbody>
         </table>
-        <div class="panel callout radius text-center"><strong>Comments</strong></div>
+        <div class="panel header radius text-center"><strong>Comments</strong></div>
         <div class="row">
             <div class="small-6 columns end comments">
                 {% render_comment_list for packet %}
@@ -107,7 +107,7 @@
             <li><a class="button primary" href="/add_tossups/{{ qset.id }}/{{ packet.id }}"><i class="fa fa-plus-circle"></i> Add new tossups</a></li>
             <li><a class="button primary" id="add-existing-tossups"><i class="fa fa-plus-circle"></i> Add existing tossups</a></li>
         </ul>
-        <div class="panel callout radius text-center"><strong>Tossups</strong></div>
+        <div class="panel header radius text-center"><strong>Tossups</strong></div>
         <table class="tablesorter table-striped table-hover" id="packet-tossup-table">
             <thead>
                 <tr>
@@ -157,7 +157,7 @@
             <li><a class="button primary" href="/add_bonuses/{{ qset.id }}/{{ packet.id }}"><i class="fa fa-plus-circle"></i> Add new bonuses</a></li>
             <li><a class="button primary" id="add-existing-bonuses"><i class="fa fa-plus-circle"></i> Add existing bonuses</a></li>
         </ul>
-        <div class="panel callout radius text-center"><strong>Bonuses</strong></div>
+        <div class="panel header radius text-center"><strong>Bonuses</strong></div>
         <table class="tablesorter table-striped table-hover" id="packet-bonus-table">
             <thead>
                 <tr>

@@ -13,7 +13,7 @@
 {% block content %}
 
 <h3 class="page-header">Bonus History</h3>
-{% autoescape off %}        
+{% autoescape off %}
     {% if message %}
         <p class="{{ message_class }}">{{ message }}</p>
     {% endif %}
@@ -21,14 +21,14 @@
 
 {% autoescape off %}
     {% if bonus %}
-        <div class="panel callout radius text-center"><strong>Current Version</strong></div>
+        <div class="panel header radius text-center"><strong>Current Version</strong></div>
         {{ bonus|bonus_html_verbose }}
     {% endif %}
 {% endautoescape %}
 
-<div class="panel callout radius text-center"><strong>Previous Versions</strong></div>
+<div class="panel header radius text-center"><strong>Previous Versions</strong></div>
 
-{% autoescape off %}                            
+{% autoescape off %}
     {% for bh in bonus_histories %}
         {{ bh|bonus_html }}
         {% if not read_only %}

@@ -39,6 +39,7 @@
                 {% endfor %}
             {% endif %}
         {% endautoescape %}
+        
         <ul class="button-group even">
             <li><a href="/add_tossups/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add Tossup</a></li>
             <li><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add ACF Bonus</a></li>
@@ -222,7 +223,7 @@
                     <td>
                         {% if writer.writer.user.username != qset.owner.user.username %}
                         <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
-                            <a href="/delete_writer/{{ writer.id }}" class="delete_writer" value="{{ writer.id }}">
+                            <a href="/delete_writer/{{ writer.writer.id }}" class="delete_writer" value="{{ writer.writer.id }}">
                                 <i class="fa fa-minus-circle"></i>
                             </a>
                         </span>

@@ -237,8 +237,9 @@ def edit_question_set(request, qset_id):
             for entry in sorted(entries):
                 tu_required = entry.num_tossups
                 bs_required = entry.num_bonuses
-                tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
-                bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+                #TODO: really fix extra questions increasing set completion; this is temporary
+                tu_written = min(qset.tossup_set.filter(category=entry.dist_entry).count(), tu_required)
+                bs_written = min(qset.bonus_set.filter(category=entry.dist_entry).count(), bs_required)
                 total_tu_req += tu_required
                 total_bs_req += bs_required
                 total_bs_written += bs_written
@@ -459,10 +460,9 @@ def edit_set_tiebreak(request, qset_id):
             return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
         else:
             return render_to_response('failure.html',
-                                      {'message': 'Something went wrong. We\'re working on it.',
-                                       'message_class': 'alert-box alert'},
+                                     {'message': 'Something went wrong. We\'re working on it.',
+                                      'message_class': 'alert-box alert'},
                                       context_instance=RequestContext(request))
-
 
 @login_required
 def find_editor(request):
@@ -477,8 +477,10 @@ def add_editor(request, qset_id):
     if request.method == 'GET':
         if user == qset.owner:
             current_editors = qset.editor.all()
-            available_editors = [writer for writer in Writer.objects.all()
-                                 if writer not in current_editors and writer != qset.owner and writer.id != 1]
+
+            available_editors = [writer for writer in Writer.objects.exclude(is_active=False)
+                                 if writer not in current_editors and
+                                    writer is not qset.owner and writer.id != 1]
             print available_editors
         else:
             available_editors = []
@@ -515,9 +517,10 @@ def add_editor(request, qset_id):
                         print "No writer to delete" # TODO: Come up with a better way of handling this
 
                 qset.save()
-                current_editors = qset.editor.all()
-                available_editors = [writer for writer in Writer.objects.all()
-                                     if writer not in current_editors and writer != qset.owner and writer.id != 1]
+                set_editors = qset.editor.all()
+                available_editors = [writer for writer in Writer.objects.exclude(is_active=False)
+                                     if writer not in set_editors and
+                                        writer is not qset.owner and writer.id != 1]
             else:
                 message = 'Invalid data entered!'
                 available_editors = []
@@ -543,12 +546,10 @@ def add_writer(request, qset_id):
 
     if request.method == 'GET':
         if user == qset.owner:
-            current_writers = qset.writer.all()
-            current_editors = qset.editor.all()
-            available_writers = [writer for writer in Writer.objects.all()
-                                 if writer not in current_writers
-                                 and writer not in current_editors
-                                 and writer != qset.owner and writer.id != 1]
+            set_writers = qset.writer.all() + qset.editor.all()
+            available_writers = [writer for writer in Writer.objects.exclude(is_active=False)
+                                 if writer not in set_writers and
+                                    writer is not qset.owner and writer.id != 1]
             print available_writers
         else:
             available_writers = []
@@ -576,12 +577,10 @@ def add_writer(request, qset_id):
                     writer = Writer.objects.get(id=writer_id)
                     qset.writer.add(writer)
                 qset.save()
-                current_writers = qset.writer.all()
-                current_editors = qset.editor.all()
-                available_writers = [writer for writer in Writer.objects.all()
-                                     if writer not in current_writers
-                                     and writer not in current_editors
-                                     and writer != qset.owner and writer.id != 1]
+                set_writers = qset.writer.all() + qset.editor.all()
+                available_writers = [writer for writer in Writer.objects.exclude(is_active=False)
+                                     if writer not in set_writers and
+                                        writer is not qset.owner and writer.id != 1]
             else:
                 message = 'Invalid data entered!'
                 available_writers = []

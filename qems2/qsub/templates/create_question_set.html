@@ -51,18 +51,20 @@
         {% endif %}
     {% endfor %}
     </div>
-    <div class="form-group">
-        {{ form.max_acf_tossup_length.errors }}
-        <input class="form-control" id="id_max_acf_tossup_length" name="max_acf_tossup_length" type="text" placeholder="ACF Tossup Character Limit">
-    </div>
-    <div class="form-group">
-        {{ form.max_acf_bonus_length.errors }}
-        <input class="form-control" id="id_max_acf_bonus_length" name="max_acf_bonus_length" type="text" placeholder="ACF Bonus Total Character Limit">
-    </div>
-    <div class="form-group">
-        {{ form.max_vhsl_bonus_length.errors }}
-        <input class="form-control" id="id_max_vhsl_bonus_length" name="max_vhsl_bonus_length" type="text" placeholder="VHSL Bonus Total Character Limit">
-    </div>
+    <ul class="small-block-grid-3">
+        <li>
+            {{ form.max_acf_tossup_length.errors }}
+            <input type="text" id="id_max_acf_tossup_length" name="max_acf_tossup_length" placeholder="ACF Tossup Character Limit" />
+        </li>
+        <li>
+            {{ form.max_acf_bonus_length.errors }}
+            <input type="text" id="id_max_acf_bonus_length" name="max_acf_bonus_length" placeholder="ACF Bonus Total Character Limit" />
+        </li>
+        <li>
+            {{ form.max_vhsl_bonus_length.errors }}
+            <input type="text" id="id_max_vhsl_bonus_length" name="max_vhsl_bonus_length" placeholder="VHSL Bonus Total Character Limit" />
+        </li>
+    </ul>
     <input type="submit" value="Create Question Set" class="button primary right" />
 </form>
 

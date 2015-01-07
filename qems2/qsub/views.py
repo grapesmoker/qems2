@@ -659,6 +659,7 @@ def add_tossups(request, qset_id, packet_id=None):
     tossup = None
     read_only = True
     question_type_id = []
+    tossup_form = []
 
     if (QuestionType.objects.exists()):
         question_type_id = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
@@ -747,10 +748,13 @@ def add_tossups(request, qset_id, packet_id=None):
             message_class = 'alert-box warning'
             tossup_form = []
             read_only = True
+            
+        if (tossup_form is None):
+            tossup_form = TossupForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id})
 
         # In the error case, return the whole tossup object so you can edit it
         return render_to_response('add_tossups.html',
-                 {'form': TossupForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}),
+                 {'form': tossup_form,
                  'message': message,
                  'message_class': message_class,
                  'tossup' : tossup,
@@ -775,6 +779,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
     read_only = True
     role = get_role_no_owner(user, qset)
     question_type_id = []
+    bonus_form = []
 
     if (QuestionType.objects.exists()):
         if (bonus_type == VHSL_BONUS):
@@ -810,11 +815,11 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
     elif request.method == 'POST':
         bonus = None
         if user in qset.editor.all() or user in qset.writer.all() or user == qset.owner:
-            form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username, question_type=bonus_type)
+            bonus_form = BonusForm(request.POST, qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username, question_type=bonus_type)
             read_only = False
 
-            if form.is_valid():
-                bonus = form.save(commit=False)
+            if bonus_form.is_valid():
+                bonus = bonus_form.save(commit=False)
                 if (bonus.author is None):
                     bonus.author = user
 
@@ -863,7 +868,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
                     message_class = 'alert-box warning'
 
             else:
-                message = 'There was an error with the form: ' + str(form.errors)
+                message = 'There was an error with the form: ' + str(bonus_form.errors)
                 message_class = 'alert-box warning'
 
             read_only = False
@@ -873,14 +878,18 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
             bonus_form = []
             bonus = None
             read_only = True
+            
+        if (bonus_form is None):
+            bonus_form = BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username)
 
         return render_to_response('add_bonuses.html',
-                 {'form': BonusForm(qset_id=qset.id, packet_id=packet_id, initial={'question_type': question_type_id}, writer=user.user.username),
+                 {'form': bonus_form,
                  'message': message,
                  'message_class': message_class,
                  'bonus': bonus,
                  'bonus_id': None,
                  'read_only': read_only,
+                 'question_type': bonus_type,
                  'user': user,
                  'qset': qset},
                  context_instance=RequestContext(request))

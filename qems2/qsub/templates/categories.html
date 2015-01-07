@@ -17,6 +17,11 @@
 <p>Overall Percent: {{ category_status|overall_percent}}<br />
 Tossups Remaining: {{ category_status|tossups_remaining }}, Tossup Completion: {{ category_status.tu_in_cat|percent:category_status.tu_req }}<br />
 Bonuses Remaining: {{ category_status|bonuses_remaining }}, Bonus Completion: {{ category_status.bs_in_cat|percent:category_status.bs_req }}</p>
+<ul class="button-group even">
+    <li><a class="button primary open-all tossups bonuses"></a></li>
+    <li><a class="button primary open-all tossups"></a></li>
+    <li><a class="button primary open-all bonuses"></a></li>
+</ul>
 <table class="tablesorter table-striped table-hover" id="category-tossup-table">
     <thead>
         <tr>

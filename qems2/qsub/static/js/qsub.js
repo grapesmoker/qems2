@@ -61,6 +61,18 @@ $(function () {
     $('form#type-questions #id_questions').focus();
     $('form#add-tossups #id_tossup_text').focus();
 
+    // Open all 
+    $('.button.open-all').click(function() {
+        selector = _.rest($(this).attr('class').split(/\s+/), 3);
+        console.log(selector);
+
+        _.each(selector, function(element, index, list) {
+            $("table[id*='" + element + "'] a").each(function() {
+                window.open($(this).attr('href'));
+            });
+        });
+    });
+
     /*$('#id_player_to_add').autocomplete({
     source: "/find_player/?tour_id=" + $('#tour_id').val() + $(this).val(),
     select: function(event, ui) {

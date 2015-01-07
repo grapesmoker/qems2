@@ -223,7 +223,7 @@
                     <td>
                         {% if writer.writer.user.username != qset.owner.user.username %}
                         <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
-                            <a href="/delete_writer/{{ writer.writer.id }}" class="delete_writer" value="{{ writer.writer.id }}">
+                            <a href="/delete_writer/{{ writer.writer.id }}" class="delete_writer" value="{{ writer.writer.id }}"  qset-id="{{ qset.id }}">
                                 <i class="fa fa-minus-circle"></i>
                             </a>
                         </span>
@@ -416,7 +416,7 @@
             <thead>
                 <tr>
                     <th>Packet name</th>
-                    <th>Completion status</th>
+                    <th>Completion Status</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -435,7 +435,7 @@
                     </td>
                     <td>
                         <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
-                            <a href="/delete_packet/{{ packet.id }}" class="delete_packet" value="{{ packet.id }}">
+                            <a href="/delete_packet/{{ packet.id }}" class="delete_packet" value="{{ packet.id }}" qset-id="{{ qset.id }}">
                                 <i class="fa fa-minus-circle"></i>
                             </a>
                         </span>

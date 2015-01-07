@@ -9,17 +9,15 @@
 {% block content %}
 {% load static %}
 
-{% if formset.total_error_count > 0 %}
-    <div class="alert-box error">
-        Errors in your form! All question numbers are required!
-    </div>
-{% endif %}
-
 <h3 class="page-header">Question Sets</h3>
 {% if message %}
     <div class="{{ message_class }}">{{ message }}</div>
 {% endif %}
-<div class="alert-box info">All question numbers are required and are per packet.</div>
+{% if formset.total_error_count > 0 %}
+    <div class="alert-box alert">All question numbers are required and are per packet.</div>
+{% else %}
+    <div class="alert-box info">All question numbers are required and are per packet.</div>
+{% endif %}
 <form action="" method="post">
     {% csrf_token %}
     <div class="row collapse">
@@ -46,17 +44,17 @@
         {% endif %}
         </thead>
         <tbody>
-        {% for entry in formset %}
+        {% for form in formset %}
         <tr>
-            {{ entry.entry_id }}
-            <td>{{ entry.category }}</td>
-            <td>{{ entry.subcategory }}</td>
-            <td>{{ entry.min_tossups }}</td>
-            <td>{{ entry.min_bonuses }}</td>
-            <td>{{ entry.max_tossups }}</td>
-            <td>{{ entry.max_bonuses }}</td>
+            {{ form.entry_id }}
+            <td>{{ form.category }}</td>
+            <td>{{ form.subcategory }}</td>
+            <td>{{ form.min_tossups }}</td>
+            <td>{{ form.min_bonuses }}</td>
+            <td>{{ form.max_tossups }}</td>
+            <td>{{ form.max_bonuses }}</td>
             {% if formset.can_delete %}
-                <td>{{ entry.DELETE }}</td>
+                <td>{{ form.DELETE }}</td>
             {% endif %}
         </tr>
         {% endfor %}
@@ -64,19 +62,8 @@
     </table>
     {{ formset.management_form }}
     <div class="row">
-        <div class="small-6 columns">
-            <div class="row">
-                <div class="small-4 columns">
-                    <a href="#" id="add-rows" class="button secondary left"><i class="fa fa-plus-circle"></i> Add Rows</a>
-                </div>
-                <div class="small-2 columns end">
-                    <input type="number" id="num-rows" />
-                </div>
-            </div>
-        </div>
-        <div class="small-6 columns">
-            <input type="submit" value="Submit Changes" class="button primary right" />
-        </div>
+        <input type="submit" value="Add Row" name="add_row" class="button secondary left" />
+        <input type="submit" value="Submit Changes" class="button primary right" />
     </div>
 </form>
 

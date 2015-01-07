@@ -200,6 +200,7 @@ def edit_question_set(request, qset_id):
     user = request.user.writer
     set_status = {}
     set_distro_formset = None
+    tiebreak_formset = None
     writer_stats = {}
 
     total_tu_req = 0
@@ -1600,9 +1601,11 @@ def distributions (request):
     all_dists = Distribution.objects.all()
 
     return render_to_response('distributions.html',
-                              {'dists': all_dists, 'user': request.user.writer},
+                             {'dists': all_dists,
+                              'user': request.user.writer},
                               context_instance=RequestContext(request))
 
+@login_required
 def edit_distribution(request, dist_id=None):
 
     data = []
@@ -1630,8 +1633,16 @@ def edit_distribution(request, dist_id=None):
                             new_entry.max_tossups = form.cleaned_data['max_tossups']
                             if new_entry.min_bonuses > new_entry.max_bonuses:
                                 new_entry.min_bonuses = new_entry.max_bonuses
+                                #TODO: display the message
+                                message = 'The minimum bonuses input for ' + entry.category + ' ' + entry.subcategory +
+                                          ' was higher than maximum bonuses. Minimum bonuses has been set to maximum bonuses.'
+                                message_class = 'alert-box warning'
                             if new_entry.min_tossups > new_entry.max_tossups:
-                                new_entry.max_tossups = new_entry.min_tossups
+                                new_entry.min_tossups = new_entry.max_tossups
+                                #TODO: display the message
+                                message = 'The minimum tossups input for ' + entry.category + ' ' + entry.subcategory +
+                                          ' was higher than maximum tossups. Minimum tossups has been set to maximum tossups.'
+                                message_class = 'alert-box warning'
 
                             new_entry.distribution = new_dist
                             new_entry.save()
@@ -1639,77 +1650,89 @@ def edit_distribution(request, dist_id=None):
                     return HttpResponseRedirect('/edit_distribution/' + str(new_dist.id))
 
             else:
-                formset = DistributionEntryFormset(data=request.POST, prefix='distentry')
                 dist_form = DistributionForm(data=request.POST)
                 print dist_form.is_valid()
                 print formset.is_valid()
                 print formset.errors
-                if dist_form.is_valid() and formset.is_valid():
-
-                    dist = Distribution.objects.get(id=dist_id)
-                    dist.name = dist_form.cleaned_data['name']
-                    qsets = dist.questionset_set.all()
-                    for form in formset:
-                        if form.cleaned_data != {}:
-                            if form.cleaned_data['entry_id'] is not None:
-                                entry_id = int(form.cleaned_data['entry_id'])
-                                entry = DistributionEntry.objects.get(id=entry_id)
-                                if form.cleaned_data['DELETE']:
-                                    entry.delete()
-                                    entry = None
-                                else:
-                                    entry.category = form.cleaned_data['category']
-                                    entry.subcategory = form.cleaned_data['subcategory']
-                                    entry.min_bonuses = form.cleaned_data['min_bonuses']
-                                    entry.min_tossups = form.cleaned_data['min_tossups']
-                                    entry.max_bonuses = form.cleaned_data['max_bonuses']
-                                    entry.max_tossups = form.cleaned_data['max_tossups']
-                                    if entry.min_bonuses > entry.max_bonuses:
-                                        entry.min_bonuses = entry.max_bonuses
-                                    if entry.min_tossups > entry.max_tossups:
-                                        entry.max_tossups = entry.min_tossups
-
-                                    entry.save()
-                            else:
-                                entry = form.save(commit=False)
-                                entry.distribution = dist
-                                entry.save()
-
-                            if entry is not None:
-                                for qset in qsets:
-                                    set_wide_entry = qset.setwidedistributionentry_set.filter(dist_entry=entry)
-                                    print set_wide_entry
-                                    if set_wide_entry.count() == 0:
-                                        print 'here'
-                                        new_set_wide_entry = SetWideDistributionEntry()
-                                        new_set_wide_entry.dist_entry = entry
-                                        new_set_wide_entry.question_set = qset
-                                        new_set_wide_entry.num_tossups = qset.num_packets * entry.min_tossups
-                                        new_set_wide_entry.num_bonuses = qset.num_packets * entry.min_bonuses
-                                        new_set_wide_entry.save()
-
-                    entries = dist.distributionentry_set.all()
-                    initial_data = []
-                    for entry in entries:
-                        initial_data.append({'entry_id': entry.id,
-                                             'category': entry.category,
-                                             'subcategory': entry.subcategory,
-                                             'min_tossups': entry.min_tossups,
-                                             'min_bonuses': entry.min_bonuses,
-                                             'max_tossups': entry.max_tossups,
-                                             'max_bonuses': entry.max_bonuses})
-                    formset = DistributionEntryFormset(initial=initial_data, prefix='distentry')
-
+                if 'add_row' in request.POST:
+                    distentry_post = request.POST.copy()
+                    #TODO: grab a value from an input
+                    num_rows = 1
+                    distentry_post['distentry-TOTAL_FORMS'] = int(distentry_post['distentry-TOTAL_FORMS']) + num_rows
+                    formset = DistributionEntryFormset(data=distentry_post, prefix='distentry')
                 else:
-                    dist = Distribution.objects.get(id=dist_id)
-                    dist_form = DistributionForm(instance=dist)
                     formset = DistributionEntryFormset(data=request.POST, prefix='distentry')
+                    if dist_form.is_valid() and formset.is_valid():
+                        dist = Distribution.objects.get(id=dist_id)
+                        dist.name = dist_form.cleaned_data['name']
+                        qsets = dist.questionset_set.all()
+                        for form in formset:
+                            if form.cleaned_data != {}:
+                                if form.cleaned_data['entry_id'] is not None:
+                                    entry_id = int(form.cleaned_data['entry_id'])
+                                    entry = DistributionEntry.objects.get(id=entry_id)
+                                    if form.cleaned_data['DELETE']:
+                                        entry.delete()
+                                        entry = None
+                                    else:
+                                        entry.category = form.cleaned_data['category']
+                                        entry.subcategory = form.cleaned_data['subcategory']
+                                        entry.min_bonuses = form.cleaned_data['min_bonuses']
+                                        entry.min_tossups = form.cleaned_data['min_tossups']
+                                        entry.max_bonuses = form.cleaned_data['max_bonuses']
+                                        entry.max_tossups = form.cleaned_data['max_tossups']
+                                        if entry.min_bonuses > entry.max_bonuses:
+                                            entry.min_bonuses = entry.max_bonuses
+                                            message = 'The minimum bonuses input for ' + entry.category + ' ' + entry.subcategory +
+                                                      ' was higher than maximum bonuses. Minimum bonuses has been set to maximum bonuses.'
+                                            message_class = 'alert-box warning'
+                                        if entry.min_tossups > entry.max_tossups:
+                                            entry.min_tossups = entry.max_tossups
+                                            message = 'The minimum tossups input for ' + entry.category + ' ' + entry.subcategory +
+                                                      ' was higher than maximum tossups. Minimum tossups has been set to maximum tossups.'
+                                            message_class = 'alert-box warning'
+
+                                        entry.save()
+                                else:
+                                    entry = form.save(commit=False)
+                                    entry.distribution = dist
+                                    entry.save()
+
+                                if entry is not None:
+                                    for qset in qsets:
+                                        set_wide_entry = qset.setwidedistributionentry_set.filter(dist_entry=entry)
+                                        print set_wide_entry
+                                        if set_wide_entry.count() == 0:
+                                            print 'here'
+                                            new_set_wide_entry = SetWideDistributionEntry()
+                                            new_set_wide_entry.dist_entry = entry
+                                            new_set_wide_entry.question_set = qset
+                                            new_set_wide_entry.num_tossups = qset.num_packets * entry.min_tossups
+                                            new_set_wide_entry.num_bonuses = qset.num_packets * entry.min_bonuses
+                                            new_set_wide_entry.save()
+
+                        entries = dist.distributionentry_set.all()
+                        initial_data = []
+                        for entry in entries:
+                            initial_data.append({'entry_id': entry.id,
+                                                 'category': entry.category,
+                                                 'subcategory': entry.subcategory,
+                                                 'min_tossups': entry.min_tossups,
+                                                 'min_bonuses': entry.min_bonuses,
+                                                 'max_tossups': entry.max_tossups,
+                                                 'max_bonuses': entry.max_bonuses})
+                        formset = DistributionEntryFormset(initial=initial_data, prefix='distentry')
+
+                    else:
+                        dist = Distribution.objects.get(id=dist_id)
+                        dist_form = DistributionForm(instance=dist)
+                        formset = DistributionEntryFormset(data=request.POST, prefix='distentry')
 
             return render_to_response('edit_distribution.html',
-                                      {'form': dist_form,
-                                       'formset': formset,
-                                        'user': request.user.writer},
-                                       context_instance=RequestContext(request))
+                                     {'form': dist_form,
+                                      'formset': formset,
+                                      'user': request.user.writer},
+                                      context_instance=RequestContext(request))
         else:
             if dist_id is not None:
                 dist = Distribution.objects.get(id=dist_id)
@@ -1730,10 +1753,10 @@ def edit_distribution(request, dist_id=None):
                 formset = DistributionEntryFormset(prefix='distentry')
 
             return render_to_response('edit_distribution.html',
-                                      {'form': dist_form,
-                                       'formset': formset,
-                                        'user': request.user.writer},
-                                       context_instance=RequestContext(request))
+                                     {'form': dist_form,
+                                      'formset': formset,
+                                      'user': request.user.writer},
+                                      context_instance=RequestContext(request))
 
 @login_required()
 def edit_tiebreak(request, dist_id=None):
@@ -2848,14 +2871,13 @@ def bulk_change_set(request, qset_id):
 
     if request.method == 'GET':
         return render_to_response('bulk_change_set.html',
-            {
-            'user': user,
-            'tossups': tossups,
-            'bonuses': bonuses,
-            'qset': qset,
-            'message': message,
-            'message_class': message_class},
-            context_instance=RequestContext(request))
+                                 {'user': user,
+                                  'tossups': tossups,
+                                  'bonuses': bonuses,
+                                  'qset': qset,
+                                  'message': message,
+                                  'message_class': message_class},
+                                 context_instance=RequestContext(request))
     else:
         if ('confirm' in request.POST):
             operation = request.POST['change-type']
@@ -2902,69 +2924,63 @@ def bulk_change_set(request, qset_id):
                     message = "Successfully edited questions."
                     message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
-                        {
-                        'user': user,
-                        'tossups': tossups,
-                        'bonuses': bonuses,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
                 elif (operation == 'unedit'):
                     bulk_edit_questions(False, change_tossups, change_bonuses, qset, user)
 
                     message = "Successfully unedited questions."
                     message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
-                        {
-                        'user': user,
-                        'tossups': tossups,
-                        'bonuses': bonuses,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
                 elif (operation == 'packet'):
                     packets = Packet.objects.filter(question_set=qset)
 
                     return render_to_response('bulk_change_packet.html',
-                        {
-                        'user': user,
-                        'tossups': change_tossups,
-                        'bonuses': change_bonuses,
-                        'packets': packets,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
                 elif (operation == 'lock'):
                     bulk_lock_questions(True, change_tossups, change_bonuses, qset, user)
 
                     message = "Successfully locked questions."
                     message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
-                        {
-                        'user': user,
-                        'tossups': tossups,
-                        'bonuses': bonuses,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
                 elif (operation == 'unlock'):
                     bulk_lock_questions(False, change_tossups, change_bonuses, qset, user)
 
                     message = "Successfully unlocked questions."
                     message_class = 'alert-box success'
                     return render_to_response('bulk_change_set.html',
-                        {
-                        'user': user,
-                        'tossups': tossups,
-                        'bonuses': bonuses,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
                 elif (operation == 'delete'):
                     bulk_delete_questions(change_tossups, change_bonuses, qset, user)
                     message = "Successfully deleted questions."
@@ -2973,14 +2989,13 @@ def bulk_change_set(request, qset_id):
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
                     return render_to_response('bulk_change_set.html',
-                        {
-                        'user': user,
-                        'tossups': tossups,
-                        'bonuses': bonuses,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
 
                 elif (operation == 'convert-to-acf-style-tossup'):
                     bulk_convert_to_acf_style_tossup(change_tossups, change_bonuses, qset, user)
@@ -2990,14 +3005,13 @@ def bulk_change_set(request, qset_id):
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
                     return render_to_response('bulk_change_set.html',
-                        {
-                        'user': user,
-                        'tossups': tossups,
-                        'bonuses': bonuses,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
 
                 elif (operation == 'convert-to-acf-style-bonus'):
                     bulk_convert_to_acf_style_bonus(change_tossups, change_bonuses, qset, user)
@@ -3007,14 +3021,13 @@ def bulk_change_set(request, qset_id):
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
                     return render_to_response('bulk_change_set.html',
-                        {
-                        'user': user,
-                        'tossups': tossups,
-                        'bonuses': bonuses,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
                 elif (operation == 'convert-to-vhsl-bonus'):
                     bulk_convert_to_vhsl_bonus(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to VHSL bonuses."
@@ -3024,66 +3037,58 @@ def bulk_change_set(request, qset_id):
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
                     return render_to_response('bulk_change_set.html',
-                        {
-                        'user': user,
-                        'tossups': tossups,
-                        'bonuses': bonuses,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
                 elif (operation == 'move'):
                     new_sets = user.question_set_editor.exclude(id=qset_id)
                     print "new sets: " + str(new_sets)
-
-                    return render_to_response('bulk_move_questions.html',
-                        {
-                        'user': user,
-                        'tossups': change_tossups,
-                        'bonuses': change_bonuses,
-                        'new_sets': new_sets,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                    return render_to_response('bulk_move_question.html',
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
                 elif (operation == 'author'):
                     writers = qset.writer.all() | qset.editor.all()
 
                     return render_to_response('bulk_change_author.html',
-                        {
-                        'user': user,
-                        'tossups': change_tossups,
-                        'bonuses': change_bonuses,
-                        'writers': writers,
-                        'qset': qset,
-                        'message': message,
-                        'message_class': message_class},
-                        context_instance=RequestContext(request))
+                                             {'user': user,
+                                              'tossups': tossups,
+                                              'bonuses': bonuses,
+                                              'qset': qset,
+                                              'message': message,
+                                              'message_class': message_class},
+                                             context_instance=RequestContext(request))
 
             else:
                 message = "Error!  You must select at least one question."
-                message_class = 'alert alert-warning'
+                message_class = 'alert-box warning'
                 return render_to_response('bulk_change_set.html',
-                    {
-                    'user': user,
-                    'tossups': tossups,
-                    'bonuses': bonuses,
-                    'qset': qset,
-                    'message': message,
-                    'message_class': message_class},
-                    context_instance=RequestContext(request))
+                                         {'user': user,
+                                          'tossups': tossups,
+                                          'bonuses': bonuses,
+                                          'qset': qset,
+                                          'message': message,
+                                          'message_class': message_class},
+                                         context_instance=RequestContext(request))
         else:
             message = "You didn't hit the confirm button."
-            message_class = 'alert alert-warning'
+            message_class = 'alert-box warning'
             return render_to_response('bulk_change_set.html',
-                {
-                'user': user,
-                'tossups': tossups,
-                'bonuses': bonuses,
-                'qset': qset,
-                'message': message,
-                'message_class': message_class},
-                context_instance=RequestContext(request))
+                                     {'user': user,
+                                      'tossups': tossups,
+                                      'bonuses': bonuses,
+                                      'qset': qset,
+                                      'message': message,
+                                      'message_class': message_class},
+                                     context_instance=RequestContext(request))
 
 @login_required
 def bulk_change_author(request, qset_id):
@@ -3134,14 +3139,13 @@ def bulk_change_author(request, qset_id):
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
         return render_to_response('bulk_change_set.html',
-            {
-            'user': user,
-            'tossups': tossups,
-            'bonuses': bonuses,
-            'qset': qset,
-            'message': message,
-            'message_class': message_class},
-            context_instance=RequestContext(request))
+                                 {'user': user,
+                                  'tossups': tossups,
+                                  'bonuses': bonuses,
+                                  'qset': qset,
+                                  'message': message,
+                                  'message_class': message_class},
+                                 context_instance=RequestContext(request))
 
 @login_required
 def bulk_change_packet(request, qset_id):
@@ -3188,14 +3192,13 @@ def bulk_change_packet(request, qset_id):
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
         return render_to_response('bulk_change_set.html',
-            {
-            'user': user,
-            'tossups': tossups,
-            'bonuses': bonuses,
-            'qset': qset,
-            'message': message,
-            'message_class': message_class},
-            context_instance=RequestContext(request))
+                                 {'user': user,
+                                  'tossups': tossups,
+                                  'bonuses': bonuses,
+                                  'qset': qset,
+                                  'message': message,
+                                  'message_class': message_class},
+                                 context_instance=RequestContext(request))
 
 @login_required
 def bulk_move_question(request, qset_id):
@@ -3259,15 +3262,14 @@ def bulk_move_question(request, qset_id):
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
-        return render_to_response('bulk_change_set.html',
-            {
-            'user': user,
-            'tossups': tossups,
-            'bonuses': bonuses,
-            'qset': qset,
-            'message': message,
-            'message_class': message_class},
-            context_instance=RequestContext(request))
+        return render_to_response('bulk_move_question.html',
+                                 {'user': user,
+                                  'tossups': tossups,
+                                  'bonuses': bonuses,
+                                  'qset': qset,
+                                  'message': message,
+                                  'message_class': message_class},
+                                 context_instance=RequestContext(request))
 
 
 # @login_required

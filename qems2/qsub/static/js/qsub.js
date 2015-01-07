@@ -15,26 +15,19 @@ $(function () {
         }
     });
 
+    /* to be deprecated
     // Set up adding rows on /edit_distribution/
-    function add_rows() {
-        var current = parseInt($('#id_distentry-INITIAL_FORMS')[0].value);
-        var next = current + 1;
-        $('#distribution-table > tbody > tr:last').after(sprintf(
-            '<tr><input id="id_distentry-%d-entry_id" type="hidden" /> \
-            <td><input id="id_distentry-%d-category" type="text" name="categories" maxlength="100" /></td> \
-            <td><input id="id_distentry-%d-subcategory" type="text" name="subcategories" maxlength="100" /></td> \
-            <td><input id="id_distentry-%d-num_tossups" type="number" min="0" step="1" name="num_tossups" /></td> \
-            <td><input id="id_distentry-%d-num_bonuses" type="number" min="0" step="1" name="num_bonuses" /></td> \
-            <td><input id="id_distentry-%d-fin_tossups" type="number" min="0" step="1" name="fin_tossups" /></td> \
-            <td><input id="id_distentry-%d-fin_bonuses" type="number" min="0" step="1" name="fin_bonuses" /></td> \
-            <td><input id="id_distentry-%d-DELETE" type="checkbox" /></td></tr>',
-            next, next, next, next, next, next, next, next));
-    }
-
     $('#add-rows').click(function() {
-        var num_rows = $('#num-rows').val();
-        add_rows();
-    });
+        var current = parseInt($('#id_distentry-INITIAL_FORMS')[0].value),
+            next = current + 1;
+        $('#distribution-table tbody > tr:last').clone(true).insertAfter('#distribution-table tbody > tr:last');
+        $('#distribution-table tbody > tr:last input').each(function() {
+            var current_id = $(this).attr('id');
+            $(this).attr('id', current_id.replace(current, next));
+        });
+        //var num_rows = $('#num-rows').val();
+        //add_rows();
+    });*/
 
     // Set up sorting for all tables w/ tablesorter class
     $('table.tablesorter').tablesorter({
@@ -136,6 +129,7 @@ $(function () {
         e.preventDefault();
         var result = confirm("You are about to delete this packet! If you do so, you will not be able to recover it! 99% of the time this is a terrible idea and you should not do it! Are you ABSOLUTELY SURE you want to do that?!");
         if (result == true) {
+            var qset_id = $(this).attr('qset-id');
             $.post('/delete_packet/', {packet_id: $(this).attr('value')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
@@ -143,7 +137,7 @@ $(function () {
                     buttons: {
                         Ok: function() {
                             $(this).dialog('close');
-                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                            window.location.replace('/edit_question_set/' + qset_id);
                         }
                     }
                 })
@@ -157,14 +151,15 @@ $(function () {
         e.preventDefault();
         var result = confirm("You are about to remove this writer from the set! Are you sure that you want to do that?");
         if (result == true) {
-            $.post('/delete_writer/', {writer_id: $(this).attr('value'), qset_id: $('#qset-id').val()}, function (response) {
+            var qset_id = $(this).attr('qset-id');
+            $.post('/delete_writer/', {writer_id: $(this).attr('value')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
                     modal: true,
                     buttons: {
                         Ok: function() {
                             $(this).dialog('close');
-                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                            window.location.replace('/edit_question_set/' + qset_id);
                         }
                     }
                 })
@@ -178,14 +173,15 @@ $(function () {
         e.preventDefault();
         var result = confirm("You are about to remove this editor from the set! Are you sure you want to do that?");
         if (result == true) {
-            $.post('/delete_editor/', {editor_id: $(this).attr('value'), qset_id: $('#qset-id').val()}, function (response) {
+            var qset_id = $(this).attr('qset-id');
+            $.post('/delete_editor/', {editor_id: $(this).attr('value')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
                     modal: true,
                     buttons: {
                         Ok: function() {
                             $(this).dialog('close');
-                            window.location.replace('/edit_question_set/' + $('#qset-id').val());
+                            window.location.replace('/edit_question_set/' + qset_id);
                         }
                     }
                 })

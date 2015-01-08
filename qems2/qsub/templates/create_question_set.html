@@ -10,7 +10,7 @@
 {% load static %}
 
 <h3 class="page-header">Create Question Set</h3>
-<form action="" method="post" role="form" class="form-horizontal form-standard">
+<form action="" method="post">
     {% csrf_token %}
 
     <div class="row">
@@ -53,16 +53,19 @@
     </div>
     <ul class="small-block-grid-3">
         <li>
-            {{ form.max_acf_tossup_length.errors }}
-            <input type="text" id="id_max_acf_tossup_length" name="max_acf_tossup_length" placeholder="ACF Tossup Character Limit" />
+            <label>Max ACF Tossup Length
+                {{ form.max_acf_tossup_length }}
+            </label>
         </li>
         <li>
-            {{ form.max_acf_bonus_length.errors }}
-            <input type="text" id="id_max_acf_bonus_length" name="max_acf_bonus_length" placeholder="ACF Bonus Total Character Limit" />
+            <label>Max ACF Bonus Length
+            {{ form.max_acf_bonus_length }}
+            </label>
         </li>
         <li>
-            {{ form.max_vhsl_bonus_length.errors }}
-            <input type="text" id="id_max_vhsl_bonus_length" name="max_vhsl_bonus_length" placeholder="VHSL Bonus Total Character Limit" />
+            <label>Max VHSL Bonus Length
+            {{ form.max_vhsl_bonus_length }}
+            </label>
         </li>
     </ul>
     <input type="submit" value="Create Question Set" class="button primary right" />

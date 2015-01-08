@@ -478,7 +478,7 @@ def add_editor(request, qset_id):
         if user == qset.owner:
             current_editors = qset.editor.all()
 
-            available_editors = [writer for writer in Writer.objects.exclude(is_active=False)
+            available_editors = [writer for writer in Writer.objects.all()#exclude(is_active=False)
                                  if writer not in current_editors and
                                     writer is not qset.owner and writer.id != 1]
             print available_editors
@@ -518,7 +518,7 @@ def add_editor(request, qset_id):
 
                 qset.save()
                 set_editors = qset.editor.all()
-                available_editors = [writer for writer in Writer.objects.exclude(is_active=False)
+                available_editors = [writer for writer in Writer.objects.all()#exclude(is_active=False)
                                      if writer not in set_editors and
                                         writer is not qset.owner and writer.id != 1]
             else:
@@ -543,11 +543,12 @@ def add_writer(request, qset_id):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
     message = ''
+    message_class = ''
 
     if request.method == 'GET':
         if user == qset.owner:
-            set_writers = qset.writer.all() + qset.editor.all()
-            available_writers = [writer for writer in Writer.objects.exclude(is_active=False)
+            set_writers = qset.writer.all() | qset.editor.all()
+            available_writers = [writer for writer in Writer.objects.all()#exclude(is_active=False)
                                  if writer not in set_writers and
                                     writer is not qset.owner and writer.id != 1]
             print available_writers
@@ -577,8 +578,8 @@ def add_writer(request, qset_id):
                     writer = Writer.objects.get(id=writer_id)
                     qset.writer.add(writer)
                 qset.save()
-                set_writers = qset.writer.all() + qset.editor.all()
-                available_writers = [writer for writer in Writer.objects.exclude(is_active=False)
+                set_writers = qset.writer.all() | qset.editor.all()
+                available_writers = [writer for writer in Writer.objects.all()#exclude(is_active=False)
                                      if writer not in set_writers and
                                         writer is not qset.owner and writer.id != 1]
             else:
@@ -592,11 +593,12 @@ def add_writer(request, qset_id):
                                       context_instance=RequestContext(request))
 
         return render_to_response('add_writer.html',
-            {'qset': qset,
-             'available_editors': available_writers,
-             'message': message,
-             'user': user},
-            context_instance=RequestContext(request))
+                                 {'qset': qset,
+                                  'available_writers': available_writers,
+                                  'message': message,
+                                  'message_class': message_class,
+                                  'user': user},
+                                  context_instance=RequestContext(request))
 
 
 @login_required

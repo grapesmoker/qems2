@@ -1608,6 +1608,8 @@ def distributions (request):
 def edit_distribution(request, dist_id=None):
 
     data = []
+    message = ''
+    message_class = ''
 
     if request.user.is_authenticated():
         DistributionEntryFormset = formset_factory(DistributionEntryForm, can_delete=True)
@@ -1633,12 +1635,14 @@ def edit_distribution(request, dist_id=None):
                             if new_entry.min_bonuses > new_entry.max_bonuses:
                                 new_entry.min_bonuses = new_entry.max_bonuses
                                 #TODO: display the message
-                                message = 'The minimum bonuses input for ' + entry.category + ' ' + entry.subcategory + ' was higher than maximum bonuses. Minimum bonuses has been set to maximum bonuses.'
+                                message = 'Minimum bonuses for ' + new_entry.category + ' - ' + new_entry.subcategory +\
+                                          ' was higher than maximum bonuses and has been set to maximum bonuses.'
                                 message_class = 'alert-box warning'
                             if new_entry.min_tossups > new_entry.max_tossups:
                                 new_entry.min_tossups = new_entry.max_tossups
                                 #TODO: display the message
-                                message = 'The minimum tossups input for ' + entry.category + ' ' + entry.subcategory + ' was higher than maximum tossups. Minimum tossups has been set to maximum tossups.'
+                                message = 'Minimum tossups for ' + new_entry.category + ' - ' + new_entry.subcategory +\
+                                          ' was higher than maximum tossups and has been set to maximum tossups.'
                                 message_class = 'alert-box warning'
 
                             new_entry.distribution = new_dist
@@ -1648,9 +1652,9 @@ def edit_distribution(request, dist_id=None):
 
             else:
                 dist_form = DistributionForm(data=request.POST)
-                print dist_form.is_valid()
-                print formset.is_valid()
-                print formset.errors
+                #print dist_form.is_valid()
+                #print formset.is_valid()
+                #print formset.errors
                 if 'add_row' in request.POST:
                     distentry_post = request.POST.copy()
                     #TODO: grab a value from an input
@@ -1680,11 +1684,13 @@ def edit_distribution(request, dist_id=None):
                                         entry.max_tossups = form.cleaned_data['max_tossups']
                                         if entry.min_bonuses > entry.max_bonuses:
                                             entry.min_bonuses = entry.max_bonuses
-                                            message = 'The minimum bonuses input for ' + entry.category + ' ' + entry.subcategory + ' was higher than maximum bonuses. Minimum bonuses has been set to maximum bonuses.'
+                                            message = 'Minimum bonuses for ' + entry.category + ' - ' + entry.subcategory +\
+                                                      ' was higher than maximum bonuses and has been set to maximum bonuses.'
                                             message_class = 'alert-box warning'
                                         if entry.min_tossups > entry.max_tossups:
                                             entry.min_tossups = entry.max_tossups
-                                            message = 'The minimum tossups input for ' + entry.category + ' ' + entry.subcategory + ' was higher than maximum tossups. Minimum tossups has been set to maximum tossups.'
+                                            message = 'Minimum tossups for ' + entry.category + ' - ' + entry.subcategory +\
+                                                      ' was higher than maximum tossups and has been set to maximum tossups.'
                                             message_class = 'alert-box warning'
 
                                         entry.save()
@@ -1698,7 +1704,6 @@ def edit_distribution(request, dist_id=None):
                                         set_wide_entry = qset.setwidedistributionentry_set.filter(dist_entry=entry)
                                         print set_wide_entry
                                         if set_wide_entry.count() == 0:
-                                            print 'here'
                                             new_set_wide_entry = SetWideDistributionEntry()
                                             new_set_wide_entry.dist_entry = entry
                                             new_set_wide_entry.question_set = qset
@@ -1726,6 +1731,8 @@ def edit_distribution(request, dist_id=None):
             return render_to_response('edit_distribution.html',
                                      {'form': dist_form,
                                       'formset': formset,
+                                      'message': message,
+                                      'message_class': message_class,
                                       'user': request.user.writer},
                                       context_instance=RequestContext(request))
         else:
@@ -1750,6 +1757,8 @@ def edit_distribution(request, dist_id=None):
             return render_to_response('edit_distribution.html',
                                      {'form': dist_form,
                                       'formset': formset,
+                                      'message': message,
+                                      'message_class': message_class,
                                       'user': request.user.writer},
                                       context_instance=RequestContext(request))
 

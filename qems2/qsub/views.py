@@ -1336,13 +1336,12 @@ def add_packets(request, qset_id):
 @login_required
 def delete_packet(request):
     user = request.user.writer
-
     message = ''
     message_class = ''
     read_only = True
 
     if request.method == 'POST':
-        packet_id = request.POST['packet_id']
+        packet_id = int(request.POST['packet_id'])
         packet = Packet.objects.get(id=packet_id)
         qset = packet.question_set
         if user == qset.owner:

@@ -61,15 +61,19 @@ $(function () {
     $('form#type-questions #id_questions').focus();
     $('form#add-tossups #id_tossup_text').focus();
 
-    // Open all 
+    // Open all
     $('.button.open-all').click(function() {
-        selector = _.rest($(this).attr('class').split(/\s+/), 3);
+        var selector = _.rest($(this).attr('class').split(/\s+/), 3);
         console.log(selector);
+        var links = [];
 
         _.each(selector, function(element, index, list) {
             $("table[id*='" + element + "'] a").each(function() {
-                window.open($(this).attr('href'));
+                links.push($(this).attr('href'));
             });
+        });
+        _.each(_.uniq(links), function(element, index, list) {
+            window.open(element);
         });
     });
 
@@ -119,7 +123,7 @@ $(function () {
         e.preventDefault();
         var result = confirm("You are about to delete this bonus! If you do so, you will not be able to recover it! Are you ABSOLUTELY SURE you want to do that?!");
         if (result == true) {
-            var qset_id = $(this).attr('qset-id');            
+            var qset_id = $(this).attr('qset-id');
             $.post('/delete_bonus/', {bonus_id: $(this).attr('value')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({

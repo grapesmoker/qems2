@@ -1634,14 +1634,12 @@ def edit_distribution(request, dist_id=None):
                             if new_entry.min_bonuses > new_entry.max_bonuses:
                                 new_entry.min_bonuses = new_entry.max_bonuses
                                 #TODO: display the message
-                                message = 'The minimum bonuses input for ' + entry.category + ' ' + entry.subcategory +
-                                          ' was higher than maximum bonuses. Minimum bonuses has been set to maximum bonuses.'
+                                message = 'The minimum bonuses input for ' + entry.category + ' ' + entry.subcategory + ' was higher than maximum bonuses. Minimum bonuses has been set to maximum bonuses.'
                                 message_class = 'alert-box warning'
                             if new_entry.min_tossups > new_entry.max_tossups:
                                 new_entry.min_tossups = new_entry.max_tossups
                                 #TODO: display the message
-                                message = 'The minimum tossups input for ' + entry.category + ' ' + entry.subcategory +
-                                          ' was higher than maximum tossups. Minimum tossups has been set to maximum tossups.'
+                                message = 'The minimum tossups input for ' + entry.category + ' ' + entry.subcategory + ' was higher than maximum tossups. Minimum tossups has been set to maximum tossups.'
                                 message_class = 'alert-box warning'
 
                             new_entry.distribution = new_dist
@@ -1683,13 +1681,11 @@ def edit_distribution(request, dist_id=None):
                                         entry.max_tossups = form.cleaned_data['max_tossups']
                                         if entry.min_bonuses > entry.max_bonuses:
                                             entry.min_bonuses = entry.max_bonuses
-                                            message = 'The minimum bonuses input for ' + entry.category + ' ' + entry.subcategory +
-                                                      ' was higher than maximum bonuses. Minimum bonuses has been set to maximum bonuses.'
+                                            message = 'The minimum bonuses input for ' + entry.category + ' ' + entry.subcategory + ' was higher than maximum bonuses. Minimum bonuses has been set to maximum bonuses.'
                                             message_class = 'alert-box warning'
                                         if entry.min_tossups > entry.max_tossups:
                                             entry.min_tossups = entry.max_tossups
-                                            message = 'The minimum tossups input for ' + entry.category + ' ' + entry.subcategory +
-                                                      ' was higher than maximum tossups. Minimum tossups has been set to maximum tossups.'
+                                            message = 'The minimum tossups input for ' + entry.category + ' ' + entry.subcategory + ' was higher than maximum tossups. Minimum tossups has been set to maximum tossups.'
                                             message_class = 'alert-box warning'
 
                                         entry.save()

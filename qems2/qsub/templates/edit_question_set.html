@@ -142,6 +142,23 @@
                 {% endif %}
             {% endfor %}
             </div>
+            <ul class="small-block-grid-3">
+                <li>
+                    <label>Max ACF Tossup Length
+                        {{ form.max_acf_tossup_length }}
+                    </label>
+                </li>
+                <li>
+                    <label>Max ACF Bonus Length
+                    {{ form.max_acf_bonus_length }}
+                    </label>
+                </li>
+                <li>
+                    <label>Max VHSL Bonus Length
+                    {{ form.max_vhsl_bonus_length }}
+                    </label>
+                </li>
+            </ul>
             {% if not read_only %}
                 <input type="submit" value="Submit Changes" class="button primary right" />
             {% endif %}

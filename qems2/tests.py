@@ -54,7 +54,7 @@ class PacketParserTests(SimpleTestCase):
         for bonusPart in bonusParts:
             self.assertEqual(get_bonus_part_value(bonusPart), '10')
     def test_parse_packet_data(self):
-        dist = Distribution.objects.create(name="Test Distribution")
+        dist = Distribution.objects.create(name="Test Distribution", acf_tossup_per_period_count=20, acf_bonus_per_period_count=20, vhsl_bonus_per_period_count=20)
         dist.save()
         print "dist.id: " + str(dist.id)
 
@@ -253,7 +253,7 @@ class PacketParserTests(SimpleTestCase):
         self.assertTrue(does_answerline_have_underlines(""))
 
     def test_tossup_to_html(self):
-        dist = Distribution.objects.create(name="test_tossup_to_html distribution")
+        dist = Distribution.objects.create(name="test_tossup_to_html distribution", acf_tossup_per_period_count=20, acf_bonus_per_period_count=20, vhsl_bonus_per_period_count=20)
         dist.save()
 
         acfTossup, created = QuestionType.objects.get_or_create(question_type="ACF-style tossup")
@@ -267,16 +267,16 @@ class PacketParserTests(SimpleTestCase):
         expectedOutput = "<p><strong>(Test)</strong> <i>tossup</i>.<br />ANSWER: <u><b>test answer</b></u></p>"
         self.assertEqual(tossup_no_category_no_question_type.to_html(), expectedOutput)
         self.assertEqual(tossup_no_category_no_question_type.to_html(include_category=True), expectedOutput)
-        expectedOutputWithCharCount = expectedOutput + "<p><strong>Character Count:</srong> 8</p>"
+        expectedOutputWithCharCount = expectedOutput + "<p><strong>Character Count:</strong> 8</p>"
         self.assertEqual(tossup_no_category_no_question_type.to_html(include_character_count=True), expectedOutputWithCharCount)
 
         tossup_with_category = Tossup(tossup_text=tossup_text, tossup_answer=tossup_answer, category=americanHistory)
         self.assertEqual(tossup_with_category.to_html(), expectedOutput)
-        expectedOutputWithCategory = "<p><strong>(Test)</strong> <i>tossup</i>.</p><p><u><b>test answer</b></u> {History - American}</p>"
+        expectedOutputWithCategory = "<p><strong>(Test)</strong> <i>tossup</i>.<br />ANSWER: <u><b>test answer</b></u></p><p><strong>Category:</strong> History - American</p>"
         self.assertEqual(tossup_with_category.to_html(include_category=True), expectedOutputWithCategory)
 
     def test_bonus_to_html(self):
-        dist = Distribution.objects.create(name="test_bonus_to_html distribution")
+        dist = Distribution.objects.create(name="test_bonus_to_html distribution", acf_tossup_per_period_count=20, acf_bonus_per_period_count=20, vhsl_bonus_per_period_count=20)
         dist.save()
 
         acfBonus, created = QuestionType.objects.get_or_create(question_type="ACF-style bonus")
@@ -309,7 +309,7 @@ class PacketParserTests(SimpleTestCase):
         self.assertEqual(acf_bonus_no_category.to_html(include_character_count=True), expectedOutputWithCharCount)
         acf_bonus_no_category.category = americanHistory
         self.assertEqual(acf_bonus_no_category.to_html(), expectedOutput)
-        expectedOutputWithCategory = expectedOutputWithoutLastLine + "<u><b>answer 3</b></u> {History - American}</p>"
+        expectedOutputWithCategory = expectedOutputWithoutLastLine + "ANSWER: <u><b>answer 3</b></u></p><p><strong>Category:</strong> History - American</p>"
         self.assertEqual(acf_bonus_no_category.to_html(include_category=True), expectedOutputWithCategory)
 
         vhsl_bonus_no_category = Bonus(part1_text=part1_text, part1_answer=part1_answer, question_type=vhslBonus)
@@ -319,6 +319,6 @@ class PacketParserTests(SimpleTestCase):
         vhsl_bonus_no_category.category = americanHistory
         self.assertEqual(vhsl_bonus_no_category.to_html(), expectedVhslOutput)
         expectedVhslOutput = "<p>Part 1 with <i>italics</i> and <strong>(parens)</strong> and _underlines_.<br />"
-        expectedVhslOutput += "ANSWER: <u><b><i>Answer 1</i></b></u> [or foo <strong>(bar)</strong>] {History - American}</p>"
+        expectedVhslOutput += "ANSWER: <u><b><i>Answer 1</i></b></u> [or foo <strong>(bar)</strong>]</p><p><strong>Category:</strong> History - American</p>"
         self.assertEqual(vhsl_bonus_no_category.to_html(include_category=True), expectedVhslOutput)
 

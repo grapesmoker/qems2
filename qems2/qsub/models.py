@@ -175,9 +175,69 @@ class DistributionPerPacket(models.Model):
 class Distribution(models.Model):
 
     name = models.CharField(max_length=100)
+    acf_tossup_per_period_count = models.PositiveIntegerField()
+    acf_bonus_per_period_count = models.PositiveIntegerField()
+    vhsl_bonus_per_period_count = models.PositiveIntegerField()
 
     def __str__(self):
         return '{0!s}'.format(self.name)
+
+# This class corresponds to a distribution and appears in multiple sets
+# Contains no set-specific information, but does contain info on absolute
+# number of tossups (rather than percentages)
+class AbstractCategoryEntry(models.Model):
+    distribution = models.ForeignKey(Distribution)
+    
+    # Min/max questions of this type for one period
+    # i.e. 2.2, which means between 2 and 3 weighted towards 2
+    acf_tossup_fraction = models.DecimalField(null=True, max_digits=5, decimal_places=1)
+    acf_bonus_fraction = models.DecimalField(null=True, max_digits=5, decimal_places=1)
+    vhsl_bonus_fraction = models.DecimalField(null=True, max_digits=5, decimal_places=1)
+
+    # Min/max questions of all types in one period for this category      
+    min_total_questions_in_period = models.PositiveIntegerField(null=True)
+    max_total_questions_in_period = models.PositiveIntegerField(null=True)
+    
+    def get_acf_tossup_integer(self):
+        return int(self.acf_tossup_fraction)
+        
+    def get_acf_tossup_remainder(self):
+        return self.acf_tossup_fraction - self.get_acf_tossup_integer()
+
+    def get_acf_bonus_integer(self):
+        return int(self.acf_bonus_fraction)
+        
+    def get_acf_bonus_remainder(self):
+        return self.acf_bonus_fraction - self.get_acf_bonus_integer()
+
+    def get_vhsl_bonus_integer(self):
+        return int(self.vhsl_bonus_fraction)
+        
+    def get_vhsl_bonus_remainder(self):
+        return self.vhsl_bonus_fraction - self.get_vhsl_bonus_integer()
+        
+    class Meta:
+        abstract = True
+
+class CategoryEntry(AbstractCategoryEntry):
+    category = models.TextField()
+
+    def __str__(self):
+        return '{0!s}'.format(self.category)
+
+class SubCategoryEntry(AbstractCategoryEntry):
+    category = models.ForeignKey(CategoryEntry)
+    subcategory = models.TextField()
+
+    def __str__(self):
+        return '{0!s} - {1!s}'.format(self.category.category, self.subcategory)
+
+class SubSubCategoryEntry(AbstractCategoryEntry):
+    subcategory = models.ForeignKey(SubCategoryEntry)
+    subsubcategory = models.TextField()
+    
+    def __str__(self):
+        return '{0!s} - {1!s} - {2!s}'.format(self.subcategory.category.category, self.subcategory.subcategory, self.subsubcategory)
 
 class TieBreakDistribution(models.Model):
 

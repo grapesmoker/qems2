@@ -322,3 +322,101 @@ class PacketParserTests(SimpleTestCase):
         expectedVhslOutput += "ANSWER: <u><b><i>Answer 1</i></b></u> [or foo <strong>(bar)</strong>]</p><p><strong>Category:</strong> History - American</p>"
         self.assertEqual(vhsl_bonus_no_category.to_html(include_category=True), expectedVhslOutput)
 
+    def test_category_entry_get_acf_tossup_integer(self):
+        category_entry = CategoryEntry(category="Test Category", acf_tossup_fraction=2.2, acf_bonus_fraction=1, vhsl_bonus_fraction=0, min_total_questions_in_period=3, max_total_questions_in_period=4)
+        self.assertEqual(category_entry.get_acf_tossup_integer(), 2)
+        
+    def test_category_entry_get_acf_tossup_remainder(self):
+        category_entry = CategoryEntry(category="Test Category", acf_tossup_fraction=2.2, acf_bonus_fraction=1, vhsl_bonus_fraction=0, min_total_questions_in_period=3, max_total_questions_in_period=4)
+        self.assertEqual(round(category_entry.get_acf_tossup_remainder(), 2), 0.20)
+        
+    def test_category_entry_get_acf_bonus_integer(self):
+        category_entry = CategoryEntry(category="Test Category", acf_tossup_fraction=2.2, acf_bonus_fraction=1, vhsl_bonus_fraction=0, min_total_questions_in_period=3, max_total_questions_in_period=4)
+        self.assertEqual(category_entry.get_acf_bonus_integer(), 1)
+        
+    def test_category_entry_get_acf_bonus_remainder(self):
+        category_entry = CategoryEntry(category="Test Category", acf_tossup_fraction=2.2, acf_bonus_fraction=1, vhsl_bonus_fraction=0, min_total_questions_in_period=3, max_total_questions_in_period=4)
+        self.assertEqual(round(category_entry.get_acf_bonus_remainder(), 2), 0)
+        
+    def test_category_entry_get_vhsl_bonus_integer(self):
+        category_entry = CategoryEntry(category="Test Category", acf_tossup_fraction=2.2, acf_bonus_fraction=1, vhsl_bonus_fraction=0, min_total_questions_in_period=3, max_total_questions_in_period=4)
+        self.assertEqual(category_entry.get_vhsl_bonus_integer(), 0)
+        
+    def test_category_entry_get_vhsl_bonus_remainder(self):
+        category_entry = CategoryEntry(category="Test Category", acf_tossup_fraction=2.2, acf_bonus_fraction=1, vhsl_bonus_fraction=0, min_total_questions_in_period=3, max_total_questions_in_period=4)
+        self.assertEqual(round(category_entry.get_vhsl_bonus_remainder(), 2), 0)
+        
+    def test_sub_category_entry_get_acf_tossup_integer(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        self.assertEqual(sub_category_entry.get_acf_tossup_integer(), 0)
+        
+    def test_sub_category_entry_get_acf_tossup_remainder(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        self.assertEqual(round(sub_category_entry.get_acf_tossup_remainder(), 2), 0.30)
+        
+    def test_sub_category_entry_get_acf_bonus_integer(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        self.assertEqual(sub_category_entry.get_acf_bonus_integer(), 0)
+        
+    def test_sub_category_entry_get_acf_bonus_remainder(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        self.assertEqual(round(sub_category_entry.get_acf_bonus_remainder(), 2), 0.30)
+        
+    def test_sub_category_entry_get_vhsl_bonus_integer(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        self.assertEqual(sub_category_entry.get_vhsl_bonus_integer(), 0)
+        
+    def test_sub_category_entry_get_vhsl_bonus_remainder(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        self.assertEqual(round(sub_category_entry.get_vhsl_bonus_remainder(), 2), 0)
+        
+    def test_sub_sub_category_entry_get_acf_tossup_integer(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        sub_sub_category_entry = SubSubCategoryEntry(subcategory=sub_category_entry, subsubcategory="Baroque", acf_tossup_fraction=0.1, acf_bonus_fraction=0.1, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)                
+        self.assertEqual(sub_sub_category_entry.get_acf_tossup_integer(), 0)
+        
+    def test_sub_sub_category_entry_get_acf_tossup_remainder(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        sub_sub_category_entry = SubSubCategoryEntry(subcategory=sub_category_entry, subsubcategory="Baroque", acf_tossup_fraction=0.1, acf_bonus_fraction=0.1, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)                
+        self.assertEqual(round(sub_sub_category_entry.get_acf_tossup_remainder(), 2), 0.10)
+        
+    def test_sub_sub_category_entry_get_acf_bonus_integer(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        sub_sub_category_entry = SubSubCategoryEntry(subcategory=sub_category_entry, subsubcategory="Baroque", acf_tossup_fraction=0.1, acf_bonus_fraction=0.1, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)                        
+        self.assertEqual(sub_sub_category_entry.get_acf_bonus_integer(), 0)
+        
+    def test_sub_sub_category_entry_get_acf_bonus_remainder(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        sub_sub_category_entry = SubSubCategoryEntry(subcategory=sub_category_entry, subsubcategory="Baroque", acf_tossup_fraction=0.1, acf_bonus_fraction=0.1, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)                        
+        self.assertEqual(round(sub_sub_category_entry.get_acf_bonus_remainder(), 2), 0.10)
+        
+    def test_sub_sub_category_entry_get_vhsl_bonus_integer(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        sub_sub_category_entry = SubSubCategoryEntry(subcategory=sub_category_entry, subsubcategory="Baroque", acf_tossup_fraction=0.1, acf_bonus_fraction=0.1, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)                        
+        self.assertEqual(sub_sub_category_entry.get_vhsl_bonus_integer(), 0)
+        
+    def test_sub_sub_category_entry_get_vhsl_bonus_remainder(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(category=category_entry, subcategory="Opera", acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        sub_sub_category_entry = SubSubCategoryEntry(subcategory=sub_category_entry, subsubcategory="Baroque", acf_tossup_fraction=0.1, acf_bonus_fraction=0.1, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)                        
+        self.assertEqual(round(sub_sub_category_entry.get_vhsl_bonus_remainder(), 2), 0)
+    
+    def test_sub_sub_category_to_string(self):
+        category_entry = CategoryEntry(category="Arts", acf_tossup_fraction=3, acf_bonus_fraction=3, vhsl_bonus_fraction=0, min_total_questions_in_period=6, max_total_questions_in_period=6)
+        sub_category_entry = SubCategoryEntry(subcategory="Opera", category=category_entry, acf_tossup_fraction=0.3, acf_bonus_fraction=0.3, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)
+        sub_sub_category_entry = SubSubCategoryEntry(subcategory=sub_category_entry, subsubcategory="Baroque", acf_tossup_fraction=0.1, acf_bonus_fraction=0.1, vhsl_bonus_fraction=0, min_total_questions_in_period=0, max_total_questions_in_period=1)        
+        self.assertEqual(str(category_entry), "Arts")
+        self.assertEqual(str(sub_category_entry), "Arts - Opera")                
+        self.assertEqual(str(sub_sub_category_entry), "Arts - Opera - Baroque")        
+        

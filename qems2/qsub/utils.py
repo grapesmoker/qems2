@@ -40,6 +40,18 @@ QUESTION_CHANGE = 'Question Change'
 QUESTION_EDIT = 'Question Edit'
 QUESTION_RESTORE = 'Question Restore'
 
+# Constants for types of categories
+CATEGORY = "Category"
+SUB_CATEGORY = "Subcategory"
+SUB_SUB_CATEGORY = "Subsubcategory"
+
+# Constants for PeriodWideEntry types
+ACF_REGULAR_PERIOD = "ACF Regular Period"
+ACF_TIEBREAKER_PERIOD = "ACF Tiebreaker Period"
+VHSL_TOSSUP_PERIOD = "VHSL Tossup Period"
+VHSL_BONUS_PERIOD = "VHSL Bonus Period"
+VHSL_TIEBREAKER_PERIOD = "VHSL Tiebreaker Period"
+
 def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
     soup = BeautifulSoup(html)
     for tag in soup.find_all(True):

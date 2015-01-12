@@ -185,8 +185,12 @@ class Distribution(models.Model):
 # This class corresponds to a distribution and appears in multiple sets
 # Contains no set-specific information, but does contain info on absolute
 # number of tossups (rather than percentages)
-class AbstractCategoryEntry(models.Model):
+class CategoryEntry(models.Model):
     distribution = models.ForeignKey(Distribution)
+    category_name = models.CharField(max_length=200)
+    sub_category_name = models.CharField(max_length=200, null=True)
+    sub_sub_category_name = models.CharField(max_length=200, null=True)
+    category_type = models.CharField(max_length=200) # i.e. "Category", "SubCategory" or "SubSubCategory"
     
     # Min/max questions of this type for one period
     # i.e. 2.2, which means between 2 and 3 weighted towards 2
@@ -197,7 +201,7 @@ class AbstractCategoryEntry(models.Model):
     # Min/max questions of all types in one period for this category      
     min_total_questions_in_period = models.PositiveIntegerField(null=True)
     max_total_questions_in_period = models.PositiveIntegerField(null=True)
-    
+        
     def get_acf_tossup_integer(self):
         return int(self.acf_tossup_fraction)
         
@@ -215,29 +219,136 @@ class AbstractCategoryEntry(models.Model):
         
     def get_vhsl_bonus_remainder(self):
         return self.vhsl_bonus_fraction - self.get_vhsl_bonus_integer()
-        
-    class Meta:
-        abstract = True
-
-class CategoryEntry(AbstractCategoryEntry):
-    category = models.TextField()
 
     def __str__(self):
-        return '{0!s}'.format(self.category)
+        if (self.sub_sub_category_name is not None):
+            return '{0!s} - {1!s} - {2!s}'.format(self.category_name, self.sub_category_name, self.sub_sub_category_name)
+        elif (self.sub_category_name is not None):
+            return '{0!s} - {1!s}'.format(self.category_name, self.sub_category_name)
+        else:
+            return '{0!s}'.format(self.category_name)
 
-class SubCategoryEntry(AbstractCategoryEntry):
-    category = models.ForeignKey(CategoryEntry)
-    subcategory = models.TextField()
+# This class corresponds to all periods of this type in the set.  For instance,
+# you'd have 10 ACFTossupBonusPeriods corresponding to this one PeriodWideEntry,
+# and 10 ACFTossupBonusTiebreakerPeriods corresponding to a different PeriodWideEntry
+class PeriodWideEntry (models.Model):
+    period_type = models.CharField(max_length=200) # i.e. "ACF Regular Period"
+    question_set = models.ForeignKey(QuestionSet)
+    distribution = models.ForeignKey(Distribution)
 
-    def __str__(self):
-        return '{0!s} - {1!s}'.format(self.category.category, self.subcategory)
-
-class SubSubCategoryEntry(AbstractCategoryEntry):
-    subcategory = models.ForeignKey(SubCategoryEntry)
-    subsubcategory = models.TextField()
+    # Current number of questions across all categories
+    acf_tossup_cur = models.PositiveIntegerField(default=0) 
+    acf_bonus_cur = models.PositiveIntegerField(default=0) 
+    vhsl_bonus_cur = models.PositiveIntegerField(default=0)
     
+    # Total needed number of questions across all categories
+    acf_tossup_total = models.PositiveIntegerField(null=True) 
+    acf_bonus_total = models.PositiveIntegerField(null=True) 
+    vhsl_bonus_total = models.PositiveIntegerField(null=True)
+    
+    def reset_current_values(self):
+        self.acf_tossup_cur = 0  
+        self.acf_bonus_cur = 0
+        self.vhsl_bonus_cur = 0
+        
+    def reset_total_values(self):
+        self.acf_tossup_total = 0
+        self.acf_bonus_total = 0
+        self.vhsl_bonus_total = 0
+
+# A period is a part of a packet.  For instance, it might be the regular tossup/bonus
+# part of an mACF set.  It could also be the VHSL bonus round or a tiebreaker period.
+class Period (models.Model):
+    name = models.CharField(max_length=200) # i.e. "VHSL Tossup Period 1"
+    packet = models.ForeignKey(Packet)
+    period_wide_entry = models.ForeignKey(PeriodWideEntry)
+    
+    acf_tossup_cur = models.PositiveIntegerField(default=0) 
+    acf_bonus_cur = models.PositiveIntegerField(default=0) 
+    vhsl_bonus_cur = models.PositiveIntegerField(default=0)
+ 
+    def reset_current_values(self):
+        self.acf_tossup_cur = 0  
+        self.acf_bonus_cur = 0
+        self.vhsl_bonus_cur = 0   
+
+# This class tracks the requirements for a particular category across all periods of this type
+# in the set.  For instance, this might track how many History questions have currently been writtne
+# and are still needed for the tiebreaker rounds in an ACF tournament.
+class PeriodWideCategoryEntry(models.Model):
+    period_wide_entry = models.ForeignKey(PeriodWideEntry)
+    category_entry = models.ForeignKey(CategoryEntry)
+        
+    # Current number of tossups/bonuses across all periods (with this distribution) for this category
+    acf_tossup_cur_across_periods = models.PositiveIntegerField(default=0) 
+    acf_bonus_cur_across_periods = models.PositiveIntegerField(default=0) 
+    vhsl_bonus_cur_across_periods = models.PositiveIntegerField(default=0)    
+    
+    # Total expected number of tossups/bonuses across all periods (with this distribution) for this category
+    acf_tossup_total_across_periods = models.PositiveIntegerField(null=True) 
+    acf_bonus_total_across_periods = models.PositiveIntegerField(null=True) 
+    vhsl_bonus_total_across_periods = models.PositiveIntegerField(null=True)
+    
+    # TODO: Maybe add Min/max combined questions for this category across all periods?
+    # It's not clear this is needed outside of the packet level--it's only set at the packet level
+        
+    def reset_current_values(self):
+        self.acf_tossup_cur_across_periods = 0
+        self.acf_bonus_cur_across_periods = 0
+        self.vhsl_bonus_cur_across_periods = 0
+        
+    def reset_total_values(self):
+        self.acf_tossup_total_across_periods = 0
+        self.acf_bonus_total_across_periods = 0
+        self.vhsl_bonus_total_across_periods = 0        
+
     def __str__(self):
-        return '{0!s} - {1!s} - {2!s}'.format(self.subcategory.category.category, self.subcategory.subcategory, self.subsubcategory)
+        return 'Period-Wide {0!s}'.format(str(self.category_entry))
+
+# This class tracks the requirements for a particular category in one period.
+# For instance, it could track how many literature questions are needed in
+# the VHSL bonus round (i.e. second period) of Round 5 of a tournament.
+class OnePeriodCategoryEntry(models.Model):
+    period = models.ForeignKey(Period)
+    period_wide_category_entry = models.ForeignKey(PeriodWideCategoryEntry)
+    
+    # Current number of tossups/bonuses in this period for this category
+    acf_tossup_cur_in_period = models.PositiveIntegerField(default=0) 
+    acf_bonus_cur_in_period = models.PositiveIntegerField(default=0) 
+    vhsl_bonus_cur_in_period = models.PositiveIntegerField(default=0)
+    
+    # Total number of tossups/bonuses in this period for this category
+    acf_tossup_total_in_period = models.PositiveIntegerField(null=True) 
+    acf_bonus_total_in_period = models.PositiveIntegerField(null=True) 
+    vhsl_bonus_total_in_period = models.PositiveIntegerField(null=True)
+
+    def get_linked_category_entry(self):
+        return self.period_wide_category_entry.category_entry
+        
+    def get_total_questions_all_types(self):
+        return self.acf_tossup_total_in_period + self.acf_bonus_total_in_period + self.vhsl_bonus_total_in_period
+        
+    def is_under_max_total_questions_limit(self):
+        max_total_questions = self.get_linked_category_entry().max_total_questions_in_period
+        return (self.get_total_questions_all_types() <= max_total_questions)
+        
+    def is_over_min_total_questions_limit(self):
+        min_total_questions = self.get_linked_category_entry().min_total_questions_in_period
+        return (self.get_total_questions_all_types() >= min_total_questions)
+
+    def reset_current_values(self):
+        self.acf_tossup_cur_in_period = 0
+        self.acf_bonus_cur_in_period = 0
+        self.vhsl_bonus_cur_in_period = 0
+    
+    def reset_total_values(self):
+        self.acf_tossup_total_in_period = 0
+        self.acf_bonus_total_in_period = 0
+        self.vhsl_bonus_total_in_period = 0
+
+    def __str__(self):
+        return 'Period {0!s}'.format(str(self.get_linked_period_wide_category_entry()))
+
 
 class TieBreakDistribution(models.Model):
 
@@ -298,6 +409,7 @@ class Tossup (models.Model):
     question_set = models.ForeignKey(QuestionSet)
     tossup_text = models.TextField()
     tossup_answer = models.TextField()
+    period = models.ForeignKey(Period, null=True)
 
     category = models.ForeignKey(DistributionEntry, null=True)
     subtype = models.CharField(max_length=500)
@@ -457,6 +569,7 @@ class Tossup (models.Model):
 class Bonus(models.Model):
     packet = models.ForeignKey(Packet, null=True)
     question_set = models.ForeignKey(QuestionSet)
+    period = models.ForeignKey(Period, null=True)    
 
     # Leadins and part 2 and 3 aren't required in VHSL, so allow nulls
     # The is_valid method will make sure that ACF bonuses have these values

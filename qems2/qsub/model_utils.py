@@ -360,3 +360,6 @@ def move_comments_to_bonus(tossup, bonus):
         comment.content_type_id = bonus_content_type_id
         comment.save()
 
+def get_question_type_from_string(question_type):
+    return QuestionType.objects.get(question_type=question_type)
+

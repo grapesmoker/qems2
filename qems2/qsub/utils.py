@@ -45,6 +45,10 @@ CATEGORY = "Category"
 SUB_CATEGORY = "Subcategory"
 SUB_SUB_CATEGORY = "Subsubcategory"
 
+# Constants for Packet types
+ACF_PACKET = "ACF Packet"
+VHSL_PACKET = "VHSL Packet"
+
 # Constants for PeriodWideEntry types
 ACF_REGULAR_PERIOD = "ACF Regular Period"
 ACF_TIEBREAKER_PERIOD = "ACF Tiebreaker Period"

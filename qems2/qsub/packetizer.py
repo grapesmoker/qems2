@@ -171,6 +171,7 @@ def get_pwce_from_fractions(fractions, question_type, items_to_process, seed=-1)
     return pwce_list
 
 # Determines if you've written enough questions to start packetization
+# TODO: Finish implementing
 # TODO: Add tests
 def is_question_set_complete(qset):
     # Get every period-wide entry, see if requirement is satisfied
@@ -248,28 +249,55 @@ def fill_unassigned_questions(qset, author):
             if (len(children) == 1):
                 difference = req.acf_tossups_needed - req.acf_tossups_written
                 for i in range(0, difference):
-                    tossup = Tossup.objects.create(question_set=qset, tossup_text="Placeholder Question for " + str(cat),
-                        tossup_answer = "_Placeholder Answer_", author=author, question_type = "ACF-style tossup", 
-                        location = "", time_period = "")
-                    tossup.save()
+                    tossup = Tossup.objects.create(
+                        question_set=qset,
+                        tossup_text="Placeholder Question for " + str(cat),
+                        tossup_answer = "_Placeholder Answer_",
+                        author=author,
+                        question_type = get_question_type_from_string(ACF_STYLE_TOSSUP)), 
+                        location = "",
+                        time_period = "",
+                        created_date=timezone.now(),
+                        last_changed_date=timezone.now())
+                    tossup.save_question(QUESTION_CREATE, author)
                     
                 difference = req.acf_bonuses_needed - req.acf_bonuses_written
                 for i in range(0, difference):
-                    bonus = Bonus.objects.create(question_set=qset, leadin="Placeholder Question for " + str(cat),
-                        part1_text = "Placeholder question", part1_answer = "_Placeholder Answer_",
-                        part2_text = "Placeholder question", part2_answer = "_Placeholder Answer_", 
-                        part3_text = "Placeholder question", part3_answer = "_Placeholder Answer_",                 
-                        author=author, question_type = "ACF-style bonus", location = "", time_period = "")
-                    bonus.save()
+                    bonus = Bonus.objects.create(
+                        question_set=qset, 
+                        leadin="Placeholder Question for " + str(cat),
+                        part1_text = "Placeholder question", 
+                        part1_answer = "_Placeholder Answer_",
+                        part2_text = "Placeholder question", 
+                        part2_answer = "_Placeholder Answer_", 
+                        part3_text = "Placeholder question", 
+                        part3_answer = "_Placeholder Answer_",                 
+                        author=author, 
+                        question_type = "ACF-style bonus", 
+                        location = "", 
+                        time_period = "",
+                        created_date=timezone.now(),
+                        last_changed_date=timezone.now())
+                    bonus.save_question(QUESTION_CREATE, author)
 
                 difference = req.acf_tossups_needed - req.acf_tossups_written
                 for i in range(0, difference):
-                    bonus = Bonus.objects.create(question_set=qset, leadin="",
-                        part1_text = "Placeholder Question for " + str(cat), part1_answer = "_Placeholder Answer_",
-                        part2_text = "", part2_answer = "",
-                        part3_text = "", part3_answer = "",                   
-                        author=author, question_type = "ACF-style bonus", location = "", time_period = "")
-                    bonus.save()
+                    bonus = Bonus.objects.create(
+                        question_set=qset, 
+                        leadin="",
+                        part1_text = "Placeholder Question for " + str(cat), 
+                        part1_answer = "_Placeholder Answer_",
+                        part2_text = "", 
+                        part2_answer = "",
+                        part3_text = "", 
+                        part3_answer = "",                   
+                        author=author, 
+                        question_type = "ACF-style bonus", 
+                        location = "", 
+                        time_period = "",
+                        created_date=timezone.now(),
+                        last_changed_date=timezone.now())
+                    bonus.save_question(QUESTION_CREATE, author)
 
 # TODO: Add tests
 def packetize(qset):
@@ -479,11 +507,26 @@ def get_parents_from_category_entry(category_entry):
     if (category_entry.category_type == CATEGORY):
         return category_entry, None, None
     elif (category_entry.category_type == SUB_CATEGORY):
-        category = CategoryEntry.objects.get(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=None)
+        category = None
+        try:
+            category = CategoryEntry.objects.get(category_name=category_entry.category_name, sub_category_name=None)
+        except Exception as ex:
+            print "Could not find parent for: " + str(category_entry)
+        
         return category, category_entry, None
     else:
-        category = CategoryEntry.objects.get(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=None)
-        sub_category = CategoryEntry.objects.get(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name, sub_sub_category_name=None)
+        category = None
+        try:
+            category = CategoryEntry.objects.get(category_name=category_entry.category_name, sub_category_name=None)
+        except Exception as ex:
+            print "Could not find parent for: " + str(category_entry)
+        
+        sub_category = None
+        try:
+            sub_category = CategoryEntry.objects.get(category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name, sub_sub_category_name=None)
+        except Exception as ex:
+            print "Could not find parent for: " + str(category_entry)
+                
         return category, sub_category, category_entry
 
 # Gets the current entry and any children of this category.  For instance,
@@ -492,16 +535,15 @@ def get_parents_from_category_entry(category_entry):
 def get_children_from_category_entry(category_entry):
     children = []
     if (category_entry.category_type == CATEGORY):
-        children.append(CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name))
+        children.append(CategoryEntry.objects.filter(category_name=category_entry.category_name))
     elif (category_entry.category_type==SUB_CATEGORY):
-        children.append(CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name))
+        children.append(CategoryEntry.objects.filter(category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name))
     else:
         # subsub categories don't have children
         children.append(category_entry)
      
     return children
 
-# TODO: Add tests
 def get_parents_from_category_entry_for_distribution(cefd):
     category_entry = cefd.category_entry
     ce_cat, ce_subcat, ce_subsubcat = get_parents_from_category_entry(category_entry)
@@ -520,17 +562,15 @@ def get_parents_from_category_entry_for_distribution(cefd):
                 
     return cat, subcat, subsubcat
     
-# TODO: Add tests
 def get_children_from_category_entry_for_distribution(cefd):
     children = []
     category_entry = cefd.category_entry
     ce_children = get_children_from_category_entry(category_entry)
     for ce_child in ce_children:
-        children.append(CategoryEntryForDistribution.objects.get(distribution=cefd.distribution, category_entry=ce_child)
+        children.append(CategoryEntryForDistribution.objects.get(distribution=cefd.distribution, category_entry=ce_child))
     
-    return children       
+    return children     
 
-# TODO: Add tests
 def get_parents_from_period_wide_category_entry(pwce):
     cefd = pwce.category_entry_for_distribution
     cefd_cat, cefd_subcat, cefd_subsubcat = get_parents_from_category_entry_for_distribution(category_entry)
@@ -544,30 +584,31 @@ def get_parents_from_period_wide_category_entry(pwce):
         subcat = PeriodWideCategoryEntry.objects.get(period_wide_entry=pwce.period_wide_entry, category_entry=cefd_subcat)
 
     if (cefd_subsubcat is not None):
-        subsubcat = PeriodWideCategoryEntry.objects.get(period_wide_entry=pwce.period_wide_entry category_entry=cefd_subsubcat)
+        subsubcat = PeriodWideCategoryEntry.objects.get(period_wide_entry=pwce.period_wide_entry, category_entry=cefd_subsubcat)
         
     return cat, subcat, subsubcat
     
-# TODO: Add tests
 def get_children_from_period_wide_category_entry(pwce):
     children = []
     cefd = pwce.category_entry_for_distribution
     cefd_children = get_children_from_category_entry_for_distribution(cefd)
     for cefd_child in cefd_children:
-        children.append(PeriodWideCategoryEntry.objects.get(period_wide_entry=pwce.period_wide_entry, category_entry_for_distribution=cefd_child)
+        children.append(PeriodWideCategoryEntry.objects.get(period_wide_entry=pwce.period_wide_entry, category_entry_for_distribution=cefd_child))
     
     return children
 
-# TODO: Add tests
 def get_period_entries_from_category_entry_with_parents(category_entry, period):
     c, sc, ssc = get_parents_from_category_entry(category_entry)
     c_pwce, c_opce = get_period_entries_from_category_entry(c, period)
     sc_pwce, sc_opce = get_period_entries_from_category_entry(sc, period)
     ssc_pwce, ssc_opce = get_period_entries_from_category_entry(ssc, period)
     return c_pwce, c_opce, sc_pwce, sc_opce, ssc_pwce, ssc_opce
-                
-def get_period_entries_from_category_entry(category_entry, period):    
-    pwce = PeriodWideCategoryEntry.objects.get(period_wide_entry=period.period_wide_entry, category_entry=category_entry)
+
+def get_period_entries_from_category_entry(category_entry, period):   
+    dist = period.period_wide_entry.distribution
+    
+    cefd = CategoryEntryForDistribution.objects.get(distribution=dist, category_entry=category_entry)
+    pwce = PeriodWideCategoryEntry.objects.get(period_wide_entry=period.period_wide_entry, category_entry_for_distribution=cefd)
     opce = OnePeriodCategoryEntry.objects.get(period=period, period_wide_category_entry=pwce)
     return pwce, opce
 
@@ -673,7 +714,6 @@ def is_vhsl_bonus_valid_in_period(qset, period, bonus):
     
     return True
     
-# TODO: Need tests
 def get_question_count_for_category_in_period(qset, period, category):
     tossups = Tossup.objects.filter(period=period, category=category)
     bonuses = Bonus.objects.filter(period=period, category=category)
@@ -684,23 +724,29 @@ def get_unassigned_acf_tossups(qset):
     return acf_tossups
     
 def get_unassigned_acf_bonuses(qset):
-    acf_bonuses = Bonus.objects.filter(question_set=qset, question_type="ACF-style bonus", packet=None)
+    acf_bonuses = Bonus.objects.filter(question_set=qset, question_type__question_type=ACF_STYLE_BONUS, packet=None)
     return acf_bonuses
     
 def get_unassigned_vhsl_bonuses(qset):
-    vhsl_bonuses = Bonus.objects.filter(question_set=qset, question_type="VHSL bonus", packet=None)
+    vhsl_bonuses = Bonus.objects.filter(question_set=qset, question_type__question_type=VHSL_BONUS, packet=None)
     return vhsl_bonuses
     
 def get_assigned_acf_tossups_in_period(qset, period):
     acf_tossups = Tossup.objects.filter(question_set=qset, period=period)
+    
+    print "Found Tossup Count: " + str(len(acf_tossups))
+    print "All tossups:"
+    for tossup in Tossup.objects.filter(question_set=qset):
+        print "Tossup: " + str(tossup)
+    
     return acf_tossups
     
 def get_assigned_acf_bonuses_in_period(qset, period):
-    acf_bonuses = Bonus.objects.filter(question_set=qset, question_type="ACF-style bonus", period=period)
+    acf_bonuses = Bonus.objects.filter(question_set=qset, question_type__question_type=ACF_STYLE_BONUS, period=period)
     return acf_bonuses
 
 def get_assigned_vhsl_bonuses_in_period(qset, period):
-    vhsl_bonuses = Bonus.objects.filter(question_set=qset, question_type="VHSL bonus", period=period)
+    vhsl_bonuses = Bonus.objects.filter(question_set=qset, question_type__question_type=VHSL_BONUS, period=period)
     return vhsl_bonuses
 
 # Clear packet information from each question
@@ -723,22 +769,26 @@ def clear_questions(qset):
 def reset_category_counts(qset, reset_totals=False):
     period_wide_entries = PeriodWideEntry.objects.filter(question_set=qset)
     for pwe in period_wide_entries:
+        print "Reset pwe: " + str(pwe)
         pwe.reset_current_values()
         if (reset_totals):
             pwe.reset_total_values()
         
         periods = Period.objects.filter(period_wide_entry=pwe)
         for period in periods:
+            print "Reset period: " + str(period)
             period.reset_current_values()
         
         period_wide_category_entries = PeriodWideCategoryEntry.objects.filter(period_wide_entry=pwe)        
         for pwce in period_wide_category_entries:
+            print "Reset pwce: " + str(pwce)
             pwce.reset_current_values()
             if (reset_totals):
                 pwce.reset_total_values()
             
             one_period_category_entries = OnePeriodCategoryEntry.objects.filter(period_wide_category_entry=pwce)
             for opce in one_period_category_entries:
+                print "Reset opce: " + str(opce)
                 opce.reset_current_values()
                 if (reset_totals):
                     opce.reset_total_values()

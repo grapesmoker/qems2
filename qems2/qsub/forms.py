@@ -223,6 +223,10 @@ class DistributionForm(forms.ModelForm):
 
     name = forms.CharField(max_length=100)
 
+    acf_tossup_per_period_count = forms.CharField(widget=forms.HiddenInput, required=False)
+    acf_bonus_per_period_count = forms.CharField(widget=forms.HiddenInput, required=False)
+    vhsl_bonus_per_period_count = forms.CharField(widget=forms.HiddenInput, required=False)
+
     class Meta:
         model = Distribution
 

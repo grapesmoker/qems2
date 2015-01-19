@@ -216,6 +216,8 @@ HAYSTACK_CONNECTIONS = {
     },
 }
 
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
+
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 #COMMENTS_APP = "django_comments_xtd"
 #COMMENTS_XTD_MAX_THREAD_LEVEL = 1

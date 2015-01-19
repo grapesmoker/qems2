@@ -130,7 +130,7 @@ class QuestionSet (models.Model):
     owner = models.ForeignKey('Writer', related_name='owner')
     #public = models.BooleanField()
     num_packets = models.PositiveIntegerField()
-    distribution = models.ForeignKey('Distribution')
+    distribution = models.ForeignKey('Distribution') # TODO: This needs to be deleted eventually
     #teams = models.ForeignKey('Team')
     #tiebreak_dist = models.ForeignKey('TieBreakDistribution')
     max_acf_tossup_length = models.PositiveIntegerField(default=750)
@@ -302,7 +302,7 @@ class Period (models.Model):
         self.vhsl_bonus_cur = 0   
 
 # This class tracks the requirements for a particular category across all periods of this type
-# in the set.  For instance, this might track how many History questions have currently been writtne
+# in the set.  For instance, this might track how many History questions have currently been written
 # and are still needed for the tiebreaker rounds in an ACF tournament.
 class PeriodWideCategoryEntry(models.Model):
     period_wide_entry = models.ForeignKey(PeriodWideEntry)
@@ -360,6 +360,7 @@ class OnePeriodCategoryEntry(models.Model):
         min_total_questions = self.get_linked_category_entry_for_distribution().min_total_questions_in_period
         return (self.get_total_questions_all_types() >= min_total_questions)
         
+    # TODO: This method should probably be renamed "is_over_max_acf_tossup_limit"
     def is_over_min_acf_tossup_limit(self):
         return (self.acf_tossup_cur_in_period > self.get_linked_category_entry_for_distribution().get_acf_tossup_upper_bound())
 

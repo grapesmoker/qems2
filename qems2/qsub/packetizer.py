@@ -5,6 +5,9 @@ import json
 import random
 import string
 
+from datetime import datetime
+from django.utils import timezone
+
 from qems2.qsub.models import *
 from qems2.qsub.utils import *
 
@@ -111,15 +114,15 @@ def assign_pwce(pwce_list, packet_count, total_acf_tossup, total_acf_bonus, tota
     for pwce in pwce_list:            
         pwce.acf_tossup_total_across_periods = int(pwce.category_entry_for_distribution.acf_tossup_fraction * packet_count)
         cur_acf_tossup_count += pwce.acf_tossup_total_across_periods            
-        acf_tossup_fractions = get_fraction_array(pwce.acf_tossup_total_across_periods)
+        acf_tossup_fractions = get_fraction_array(pwce, pwce.acf_tossup_total_across_periods)
                     
         pwce.acf_bonus_total_across_periods = int(pwce.category_entry_for_distribution.acf_bonus_fraction * packet_count)
         cur_acf_bonus_count += pwce.acf_bonus_total_across_periods                        
-        acf_bonus_fractions = get_fraction_array(pwce.acf_bonus_total_across_periods)
+        acf_bonus_fractions = get_fraction_array(pwce, pwce.acf_bonus_total_across_periods)
 
         pwce.vhsl_bonus_total_across_periods = int(pwce.category_entry_for_distribution.vhsl_bonus_fraction * packet_count)
         cur_vhsl_bonus_count += pwce.vhsl_bonus_total_across_periods            
-        vhsl_bonus_fractions = get_fraction_array(pwce.vhsl_bonus_total_across_periods)
+        vhsl_bonus_fractions = get_fraction_array(pwce, pwce.vhsl_bonus_total_across_periods)
         
         pwce.save()
     
@@ -127,8 +130,7 @@ def assign_pwce(pwce_list, packet_count, total_acf_tossup, total_acf_bonus, tota
     get_pwce_from_fractions(acf_bonus_fractions, ACF_STYLE_BONUS, total_acf_bonus - cur_acf_bonus_count)
     get_pwce_from_fractions(vhsl_bonus_fractions, VHSL_BONUS, total_vhsl_bonus - cur_vhsl_bonus_count)    
     
-# TODO: Add tests
-def get_fraction_array(value):
+def get_fraction_array(pwce, value):
     fractions = []
     fraction = round(value - int(value), 4) * 1000
     for i in range(0, (fraction - 1)):
@@ -179,7 +181,6 @@ def is_question_set_complete(qset):
     for cat in all_periods_dict:
         req = all_periods_dict[cat]
         
-        # Actually this isn't going to work, because we haven't assigned at the period category level
         
         
         if (not req.is_requirement_satisfied()):
@@ -254,7 +255,7 @@ def fill_unassigned_questions(qset, author):
                         tossup_text="Placeholder Question for " + str(cat),
                         tossup_answer = "_Placeholder Answer_",
                         author=author,
-                        question_type = get_question_type_from_string(ACF_STYLE_TOSSUP)), 
+                        question_type = get_question_type_from_string(ACF_STYLE_TOSSUP), 
                         location = "",
                         time_period = "",
                         created_date=timezone.now(),
@@ -363,7 +364,6 @@ def randomize_vhsl_bonuses_in_period(qset, period):
     randomize_bonuses_in_period(bonuses)
    
 # TODO: Reduce code duplication
-# TODO: Add tests
 def randomize_bonuses_in_period(bonuses):    
     # This is a naive algorithm that looks for best entropy between categories
     bestQuestionOrder = []

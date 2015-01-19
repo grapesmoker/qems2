@@ -27,6 +27,21 @@ class PacketParserTests(SimpleTestCase):
     acf_bonus = None
     vhsl_bonus = None
     
+    acf_reg_dist = None
+    acf_tb_dist = None
+    acf_qset = None
+    
+    acf_reg_pwe = None
+    acf_tb_pwe = None
+    
+    acf_packets = []
+    acf_reg_periods = []
+    acf_tb_periods = []
+    
+    acf_ces = []
+    acf_reg_cefds = []
+    acf_tb_cefds = []
+    
     #########################################################################
     # Setup and helper methods
     #########################################################################
@@ -45,6 +60,187 @@ class PacketParserTests(SimpleTestCase):
             
         self.writer = Writer.objects.get(user=self.user.id)
         
+    # Creates an entire question set worth of questions using the standard ACF distribution
+    def create_full_acf_question_set(self, packetize=True, create_questions=True):
+        self.acf_reg_dist = Distribution.objects.create(name="ACF Regular Period Distribution", acf_tossup_per_period_count=20, acf_bonus_per_period_count=20, vhsl_bonus_per_period_count=0)
+        self.acf_reg_dist.save()
+
+        self.acf_tb_dist = Distribution.objects.create(name="ACF Tiebreaker Distribution", acf_tossup_per_period_count=3, acf_bonus_per_period_count=0, vhsl_bonus_per_period_count=0)
+        self.acf_tb_dist.save()
+        
+        self.create_user()
+        self.acf_qset = QuestionSet.objects.create(
+            name="ACF Set",
+            date=timezone.now(),
+            host="test host",
+            owner=self.writer,
+            num_packets=5,
+            distribution=self.acf_reg_dist) # TODO: Delete this line eventually, it's obsolete
+        self.acf_qset.save()
+        
+        self.acf_reg_pwe = PeriodWideEntry.objects.create(period_type=ACF_REGULAR_PERIOD, question_set=self.acf_qset, distribution=self.acf_reg_dist)
+        self.acf_reg_pwe.acf_tossup_cur=0
+        self.acf_reg_pwe.acf_bonus_cur=0 
+        self.acf_reg_pwe.vhsl_bonus_cur=0
+        self.acf_reg_pwe.acf_tossup_total=20
+        self.acf_reg_pwe.acf_bonus_total=20
+        self.acf_reg_pwe.vhsl_bonus_total=0
+        self.acf_reg_pwe.save()
+
+        self.acf_tb_pwe = PeriodWideEntry.objects.create(period_type=ACF_TIEBREAKER_PERIOD, question_set=self.acf_qset, distribution=self.acf_tb_dist)
+        self.acf_tb_pwe.acf_tossup_cur=0
+        self.acf_tb_pwe.acf_bonus_cur=0 
+        self.acf_tb_pwe.vhsl_bonus_cur=0
+        self.acf_tb_pwe.acf_tossup_total=3
+        self.acf_tb_pwe.acf_bonus_total=0
+        self.acf_tb_pwe.vhsl_bonus_total=0
+        self.acf_tb_pwe.save()
+        
+        # Create all categories in the regular period distribution
+        category_tuple = []
+        
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=CATEGORY, cefd_fraction=4, cefd_min=8, cefd_max=8, category_name="Literature"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1.5, cefd_min=3, cefd_max=3, category_name="Literature", sub_category_name="American"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1, cefd_min=2, cefd_max=2, category_name="Literature", sub_category_name="British"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1, cefd_min=2, cefd_max=2, category_name="Literature", sub_category_name="European"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.5, cefd_min=1, cefd_max=1, category_name="Literature", sub_category_name="World"))
+                              
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=CATEGORY, cefd_fraction=4, cefd_min=8, cefd_max=8, category_name="History"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1, cefd_min=2, cefd_max=2, category_name="History", sub_category_name="American"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=2, cefd_min=4, cefd_max=4, category_name="History", sub_category_name="European"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1, cefd_min=2, cefd_max=2, category_name="History", sub_category_name="World"))
+                              
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=CATEGORY, cefd_fraction=4, cefd_min=8, cefd_max=8, category_name="Science"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1.5, cefd_min=3, cefd_max=3, category_name="Science", sub_category_name="Biology"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.5, cefd_min=1, cefd_max=1, category_name="Science", sub_category_name="Chemistry"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1, cefd_min=2, cefd_max=2, category_name="Science", sub_category_name="Physics"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1, cefd_min=1, cefd_max=1, category_name="Science", sub_category_name="Other Science"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_SUB_CATEGORY, cefd_fraction=0.2, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Other Science", sub_sub_category_name="Computer Science"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_SUB_CATEGORY, cefd_fraction=0.4, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Other Science", sub_sub_category_name="Math"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_SUB_CATEGORY, cefd_fraction=0.2, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Other Science", sub_sub_category_name="Earth Science"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_SUB_CATEGORY, cefd_fraction=0.2, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Other Science", sub_sub_category_name="Astronomy"))
+
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=CATEGORY, cefd_fraction=3, cefd_min=6, cefd_max=6, category_name="RMP"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.7, cefd_min=1, cefd_max=2, category_name="RMP", sub_category_name="Religion"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1.3, cefd_min=2, cefd_max=3, category_name="RMP", sub_category_name="Mythology"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1, cefd_min=2, cefd_max=2, category_name="RMP", sub_category_name="Philosophy"))
+
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=CATEGORY, cefd_fraction=3, cefd_min=6, cefd_max=6, category_name="Arts"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1, cefd_min=2, cefd_max=2, category_name="Arts", sub_category_name="Painting"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=1, cefd_min=2, cefd_max=2, category_name="Arts", sub_category_name="Music"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.5, cefd_min=1, cefd_max=1, category_name="Arts", sub_category_name="Other Visual Arts"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.5, cefd_min=1, cefd_max=1, category_name="Arts", sub_category_name="Other Audio Arts"))
+
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=CATEGORY, cefd_fraction=1, cefd_min=2, cefd_max=2, category_name="Social Science"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.25, cefd_min=0, cefd_max=1, category_name="Social Science", sub_category_name="Economics"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.5, cefd_min=0, cefd_max=1, category_name="Social Science", sub_category_name="Anthropology"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.05, cefd_min=0, cefd_max=1, category_name="Social Science", sub_category_name="Social Criticism"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.2, cefd_min=0, cefd_max=1, category_name="Social Science", sub_category_name="Psychology"))
+
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=CATEGORY, cefd_fraction=0.5, cefd_min=1, cefd_max=1, category_name="Geography"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.25, cefd_min=0, cefd_max=1, category_name="Geography", sub_category_name="US"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=SUB_CATEGORY, cefd_fraction=0.5, cefd_min=0, cefd_max=1, category_name="Geography", sub_category_name="World"))
+
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_reg_dist, category_type=CATEGORY, cefd_fraction=0.5, cefd_min=1, cefd_max=1, category_name="Trash"))
+
+        for ct in category_tuple:
+            acf_ces.append(ct[0])
+            acf_reg_cefds.append(ct[1])
+        
+        # Create categories for tiebreaker
+                
+        category_tuple = []
+        
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=CATEGORY, cefd_fraction=1, cefd_min=1, cefd_max=1, category_name="Literature"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.3, cefd_min=0, cefd_max=1, category_name="Literature", sub_category_name="American"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.25, cefd_min=0, cefd_max=1, category_name="Literature", sub_category_name="British"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.25, cefd_min=0, cefd_max=1, category_name="Literature", sub_category_name="European"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.2, cefd_min=0, cefd_max=1, category_name="Literature", sub_category_name="World"))
+                              
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=CATEGORY, cefd_fraction=1, cefd_min=1, cefd_max=1, category_name="History"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.25, cefd_min=0, cefd_max=1, category_name="History", sub_category_name="American"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.5, cefd_min=0, cefd_max=1, category_name="History", sub_category_name="European"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.25, cefd_min=0, cefd_max=1, category_name="History", sub_category_name="World"))
+                              
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=CATEGORY, cefd_fraction=1, cefd_min=1, cefd_max=1, category_name="Science"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.35, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Biology"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.15, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Chemistry"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.25, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Physics"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_CATEGORY, cefd_fraction=0.25, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Other Science"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_SUB_CATEGORY, cefd_fraction=0.05, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Other Science", sub_sub_category_name="Computer Science"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_SUB_CATEGORY, cefd_fraction=0.08, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Other Science", sub_sub_category_name="Math"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_SUB_CATEGORY, cefd_fraction=0.05, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Other Science", sub_sub_category_name="Earth Science"))
+        category_tuple.append(self.create_just_ce_and_cefd(dist=self.acf_tb_dist, category_type=SUB_SUB_CATEGORY, cefd_fraction=0.07, cefd_min=0, cefd_max=1, category_name="Science", sub_category_name="Other Science", sub_sub_category_name="Astronomy"))
+
+        for ct in category_tuple:
+            acf_tb_cefds.append(ct[1])
+                        
+        for i in range(1, self.acf_qset.num_packets):
+            packet = Packet.objects.create(packet_name="ACF Packet " + str(i), question_set=self.acf_qset, created_by=self.writer)
+            packet.save()
+            self.acf_packets.append(packet)
+                
+            period = Period.objects.create(
+                name="ACF Regular Period " + str(i), 
+                packet=packet, 
+                period_wide_entry=self.acf_reg_pwe, 
+                acf_tossup_cur=0, 
+                acf_bonus_cur=0, 
+                vhsl_bonus_cur=0)
+            period.save()
+            self.acf_reg_periods.append(period)
+            
+            period = Period.objects.create(
+                name="ACF Tiebreaker Period " + str(i), 
+                packet=packet, 
+                period_wide_entry=self.acf_tb_pwe, 
+                acf_tossup_cur=0, 
+                acf_bonus_cur=0, 
+                vhsl_bonus_cur=0)
+            period.save()
+            self.acf_tb_periods.append(period)
+        
+        # With all of the categories, packets and periods created, set the packet requirements
+        if (packetize):
+            set_packet_requirements(self.acf_qset)
+            if (create_questions):
+                # So we've set the requirements
+                # Go through period wide category entries and just make that many questions
+                for pwe in self.acf_reg_pwe:
+                    for cefd in self.acf_reg_cefds:
+                        pwce = PeriodWideCategoryEntry.objects.get(period_wide_entry=pwe, category_entry_for_distribution=cefd)
+                        
+                        for i in range(1, pwce.acf_tossup_total_across_periods):
+                            tossup = Tossup.objects.create(
+                                author=self.writer, 
+                                question_set=self.acf_qset, 
+                                packet=None, 
+                                question_number=999, 
+                                tossup_text=str(cefd) + " Tossup #" + str(i), 
+                                tossup_answer="_" + str(cefd) + " Tossup #" + str(i) + "_",
+                                created_date=timezone.now(),
+                                last_changed_date=timezone.now(),
+                                question_type=get_question_type_from_string(ACF_STYLE_TOSSUP))
+                            tossup.save_question(QUESTION_CREATE, self.writer)
+                        
+                        for i in range(1, pwce.acf_bonus_total_across_periods):
+                            acf_bonus = Bonus.objects.create(
+                                author=self.writer,
+                                question_set=self.acf_qset,
+                                packet=None,
+                                question_number=999,
+                                leadin=str(cefd) + " Bonus #" + str(i),
+                                part1_text=str(cefd) + " Bonus #" + str(i),
+                                part1_answer="_" + str(cefd) + " Tossup #" + str(i) + "_",
+                                part2_text=str(cefd) + " Bonus #" + str(i),
+                                part2_answer="_" + str(cefd) + " Tossup #" + str(i) + "_",
+                                part3_text=str(cefd) + " Bonus #" + str(i),
+                                part3_answer="_" + str(cefd) + " Tossup #" + str(i) + "_",
+                                created_date=timezone.now(),
+                                last_changed_date=timezone.now(),
+                                question_type=get_question_type_from_string(ACF_STYLE_BONUS))
+                            acf_bonus.save_question(QUESTION_CREATE, self.writer)                            
+              
     def create_generic_distribution(self, per_period_totals=20):
         self.dist = Distribution.objects.create(name="Test Distribution", acf_tossup_per_period_count=per_period_totals, acf_bonus_per_period_count=per_period_totals, vhsl_bonus_per_period_count=per_period_totals)
         self.dist.save()
@@ -250,27 +446,44 @@ class PacketParserTests(SimpleTestCase):
 
     # Creates a CategoryEntry, a CategoryEntryForDistribution, a PeriodWideCategoryEntry and a
     # OnePeriodCategoryEntry that all relate back to the CategoryEntry
-    def create_ce_and_dependencies(self, category_type, cefd_fraction, cefd_min, cefd_max, pwce_cur_value, pwce_total_value, opce_cur_value, category_name, sub_category_name=None, sub_sub_category_name=None):
-        ce = None
-        if (category_type==CATEGORY):
-            ce, created = CategoryEntry.objects.get_or_create(category_name=category_name, category_type=category_type)            
-        elif (category_type==SUB_CATEGORY):
-            ce, created = CategoryEntry.objects.get_or_create(category_name=category_name, sub_category_name=sub_category_name, category_type=category_type)                        
-        else:
-            ce, created = CategoryEntry.objects.get_or_create(category_name=category_name, sub_category_name=sub_category_name, sub_sub_category_name=sub_sub_category_name, category_type=category_type)            
-                    
-        cefd = CategoryEntryForDistribution.objects.create(
-            distribution=self.dist,
-            category_entry=ce, 
-            acf_tossup_fraction=cefd_fraction,
-            acf_bonus_fraction=cefd_fraction,
-            vhsl_bonus_fraction=cefd_fraction,
-            min_total_questions_in_period=cefd_min,
-            max_total_questions_in_period=cefd_max)
-        cefd.save()
+    def create_ce_and_dependencies(
+        self, 
+        category_type, 
+        cefd_fraction, 
+        cefd_min, 
+        cefd_max, 
+        pwce_cur_value, 
+        pwce_total_value, 
+        opce_cur_value, 
+        category_name, 
+        sub_category_name=None, 
+        sub_sub_category_name=None,
+        dist=None,
+        pwe=None,
+        period=None):
+            
+        if (dist is None):
+            dist=self.dist
+            
+        if (pwe is None):
+            pwe=self.pwe
+            
+        if (period is None):
+            period=self.period
+            
+        ce, cefd = create_just_ce_and_cefd(
+            dist=dist,
+            category_type=category_type,
+            cefd_fraction=cefd_fraction,
+            cefd_min=cefd_min,
+            cefd_max=cefd_max,
+            category_name=category_name,
+            sub_category_name=sub_category_name,
+            sub_sub_category_name=sub_sub_category_name)
         
+        # TODO: Maybe put these into a separate method since don't always want to create them at same time as above
         pwce = PeriodWideCategoryEntry.objects.create(
-            period_wide_entry=self.pwe,
+            period_wide_entry=pwe,
             category_entry_for_distribution=cefd,
             acf_tossup_cur_across_periods=pwce_cur_value,
             acf_bonus_cur_across_periods=pwce_cur_value,
@@ -281,7 +494,7 @@ class PacketParserTests(SimpleTestCase):
         pwce.save()
         
         opce = OnePeriodCategoryEntry.objects.create(
-            period=self.period,
+            period=period,
             period_wide_category_entry=pwce,
             acf_tossup_cur_in_period=opce_cur_value,
             acf_bonus_cur_in_period=opce_cur_value,
@@ -290,6 +503,39 @@ class PacketParserTests(SimpleTestCase):
         
         ce_tuple = (ce, cefd, pwce, opce)
         return ce_tuple
+        
+    # Creats a category entry and a category entry for distribution
+    def create_just_ce_and_cefd(
+        self,
+        dist,
+        category_type, 
+        cefd_fraction, 
+        cefd_min, 
+        cefd_max,         
+        category_name, 
+        sub_category_name=None, 
+        sub_sub_category_name=None):
+            
+        ce = None
+        if (category_type==CATEGORY):
+            ce, created = CategoryEntry.objects.get_or_create(category_name=category_name, category_type=category_type)            
+        elif (category_type==SUB_CATEGORY):
+            ce, created = CategoryEntry.objects.get_or_create(category_name=category_name, sub_category_name=sub_category_name, category_type=category_type)                        
+        else:
+            ce, created = CategoryEntry.objects.get_or_create(category_name=category_name, sub_category_name=sub_category_name, sub_sub_category_name=sub_sub_category_name, category_type=category_type)            
+                    
+        cefd = CategoryEntryForDistribution.objects.create(
+            distribution=dist,
+            category_entry=ce, 
+            acf_tossup_fraction=cefd_fraction,
+            acf_bonus_fraction=cefd_fraction,
+            vhsl_bonus_fraction=cefd_fraction,
+            min_total_questions_in_period=cefd_min,
+            max_total_questions_in_period=cefd_max)
+        cefd.save()
+        
+        return ce, cefd
+    
         
     #########################################################################
     # Unit tests that don't depend on the database
@@ -1108,27 +1354,106 @@ class PacketParserTests(SimpleTestCase):
         self.assertEqual(len(children), 1) # subsubcat1
         self.assertEqual(children[0], sub_sub_cats[0][1])
         
-    def test_randomize_bonuses_in_period(self):
-        # How is this going to work?
-        # Just make sure it doesn't crash?
-        # I guess make sure that every bonus is at least assigned a unique number
-        
-        
+    def test_randomize_acf_tossups_in_period(self):
+        # TODO: Need to test get assigned acf tossups in period first
         
         pass
         
+    def test_randomize_bonuses_in_period(self):        
+        self.create_full_acf_question_set()
+        bonuses = self.acf_qset.bonus_set # This is actually more than we'd put into one packet but that's okay
+        randomize_bonuses_in_period(bonuses)
+        bonus_index_set = set()
+        
+        # Make sure two bonuses don't share the same number
+        for bonus in bonuses:
+            self.assertFalse(bonus.question_number in bonus_index_set)
+            bonus_index_set.add(bonus.question_number)
+            
+        # There shouldn't be any numbers missing
+        for i in range(1, len(bonuses)):
+            self.assertTrue(i in bonus_index_set)
+                
     def test_fill_unassigned_questions(self):
+        self.create_generic_period()
+        
+        # Shouldn't have any questions to begin with
+        
+        fill_unassigned_questions(self.qset, self.writer)
+
+        # Now there should be some questions...
+        tossups = Tossup.objects.filter(question_set=self.qset)
+        self.assertEqual(len(tossups), 5) # TODO: This number probably isn't right
+        
+
+        #    def create_generic_period(self, pwe_cur_value=5, pwe_total_value=10, cefd_fraction=5, cefd_min=15, cefd_max=15, period_cur_value=10, pwce_cur_value=10, pwce_total_value=10, opce_cur_value=10):
+        
+        
         # Make sure that the correct number of questions get created
         
         # After doing this, is_question_set_complete should return true
+                
+    def test_get_fraction_array(self):
+        self.create_generic_period()
+                
+        fractions = get_fraction_array(1, self.pwce)
+        self.assertEqual(len(fractions), 0)
+
+        fractions = get_fraction_array(1.101, self.pwce)
+        self.assertEqual(len(fractions), 101)        
+                
+    def test_is_acf_tossup_valid_in_period(self):
+        
+        # TODO: It would probably be helpful to return a message as to why it's not valid
+        # We can probably start with something that is valid
+        
+        # Without adding any existing tossups, it should be valid
+        self.create_generic_period(pwe_cur_value=0, period_cur_value=0, pwce_cur_value=0, opce_cur_value=0)
+        tossup = self.get_acf_tossup()        
+        self.assertTrue(is_acf_tossup_valid_in_period(self.qset, self.period, tossup))
+        
+        # Now set the opce cur value too high for tossups
+        self.opce.acf_tossup_cur_in_period = 100
+        self.assertFalse(is_acf_tossup_valid_in_period(self.qset, self.period, tossup))
+        self.opce.acf_tossup_cur_in_period = 0
+        
+        # Now set the opce cur value too high for another question type
+        self.opce.acf_bonus_cur_in_period = 100
+        self.assertFalse(is_acf_tossup_valid_in_period(self.qset, self.period, tossup))
+        self.opce.acf_bonus_cur_in_period = 0
+        
+        #    def create_generic_period(self, pwe_cur_value=5, pwe_total_value=10, cefd_fraction=5, cefd_min=15, cefd_max=15, period_cur_value=10, pwce_cur_value=10, pwce_total_value=10, opce_cur_value=10):
+
+#        if (c_pwce is not None and c_pwce.acf_tossup_cur_across_periods >= c_pwce.acf_tossup_total_across_periods):
+#            return False
+#                
+#        if (c_opce is not None and c_opce.is_over_min_acf_tossup_limit()):
+#            return False
+#
+#        if (c_opce is not None and c_opce.is_over_min_total_questions_limit()):
+#            return False
+#        
+#        if (sc_pwce is not None and sc_pwce.acf_tossup_cur_across_periods >= sc_pwce.acf_tossup_total_across_periods):
+#            return False
+#            
+#        if (sc_opce is not None and sc_opce.is_over_min_acf_tossup_limit()):
+#            return False
+#
+#        if (sc_opce is not None and sc_opce.is_over_min_total_questions_limit()):
+#            return False
+#
+#        if (ssc_pwce is not None and ssc_pwce.acf_tossup_cur_across_periods >= ssc_pwce.acf_tossup_total_across_periods):
+#            return False
+#            
+#        if (ssc_opce is not None and ssc_opce.is_over_min_acf_tossup_limit()):
+#            return False
+#
+#        if (ssc_opce is not None and ssc_opce.is_over_min_total_questions_limit()):
+#            return False
+        
         
         pass
-        
-    # TODO: Write this
-    # Creates an entire question set worth of questions using the standard ACF distribution
-    def create_full_acf_question_set(self):
-        pass
-        
+                
     # TODO: Write this
     def create_full_vhsl_question_set(self):
         pass

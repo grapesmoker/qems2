@@ -1,4 +1,5 @@
-from models import *
+from qems2.qsub.models import *
+from utils import *
 
 def update_search_data():
     tossups = Tossup.objects.all()

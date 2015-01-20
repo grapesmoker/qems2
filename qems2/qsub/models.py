@@ -171,6 +171,9 @@ class DistributionPerPacket(models.Model):
     subcategory = models.CharField(max_length=10)
     num_tossups = models.PositiveIntegerField()
     num_bonuses = models.PositiveIntegerField()
+    
+    def __str__(self):
+        return str("Distribution total for " + str(self.question_set))     
 
 class Distribution(models.Model):
 
@@ -279,11 +282,16 @@ class PeriodWideEntry (models.Model):
         self.acf_tossup_cur = 0  
         self.acf_bonus_cur = 0
         self.vhsl_bonus_cur = 0
+        self.save()
         
     def reset_total_values(self):
         self.acf_tossup_total = 0
         self.acf_bonus_total = 0
         self.vhsl_bonus_total = 0
+        self.save()
+
+    def __str__(self):
+        return str(self.period_type) + ' for ' + str(self.question_set)
 
 # A period is a part of a packet.  For instance, it might be the regular tossup/bonus
 # part of an mACF set.  It could also be the VHSL bonus round or a tiebreaker period.
@@ -299,7 +307,11 @@ class Period (models.Model):
     def reset_current_values(self):
         self.acf_tossup_cur = 0  
         self.acf_bonus_cur = 0
-        self.vhsl_bonus_cur = 0   
+        self.vhsl_bonus_cur = 0
+        self.save()
+        
+    def __str__(self):
+        return str(self.name) 
 
 # This class tracks the requirements for a particular category across all periods of this type
 # in the set.  For instance, this might track how many History questions have currently been written
@@ -322,11 +334,13 @@ class PeriodWideCategoryEntry(models.Model):
         self.acf_tossup_cur_across_periods = 0
         self.acf_bonus_cur_across_periods = 0
         self.vhsl_bonus_cur_across_periods = 0
+        self.save()
         
     def reset_total_values(self):
         self.acf_tossup_total_across_periods = 0
         self.acf_bonus_total_across_periods = 0
         self.vhsl_bonus_total_across_periods = 0
+        self.save()
         
     def get_category_type(self):
         return self.category_entry_for_distribution.category_entry.category_type
@@ -374,6 +388,7 @@ class OnePeriodCategoryEntry(models.Model):
         self.acf_tossup_cur_in_period = 0
         self.acf_bonus_cur_in_period = 0
         self.vhsl_bonus_cur_in_period = 0
+        self.save()
     
     def __str__(self):
         return 'Period {0!s}'.format(str(self.get_linked_category_entry_for_distribution()))
@@ -443,8 +458,11 @@ class Tossup (models.Model):
     tossup_answer = models.TextField()
     period = models.ForeignKey(Period, null=True)
 
-    category = models.ForeignKey(DistributionEntry, null=True)
+    category = models.ForeignKey(DistributionEntry, null=True) # TODO: Delete this later
     subtype = models.CharField(max_length=500)
+    
+    category_entry = models.ForeignKey(CategoryEntry, null=True)
+    
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)
     question_type = models.ForeignKey(QuestionType, null=True)
@@ -613,11 +631,13 @@ class Bonus(models.Model):
     part3_text = models.TextField(null=True)
     part3_answer = models.TextField(null=True)
 
-    category = models.ForeignKey(DistributionEntry, null=True)
+    category = models.ForeignKey(DistributionEntry, null=True) # TODO: Delete this later
     subtype = models.CharField(max_length=500)
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)
     question_type = models.ForeignKey(QuestionType, null=True)
+
+    category_entry = models.ForeignKey(CategoryEntry, null=True)
 
     question_history = models.ForeignKey(QuestionHistory, null=True)
 

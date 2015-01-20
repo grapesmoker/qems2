@@ -5,6 +5,7 @@ from models import *
 from utils import *
 from django import forms
 from django.utils.translation import ugettext, ugettext_lazy as _
+from django.db.models import Q
 
 class WriterCreationForm(UserCreationForm):
 
@@ -107,7 +108,7 @@ class TossupForm(forms.ModelForm):
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
-                all_writers = qset.writer.all() | qset.editor.all()
+                all_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset))
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)
@@ -189,7 +190,7 @@ class BonusForm(forms.ModelForm):
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
-                all_writers = qset.writer.all() | qset.editor.all()
+                all_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset))
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)

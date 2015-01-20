@@ -108,7 +108,7 @@ class TossupForm(forms.ModelForm):
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
-                all_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset))
+                all_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset)).distinct()
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)
@@ -190,7 +190,7 @@ class BonusForm(forms.ModelForm):
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
-                all_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset))
+                all_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset)).distinct()
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)

@@ -548,7 +548,7 @@ def add_writer(request, qset_id):
 
     if request.method == 'GET':
         if user == qset.owner:
-            set_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset))
+            set_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset)).distinct()
             available_writers = [writer for writer in Writer.objects.all()#exclude(is_active=False)
                                  if writer not in set_writers and
                                     writer is not qset.owner and writer.id != 1]
@@ -579,7 +579,7 @@ def add_writer(request, qset_id):
                     writer = Writer.objects.get(id=writer_id)
                     qset.writer.add(writer)
                 qset.save()
-                set_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset))
+                set_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset)).distinct()
                 available_writers = [writer for writer in Writer.objects.all()#exclude(is_active=False)
                                      if writer not in set_writers and
                                         writer is not qset.owner and writer.id != 1]
@@ -2643,7 +2643,7 @@ def tossup_history(request, tossup_id):
                 message_class = 'alert-box alert'
                 tossup = None
             else:
-                q_set_writers = Writer.objects.filter(Q(question_set_writer=q_set) | Q(question_set_editor=q_set))
+                q_set_writers = Writer.objects.filter(Q(question_set_writer=q_set) | Q(question_set_editor=q_set)).distinct()
                 if (user in q_set_writers):
                     tossup_histories, bonus_histories = tossup.get_question_history()
                     tossup_histories = tossup_histories.order_by('-id')
@@ -2693,7 +2693,7 @@ def bonus_history(request, bonus_id):
                 message_class = 'alert-box alert'
                 bonus = None
             else:
-                q_set_writers = Writer.objects.filter(Q(question_set_writer=q_set) | Q(question_set_editor=q_set))
+                q_set_writers = Writer.objects.filter(Q(question_set_writer=q_set) | Q(question_set_editor=q_set)).distinct()
                 print q_set_writers
                 print user
                 if (user in q_set_writers):
@@ -3055,7 +3055,7 @@ def bulk_change_set(request, qset_id):
                                               'message_class': message_class},
                                              context_instance=RequestContext(request))
                 elif (operation == 'author'):
-                    writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset))
+                    writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset)).distinct()
 
                     return render_to_response('bulk_change_author.html',
                                              {'user': user,

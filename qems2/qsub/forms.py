@@ -93,6 +93,7 @@ class TossupForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
         packet_id = kwargs.pop('packet_id', None)
+        period_id = kwargs.pop('period_id', None)
         role = kwargs.pop('role', None)
         writer = kwargs.pop('writer', None)
 
@@ -123,8 +124,16 @@ class TossupForm(forms.ModelForm):
                 else:
                     pack_label = 'None'
                     packets = qset.packet_set.all()
+                                
+                periods = Period.objects.filter(period_wide_entry__question_set=qset)                
+                if period_id is not None:
+                    period_label = None                    
+                else:
+                    period_label = 'None'
+                    
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
                 self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)
+                self.fields['period'] = forms.ModelChoiceField(queryset=periods, required=False, empty_label=period_label)
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'
                 self.fields['category'] = forms.ModelChoiceField([], empty_label=None)
@@ -158,7 +167,7 @@ class BonusForm(forms.ModelForm):
     editor = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     edited_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
     last_changed_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
-    created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)    
+    created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)        
 
     class Meta:
         model = Bonus
@@ -167,6 +176,7 @@ class BonusForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
         packet_id = kwargs.pop('packet_id', None)
+        period_id = kwargs.pop('period_id', None)
         role = kwargs.pop('role', None)
         writer = kwargs.pop('writer', None)
         question_type = kwargs.pop('question_type', None)
@@ -196,8 +206,16 @@ class BonusForm(forms.ModelForm):
                 else:
                     pack_label = 'None'
                     packets = qset.packet_set.all()
+                    
+                periods = Period.objects.filter(period_wide_entry__question_set=qset)                
+                if period_id is not None:
+                    period_label = None                    
+                else:
+                    period_label = 'None'
+                    
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
                 self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)
+                self.fields['period'] = forms.ModelChoiceField(queryset=periods, required=False, empty_label=period_label)
 
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'

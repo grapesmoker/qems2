@@ -2312,10 +2312,6 @@ def move_tossup(request, q_set_id, tossup_id):
                     tossup.question_set = dest_qset
                     tossup.packet = None
 
-                    # It's not guaranteed that these categories exist, so clear them
-                    tossup.category = None
-                    tossup.subtype = ''
-
                     tossup.save()
                     message = "Successfully moved tossup to " + str(dest_qset)
                     message_class = 'alert-box success'
@@ -2433,10 +2429,6 @@ def move_bonus(request, q_set_id, bonus_id):
                 if (bonus is not None and dest_qset is not None):
                     bonus.question_set = dest_qset
                     bonus.packet = None
-
-                    # It's not guaranteed that these categories exist, so clear them
-                    bonus.category = None
-                    bonus.subtype = ''
 
                     bonus.save()
                     return render_to_response('move_bonus_success.html',

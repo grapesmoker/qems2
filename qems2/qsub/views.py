@@ -238,13 +238,15 @@ def edit_question_set(request, qset_id):
             for entry in sorted(entries):
                 tu_required = entry.num_tossups
                 bs_required = entry.num_bonuses
-                #TODO: really fix extra questions increasing set completion; this is temporary
-                tu_written = min(qset.tossup_set.filter(category=entry.dist_entry).count(), tu_required)
-                bs_written = min(qset.bonus_set.filter(category=entry.dist_entry).count(), bs_required)
+                # TODO: really fix extra questions increasing set completion; this is temporary
+                tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
+                bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+                tu_written_for_total = min(tu_written, tu_required)
+                bs_written_for_total = min(bs_written, bs_required)
                 total_tu_req += tu_required
                 total_bs_req += bs_required
-                total_bs_written += bs_written
-                total_tu_written += tu_written
+                total_bs_written += bs_written_for_total
+                total_tu_written += tu_written_for_total
 
                 set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
                                                      'tu_in_cat': tu_written,
@@ -320,12 +322,15 @@ def edit_question_set(request, qset_id):
         for entry in entries:
             tu_required = entry.num_tossups
             bs_required = entry.num_bonuses
+            # TODO: really fix extra questions increasing set completion; this is temporary
             tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
             bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+            tu_written_for_total = min(tu_written, tu_required)
+            bs_written_for_total = min(bs_written, bs_required)
             total_tu_req += tu_required
             total_bs_req += bs_required
-            total_bs_written += bs_written
-            total_tu_written += tu_written
+            total_bs_written += bs_written_for_total
+            total_tu_written += tu_written_for_total
             set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
                                                      'tu_in_cat': tu_written,
                                                      'bs_req': bs_required,

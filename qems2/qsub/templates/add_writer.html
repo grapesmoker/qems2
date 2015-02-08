@@ -24,7 +24,7 @@
                 <tbody>
                 {% for writer in available_writers %}
                 <tr>
-                    <td>{{ writer }}</td>
+                    <td>{{ writer|verbose_username }}</td>
                     <td><input type="checkbox" value="{{ writer.id }}" name="writers_to_add"></td>
                 </tr>
                 {% endfor %}

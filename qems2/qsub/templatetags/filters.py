@@ -210,5 +210,9 @@ def bonus_last_comment_date(bonus):
     else:
         return ''
 
+@register.filter(name='verbose_username')
+def verbose_username(writer):
+    return str(writer) + " - " + writer.user.email
+
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

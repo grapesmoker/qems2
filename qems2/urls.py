@@ -3,6 +3,7 @@ from django.contrib.auth.views import logout, login, password_change, password_c
 from django.views.generic import ListView
 from qsub.views import *
 from qsub.models import *
+from registration.backends.default.views import RegistrationView
 
 import django
 
@@ -22,7 +23,10 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     (r'^main/$', main),
     (r'^$', main),
-    (r'^accounts/', include('registration.backends.default.urls')),
+    url(r'^accounts/register/$',
+        RegistrationView.as_view(form_class=RegistrationFormWithName),
+        name='registration_register'),        
+    (r'^accounts/', include('registration.backends.default.urls')),         
     #(r'^register/$', register),
     #(r'^accounts/login/$', django.contrib.auth.views.login),
     #(r'^accounts/logout/$', django.contrib.auth.views.logout),

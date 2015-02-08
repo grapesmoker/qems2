@@ -155,11 +155,13 @@ LOGIN_REDIRECT_URL='/main/'
 ACCOUNT_ACTIVATION_DAYS = 3
 REGISTRATION_AUTO_LOGIN = True
 REGISTRATION_OPEN = True
+# EMAIL_BACKEND = 'qems2.qsub.gmailapi.EmailBackend'
+DEFAULT_FROM_EMAIL = 'QEMS <support@hsapq.com>'
 EMAIL_USE_SSL = True
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp-relay.gmail.com'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = '{username}'
-EMAIL_HOST_PASSWORD = '{password}'
+# EMAIL_HOST_USER = '{username}'
+# EMAIL_HOST_PASSWORD = '{password}'
 # You'll need to allow access for less secure apps to test.
 # https://www.google.com/settings/security/lesssecureapps
 

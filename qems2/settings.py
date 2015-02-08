@@ -4,7 +4,7 @@ import os
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-ALLOWED_HOSTS = ['.grapesmoker.net']
+ALLOWED_HOSTS = ['.grapesmoker.net','localhost']
 
 ADMINS = (
     # ('Your Name', 'your_email@example.com'),
@@ -15,7 +15,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'qems2',                      # Or path to database file if using sqlite3.
+        'NAME': 'qems2_stable',                      # Or path to database file if using sqlite3.
         'USER': 'django',                      # Not used with sqlite3.
         'PASSWORD': 'django',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -155,11 +155,13 @@ LOGIN_REDIRECT_URL='/main/'
 ACCOUNT_ACTIVATION_DAYS = 3
 REGISTRATION_AUTO_LOGIN = True
 REGISTRATION_OPEN = True
+# EMAIL_BACKEND = 'qems2.qsub.gmailapi.EmailBackend'
+DEFAULT_FROM_EMAIL = 'QEMS <support@hsapq.com>'
 EMAIL_USE_SSL = True
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = 'smtp-relay.gmail.com'
 EMAIL_PORT = 465
-EMAIL_HOST_USER = '{username}'
-EMAIL_HOST_PASSWORD = '{password}'
+# EMAIL_HOST_USER = '{username}'
+# EMAIL_HOST_PASSWORD = '{password}'
 # You'll need to allow access for less secure apps to test.
 # https://www.google.com/settings/security/lesssecureapps
 

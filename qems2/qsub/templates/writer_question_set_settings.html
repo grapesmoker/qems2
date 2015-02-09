@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% load static %}
+{% load comments %}
+{% load filters %}
+
+{% block title %}Edit your question set settings - QEMS2{% endblock %}
+
+{% block content %}
+
+<h3 class="page-header">Edit Your Settings for {{ qset }}</h3>
+
+{% if message %}
+    <div class="{{ message_class }}">
+        {{ message }}
+    </div>
+{% endif %}
+
+{% for dict in formset.errors %}
+    {% for error in dict.values %}
+        {{ error }}
+    {% endfor %}
+{% endfor %}
+
+<form action="" method="post">
+    {% csrf_token %}
+    <div class="row collapse">
+        <div class="small-3 columns">
+            <p>Email on all new comments: {{ form.email_on_all_new_comments }}</p>
+            <p>Email on all new questions: {{ form.email_on_all_new_questions }}</p>
+        </div>
+        <div class="small-9 columns">
+            {{ form.name }}
+        </div>
+        {% if form.name.errors %}
+            {{ form.name.errors }}
+        {% endif %}
+    </div>
+    <table class="table-striped table-hover" id="distribution-table">
+        <thead>
+        <th>Category</th>
+        <th>Email on New Comments</th>
+        <th>Email on New Questions</th>
+        </thead>
+        <tbody>
+        {% for form in formset %}
+        <tr>
+            {{ form.entry_id }}
+            <td>{{ form.distribution_entry_string }}</td>
+            <td>{{ form.email_on_new_comments }}</td>
+            <td>{{ form.email_on_new_questions }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {{ formset.management_form }}
+    
+    <input class="button primary right" type="submit" value="Update" />
+</form>
+
+{% include "dialog.html" %}
+
+{% endblock %}

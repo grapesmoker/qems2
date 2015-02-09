@@ -3280,6 +3280,97 @@ def bulk_move_question(request, qset_id):
                                   'message_class': message_class},
                                  context_instance=RequestContext(request))
 
+@login_required
+def writer_question_set_settings(request, qset_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+
+    message = ''
+    message_class = ''
+
+    role = get_role_no_owner(user, qset)
+    if (role == 'none'):
+        return render_to_response('failure.html',
+            {'message': 'You do not have permissions to this set',
+             'message_class': 'alert-box alert'},
+            context_instance=RequestContext(request))
+    
+    # Create the settings if it doesn't exist
+    settings = None
+    try:
+        settings = WriterQuestionSetSettings.objects.get(question_set=qset, writer=user)        
+    except:
+        settings = WriterQuestionSetSettings(writer=user, question_set=qset)
+        settings.save()
+        settings.create_per_category_writer_settings()
+        
+    if request.method == 'POST':
+        form = WriterQuestionSetSettingsForm(request.POST)
+
+        PerCategoryWriterSettingsFormset = formset_factory(PerCategoryWriterSettingsForm, can_delete=False, extra=0)
+        formset = PerCategoryWriterSettingsFormset(data=request.POST)
+
+        if (form.is_valid() and formset.is_valid()):
+            settings.email_on_all_new_comments = form.cleaned_data['email_on_all_new_comments']
+            settings.email_on_all_new_questions = form.cleaned_data['email_on_all_new_questions']
+            settings.save()
+            
+            for per_category_form in formset.forms:
+                entry_id = int(per_category_form.cleaned_data['entry_id'])
+                email_on_new_questions = bool(per_category_form.cleaned_data['email_on_new_questions'])
+                email_on_new_comments = bool(per_category_form.cleaned_data['email_on_new_comments'])
+
+                entry = PerCategoryWriterSettings.objects.get(id=entry_id)
+                entry.email_on_new_questions = email_on_new_questions
+                entry.email_on_new_comments = email_on_new_comments
+                entry.save()
+
+            message = 'Your settings have been updated.'
+            message_class = 'alert-box success'
+
+            return render_to_response('writer_question_set_settings.html',
+                     {'form': form,
+                     'formset': formset,
+                     'message': message,
+                     'message_class': message_class,
+                     'user': user,
+                     'qset': qset},
+                     context_instance=RequestContext(request))
+            
+        else:
+            message = 'There was an error saving your settings.'
+            message_class = 'alert-box warning'
+            return render_to_response('writer_question_set_settings.html',
+                     {'form': form,
+                     'formset': formset,
+                     'message': message,
+                     'message_class': message_class,
+                     'user': user,
+                     'qset': qset},
+                     context_instance=RequestContext(request))
+        
+    elif request.method == 'GET':
+        entries = settings.percategorywritersettings_set.all()
+        initial_data = []
+        for entry in entries:
+            initial_data.append({
+                'entry_id': entry.id,
+                'distribution_entry_string': str(entry.distribution_entry),
+                'email_on_new_questions': entry.email_on_new_questions,
+                'email_on_new_comments': entry.email_on_new_comments})
+                
+        form = WriterQuestionSetSettingsForm(instance=settings)
+        PerCategoryWriterSettingsFormset = formset_factory(PerCategoryWriterSettingsForm, can_delete=False, extra=0)
+        formset = PerCategoryWriterSettingsFormset(initial=initial_data)
+                
+        return render_to_response('writer_question_set_settings.html',
+                                 {'form': form,
+                                  'formset': formset,
+                                  'message': message,
+                                  'message_class': message_class,
+                                  'user': user,
+                                  'qset': qset},
+                                  context_instance=RequestContext(request))
 
 # @login_required
 # def password(request):

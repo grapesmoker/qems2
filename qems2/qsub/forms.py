@@ -20,7 +20,28 @@ class RegistrationFormWithName(RegistrationForm):
         if (len(email_list) != 0):
             print "dupe: " + str(len(email_list))
             self.add_error('email', ValidationError(_('Duplicate e-mail: %(value)s'), params={'value': email},))
+
+class WriterQuestionSetSettingsForm(forms.ModelForm):
     
+    class Meta:
+        model = WriterQuestionSetSettings
+        exclude = ['question_set', 'writer']
+
+    def __init__(self, *args, **kwargs):
+        super(WriterQuestionSetSettingsForm, self).__init__(*args, **kwargs)
+        self.fields['email_on_all_new_comments'] = forms.BooleanField(required=False)
+        self.fields['email_on_all_new_questions'] = forms.BooleanField(required=False)
+    
+class PerCategoryWriterSettingsForm(forms.Form):
+    email_on_new_comments = forms.BooleanField(required=False)
+    email_on_new_questions = forms.BooleanField(required=False)
+    distribution_entry_string = forms.CharField(max_length=200)
+    entry_id = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'display: none'}))
+
+    def __init__(self, *args, **kwargs):
+        super(PerCategoryWriterSettingsForm, self).__init__(*args, **kwargs)
+        self.fields['distribution_entry_string'].widget.attrs.update({'readonly': 'readonly'})
+        
 class WriterCreationForm(UserCreationForm):
 
     class Meta:

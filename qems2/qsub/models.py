@@ -909,6 +909,25 @@ class Tag(models.Model):
 
     pass
 
+class WriterQuestionSetSettings(models.Model):
+    writer = models.ForeignKey(Writer)
+    question_set = models.ForeignKey(QuestionSet)
+    email_on_all_new_comments = models.BooleanField(default=False)
+    email_on_all_new_questions = models.BooleanField(default=False)
+    
+    # Creates new per category writer settings for this object
+    def create_per_category_writer_settings(self):
+        print "self id: " + str(self.id)
+        for de in self.question_set.distribution.distributionentry_set.all():
+            pcws = PerCategoryWriterSettings(writer_question_set_settings=self, distribution_entry=de)
+            pcws.save()
+            
+class PerCategoryWriterSettings(models.Model):
+    writer_question_set_settings = models.ForeignKey(WriterQuestionSetSettings)
+    distribution_entry = models.ForeignKey(DistributionEntry)
+    email_on_new_questions = models.BooleanField(default=False)
+    email_on_new_comments = models.BooleanField(default=False)
+
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Writer.objects.create(user=instance)

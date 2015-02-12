@@ -7,6 +7,7 @@ from django_comments.models import Comment
 from django.contrib.sites.models import get_current_site
 from sets import Set
 from django.core.mail import send_mail
+from django.db.models import Q
 
 @receiver(post_save)
 def email_on_comments(sender, instance, created, raw, using, update_fields, **kwargs):
@@ -27,14 +28,28 @@ def email_on_comments(sender, instance, created, raw, using, update_fields, **kw
                     comment_writer = comment.user.writer
                     if (comment_writer.send_mail_on_comments):
                         mail_set.add(comment.user.email)
-            
+                
+                # Figure out if someone has signed up to receive all comment notifications
+                # TODO: Probably add some error handling since these settings don't exist for everyone
+                # TODO: Add a script to fix the above thing
+                all_writers = Writer.objects.filter(Q(question_set_writer=target.question_set) | Q(question_set_editor=target.question_set)).distinct().order_by('user__last_name', 'user__first_name', 'user__username')
+                for writer in all_writers:
+                    set_settings = WriterQuestionSetSettings.objects.get(writer=writer, question_set=target.question_set)
+                    if (set_settings.email_on_all_new_comments):
+                        mail_set.add(writer.user.email)
+                        
+                    # Figure out if they've signed up for this category
+                    category_settings = PerCategoryWriterSettings.objects.get(writer_question_set_settings=set_settings, distribution_entry=target.category)
+                    if (category_settings.email_on_new_comments):
+                        mail_set.add(writer.user.email)
+                
                 # Since you don't want to get an e-mail if you made your own comment, delete yoursel from the set
                 if (instance.user.email in mail_set):
                     mail_set.remove(instance.user.email)
                 
                 if (len(mail_set) > 0):
-                    subject = "New QEMS2 comment for " + str(target)
                     qset = str(target.question_set)
+                    subject = "New QEMS2 comment for " + str(target) + " in set " + qset
                     if (type(target) is Tossup):
                         url = ''.join(['http://', get_current_site(None).domain, '/edit_tossup/', str(target.id)])
                         
@@ -51,7 +66,52 @@ def email_on_comments(sender, instance, created, raw, using, update_fields, **kw
                     send_mail(subject, body, "QEMS2", mail_set)
     except:
         print "Error sending mail for comments"
-                    
+
+@receiver(post_save)
+def email_on_new_questions(sender, instance, created, raw, using, update_fields, **kwargs):
+    try:
+        # Only care about new questions
+        if (created):
+            if (type(instance) is Tossup or type(instance) is Bonus):        
+                print "New tossup or bonus.  Checking for who to send e-mails to."
+                
+                # Go through each person in this set and see their options
+                all_writers = Writer.objects.filter(Q(question_set_writer=instance.question_set) | Q(question_set_editor=instance.question_set)).distinct().order_by('user__last_name', 'user__first_name', 'user__username')
+                email_list = []
+                for writer in all_writers:
+                    try:
+                        if (writer != instance.author):
+                            set_settings = WriterQuestionSetSettings.objects.get(writer=writer, question_set=instance.question_set)
+                            if (set_settings.email_on_all_new_questions):
+                                print "Matched all"
+                                email_list.append(writer.user.email)
+                            else:
+                                category_settings = PerCategoryWriterSettings.objects.get(writer_question_set_settings=set_settings, distribution_entry=instance.category)
+                                if (category_settings.email_on_new_questions):
+                                    print "Matched on category: " + str(category_settings.distribution_entry)
+                                    email_list.append(writer.user.email)
+                    except:
+                        print "Error getting settings for writer: " + str(writer)
+                
+                if (len(email_list) > 0):
+                    qset = str(instance.question_set)
+                    subject = "New QEMS2 question for " + str(instance) + " in set " + qset
+                    if (type(instance) is Tossup):
+                        url = ''.join(['http://', get_current_site(None).domain, '/edit_tossup/', str(instance.id)])
+                        
+                    else:
+                        url = ''.join(['http://', get_current_site(None).domain, '/edit_bonus/', str(instance.id)])
+                        
+                    body = '{0!s} has written a new question on for the set {1!s}:\n\n{2!s}\n\nView the question at {3!s}.\n\nTo opt out of these e-mails, change the settings in your profile.'.format(
+                        str(instance.author),
+                        qset,
+                        instance.to_plain_text(),
+                        url)
+                        
+                    send_mail(subject, body, "QEMS2", email_list)            
+    except:
+        print "Error sending mail for new question"
+
 # Called when a user is created, saves first and last name info
 @receiver(user_registered)
 def user_created(sender, user, request, **kwargs):

@@ -475,6 +475,15 @@ class Tossup (models.Model):
 
         return r'\tossup{{{0}}}{{{1}}}'.format(tossup_text, tossup_answer) + '\n'
 
+    def to_plain_text(self, include_category=False, include_character_count=False):
+        output = self.tossup_text + "\nANSWER: " + self.tossup_answer + "\n"
+        if (include_category and self.category is not None):
+            output = output + str(self.category) + "\n"
+        if (include_character_count):
+            output = output + str(self.character_count()) + "\n"
+        
+        return output
+
     def to_html(self, include_category=False, include_character_count=False):
 
         output = ''
@@ -680,6 +689,31 @@ class Bonus(models.Model):
             return get_formatted_question_html(self.leadin, False, True, False)
         elif (self.get_bonus_type() == VHSL_BONUS):
             return get_formatted_question_html(self.part1_text, False, True, False)
+        return output
+
+    def to_plain_text(self, include_category=False, include_character_count=False):
+        output = ''
+
+        if (self.get_bonus_type() == ACF_STYLE_BONUS):
+            output = output + self.leadin + "\n"
+            output = output + "[10] " + self.part1_text + "\n"
+            output = output + "ANSWER: " + self.part1_answer + "\n"
+            output = output + "[10] " + self.part2_text + "\n"
+            output = output + "ANSWER: " + self.part2_answer + "\n"
+            output = output + "[10] " + self.part3_text + "\n"
+            output = output + "ANSWER: " + self.part3_answer + "\n"
+            if (include_category and self.category is not None):
+                output = output + str(self.category) + "\n"
+            if (include_character_count):
+                output = output + str(self.character_count()) + "\n"
+        elif (self.get_bonus_type() == VHSL_BONUS):
+            output = output + "[10] " + self.part1_text + "\n"
+            output = output + "ANSWER: " + self.part1_answer + "\n"
+            if (include_category and self.category is not None):
+                output = output + str(self.category) + "\n"
+            if (include_character_count):
+                output = output + str(self.character_count()) + "\n"
+        
         return output
 
     def to_html(self, include_category=False, include_character_count=False):

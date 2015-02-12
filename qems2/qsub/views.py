@@ -2090,10 +2090,10 @@ def complete_upload(request):
 
         messages.success(request, 'Your questions have been uploaded.', extra_tags='alert-box success')
         for tossup in new_tossups:
-            messages.success(request, 'View your tossup on <a href="/edit_tossup/{0}">{1}.</a>'.format(tossup.id, get_answer_no_formatting(tossup.tossup_answer)), extra_tags='safe alert-box info')
+            messages.success(request, u'View your tossup on <a href="/edit_tossup/{0}">{1}.</a>'.format(tossup.id, get_answer_no_formatting(tossup.tossup_answer)), extra_tags='safe alert-box info')
 
         for bonus in new_bonuses:
-            messages.success(request, 'View your bonus on <a href="/edit_bonus/{0}">{1}.</a>'.format(bonus.id, get_answer_no_formatting(bonus.part1_answer)), extra_tags='safe alert-box info')
+            messages.success(request, u'View your bonus on <a href="/edit_bonus/{0}">{1}.</a>'.format(bonus.id, get_answer_no_formatting(bonus.part1_answer)), extra_tags='safe alert-box info')
 
         return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
 

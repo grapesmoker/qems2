@@ -136,6 +136,7 @@ class QuestionSet (models.Model):
     max_acf_tossup_length = models.PositiveIntegerField(default=750)
     max_acf_bonus_length = models.PositiveIntegerField(default=400)
     max_vhsl_bonus_length = models.PositiveIntegerField(default=100)
+    char_count_ignores_pronunciation_guides = models.BooleanField(default=True)
 
     class Admin: pass
 
@@ -436,7 +437,7 @@ class Tossup (models.Model):
 
     # Calculates character count, ignoring special characters
     def character_count(self):
-        return get_character_count(self.tossup_text)
+        return get_character_count(self.tossup_text, self.question_set.char_count_ignores_pronunciation_guides)
 
     def save(self, *args, **kwargs):
         self.setup_search_fields()
@@ -621,10 +622,10 @@ class Bonus(models.Model):
 
     # Calculates character count, ignoring special characters
     def character_count(self):
-        leadin_count = get_character_count(self.leadin)
-        part1_count = get_character_count(self.part1_text)
-        part2_count = get_character_count(self.part2_text)
-        part3_count = get_character_count(self.part3_text)
+        leadin_count = get_character_count(self.leadin, self.question_set.char_count_ignores_pronunciation_guides)
+        part1_count = get_character_count(self.part1_text, self.question_set.char_count_ignores_pronunciation_guides)
+        part2_count = get_character_count(self.part2_text, self.question_set.char_count_ignores_pronunciation_guides)
+        part3_count = get_character_count(self.part3_text, self.question_set.char_count_ignores_pronunciation_guides)
         return leadin_count + part1_count + part2_count + part3_count
 
     def save(self, *args, **kwargs):

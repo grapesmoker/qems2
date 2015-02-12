@@ -224,6 +224,10 @@ def edit_question_set(request, qset_id):
             qset.date = form.cleaned_data['date']
             qset.distribution = form.cleaned_data['distribution']
             qset.num_packets = form.cleaned_data['num_packets']
+            qset.char_count_ignores_pronunciation_guides = form.cleaned_data['char_count_ignores_pronunciation_guides']
+            qset.max_acf_tossup_length = form.cleaned_data['max_acf_tossup_length']
+            qset.max_acf_bonus_length = form.cleaned_data['max_acf_bonus_length']
+            qset.max_vhsl_bonus_length = form.cleaned_data['max_vhsl_bonus_length']
             qset.save()
 
             if user == qset.owner:

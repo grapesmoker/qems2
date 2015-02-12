@@ -144,18 +144,21 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
 
     return output
 
-def get_character_count(line):
+def get_character_count(line, ignore_pronunciation):
     count = 0
     parensFlag = False # Parentheses indicate pronunciation guide
     for c in line:
-        if (parensFlag):
-            if (c == ")"):
-                parensFlag = False
+        if (not ignore_pronunciation):
+            count = count + 1
         else:
-            if (c == "("):
-                parensFlag = True
-            elif (c != "~"):
-                count = count + 1 # Only count non-special chars not in pronunciation guide
+            if (parensFlag):
+                if (c == ")"):
+                    parensFlag = False
+            else:
+                if (c == "("):
+                    parensFlag = True
+                elif (c != "~"):
+                    count = count + 1 # Only count non-special chars not in pronunciation guide
 
     return count
 

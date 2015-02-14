@@ -1,9 +1,20 @@
-{% extends "base-login.html" %}
+{% extends "base.html" %}
 
-{% block title %}Activation Complete - QEMS2{% endblock %}
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block title %}Account Activation Complete - QEMS2{% endblock %}
 
 {% block content %}
+<div class="container">
+  <h1>Success!</h1>
+  <p class="lead">Account successfully activated!</p>
+  <p>You can now sign in to QEMS2.</p>
 
-<h4>Your account is now activated.</h4>
-
+  <p><a href="{% url 'django.contrib.auth.views.login' %}"
+        class="btn btn-success"
+        role="button">Sign in</a>
+  </p>
+</div>
 {% endblock %}

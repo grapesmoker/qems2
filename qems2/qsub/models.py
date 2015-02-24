@@ -439,7 +439,7 @@ class Tossup (models.Model):
     def character_count(self):
         char_count_ignores_pronunciation_guides = True
         if (self.get_question_set() is not None):
-            char_count_ignores_pronunciation_guides = self.char_count_ignores_pronunciation_guides        
+            char_count_ignores_pronunciation_guides = self.question_set.char_count_ignores_pronunciation_guides        
         
         return get_character_count(self.tossup_text, char_count_ignores_pronunciation_guides)
 
@@ -628,7 +628,7 @@ class Bonus(models.Model):
     def character_count(self):
         char_count_ignores_pronunciation_guides = True
         if (self.get_question_set() is not None):
-            char_count_ignores_pronunciation_guides = self.char_count_ignores_pronunciation_guides
+            char_count_ignores_pronunciation_guides = self.question_set.char_count_ignores_pronunciation_guides  
         
         leadin_count = get_character_count(self.leadin, char_count_ignores_pronunciation_guides)
         part1_count = get_character_count(self.part1_text, char_count_ignores_pronunciation_guides)

@@ -437,7 +437,11 @@ class Tossup (models.Model):
 
     # Calculates character count, ignoring special characters
     def character_count(self):
-        return get_character_count(self.tossup_text, self.question_set.char_count_ignores_pronunciation_guides)
+        char_count_ignores_pronunciation_guides = True
+        if (self.get_question_set() is not None):
+            char_count_ignores_pronunciation_guides = self.char_count_ignores_pronunciation_guides        
+        
+        return get_character_count(self.tossup_text, char_count_ignores_pronunciation_guides)
 
     def save(self, *args, **kwargs):
         self.setup_search_fields()
@@ -622,10 +626,14 @@ class Bonus(models.Model):
 
     # Calculates character count, ignoring special characters
     def character_count(self):
-        leadin_count = get_character_count(self.leadin, self.question_set.char_count_ignores_pronunciation_guides)
-        part1_count = get_character_count(self.part1_text, self.question_set.char_count_ignores_pronunciation_guides)
-        part2_count = get_character_count(self.part2_text, self.question_set.char_count_ignores_pronunciation_guides)
-        part3_count = get_character_count(self.part3_text, self.question_set.char_count_ignores_pronunciation_guides)
+        char_count_ignores_pronunciation_guides = True
+        if (self.get_question_set() is not None):
+            char_count_ignores_pronunciation_guides = self.char_count_ignores_pronunciation_guides
+        
+        leadin_count = get_character_count(self.leadin, char_count_ignores_pronunciation_guides)
+        part1_count = get_character_count(self.part1_text, char_count_ignores_pronunciation_guides)
+        part2_count = get_character_count(self.part2_text, char_count_ignores_pronunciation_guides)
+        part3_count = get_character_count(self.part3_text, char_count_ignores_pronunciation_guides)
         return leadin_count + part1_count + part2_count + part3_count
 
     def save(self, *args, **kwargs):

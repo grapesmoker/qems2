@@ -551,7 +551,6 @@ class Tossup (models.Model):
         return tossups, bonuses
 
     def save_question(self, edit_type, changer):
-        print "Changer: " + str(changer)
 
         if (self.question_history is None):
             qh = QuestionHistory()
@@ -563,8 +562,6 @@ class Tossup (models.Model):
         if (edit_type == QUESTION_EDIT):
             self.editor = changer
             self.edited_date = timezone.now()
-
-        print "Question History: " + str(self.question_history)
 
         tossup_history = TossupHistory()
         tossup_history.tossup_text = self.tossup_text
@@ -887,9 +884,6 @@ class Bonus(models.Model):
         bonus_history.change_date = timezone.now()
         bonus_history.save()
         self.save()
-
-        print "bonus_history question_history: " + str(bonus_history.question_history.id)
-        print "self.question_history: " + str(self.question_history.id)
 
 class TossupHistory(models.Model):
     tossup_text = models.TextField()

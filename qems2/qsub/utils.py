@@ -212,18 +212,18 @@ def strip_special_chars(line):
 
 def get_bonus_type_from_question_type(question_type):
     if (question_type is None or str(question_type) == ''):
-        print "bonus type none"
+        # print "bonus type none"
         return ACF_STYLE_BONUS
     elif (str(question_type) == VHSL_BONUS):
-        print "vhsl"
+        # print "vhsl"
         return VHSL_BONUS
     else:
-        print "acf"
+        # print "acf"
         return ACF_STYLE_BONUS
 
 def get_tossup_type_from_question_type(question_type):
     if (question_type is None or str(question_type) == ''):
-        print "tossup type none"
+        # print "tossup type none"
         return ACF_STYLE_TOSSUP
     else:
         return ACF_STYLE_TOSSUP

@@ -88,14 +88,14 @@ def parse_packet_data(data):
                 # know that this is a VHSL bonus
                 vhsl_bonus_flag = True
 
-        print this_line
-        print tossup_flag, bonus_flag, vhsl_bonus_flag
+        # print this_line
+        # print tossup_flag, bonus_flag, vhsl_bonus_flag
 
         # if there are two items on the stack and the second one is an ANSWER:
         # pop the stack and create a tossup
         if (len(question_stack) == 2 or i == len(data) - 1) and tossup_flag:
             if (len(question_stack) < 2):
-                print "Tossups required both a question and answer, but only one item found on stack."
+                # print "Tossups required both a question and answer, but only one item found on stack."
                 tossup = Tossup('', question_stack.pop(), i, '')
                 tossup_errors.append(tossup)
             else:
@@ -111,7 +111,7 @@ def parse_packet_data(data):
                     tossup.is_valid()
                     tossups.append(tossup)
                 except InvalidTossup as ex:
-                    print ex
+                    # print ex
                     tossup_errors.append(ex)
                 tossup_flag = False
             
@@ -133,34 +133,34 @@ def parse_packet_data(data):
             category = ''
             while question_stack != []:
                 bonus_line = question_stack.pop()
-                print "Bonus Line from question stack: " + bonus_line
+                # print "Bonus Line from question stack: " + bonus_line
                 if is_bpart(bonus_line):
-                    print "Is BPart"
+                    # print "Is BPart"
                     val = get_bonus_part_value(bonus_line)
                     question = string.strip(re.sub(bpart_regex, '', bonus_line))
                     values.append(val)
                     parts.append(question)
                 elif is_answer(bonus_line):
-                    print "Is Answer"
+                    # print "Is Answer"
                     answer = bonus_line
                     tempCategory = get_category(answer)
-                    print "Answer Line: " + answer
-                    print "TempCategory: " + tempCategory
+                    # print "Answer Line: " + answer
+                    # print "TempCategory: " + tempCategory
                     if (tempCategory != ''):
                         category = tempCategory
                         answer = remove_category(answer)
                     
                     answers.append(answer)
                 else:
-                    print "Is Leadin"
+                    # print "Is Leadin"
                     leadin = bonus_line
             parts.reverse()
             values.reverse()
             answers.reverse()
             
-            print leadin
-            print parts
-            print answers
+            # print leadin
+            # print parts
+            # print answers
             
             if (i < len(data) - 1):
                 question_stack.append(next_question_line)
@@ -172,7 +172,7 @@ def parse_packet_data(data):
                 bonus.is_valid()
                 bonuses.append(bonus)
             except InvalidBonus as ex:
-                print ex
+                # print ex
                 bonus_errors.append(ex)
             bonus_flag = False
 
@@ -194,7 +194,7 @@ def parse_packet_data(data):
                 bonus.is_valid()
                 bonuses.append(bonus)
             except InvalidBonus as ex:
-                print ex
+                # print ex
                 bonus_errors.append(ex)
             vhsl_bonus_flag = False
  
@@ -217,9 +217,9 @@ def create_tossup(question='', answer='', category_text='', question_type_text='
     setCategory = None
     for category in categories:
         formattedCategory = category.category + " - " + category.subcategory
-        print "formattedCategory: " + formattedCategory
+        # print "formattedCategory: " + formattedCategory
         if (formattedCategory == category_text):
-            print "setCategory"
+            # print "setCategory"
             setCategory = category
             break
         
@@ -252,7 +252,7 @@ def create_bonus(leadin='', parts=[], answers=[], values=[], question_type_text=
     setQuestionType = None
     for questionType in questionTypes:
         if (str(questionType) == question_type_text):
-            print "setQuestionType: " + str(questionType)
+            # print "setQuestionType: " + str(questionType)
             setQuestionType = questionType
             break;
 

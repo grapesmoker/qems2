@@ -259,12 +259,23 @@ def edit_question_set(request, qset_id):
             set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
 
             for writer in qset_writers:
-                writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
-                                                            'bonus_written': len(qset.bonus_set.filter(author=writer)),
+                writer_tu_written = len(qset.tossup_set.filter(author=writer))
+                writer_bonus_written = len(qset.bonus_set.filter(author=writer))
+                writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
+                
+                writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
+                                                            'bonus_written': writer_bonus_written,
+                                                            'question_percent': writer_question_percent,
                                                             'writer': writer}
             for writer in qset_editors:
-                writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
-                                                            'bonus_written': len(qset.bonus_set.filter(author=writer)),
+                writer_tu_written = len(qset.tossup_set.filter(author=writer))
+                writer_bonus_written = len(qset.bonus_set.filter(author=writer))
+                writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
+                
+                
+                writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
+                                                            'bonus_written': writer_bonus_written,
+                                                            'question_percent': writer_question_percent,
                                                             'writer': writer}
 
             return render_to_response('edit_question_set.html',
@@ -341,14 +352,24 @@ def edit_question_set(request, qset_id):
         set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
 
         for writer in qset_writers:
-            writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
-                                                        'bonus_written': len(qset.bonus_set.filter(author=writer)),
+            writer_tu_written = len(qset.tossup_set.filter(author=writer))
+            writer_bonus_written = len(qset.bonus_set.filter(author=writer))
+            writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
+            
+            writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
+                                                        'bonus_written': writer_bonus_written,
+                                                        'question_percent': writer_question_percent,
                                                         'writer': writer}
         for writer in qset_editors:
-            writer_stats[writer.user.username] = {'tu_written': len(qset.tossup_set.filter(author=writer)),
-                                                        'bonus_written': len(qset.bonus_set.filter(author=writer)),
+            writer_tu_written = len(qset.tossup_set.filter(author=writer))
+            writer_bonus_written = len(qset.bonus_set.filter(author=writer))
+            writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
+            
+            
+            writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
+                                                        'bonus_written': writer_bonus_written,
+                                                        'question_percent': writer_question_percent,
                                                         'writer': writer}
-
     return render_to_response('edit_question_set.html',
                               {'form': form,
                                'user': user,

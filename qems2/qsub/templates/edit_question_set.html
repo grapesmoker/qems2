@@ -228,6 +228,7 @@
                     <th>Username</th>
                     <th>Tossups Written</th>
                     <th>Bonuses Written</th>
+                    <th>% of Set Written</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -245,6 +246,7 @@
                     <td>{{ writer.writer.user.username }}</td>
                     <td>{{ writer.tu_written }}</td>
                     <td>{{ writer.bonus_written }}</td>
+                    <td>{{ writer.question_percent|floatformat }}%</td>
                     <td>
                         {% if writer.writer.user.username != qset.owner.user.username %}
                         <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">

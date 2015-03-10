@@ -424,9 +424,9 @@ class Tossup (models.Model):
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
-
-    search_tossup_text = models.TextField(default='')
-    search_tossup_answer = models.TextField(default='')
+    
+    search_question_content = models.TextField(default='')
+    search_question_answers = models.TextField(default='')
 
     question_history = models.ForeignKey(QuestionHistory, null=True)
 
@@ -531,8 +531,8 @@ class Tossup (models.Model):
         return True
 
     def setup_search_fields(self):
-        self.search_tossup_text = strip_special_chars(self.tossup_text)
-        self.search_tossup_answer = strip_special_chars(self.tossup_answer)
+        self.search_question_content = strip_special_chars(self.tossup_text)
+        self.search_question_answers = strip_special_chars(self.tossup_answer)
 
     def get_question_set(self):
         try:
@@ -571,6 +571,7 @@ class Tossup (models.Model):
         tossup_history.changer = changer
         tossup_history.change_date = timezone.now()
         tossup_history.save()
+        self.setup_search_fields()
 
         self.save()
 
@@ -608,13 +609,8 @@ class Bonus(models.Model):
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
 
-    search_leadin = models.CharField(max_length=500, null=True, default='')
-    search_part1_text = models.TextField(default='')
-    search_part1_answer = models.TextField(default='')
-    search_part2_text = models.TextField(null=True, default='')
-    search_part2_answer = models.TextField(null=True, default='')
-    search_part3_text = models.TextField(null=True, default='')
-    search_part3_answer = models.TextField(null=True, default='')
+    search_question_content = models.TextField(default='')
+    search_question_answers = models.TextField(default='')
 
     created_date = models.DateTimeField()
     last_changed_date = models.DateTimeField()
@@ -823,13 +819,8 @@ class Bonus(models.Model):
             raise InvalidBonus('question_type', self.question_type, self.question_number)
 
     def setup_search_fields(self):
-        self.search_leadin = strip_special_chars(self.leadin)
-        self.search_part1_text = strip_special_chars(self.part1_text)
-        self.search_part1_answer = strip_special_chars(self.part1_answer)
-        self.search_part2_text = strip_special_chars(self.part2_text)
-        self.search_part2_answer = strip_special_chars(self.part2_answer)
-        self.search_part3_text = strip_special_chars(self.part3_text)
-        self.search_part3_answer = strip_special_chars(self.part3_answer)
+        self.search_question_content = strip_special_chars(self.leadin) + " " + strip_special_chars(self.part1_text) + " " + strip_special_chars(self.part2_text) + " " + strip_special_chars(self.part3_text)
+        self.search_question_answers = strip_special_chars(self.part1_answer) + " " + strip_special_chars(self.part2_answer) + " " + strip_special_chars(self.part3_answer)
 
     def get_question_set(self):
         try:
@@ -883,6 +874,7 @@ class Bonus(models.Model):
         bonus_history.changer = changer
         bonus_history.change_date = timezone.now()
         bonus_history.save()
+        self.setup_search_fields()
         self.save()
 
 class TossupHistory(models.Model):

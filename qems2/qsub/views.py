@@ -2164,12 +2164,12 @@ def search(request, passed_qset_id=None):
 
             if user in qset.writer.all() or user in qset.editor.all() or user == qset.owner:
 
-                if 'qsub.tossup' in search_models and 'qsub.bonus' not in search_models:
-                    result_ids = [r.id for r in SearchQuerySet().filter(content=query).models(Tossup)]
+                if 'qsub.tossup' in search_models and 'qsub.bonus' not in search_models:                    
+                    result_ids = [r.id for r in SearchQuerySet().filter(Q(question_answers=query) | Q(question_content=query)).models(Tossup)]
                 elif 'qsub.bonus' in search_models and 'qsub.tossup' not in search_models:
-                    result_ids = [r.id for r in SearchQuerySet().filter(content=query).models(Bonus)]
+                    result_ids = [r.id for r in SearchQuerySet().filter(Q(question_answers=query) | Q(question_content=query)).models(Bonus)]
                 elif 'qsub.tossup' in search_models and 'qsub.bonus' in search_models:
-                    result_ids = [r.id for r in SearchQuerySet().filter(content=query).models(Tossup, Bonus)]
+                    result_ids = [r.id for r in SearchQuerySet().filter(Q(question_answers=query) | Q(question_content=query)).models(Tossup, Bonus)]
                 else:
                     result_ids = []
 
@@ -2185,7 +2185,6 @@ def search(request, passed_qset_id=None):
 
                     if question.question_set == qset and (str(question.category) == search_category or search_category == 'All') and question not in questions:
                         questions.append(question)
-
 
                 result = questions
                 message = ''

@@ -562,7 +562,8 @@ class Tossup (models.Model):
         if (edit_type == QUESTION_EDIT):
             self.editor = changer
             self.edited_date = timezone.now()
-
+        
+        self.tossup_answer = strip_answer_from_answer_line(self.tossup_answer)
         tossup_history = TossupHistory()
         tossup_history.tossup_text = self.tossup_text
         tossup_history.tossup_answer = self.tossup_answer
@@ -860,6 +861,10 @@ class Bonus(models.Model):
             self.part2_answer = ''
             self.part3_text = ''
             self.part3_answer = ''
+
+        self.part1_answer = strip_answer_from_answer_line(self.part1_answer)
+        self.part2_answer = strip_answer_from_answer_line(self.part2_answer)
+        self.part3_answer = strip_answer_from_answer_line(self.part3_answer)
 
         bonus_history = BonusHistory()
         bonus_history.leadin = self.leadin

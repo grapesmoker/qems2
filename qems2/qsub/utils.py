@@ -228,6 +228,12 @@ def get_tossup_type_from_question_type(question_type):
     else:
         return ACF_STYLE_TOSSUP
 
+def strip_answer_from_answer_line(line):
+    if (line is not None):
+        line = line.replace("ANSWER: ", "")
+    
+    return line
+
 class InvalidTossup(Exception):
 
     def __init__(self, *args):

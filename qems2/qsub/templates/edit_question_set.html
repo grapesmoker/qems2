@@ -242,8 +242,8 @@
                     {% elif writer.writer in writers %}
                     <td>Writer</td>
                     {% endif %}
-                    <td>{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</td>
-                    <td>{{ writer.writer.user.username }}</td>
+                    <td><a href="/contributor/{{ qset.id }}/{{ writer.writer.id}}">{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</a></td>
+                    <td><a href="/contributor/{{ qset.id }}/{{ writer.writer.id}}">{{ writer.writer.user.username }}</a></td>
                     <td>{{ writer.tu_written }}</td>
                     <td>{{ writer.bonus_written }}</td>
                     <td>{{ writer.question_percent|floatformat }}%</td>

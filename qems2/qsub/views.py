@@ -3340,6 +3340,49 @@ def writer_question_set_settings(request, qset_id):
                                   'qset': qset},
                                   context_instance=RequestContext(request))
 
+@login_required
+def contributor(request, qset_id, writer_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+    qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()
+
+    writer = Writer.objects.get(id=writer_id)
+    
+    tossups = []
+    bonuses = []
+
+    
+    if (writer not in qset_editors and writer != qset.owner and writer not in qset.writer.all()):
+        return render_to_response('failure.html',
+            {'message': 'The specified contributor is not in this set',
+             'message_class': 'alert-box alert'},
+            context_instance=RequestContext(request))
+        
+    if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
+        return render_to_response('failure.html',
+            {'message': 'You are not authorized to view this set',
+             'message_class': 'alert-box alert'},
+            context_instance=RequestContext(request))
+
+    tossups = Tossup.objects.filter(question_set=qset).filter(author=writer)
+    bonuses = Bonus.objects.filter(question_set=qset).filter(author=writer)
+
+    writer_status =   {'tossups_written': tossups.count(),
+                         'bonuses_written': bonuses.count()
+                         }
+            
+        	
+    return render_to_response('contributor.html',
+        {
+        'user': user,
+        'tossups': tossups,
+        'bonuses': bonuses,
+        'writer_status': writer_status,
+        'qset': qset,
+        'writer': writer},
+        context_instance=RequestContext(request))	
+
 # @login_required
 # def password(request):
 #

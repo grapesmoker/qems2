@@ -8,6 +8,7 @@ from django.contrib.sites.models import get_current_site
 from sets import Set
 from django.core.mail import send_mail
 from django.db.models import Q
+import sys
 
 @receiver(post_save)
 def email_on_comments(sender, instance, created, raw, using, update_fields, **kwargs):

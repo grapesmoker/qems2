@@ -288,7 +288,7 @@ def edit_question_set(request, qset_id):
             comment_tab_list = []
             
             for tossup in tossups:
-                for comment in Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id):
+                for comment in Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id).filter(is_removed=False):
                     new_comment = { 'author': comment.user,
                                         'comment': comment.comment,
                                         'id': comment.id,
@@ -299,7 +299,7 @@ def edit_question_set(request, qset_id):
                     comment_tab_list.append(new_comment)
 
             for bonus in bonuses:
-                for comment in Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id):
+                for comment in Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id).filter(is_removed=False):
                     new_comment = { 'author': comment.user,
                                         'comment': comment.comment,
                                         'id': comment.id,
@@ -410,7 +410,7 @@ def edit_question_set(request, qset_id):
         comment_tab_list = []
         
         for tossup in tossups:
-            for comment in Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id):
+            for comment in Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id).filter(is_removed=False):
                 print "matched tossup comment"
                 new_comment = { 'comment': comment,
                                     'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False),
@@ -419,7 +419,7 @@ def edit_question_set(request, qset_id):
                 comment_tab_list.append(new_comment)
 
         for bonus in bonuses:
-            for comment in Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id):
+            for comment in Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id).filter(is_removed=False):
                 print "matched bonus comment"
                 new_comment = { 'comment': comment,
                                     'question_text': get_formatted_question_html_for_bonus_answers(bonus),

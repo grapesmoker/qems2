@@ -104,43 +104,43 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
     italicsFlag = False
     parensFlag = False
     underlineFlag = False
-    output = ""
+    output = u""    
     for c in line:
-        if (c == "~"):
+        if (c == u"~"):
             if (not italicsFlag):
-                output += "<i>"
+                output += u"<i>"
                 italicsFlag = True
             else:
-                output += "</i>"
+                output += u"</i>"
                 italicsFlag = False
-        elif (c == "(" and allowParens):
-            output += "<strong>("
+        elif (c == u"(" and allowParens):
+            output += u"<strong>("
             parensFlag = True
-        elif (c == ")" and allowParens):
-            output += ")</strong>"
+        elif (c == u")" and allowParens):
+            output += u")</strong>"
             parensFlag = False
         else:
-            if (c == "_" and allowUnderlines):
+            if (c == u"_" and allowUnderlines):
                 if (not underlineFlag):
-                    output += "<u><b>"
+                    output += u"<u><b>"
                     underlineFlag = True
                 else:
-                    output += "</b></u>"
+                    output += u"</b></u>"
                     underlineFlag = False
             else:
                 output += c
 
     if (italicsFlag):
-        output += "</i>"
+        output += u"</i>"
 
     if (underlineFlag):
-        output += "</b></u>"
+        output += u"</b></u>"
 
     if (parensFlag):
-        output += "</strong>"
+        output += u"</strong>"
 
     if (allowNewLines):
-        output = output.replace("&lt;br&gt;", "<br />")
+        output = output.replace(u"&lt;br&gt;", u"<br />")
 
     return output
 

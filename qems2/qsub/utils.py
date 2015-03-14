@@ -101,6 +101,9 @@ def get_answer_no_formatting(line):
     output = output.replace('~', '')
     return output
 
+def get_formatted_question_html_for_bonus_answers(bonus):
+    return get_formatted_question_html(bonus.part1_answer[0:80], True, True, False) + '<br />' + get_formatted_question_html(bonus.part2_answer[0:80], True, True, False) + '<br />' + get_formatted_question_html(bonus.part3_answer[0:80], True, True, False) + '<br />'
+
 def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLines):
     italicsFlag = False
     parensFlag = False

@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from models import *
 from forms import *
-from model_utils import *
+from qems2.qsub.model_utils import *
 from utils import *
 #from packet_parser import handle_uploaded_packet, parse_uploaded_packet, parse_packet_data
 from packet_parser import parse_packet_data
@@ -151,6 +151,7 @@ def create_question_set (request):
 
             set_distro_formset = create_set_distro_formset(question_set)
             tiebreak_formset = create_tiebreak_formset(question_set)
+            comment_tab_list = []
 
             return render_to_response('edit_question_set.html',
                                       {'message': 'Your question set has been successfully created!',
@@ -164,6 +165,7 @@ def create_question_set (request):
                                        'writers': question_set.writer.all(),
                                        'tossups': Tossup.objects.filter(question_set=question_set),
                                        'bonuses': Bonus.objects.filter(question_set=question_set),
+                                       'comment_tab_list': comment_tab_list,
                                        'packets': question_set.packet_set.all(),},
                                       context_instance=RequestContext(request))
         else:
@@ -206,6 +208,7 @@ def edit_question_set(request, qset_id):
     total_bs_req = 0
     total_tu_written = 0
     total_bs_written = 0
+    comment_tab_list = []
 
     role = get_role_no_owner(user, qset)
 
@@ -277,6 +280,35 @@ def edit_question_set(request, qset_id):
                                                             'bonus_written': writer_bonus_written,
                                                             'question_percent': writer_question_percent,
                                                             'writer': writer}
+                                                            
+            # Get the list of comments
+            tossup_content_type_id = ContentType.objects.get(name="tossup")
+            bonus_content_type_id = ContentType.objects.get(name="bonus")
+            
+            comment_tab_list = []
+            
+            for tossup in tossups:
+                for comment in Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id):
+                    new_comment = { 'author': comment.user,
+                                        'comment': comment.comment,
+                                        'id': comment.id,
+                                        'date': comment.submit_date,
+                                        'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False),
+                                        'question_id': tossup.id,
+                                        'question_type': 'tossup'}
+                    comment_tab_list.append(new_comment)
+
+            for bonus in bonuses:
+                for comment in Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id):
+                    new_comment = { 'author': comment.user,
+                                        'comment': comment.comment,
+                                        'id': comment.id,
+                                        'date': comment.submit_date,
+                                        'question_text': get_formatted_question_html_for_bonus_answers(bonus),
+                                        'question_id': bonus.id,
+                                        'question_type': 'bonus'}
+                    comment_tab_list.append(new_comment)
+                    
 
             return render_to_response('edit_question_set.html',
                                       {'form': form,
@@ -296,6 +328,7 @@ def edit_question_set(request, qset_id):
                                        'tossups': tossups,
                                        'bonuses': bonuses,
                                        'packets': qset.packet_set.all(),
+                                       'comment_list': comment_tab_list,
                                        'role': role,
                                        'message': 'Your changes have been successfully saved.',
                                        'message_class': 'alert-success'},
@@ -370,6 +403,31 @@ def edit_question_set(request, qset_id):
                                                         'bonus_written': writer_bonus_written,
                                                         'question_percent': writer_question_percent,
                                                         'writer': writer}
+                                                        
+        tossup_content_type_id = ContentType.objects.get(name="tossup")
+        bonus_content_type_id = ContentType.objects.get(name="bonus")
+        
+        comment_tab_list = []
+        
+        for tossup in tossups:
+            for comment in Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id):
+                print "matched tossup comment"
+                new_comment = { 'comment': comment,
+                                    'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False),
+                                    'question_id': tossup.id,
+                                    'question_type': 'tossup'}
+                comment_tab_list.append(new_comment)
+
+        for bonus in bonuses:
+            for comment in Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id):
+                print "matched bonus comment"
+                new_comment = { 'comment': comment,
+                                    'question_text': get_formatted_question_html_for_bonus_answers(bonus),
+                                    'question_id': bonus.id,
+                                    'question_type': 'bonus'}
+                comment_tab_list.append(new_comment)
+                
+
     return render_to_response('edit_question_set.html',
                               {'form': form,
                                'user': user,
@@ -387,6 +445,7 @@ def edit_question_set(request, qset_id):
                                'tossups': tossups,
                                'bonuses': bonuses,
                                'packets': qset.packet_set.all(),
+                               'comment_tab_list': comment_tab_list,
                                'qset': qset,
                                'role': role,
                                'read_only': read_only,

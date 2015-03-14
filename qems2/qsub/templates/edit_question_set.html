@@ -17,10 +17,11 @@
 <dl class="tabs" data-tab>
     <dd class="active"><a href="#qset-info">Overall Info</a></dd>
     <dd><a href="#questions">All Questions</a></dd>
+    <dd><a href="#comments">Comments</a></dd>    
     <dd><a href="#editors">Contributors</a></dd>
     <dd><a href="#packets">Packets</a></dd>
     <dd><a href="#set-wide-distribution">Set-wide Distro</a></dd>
-    <dd><a href="#tiebreak-distribution">Tiebreaker Distro</a></dd>
+    <dd><a href="#tiebreak-distribution">Tiebreaker Distro</a></dd>    
 </dl>
 
 <div class="tabs-content">
@@ -164,14 +165,14 @@
                     </label>
                 </li>                
             </ul>
-            {% if not read_only %}
+            {% if role == "editor" %}
                 <input type="submit" value="Submit Changes" class="button primary right" />
             {% endif %}
         </form>
         <div class="panel header radius text-center">
             <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
         </div>
-        {% if not read_only %}
+        {% if role == "editor" %}
             <div class="panel header radius text-center">
                 <strong><a href="/bulk_change_set/{{ qset.id }}">Make Bulk Changes to this Set</a></strong>
             </div>
@@ -180,7 +181,7 @@
             <strong><a href="/writer_question_set_settings/{{ qset.id }}">Your settings for this set</a></strong>
         </div>        
         <a id="#qset-comments"></a>
-        <div class="panel header radius text-center"><strong>Comments</strong></div>
+        <div class="panel header radius text-center"><strong>Set-Wide Comments</strong></div>
         <div class="comments small-6 columns end">
             {% autoescape off %}
                 {% get_comment_list for qset as comment_list %}
@@ -211,9 +212,42 @@
             </form>
         </div>
     </div>
-
+    <div class="content" id="comments">        
+        <table class="tablesorter table-striped table-hover" id="comments-table">
+            <thead>
+                <tr>
+                    <th>Commenter</th>
+                    <th>Comment</th>
+                    <th>Question</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% autoescape off %}                
+                    {% for comment in comment_tab_list %}     
+                        <tr>
+                            <td>{{ comment.comment.user }}</td>
+                            <td>{{ comment.comment.comment|comment_html }}</td>                    
+                            <td><a href="/edit_{{ comment.question_type }}/{{ comment.question_id }}">{{ comment.question_text }}</a></td>
+                            <td>{{ comment.comment.submit_date }}</td>
+                            <td>
+                                {% if role == "editor" %}
+                                    <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
+                                        <a href="/delete_comment/{{ comment.comment.id }}" class="delete_comment" value="{{ comment.comment.id }}" qset="{{ qset.id }}">
+                                            <i class="fa fa-minus-circle"></i>
+                                        </a>
+                                    </span>                        
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endautoescape %}
+            </tbody>
+        </table>
+    </div>
     <div class="content" id="editors">
-        {% if not read_only %}
+        {% if role == "editor" %}
             <ul class="button-group even">
                 <li><a href="/add_editor/{{ qset.id }}" class="button primary" id="btn-add-editor"><i class="fa fa-plus-circle"></i> Add an Editor</a></li>
                 <li><a href="/add_writer/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add a Writer</a></li>
@@ -291,8 +325,8 @@
                         <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
                         <td>{{ entry.category.value }}</td>
                         <td>{{ entry.subcategory.value }}</td>
-                        <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                        <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
+                        <td>{% if role == "editor" %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                        <td>{% if role == "editor" %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -327,8 +361,8 @@
                         <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
                         <td>{{ entry.category.value }}</td>
                         <td>{{ entry.subcategory.value }}</td>
-                        <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                        <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
+                        <td>{% if role == "editor" %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                        <td>{% if role == "editor" %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -459,7 +493,7 @@
                 {% for packet in packets %}
                 <tr>
                     <td>
-                        {% if not read_only %}
+                        {% if role == "editor" %}
                         <a href="/edit_packet/{{ packet.id }}">{{ packet.packet_name }}</a>
                         {% else %}
                         {{ packet.packet_name }}

@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from bs4 import BeautifulSoup
 from django.utils.encoding import smart_unicode
+import unicodedata
 
 DEFAULT_ALLOWED_TAGS = ['b', 'i', 'u', 'strong', 'em']
 
@@ -209,6 +210,10 @@ def convert_smart_quotes(line):
 
 def strip_special_chars(line):
     return line.replace('_', '').replace('~', '')
+
+def strip_unicode(line):
+    return ''.join(c for c in unicodedata.normalize('NFKD', line)
+              if unicodedata.category(c) != 'Mn')
 
 def get_bonus_type_from_question_type(question_type):
     if (question_type is None or str(question_type) == ''):

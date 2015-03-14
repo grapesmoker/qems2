@@ -531,8 +531,8 @@ class Tossup (models.Model):
         return True
 
     def setup_search_fields(self):
-        self.search_question_content = strip_special_chars(self.tossup_text)
-        self.search_question_answers = strip_special_chars(self.tossup_answer)
+        self.search_question_content = strip_special_chars(strip_unicode(self.tossup_text))
+        self.search_question_answers = strip_special_chars(strip_unicode(self.tossup_answer))
 
     def get_question_set(self):
         try:
@@ -820,8 +820,8 @@ class Bonus(models.Model):
             raise InvalidBonus('question_type', self.question_type, self.question_number)
 
     def setup_search_fields(self):
-        self.search_question_content = strip_special_chars(self.leadin) + " " + strip_special_chars(self.part1_text) + " " + strip_special_chars(self.part2_text) + " " + strip_special_chars(self.part3_text)
-        self.search_question_answers = strip_special_chars(self.part1_answer) + " " + strip_special_chars(self.part2_answer) + " " + strip_special_chars(self.part3_answer)
+        self.search_question_content = strip_special_chars(strip_unicode(self.leadin)) + " " + strip_special_chars(strip_unicode(self.part1_text)) + " " + strip_special_chars(strip_unicode(self.part2_text)) + " " + strip_special_chars(strip_unicode(self.part3_text))
+        self.search_question_answers = strip_special_chars(strip_unicode(self.part1_answer)) + " " + strip_special_chars(strip_unicode(self.part2_answer)) + " " + strip_special_chars(strip_unicode(self.part3_answer))
 
     def get_question_set(self):
         try:

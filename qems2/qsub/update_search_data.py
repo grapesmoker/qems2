@@ -1,5 +1,5 @@
 from qems2.qsub.models import *
-from utils import *
+from qems2.qsub.utils import *
 
 print "Updating search indexes for tossups"
 tossups = Tossup.objects.all()

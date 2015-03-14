@@ -64,8 +64,9 @@ def email_on_comments(sender, instance, created, raw, using, update_fields, **kw
                         url)
                         
                     send_mail(subject, body, "QEMS2", mail_set)
+                    print "Sent new comment mail to: " + str(mail_set)   
     except:
-        print "Error sending mail for comments"
+        print "Error sending mail for comments:", sys.exc_info()[0]
 
 @receiver(post_save)
 def email_on_new_questions(sender, instance, created, raw, using, update_fields, **kwargs):
@@ -108,9 +109,10 @@ def email_on_new_questions(sender, instance, created, raw, using, update_fields,
                         instance.to_plain_text(),
                         url)
                         
-                    send_mail(subject, body, "QEMS2", email_list)            
+                    send_mail(subject, body, "QEMS2", email_list)
+                    print "Sent new question mail to: " + str(email_list)       
     except:
-        print "Error sending mail for new question"
+        print "Error sending mail for new question", sys.exc_info()[0]
 
 # Called when a user is created, saves first and last name info
 @receiver(user_registered)

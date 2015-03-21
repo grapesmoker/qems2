@@ -363,3 +363,58 @@ def move_comments_to_bonus(tossup, bonus):
 def get_question_type_from_string(question_type):
     return QuestionType.objects.get(question_type=question_type)
 
+def get_tossup_and_bonuses_in_set(qset, question_limit=30):
+    tossup_dict = {}
+    tossups = []
+    tossup_count = 0
+    for tossup in Tossup.objects.filter(question_set=qset).order_by('-id'):
+        if (tossup_count < question_limit):
+            tossups.append(tossup)
+            tossup_count += 1
+        tossup_dict[tossup.id] = tossup
+
+    bonus_dict = {}
+    bonuses = []
+    bonus_count = 0
+    for bonus in Bonus.objects.filter(question_set=qset).order_by('-id'):
+        if (bonus_count < question_limit):
+            bonuses.append(bonus)
+            bonus_count += 1
+        bonus_dict[bonus.id] = bonus
+        
+    return tossups, tossup_dict, bonuses, bonus_dict
+
+def get_comment_tab_list(tossup_dict, bonus_dict):
+    comment_tab_list = []
+    
+    tossup_content_type_id = ContentType.objects.get(name="tossup")
+    bonus_content_type_id = ContentType.objects.get(name="bonus")
+    
+    comment_count = 0
+    for comment in Comment.objects.filter(content_type_id=tossup_content_type_id).order_by('-submit_date'):
+        if (long(comment.object_pk) in tossup_dict):
+            tossup = tossup_dict[long(comment.object_pk)]            
+            new_comment = { 'comment': comment,
+                                'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False),
+                                'question_id': tossup.id,
+                                'question_type': 'tossup'}
+            comment_tab_list.append(new_comment)
+            comment_count += 1
+            if (comment_count >= 30):
+                break
+
+    comment_count = 0
+    for comment in Comment.objects.filter(content_type_id=bonus_content_type_id).order_by('-submit_date'):
+        if (long(comment.object_pk) in bonus_dict):
+            bonus = bonus_dict[long(comment.object_pk)]            
+            new_comment = { 'comment': comment,
+                                'question_text': get_formatted_question_html_for_bonus_answers(bonus),
+                                'question_id': bonus.id,
+                                'question_type': 'bonus'}
+            comment_tab_list.append(new_comment)
+            comment_count += 1
+            if (comment_count >= 30):
+                break
+    
+    return comment_tab_list
+

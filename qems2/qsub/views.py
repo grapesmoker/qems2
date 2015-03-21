@@ -231,9 +231,9 @@ def edit_question_set(request, qset_id):
             qset.max_vhsl_bonus_length = form.cleaned_data['max_vhsl_bonus_length']
             qset.save()
 
+            tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset)
+
             if user == qset.owner:
-                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
-                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
             else:
@@ -281,34 +281,7 @@ def edit_question_set(request, qset_id):
                                                             'question_percent': writer_question_percent,
                                                             'writer': writer}
                                                             
-            # Get the list of comments
-            tossup_content_type_id = ContentType.objects.get(name="tossup")
-            bonus_content_type_id = ContentType.objects.get(name="bonus")
-            
-            comment_tab_list = []
-            
-            for tossup in tossups:
-                for comment in Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id).filter(is_removed=False):
-                    new_comment = { 'author': comment.user,
-                                        'comment': comment.comment,
-                                        'id': comment.id,
-                                        'date': comment.submit_date,
-                                        'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False),
-                                        'question_id': tossup.id,
-                                        'question_type': 'tossup'}
-                    comment_tab_list.append(new_comment)
-
-            for bonus in bonuses:
-                for comment in Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id).filter(is_removed=False):
-                    new_comment = { 'author': comment.user,
-                                        'comment': comment.comment,
-                                        'id': comment.id,
-                                        'date': comment.submit_date,
-                                        'question_text': get_formatted_question_html_for_bonus_answers(bonus),
-                                        'question_id': bonus.id,
-                                        'question_type': 'bonus'}
-                    comment_tab_list.append(new_comment)
-                    
+            comment_tab_list = get_comment_tab_list(tossup_dict, bonus_dict)
 
             return render_to_response('edit_question_set.html',
                                       {'form': form,
@@ -340,26 +313,23 @@ def edit_question_set(request, qset_id):
 			# Just redirect to main in this case of no permissions
             # TODO: a better story
             return HttpResponseRedirect('/main.html')
+
+        tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset)
+        
         if user not in qset_editors and user != qset.owner:
             form = QuestionSetForm(instance=qset, read_only=True)
             read_only = True
             message = 'You are not authorized to edit this tournament.'
             if user in qset.writer.all():
-                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
-                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
         else:
             if user == qset.owner:
                 read_only = False
-                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
-                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
             elif user in qset.writer.all() or user in qset.editor.all():
                 read_only = True
-                tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
-                bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
                 set_distro_formset = create_set_distro_formset(qset)
                 tiebreak_formset = create_tiebreak_formset(qset)
             form = QuestionSetForm(instance=qset)
@@ -403,30 +373,8 @@ def edit_question_set(request, qset_id):
                                                         'bonus_written': writer_bonus_written,
                                                         'question_percent': writer_question_percent,
                                                         'writer': writer}
-                                                        
-        tossup_content_type_id = ContentType.objects.get(name="tossup")
-        bonus_content_type_id = ContentType.objects.get(name="bonus")
-        
-        comment_tab_list = []
-        
-        for tossup in tossups:
-            for comment in Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id).filter(is_removed=False):
-                print "matched tossup comment"
-                new_comment = { 'comment': comment,
-                                    'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False),
-                                    'question_id': tossup.id,
-                                    'question_type': 'tossup'}
-                comment_tab_list.append(new_comment)
-
-        for bonus in bonuses:
-            for comment in Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id).filter(is_removed=False):
-                print "matched bonus comment"
-                new_comment = { 'comment': comment,
-                                    'question_text': get_formatted_question_html_for_bonus_answers(bonus),
-                                    'question_id': bonus.id,
-                                    'question_type': 'bonus'}
-                comment_tab_list.append(new_comment)
-                
+                                                                
+        comment_tab_list = get_comment_tab_list(tossup_dict, bonus_dict)                    
 
     return render_to_response('edit_question_set.html',
                               {'form': form,

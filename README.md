@@ -74,9 +74,9 @@ Run an instance of Windows PowerShell as an administrator and:
     pip install whoosh
     pip install unicodecsv
 
-Install the latest from https://pypi.python.org/pypi/MySQL-python/, make sure git is installed, and make sure all of the above programs are in your path, incl. variations on: C:\Program Files (x86)\MySQL\MySQL Workbench 6.2 CE\, C:\Program Files (x86)\Git\cmd\, C:\Python27\, C:\Python27\Scripts\, C:\Program Files (x86)\nodejs\, C:\Users\Andrew\AppData\Roaming\npm\. Then npm install -g bower.
+Install the latest from https://pypi.python.org/pypi/MySQL-python/, make sure git is installed, and make sure all of the above programs are in your path, incl. variations on: C:\Program Files (x86)\MySQL\MySQL Workbench 6.2 CE\, C:\Program Files (x86)\Git\cmd\, C:\Python27\, C:\Python27\Scripts\, C:\Program Files (x86)\nodejs\, %LocalAppData%\\..\Roaming\npm\. Then npm install -g bower.
 
-Then follow the above instructions to set up the MySQL connection and the server, except make sure to add `BOWER_PATH = os.path.normpath(r'C:\Users\{username}\AppData\Roaming\npm\bower.cmd')` below the `BOWER_COMPONENTS_ROOT` line in settings.py before `bower install`'ing. Note that the installation of git may require you to reference python as `C:\Python27\python.exe` instead of `python` in PowerShell.
+Then follow the above instructions to set up the MySQL connection and the server, except make sure to add `BOWER_PATH = os.path.normpath(r'C:\Users\{username}\AppData\Roaming\npm\bower.cmd')` below the `BOWER_COMPONENTS_ROOT` line in settings.py before `bower install`'ing. If you see an error about being unable to connect to port 10061, update the HOST and PORT properties in DATABASES in settings.py. Note that the installation of git may require you to reference python as `C:\Python27\python.exe` instead of `python` in PowerShell.
 
 ### Running QEMS2
 

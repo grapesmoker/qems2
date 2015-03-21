@@ -26,6 +26,8 @@ from haystack.query import SearchQuerySet
 from cStringIO import StringIO
 from django_comments.models import Comment
 from django.db.models import Q
+from django.core.cache import cache
+from django.views.decorators.cache import cache_page
 
 from collections import OrderedDict
 from itertools import chain, ifilter
@@ -189,6 +191,7 @@ def create_question_set (request):
                               context_instance=RequestContext(request))
 
 @login_required
+@cache_page(60 * 10)
 def edit_question_set(request, qset_id):
     read_only = False
     message = ''
@@ -216,8 +219,7 @@ def edit_question_set(request, qset_id):
         messages.error(request, 'You are not authorized to view information about this tournament!')
         return HttpResponseRedirect('/failure.html/')
 
-    if request.method == 'POST' and (user == qset.owner or user in qset_editors):
-
+    if request.method == 'POST' and (user == qset.owner or user in qset_editors):        
         form = QuestionSetForm(data=request.POST)
         if form.is_valid():
             qset = QuestionSet.objects.get(id=qset_id)
@@ -230,6 +232,7 @@ def edit_question_set(request, qset_id):
             qset.max_acf_bonus_length = form.cleaned_data['max_acf_bonus_length']
             qset.max_vhsl_bonus_length = form.cleaned_data['max_vhsl_bonus_length']
             qset.save()
+            cache.clear()
 
             tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset)
 
@@ -401,6 +404,7 @@ def edit_question_set(request, qset_id):
                               context_instance=RequestContext(request))
 
 @login_required
+@cache_page(60 * 10)
 def categories(request, qset_id, category_id):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
@@ -751,6 +755,7 @@ def add_tossups(request, qset_id, packet_id=None):
                         tossup.question_number = Tossup.objects.filter(packet_id=packet_id).count()
 
                     tossup.save_question(edit_type=QUESTION_CREATE, changer=user)
+                    cache.clear()
                     message = 'Your tossup has been added to the set.'
                     message_class = 'alert-box info radius'
 
@@ -879,6 +884,7 @@ def add_bonuses(request, qset_id, bonus_type, packet_id=None):
                 try:
                     bonus.is_valid()
                     bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
+                    cache.clear()
                     message = 'Your bonus has been added to the set.'
                     message_class = 'alert-box success'
 
@@ -1008,9 +1014,10 @@ def edit_tossup(request, tossup_id):
 
                     tossup.save_question(edit_type=change_type, changer=user)
                     tossup_length = tossup.character_count()
+                    cache.clear()
                     print "Tossup saved"
                     message = 'Your changes have been saved!'
-                    message_class = 'alert-box success'
+                    message_class = 'alert-box success'                    
 
                 except InvalidTossup as ex:
                     message = str(ex)
@@ -1134,6 +1141,7 @@ def edit_bonus(request, bonus_id):
 
                     bonus.save_question(edit_type=change_type, changer=user)
                     char_count = bonus.character_count()
+                    cache.clear()
 
                     message = 'Your changes have been saved!'
                     message_class = 'alert-box success'
@@ -1211,6 +1219,7 @@ def delete_bonus(request):
         qset = bonus.question_set
         if user == bonus.author or user == qset.owner or user in qset.editor.all():
             bonus.delete()
+            cache.clear()
             message = 'Bonus deleted'
             message_class = 'alert-box success'
             read_only = False
@@ -1234,6 +1243,7 @@ def delete_writer(request):
         writer = qset.writer.get(id=writer_id)
         if user == qset.owner:
             qset.writer.remove(writer)
+            cache.clear()
             message = 'Writer removed'
             message_class = 'alert-box success'
         else:
@@ -1256,6 +1266,7 @@ def delete_editor(request):
         editor = qset.editor.get(id=editor_id)
         if user == qset.owner:
             qset.editor.remove(editor)
+            cache.clear()
             message = 'Editor removed'
             message_class = 'alert-box success'
         else:
@@ -1285,6 +1296,7 @@ def delete_comment(request):
             if user in qset_editors:
                 comment.is_removed = True
                 comment.save()
+                cache.clear()
                 message = 'Comment removed'
                 message_class = 'alert-box success'
             else:
@@ -1317,6 +1329,7 @@ def add_packets(request, qset_id):
                     new_packet.created_by = user
                     new_packet.question_set = qset
                     new_packet.save()
+                    cache.clear()
                     message = 'Your packet named {0} has been created.'.format(packet_name)
                     message_class = 'alert-box success'
 
@@ -1327,6 +1340,7 @@ def add_packets(request, qset_id):
                         new_packet.created_by = user
                         new_packet.question_set = qset
                         new_packet.save()
+                        cache.clear()
                     message = 'Your {0} packets with the base name {1} have been created.'.format(num_packets, name_base)
                     message_class = 'alert-box success'
                 else:
@@ -1367,6 +1381,7 @@ def delete_packet(request):
         qset = packet.question_set
         if user == qset.owner:
             packet.delete()
+            cache.clear()
             message = 'Packet deleted'
             message_class = 'alert-box success'
             read_only = False
@@ -1460,6 +1475,7 @@ def assign_tossups_to_packet(request):
                 message = 'Your tossups have been added to the set!'
                 message_class = 'alert-box success'
                 tossup.save()
+                cache.clear()
         else:
             message = 'Only the set owner is authorized to add questions to the set!'
             message_class = 'alert-box warning'
@@ -1491,6 +1507,7 @@ def assign_bonuses_to_packet(request):
                 message = 'Your bonuses have been added to the set!'
                 message_class = 'alert-box success'
                 bonus.save()
+                cache.clear()
         else:
             message = 'Only the set owner is authorized to add questions to the set!'
             message_class = 'alert-box warning'
@@ -1526,6 +1543,7 @@ def change_question_order(request):
                         question = Bonus.objects.get(id=id)
                     question.question_number = order
                     question.save()
+                    cache.clear()
                 message = ''
                 message_class = ''
 
@@ -1906,6 +1924,7 @@ def add_comment(request):
     if request.method == 'POST':
 
         comment_text = request.POST['comment-text']
+        cache.clear()
         print comment_text
 
 
@@ -1919,6 +1938,7 @@ def upload_questions(request, qset_id):
             form = QuestionUploadForm(request.POST, request.FILES)
             if form.is_valid():
                 uploaded_tossups, uploaded_bonuses = parse_uploaded_packet(request.FILES['questions_file'])
+                cache.clear()
 
                 return render_to_response('upload_preview.html',
                 {'tossups': uploaded_tossups,
@@ -2084,7 +2104,8 @@ def complete_upload(request):
             new_bonus.save_question(edit_type=QUESTION_CREATE, changer=user)
             new_bonuses.append(new_bonus)
 
-        messages.success(request, 'Your questions have been uploaded.', extra_tags='alert-box success')
+        cache.clear()
+        messages.success(request, 'Your questions have been uploaded.', extra_tags='alert-box success')        
         for tossup in new_tossups:
             messages.success(request, u'View your tossup on <a href="/edit_tossup/{0}">{1}.</a>'.format(tossup.id, get_answer_no_formatting(tossup.tossup_answer)), extra_tags='safe alert-box info')
 
@@ -2313,6 +2334,7 @@ def move_tossup(request, q_set_id, tossup_id):
                     tossup.packet = None
 
                     tossup.save()
+                    cache.clear()
                     message = "Successfully moved tossup to " + str(dest_qset)
                     message_class = 'alert-box success'
                     return render_to_response('move_tossup_success.html',
@@ -2431,6 +2453,7 @@ def move_bonus(request, q_set_id, bonus_id):
                     bonus.packet = None
 
                     bonus.save()
+                    cache.clear()
                     return render_to_response('move_bonus_success.html',
                                         {'user': user,
                                          'q_set': q_set,
@@ -2575,6 +2598,7 @@ def restore_tossup(request):
                     tossup.tossup_answer = tossup_history.tossup_answer
                     tossup.tossup_text = tossup_history.tossup_text
                     tossup.save_question(edit_type=QUESTION_RESTORE, changer=user)
+                    cache.clear()
                     message = 'Successfully restored question'
                     message_class = 'alert-box success'
             else:
@@ -2616,6 +2640,7 @@ def restore_bonus(request):
                     bonus.part3_text = bonus_history.part3_text
                     bonus.part3_answer = bonus_history.part3_answer
                     bonus.save_question(edit_type=QUESTION_RESTORE, changer=user)
+                    cache.clear()
                     message = 'Successfully restored question'
                     message_class = 'alert-box success'
             else:
@@ -2750,6 +2775,7 @@ def convert_tossup(request):
 
                 message = 'Successfully changed tossup type'
                 message_class = 'alert-box success'
+                cache.clear()
             else:
                 message = 'You are not authorized to change this tossup type!'
                 message_class = 'alert-box warning'
@@ -2782,6 +2808,7 @@ def convert_bonus(request):
 
                 message = 'Successfully changed bonus type'
                 message_class = 'alert-box success'
+                cache.clear()
             else:
                 message = 'You are not authorized to change this bonus type!'
                 message_class = 'alert-box warning'
@@ -2913,6 +2940,7 @@ def bulk_change_set(request, qset_id):
 
                     message = "Successfully edited questions."
                     message_class = 'alert-box success'
+                    cache.clear()
                     return render_to_response('bulk_change_set.html',
                                              {'user': user,
                                               'tossups': tossups,
@@ -2926,6 +2954,7 @@ def bulk_change_set(request, qset_id):
 
                     message = "Successfully unedited questions."
                     message_class = 'alert-box success'
+                    cache.clear()
                     return render_to_response('bulk_change_set.html',
                                              {'user': user,
                                               'tossups': tossups,
@@ -2936,7 +2965,8 @@ def bulk_change_set(request, qset_id):
                                              context_instance=RequestContext(request))
                 elif (operation == 'packet'):
                     packets = Packet.objects.filter(question_set=qset)
-
+                    
+                    cache.clear()
                     return render_to_response('bulk_change_packet.html',
                                              {'user': user,
                                               'tossups': tossups,
@@ -2950,6 +2980,7 @@ def bulk_change_set(request, qset_id):
 
                     message = "Successfully locked questions."
                     message_class = 'alert-box success'
+                    cache.clear()
                     return render_to_response('bulk_change_set.html',
                                              {'user': user,
                                               'tossups': tossups,
@@ -2963,6 +2994,7 @@ def bulk_change_set(request, qset_id):
 
                     message = "Successfully unlocked questions."
                     message_class = 'alert-box success'
+                    cache.clear()
                     return render_to_response('bulk_change_set.html',
                                              {'user': user,
                                               'tossups': tossups,
@@ -2975,6 +3007,7 @@ def bulk_change_set(request, qset_id):
                     bulk_delete_questions(change_tossups, change_bonuses, qset, user)
                     message = "Successfully deleted questions."
                     message_class = 'alert-box success'
+                    cache.clear()
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
@@ -2991,6 +3024,7 @@ def bulk_change_set(request, qset_id):
                     bulk_convert_to_acf_style_tossup(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to ACF-style tossups."
                     message_class = 'alert-box success'
+                    cache.clear()
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
@@ -3007,6 +3041,7 @@ def bulk_change_set(request, qset_id):
                     bulk_convert_to_acf_style_bonus(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to ACF-style bonuses."
                     message_class = 'alert-box success'
+                    cache.clear()
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
@@ -3022,6 +3057,7 @@ def bulk_change_set(request, qset_id):
                     bulk_convert_to_vhsl_bonus(change_tossups, change_bonuses, qset, user)
                     message = "Successfully converted question type to VHSL bonuses."
                     message_class = 'alert-box success'
+                    cache.clear()
 
                     tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
                     bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
@@ -3036,6 +3072,7 @@ def bulk_change_set(request, qset_id):
                                              context_instance=RequestContext(request))
                 elif (operation == 'move'):
                     new_sets = user.question_set_editor.exclude(id=qset_id)
+                    cache.clear()
                     return render_to_response('bulk_move_question.html',
                                              {'user': user,
                                               'tossups': tossups,
@@ -3046,6 +3083,7 @@ def bulk_change_set(request, qset_id):
                                              context_instance=RequestContext(request))
                 elif (operation == 'author'):
                     writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset)).distinct()
+                    cache.clear()
 
                     return render_to_response('bulk_change_author.html',
                                              {'user': user,
@@ -3122,6 +3160,7 @@ def bulk_change_author(request, qset_id):
 
         message = 'Successfully changed author'
         message_class = 'alert-box success'
+        cache.clear()
 
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
@@ -3173,6 +3212,7 @@ def bulk_change_packet(request, qset_id):
 
         message = 'Successfully changed packet'
         message_class = 'alert-box success'
+        cache.clear()
 
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
@@ -3242,6 +3282,7 @@ def bulk_move_question(request, qset_id):
 
         message = 'Successfully moved questions'
         message_class = 'alert-box success'
+        cache.clear()
 
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')

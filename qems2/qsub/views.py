@@ -2227,16 +2227,19 @@ def search(request, passed_qset_id=None):
 
                 questions = []
                 for q_id in result_ids:
-                    fields = q_id.split('.')
-                    question_type = fields[1]
-                    question_id = int(fields[2])
-                    if question_type == 'tossup':
-                        question = Tossup.objects.get(id=question_id)
-                    elif question_type == 'bonus':
-                        question = Bonus.objects.get(id=question_id)
+                    try:
+                        fields = q_id.split('.')
+                        question_type = fields[1]
+                        question_id = int(fields[2])
+                        if question_type == 'tossup':
+                            question = Tossup.objects.get(id=question_id)
+                        elif question_type == 'bonus':
+                            question = Bonus.objects.get(id=question_id)
 
-                    if question.question_set == qset and (str(question.category) == search_category or search_category == 'All') and question not in questions:
-                        questions.append(question)
+                        if question.question_set == qset and (str(question.category) == search_category or search_category == 'All') and question not in questions:
+                            questions.append(question)
+                    except:
+                        print "Error retrieving search data for search query", query, sys.exc_info()[0]
 
                 result = questions
                 message = ''

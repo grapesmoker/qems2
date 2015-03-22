@@ -17,8 +17,7 @@ class TossupIndex(indexes.SearchIndex, indexes.Indexable):
         return Tossup
 
     def index_queryset(self, using=None):
-        # TODO: change this to return only recently edited questions
-        return self.get_model().objects.all()
+        return self.get_model().objects.filter(pub_date__lte=datetime.datetime.now())
 
 
 class BonusIndex(indexes.SearchIndex, indexes.Indexable):
@@ -33,5 +32,4 @@ class BonusIndex(indexes.SearchIndex, indexes.Indexable):
         return Bonus
 
     def index_queryset(self, using=None):
-        # TODO: change this to return only recently edited questions
-        return self.get_model().objects.all()
+        return self.get_model().objects.filter(pub_date__lte=datetime.datetime.now())

@@ -55,7 +55,7 @@ Bonuses Remaining: {{ category_status|bonuses_remaining }}, Bonus Completion: {{
             {% get_comment_list for tossup as comment_list %}
             {% for comment in comment_list %}
                 {% if not comment.is_removed %}
-                    {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
+                    <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
                 {% endif %}
             {% endfor %}
             </td>
@@ -98,7 +98,7 @@ Bonuses Remaining: {{ category_status|bonuses_remaining }}, Bonus Completion: {{
             {% get_comment_list for bonus as comment_list %}
             {% for comment in comment_list %}
                 {% if not comment.is_removed %}
-                    {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
+                    <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
                 {% endif %}
             {% endfor %}
             </td>

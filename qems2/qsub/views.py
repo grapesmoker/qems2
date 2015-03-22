@@ -1,6 +1,7 @@
 import json
 import csv
 import unicodecsv
+import time
 
 from django.template.loader import get_template
 from django.template import Context, RequestContext
@@ -312,6 +313,7 @@ def edit_question_set(request, qset_id):
         else:
             qset_editors = []
     else:
+        print "Begin edit_question_set get", time.strftime("%H:%M:%S")
         if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
 			# Just redirect to main in this case of no permissions
             # TODO: a better story
@@ -379,6 +381,7 @@ def edit_question_set(request, qset_id):
                                                                 
         comment_tab_list = get_comment_tab_list(tossup_dict, bonus_dict)                    
 
+    print "End edit_question_set get", time.strftime("%H:%M:%S")
     return render_to_response('edit_question_set.html',
                               {'form': form,
                                'user': user,

@@ -16,6 +16,7 @@
     <p class="{{ message_class }}">{{ message }}</p>
 {% endif %}
 <form action="" method="get">
+    <p>Note: Do not use accents or special characters when searching.  For instance, to search for &quot;Gabriel García Márquez&quot; enter &quot;Gabriel Garcia Marquez&quot;</p>
     <div class="row collapse">
         <div class="small-3 columns">
             <span class="prefix text-left" for="id_q">Search Term</span>
@@ -95,8 +96,7 @@
         <tr>
             <td>{{ question.author }}</td>
             {% if question|class_name == "Tossup" %}
-            <td>{{ question.tossup_text|safe|question_html}}<br>
-                ANSWER: {{ question.tossup_answer|safe|answer_html }}</td>
+            <td>{{ question|tossup_html }} </td>
             {% elif question|class_name == "Bonus" %}
             <td>
                 {{ question|bonus_html }}

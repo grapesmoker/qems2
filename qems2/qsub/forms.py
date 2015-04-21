@@ -20,7 +20,28 @@ class RegistrationFormWithName(RegistrationForm):
         if (len(email_list) != 0):
             print "dupe: " + str(len(email_list))
             self.add_error('email', ValidationError(_('Duplicate e-mail: %(value)s'), params={'value': email},))
+
+class WriterQuestionSetSettingsForm(forms.ModelForm):
     
+    class Meta:
+        model = WriterQuestionSetSettings
+        exclude = ['question_set', 'writer']
+
+    def __init__(self, *args, **kwargs):
+        super(WriterQuestionSetSettingsForm, self).__init__(*args, **kwargs)
+        self.fields['email_on_all_new_comments'] = forms.BooleanField(required=False)
+        self.fields['email_on_all_new_questions'] = forms.BooleanField(required=False)
+    
+class PerCategoryWriterSettingsForm(forms.Form):
+    email_on_new_comments = forms.BooleanField(required=False)
+    email_on_new_questions = forms.BooleanField(required=False)
+    distribution_entry_string = forms.CharField(max_length=200)
+    entry_id = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'display: none'}))
+
+    def __init__(self, *args, **kwargs):
+        super(PerCategoryWriterSettingsForm, self).__init__(*args, **kwargs)
+        self.fields['distribution_entry_string'].widget.attrs.update({'readonly': 'readonly'})
+        
 class WriterCreationForm(UserCreationForm):
 
     class Meta:
@@ -91,8 +112,8 @@ class TossupForm(forms.ModelForm):
 
     tossup_text = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'class': 'expanding'}))
     tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'rows': 1, 'class': 'expanding'}))
-    search_tossup_text = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_tossup_answer = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_question_content = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_question_answers = forms.CharField(widget=forms.HiddenInput, required=False)
     question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     editor = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     edited_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
@@ -171,13 +192,8 @@ class BonusForm(forms.ModelForm):
     part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'expanding', 'rows': 1}), required=False)
     part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'expanding', 'rows': 2}), required=False)
     part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'expanding', 'rows': 1}), required=False)
-    search_leadin = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part1_text = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part1_answer = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part2_text = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part2_answer = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part3_text = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part3_answer = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_question_content = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_question_answers = forms.CharField(widget=forms.HiddenInput, required=False)
     question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     editor = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     edited_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)

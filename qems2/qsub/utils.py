@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from bs4 import BeautifulSoup
 from django.utils.encoding import smart_unicode
+import unicodedata
 
 DEFAULT_ALLOWED_TAGS = ['b', 'i', 'u', 'strong', 'em']
 
@@ -100,62 +101,68 @@ def get_answer_no_formatting(line):
     output = output.replace('~', '')
     return output
 
+def get_formatted_question_html_for_bonus_answers(bonus):
+    return get_formatted_question_html(bonus.part1_answer[0:80], True, True, False) + '<br />' + get_formatted_question_html(bonus.part2_answer[0:80], True, True, False) + '<br />' + get_formatted_question_html(bonus.part3_answer[0:80], True, True, False) + '<br />'
+
 def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLines):
     italicsFlag = False
     parensFlag = False
     underlineFlag = False
-    output = ""
+    output = u""    
     for c in line:
-        if (c == "~"):
+        if (c == u"~"):
             if (not italicsFlag):
-                output += "<i>"
+                output += u"<i>"
                 italicsFlag = True
             else:
-                output += "</i>"
+                output += u"</i>"
                 italicsFlag = False
-        elif (c == "(" and allowParens):
-            output += "<strong>("
+        elif (c == u"(" and allowParens):
+            output += u"<strong>("
             parensFlag = True
-        elif (c == ")" and allowParens):
-            output += ")</strong>"
+        elif (c == u")" and allowParens):
+            output += u")</strong>"
             parensFlag = False
         else:
-            if (c == "_" and allowUnderlines):
+            if (c == u"_" and allowUnderlines):
                 if (not underlineFlag):
-                    output += "<u><b>"
+                    output += u"<u><b>"
                     underlineFlag = True
                 else:
-                    output += "</b></u>"
+                    output += u"</b></u>"
                     underlineFlag = False
             else:
                 output += c
 
     if (italicsFlag):
-        output += "</i>"
+        output += u"</i>"
 
     if (underlineFlag):
-        output += "</b></u>"
+        output += u"</b></u>"
 
     if (parensFlag):
-        output += "</strong>"
+        output += u"</strong>"
 
     if (allowNewLines):
-        output = output.replace("&lt;br&gt;", "<br />")
+        output = output.replace(u"&lt;br&gt;", u"<br />")
 
     return output
 
-def get_character_count(line):
+def get_character_count(line, ignore_pronunciation):
     count = 0
     parensFlag = False # Parentheses indicate pronunciation guide
     for c in line:
-        if (parensFlag):
-            if (c == ")"):
-                parensFlag = False
+        if (not ignore_pronunciation):
+            count = count + 1
         else:
-            if (c == "("):
-                parensFlag = True
-            elif (c != "~"):
-                count = count + 1 # Only count non-special chars not in pronunciation guide
+            if (parensFlag):
+                if (c == ")"):
+                    parensFlag = False
+            else:
+                if (c == "("):
+                    parensFlag = True
+                elif (c != "~"):
+                    count = count + 1 # Only count non-special chars not in pronunciation guide
 
     return count
 
@@ -207,23 +214,33 @@ def convert_smart_quotes(line):
 def strip_special_chars(line):
     return line.replace('_', '').replace('~', '')
 
+def strip_unicode(line):
+    return ''.join(c for c in unicodedata.normalize('NFKD', line)
+              if unicodedata.category(c) != 'Mn')
+
 def get_bonus_type_from_question_type(question_type):
     if (question_type is None or str(question_type) == ''):
-        print "bonus type none"
+        # print "bonus type none"
         return ACF_STYLE_BONUS
     elif (str(question_type) == VHSL_BONUS):
-        print "vhsl"
+        # print "vhsl"
         return VHSL_BONUS
     else:
-        print "acf"
+        # print "acf"
         return ACF_STYLE_BONUS
 
 def get_tossup_type_from_question_type(question_type):
     if (question_type is None or str(question_type) == ''):
-        print "tossup type none"
+        # print "tossup type none"
         return ACF_STYLE_TOSSUP
     else:
         return ACF_STYLE_TOSSUP
+
+def strip_answer_from_answer_line(line):
+    if (line is not None):
+        line = line.replace("ANSWER: ", "")
+    
+    return line
 
 class InvalidTossup(Exception):
 

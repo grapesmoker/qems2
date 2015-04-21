@@ -8,15 +8,14 @@
 {% load filters %}
 {% load comments %}
 
-{% block title %}{% if category %}{{ category }} - QEMS2{% else %}Category View - QEMS2{% endif %}{% endblock %}
+{% block title %}{% if writer %}{{ writer }} - QEMS2{% else %}Contributor View - QEMS2{% endif %}{% endblock %}
 
 
 {% block content %}
 
-<h3 class="page-header">{{ category }}</h3>
-<p>Overall Percent: {{ category_status|overall_percent}}<br />
-Tossups Remaining: {{ category_status|tossups_remaining }}, Tossup Completion: {{ category_status.tu_in_cat|percent:category_status.tu_req }}<br />
-Bonuses Remaining: {{ category_status|bonuses_remaining }}, Bonus Completion: {{ category_status.bs_in_cat|percent:category_status.bs_req }}</p>
+<h3 class="page-header">{{ writer }}</h3>
+<p>Tossups Written: {{ writer_status.tossups_written}}<br />
+Bonuses Written: {{ writer_status.bonuses_written }}</p>
 <ul class="button-group even">
     <li><a class="button primary open-all tossup bonus"><i class="fa fa-external-link"></i> Open All Questions</a></li>
     <li><a class="button primary open-all tossup"><i class="fa fa-external-link"></i> Open All Tossups</a></li>
@@ -55,7 +54,7 @@ Bonuses Remaining: {{ category_status|bonuses_remaining }}, Bonus Completion: {{
             {% get_comment_list for tossup as comment_list %}
             {% for comment in comment_list %}
                 {% if not comment.is_removed %}
-                    <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
+                    {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
                 {% endif %}
             {% endfor %}
             </td>
@@ -98,7 +97,7 @@ Bonuses Remaining: {{ category_status|bonuses_remaining }}, Bonus Completion: {{
             {% get_comment_list for bonus as comment_list %}
             {% for comment in comment_list %}
                 {% if not comment.is_removed %}
-                    <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
+                    {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
                 {% endif %}
             {% endfor %}
             </td>

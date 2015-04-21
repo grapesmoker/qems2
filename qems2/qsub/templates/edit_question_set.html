@@ -16,11 +16,12 @@
 
 <dl class="tabs" data-tab>
     <dd class="active"><a href="#qset-info">Overall Info</a></dd>
-    <dd><a href="#questions">All Questions</a></dd>
+    <dd><a href="#questions">Recent Questions</a></dd>
+    <dd><a href="#comments">Recent Comments</a></dd> 
     <dd><a href="#editors">Contributors</a></dd>
     <dd><a href="#packets">Packets</a></dd>
     <dd><a href="#set-wide-distribution">Set-wide Distro</a></dd>
-    <dd><a href="#tiebreak-distribution">Tiebreaker Distro</a></dd>
+    <dd><a href="#tiebreak-distribution">Tiebreaker Distro</a></dd>    
 </dl>
 
 <div class="tabs-content">
@@ -158,21 +159,29 @@
                     {{ form.max_vhsl_bonus_length }}
                     </label>
                 </li>
+                <li>
+                    <label>Character Counts Ignore Pronunciation Guides
+                        {{ form.char_count_ignores_pronunciation_guides }}
+                    </label>
+                </li>                
             </ul>
-            {% if not read_only %}
+            {% if role == "editor" %}
                 <input type="submit" value="Submit Changes" class="button primary right" />
             {% endif %}
         </form>
         <div class="panel header radius text-center">
             <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
         </div>
-        {% if not read_only %}
+        {% if role == "editor" %}
             <div class="panel header radius text-center">
                 <strong><a href="/bulk_change_set/{{ qset.id }}">Make Bulk Changes to this Set</a></strong>
             </div>
         {% endif %}
+        <div class="panel header radius text-center">
+            <strong><a href="/writer_question_set_settings/{{ qset.id }}">Your settings for this set</a></strong>
+        </div>        
         <a id="#qset-comments"></a>
-        <div class="panel header radius text-center"><strong>Comments</strong></div>
+        <div class="panel header radius text-center"><strong>Set-Wide Comments</strong></div>
         <div class="comments small-6 columns end">
             {% autoescape off %}
                 {% get_comment_list for qset as comment_list %}
@@ -203,9 +212,42 @@
             </form>
         </div>
     </div>
-
+    <div class="content" id="comments">        
+        <table class="tablesorter table-striped table-hover" id="comments-table">
+            <thead>
+                <tr>
+                    <th>Commenter</th>
+                    <th>Comment</th>
+                    <th>Question</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% autoescape off %}                
+                    {% for comment in comment_tab_list %}     
+                        <tr>
+                            <td>{{ comment.comment.user }}</td>
+                            <td>{{ comment.comment.comment|comment_html }}</td>                    
+                            <td><a href="/edit_{{ comment.question_type }}/{{ comment.question_id }}">{{ comment.question_text }}</a></td>
+                            <td>{{ comment.comment.submit_date }}</td>
+                            <td>
+                                {% if role == "editor" %}
+                                    <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
+                                        <a href="/delete_comment/{{ comment.comment.id }}" class="delete_comment" value="{{ comment.comment.id }}" qset="{{ qset.id }}">
+                                            <i class="fa fa-minus-circle"></i>
+                                        </a>
+                                    </span>                        
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% endautoescape %}
+            </tbody>
+        </table>
+    </div>
     <div class="content" id="editors">
-        {% if not read_only %}
+        {% if role == "editor" %}
             <ul class="button-group even">
                 <li><a href="/add_editor/{{ qset.id }}" class="button primary" id="btn-add-editor"><i class="fa fa-plus-circle"></i> Add an Editor</a></li>
                 <li><a href="/add_writer/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add a Writer</a></li>
@@ -220,6 +262,7 @@
                     <th>Username</th>
                     <th>Tossups Written</th>
                     <th>Bonuses Written</th>
+                    <th>% of Set Written</th>
                     <th>Actions</th>
                 </tr>
             </thead>
@@ -233,10 +276,11 @@
                     {% elif writer.writer in writers %}
                     <td>Writer</td>
                     {% endif %}
-                    <td>{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</td>
-                    <td>{{ writer.writer.user.username }}</td>
+                    <td><a href="/contributor/{{ qset.id }}/{{ writer.writer.id}}">{{ writer.writer.user.first_name }} {{ writer.writer.user.last_name }}</a></td>
+                    <td><a href="/contributor/{{ qset.id }}/{{ writer.writer.id}}">{{ writer.writer.user.username }}</a></td>
                     <td>{{ writer.tu_written }}</td>
                     <td>{{ writer.bonus_written }}</td>
+                    <td>{{ writer.question_percent|floatformat }}%</td>
                     <td>
                         {% if writer.writer.user.username != qset.owner.user.username %}
                         <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
@@ -281,8 +325,8 @@
                         <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
                         <td>{{ entry.category.value }}</td>
                         <td>{{ entry.subcategory.value }}</td>
-                        <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                        <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
+                        <td>{% if role == "editor" %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                        <td>{% if role == "editor" %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -317,8 +361,8 @@
                         <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
                         <td>{{ entry.category.value }}</td>
                         <td>{{ entry.subcategory.value }}</td>
-                        <td>{% if read_only %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                        <td>{% if read_only %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
+                        <td>{% if role == "editor" %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                        <td>{% if role == "editor" %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -328,102 +372,110 @@
         </form>
     </div>
     <div class="content" id="questions">
-        <div class="panel header radius text-center"><strong>Tossups</strong></div>
-        <table class="tablesorter table-striped table-hover" id="tossup-table">
-            <thead>
-                <tr>
-                    <th>Author</th>
-                    <th>Preview</th>
-                    <th>Answer</th>
-                    <th>Question Type</th>
-                    <th>Category</th>
-                    <th>Packet</th>
-                    <th>Created</th>
-                    <th>Modified</th>
-                    <th>Edited</th>
-                    <th>Comments</th>
-                    <th>Last Comment</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% autoescape off %}
-                {% for tossup in tossups %}
-                <tr>
-                    <td>{{ tossup.author }}</td>
-                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
-                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
-                    <td>Tossup</td>
-                    <td>{{ tossup.category }}</td>
-                    <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
-                    <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
-                    <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
-                    <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
-                    <td>
-                        {% get_comment_list for tossup as comment_list %}
-                        {% for comment in comment_list %}
-                            {% if not comment.is_removed %}
-                                {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
-                            {% endif %}
-                        {% endfor %}
-                    </td>
-                    <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
-                </tr>
-                {% endfor %}
-            {% endautoescape %}
-            </tbody>
-        </table>
-        <div class="panel header radius text-center"><strong>Bonuses</strong></div>
-        <table class="tablesorter table-striped table-hover" id="bonus-table">
-            <thead>
-                <tr>
-                    <th>Author</th>
-                    <th>Preview</th>
-                    <th>Answer</th>
-                    <th>Question Type</th>
-                    <th>Category</th>
-                    <th>Packet</th>
-                    <th>Created</th>
-                    <th>Modified</th>
-                    <th>Edited</th>
-                    <th>Comments</th>
-                    <th>Last Comment</th>
-                </tr>
-            </thead>
-            <tbody>
-            {% autoescape off %}
-                {% for bonus in bonuses %}
-                <tr>
-                    <td>{{ bonus.author }}</td>
-                    <td>
-                        <a href="/edit_bonus/{{ bonus.id }}">
-                            {% if bonus.get_bonus_type == "ACF-style bonus" %}
-                                {{ bonus.leadin|safe|preview|question_html }}
-                            {% elif bonus.get_bonus_type == "VHSL bonus" %}
-                                {{ bonus.part1_text|safe|preview|question_html }}
-                            {% endif %}
-                        </a>
-                    </td>
-                    <td><a href="/edit_bonus/{{ bonus.id }}">{{ bonus|bonus_answers }}</a></td>
-                    <td>{{ bonus.question_type }}</td>
-                    <td>{{ bonus.category }}</td>
-                    <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
-                    <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
-                    <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
-                    <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
-                    <td>
-                        {% get_comment_list for bonus as comment_list %}
-                        {% for comment in comment_list %}
-                            {% if not comment.is_removed %}
-                                {{comment.user}}: {{ comment.comment|preview|comment_html }}<br>
-                            {% endif %}
-                        {% endfor %}
-                    </td>
-                    <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
-                </tr>
-                {% endfor %}
-            {% endautoescape %}
-            </tbody>
-        </table>
+        <p><a href="#bonuses">Jump to bonuses</a></p>
+        <div id="tossups">
+            <div class="panel header radius text-center"><strong>Tossups</strong></div>
+            <table class="tablesorter table-striped table-hover" id="tossup-table">
+                <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th>Preview</th>
+                        <th>Answer</th>
+                        <th>Question Type</th>
+                        <th>Category</th>
+                        <th>Packet</th>
+                        <th>Created</th>
+                        <th>Modified</th>
+                        <th>Edited</th>
+                        <th>Comments</th>
+                        <th>Last Comment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% autoescape off %}
+                    {% for tossup in tossups %}
+                    <tr>
+                        <td>{{ tossup.author }}</td>
+                        <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
+                        <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
+                        <td>Tossup</td>
+                        <td>{{ tossup.category }}</td>
+                        <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
+                        <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
+                        <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
+                        <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                        <td>
+                            {% get_comment_list for tossup as comment_list %}
+                            {% for comment in comment_list %}
+                                {% if not comment.is_removed %}
+                                    <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endautoescape %}
+                </tbody>
+            </table>
+        </div>
+        <p><a href="#tossups">Jump to tossups</a></p>        
+        <div id="bonuses">        
+            <div class="panel header radius text-center"><strong>Bonuses</strong></div>
+            <table class="tablesorter table-striped table-hover" id="bonus-table">
+                <thead>
+                    <tr>
+                        <th>Author</th>
+                        <th>Preview</th>
+                        <th>Answer</th>
+                        <th>Question Type</th>
+                        <th>Category</th>
+                        <th>Packet</th>
+                        <th>Created</th>
+                        <th>Modified</th>
+                        <th>Edited</th>
+                        <th>Comments</th>
+                        <th>Last Comment</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% autoescape off %}
+                    {% for bonus in bonuses %}
+                    <tr>
+                        <td>{{ bonus.author }}</td>
+                        <td>
+                            <a href="/edit_bonus/{{ bonus.id }}">
+                                {% if bonus.get_bonus_type == "ACF-style bonus" %}
+                                    {{ bonus.leadin|safe|preview|question_html }}
+                                {% elif bonus.get_bonus_type == "VHSL bonus" %}
+                                    {{ bonus.part1_text|safe|preview|question_html }}
+                                {% endif %}
+                            </a>
+                        </td>
+                        <td><a href="/edit_bonus/{{ bonus.id }}">{{ bonus|bonus_answers }}</a></td>
+                        <td>{{ bonus.question_type }}</td>
+                        <td>{{ bonus.category }}</td>
+                        <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                        <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
+                        <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
+                        <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                        <td>
+                            {% get_comment_list for bonus as comment_list %}
+                            {% for comment in comment_list %}
+                                {% if not comment.is_removed %}
+                                    <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                {% endautoescape %}
+                </tbody>
+            </table>
+        </div>        
+        <p><a href="#tossups">Jump to tossups</a></p>
+        <p><a href="#bonuses">Jump to bonuses</a></p>                
     </div>
     <div class="content" id="packets">
         <ul class="button-group even">
@@ -441,7 +493,7 @@
                 {% for packet in packets %}
                 <tr>
                     <td>
-                        {% if not read_only %}
+                        {% if role == "editor" %}
                         <a href="/edit_packet/{{ packet.id }}">{{ packet.packet_name }}</a>
                         {% else %}
                         {{ packet.packet_name }}

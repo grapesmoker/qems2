@@ -136,6 +136,7 @@ class QuestionSet (models.Model):
     max_acf_tossup_length = models.PositiveIntegerField(default=750)
     max_acf_bonus_length = models.PositiveIntegerField(default=400)
     max_vhsl_bonus_length = models.PositiveIntegerField(default=100)
+    char_count_ignores_pronunciation_guides = models.BooleanField(default=True)
 
     class Admin: pass
 
@@ -423,9 +424,9 @@ class Tossup (models.Model):
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
-
-    search_tossup_text = models.TextField(default='')
-    search_tossup_answer = models.TextField(default='')
+    
+    search_question_content = models.TextField(default='')
+    search_question_answers = models.TextField(default='')
 
     question_history = models.ForeignKey(QuestionHistory, null=True)
 
@@ -436,7 +437,11 @@ class Tossup (models.Model):
 
     # Calculates character count, ignoring special characters
     def character_count(self):
-        return get_character_count(self.tossup_text)
+        char_count_ignores_pronunciation_guides = True
+        if (self.get_question_set() is not None):
+            char_count_ignores_pronunciation_guides = self.question_set.char_count_ignores_pronunciation_guides        
+        
+        return get_character_count(self.tossup_text, char_count_ignores_pronunciation_guides)
 
     def save(self, *args, **kwargs):
         self.setup_search_fields()
@@ -474,6 +479,15 @@ class Tossup (models.Model):
         tossup_answer = html_to_latex(self.tossup_answer, html_to_latex_dict)
 
         return r'\tossup{{{0}}}{{{1}}}'.format(tossup_text, tossup_answer) + '\n'
+
+    def to_plain_text(self, include_category=False, include_character_count=False):
+        output = self.tossup_text + "\nANSWER: " + self.tossup_answer + "\n"
+        if (include_category and self.category is not None):
+            output = output + str(self.category) + "\n"
+        if (include_character_count):
+            output = output + str(self.character_count()) + "\n"
+        
+        return output
 
     def to_html(self, include_category=False, include_character_count=False):
 
@@ -516,9 +530,13 @@ class Tossup (models.Model):
 
         return True
 
-    def setup_search_fields(self):
-        self.search_tossup_text = strip_special_chars(self.tossup_text)
-        self.search_tossup_answer = strip_special_chars(self.tossup_answer)
+    def setup_search_fields(self, remove_unicode=True):
+        if (remove_unicode):
+            self.search_question_content = strip_special_chars(strip_unicode(self.tossup_text))
+            self.search_question_answers = strip_special_chars(strip_unicode(self.tossup_answer))
+        else:            
+            self.search_question_content = strip_special_chars(self.tossup_text)
+            self.search_question_answers = strip_special_chars(self.tossup_answer)
 
     def get_question_set(self):
         try:
@@ -537,7 +555,6 @@ class Tossup (models.Model):
         return tossups, bonuses
 
     def save_question(self, edit_type, changer):
-        print "Changer: " + str(changer)
 
         if (self.question_history is None):
             qh = QuestionHistory()
@@ -549,9 +566,8 @@ class Tossup (models.Model):
         if (edit_type == QUESTION_EDIT):
             self.editor = changer
             self.edited_date = timezone.now()
-
-        print "Question History: " + str(self.question_history)
-
+        
+        self.tossup_answer = strip_answer_from_answer_line(self.tossup_answer)
         tossup_history = TossupHistory()
         tossup_history.tossup_text = self.tossup_text
         tossup_history.tossup_answer = self.tossup_answer
@@ -560,6 +576,7 @@ class Tossup (models.Model):
         tossup_history.changer = changer
         tossup_history.change_date = timezone.now()
         tossup_history.save()
+        self.setup_search_fields()
 
         self.save()
 
@@ -597,13 +614,8 @@ class Bonus(models.Model):
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
 
-    search_leadin = models.CharField(max_length=500, null=True, default='')
-    search_part1_text = models.TextField(default='')
-    search_part1_answer = models.TextField(default='')
-    search_part2_text = models.TextField(null=True, default='')
-    search_part2_answer = models.TextField(null=True, default='')
-    search_part3_text = models.TextField(null=True, default='')
-    search_part3_answer = models.TextField(null=True, default='')
+    search_question_content = models.TextField(default='')
+    search_question_answers = models.TextField(default='')
 
     created_date = models.DateTimeField()
     last_changed_date = models.DateTimeField()
@@ -612,10 +624,14 @@ class Bonus(models.Model):
 
     # Calculates character count, ignoring special characters
     def character_count(self):
-        leadin_count = get_character_count(self.leadin)
-        part1_count = get_character_count(self.part1_text)
-        part2_count = get_character_count(self.part2_text)
-        part3_count = get_character_count(self.part3_text)
+        char_count_ignores_pronunciation_guides = True
+        if (self.get_question_set() is not None):
+            char_count_ignores_pronunciation_guides = self.question_set.char_count_ignores_pronunciation_guides  
+        
+        leadin_count = get_character_count(self.leadin, char_count_ignores_pronunciation_guides)
+        part1_count = get_character_count(self.part1_text, char_count_ignores_pronunciation_guides)
+        part2_count = get_character_count(self.part2_text, char_count_ignores_pronunciation_guides)
+        part3_count = get_character_count(self.part3_text, char_count_ignores_pronunciation_guides)
         return leadin_count + part1_count + part2_count + part3_count
 
     def save(self, *args, **kwargs):
@@ -680,6 +696,31 @@ class Bonus(models.Model):
             return get_formatted_question_html(self.leadin, False, True, False)
         elif (self.get_bonus_type() == VHSL_BONUS):
             return get_formatted_question_html(self.part1_text, False, True, False)
+        return output
+
+    def to_plain_text(self, include_category=False, include_character_count=False):
+        output = ''
+
+        if (self.get_bonus_type() == ACF_STYLE_BONUS):
+            output = output + self.leadin + "\n"
+            output = output + "[10] " + self.part1_text + "\n"
+            output = output + "ANSWER: " + self.part1_answer + "\n"
+            output = output + "[10] " + self.part2_text + "\n"
+            output = output + "ANSWER: " + self.part2_answer + "\n"
+            output = output + "[10] " + self.part3_text + "\n"
+            output = output + "ANSWER: " + self.part3_answer + "\n"
+            if (include_category and self.category is not None):
+                output = output + str(self.category) + "\n"
+            if (include_character_count):
+                output = output + str(self.character_count()) + "\n"
+        elif (self.get_bonus_type() == VHSL_BONUS):
+            output = output + "[10] " + self.part1_text + "\n"
+            output = output + "ANSWER: " + self.part1_answer + "\n"
+            if (include_category and self.category is not None):
+                output = output + str(self.category) + "\n"
+            if (include_character_count):
+                output = output + str(self.character_count()) + "\n"
+        
         return output
 
     def to_html(self, include_category=False, include_character_count=False):
@@ -782,14 +823,13 @@ class Bonus(models.Model):
         else:
             raise InvalidBonus('question_type', self.question_type, self.question_number)
 
-    def setup_search_fields(self):
-        self.search_leadin = strip_special_chars(self.leadin)
-        self.search_part1_text = strip_special_chars(self.part1_text)
-        self.search_part1_answer = strip_special_chars(self.part1_answer)
-        self.search_part2_text = strip_special_chars(self.part2_text)
-        self.search_part2_answer = strip_special_chars(self.part2_answer)
-        self.search_part3_text = strip_special_chars(self.part3_text)
-        self.search_part3_answer = strip_special_chars(self.part3_answer)
+    def setup_search_fields(self, remove_unicode=True):
+        if (remove_unicode):
+            self.search_question_content = strip_special_chars(strip_unicode(self.leadin)) + " " + strip_special_chars(strip_unicode(self.part1_text)) + " " + strip_special_chars(strip_unicode(self.part2_text)) + " " + strip_special_chars(strip_unicode(self.part3_text))
+            self.search_question_answers = strip_special_chars(strip_unicode(self.part1_answer)) + " " + strip_special_chars(strip_unicode(self.part2_answer)) + " " + strip_special_chars(strip_unicode(self.part3_answer))
+        else:
+            self.search_question_content = strip_special_chars(self.leadin) + " " + strip_special_chars(self.part1_text) + " " + strip_special_chars(self.part2_text) + " " + strip_special_chars(self.part3_text)
+            self.search_question_answers = strip_special_chars(self.part1_answer) + " " + strip_special_chars(self.part2_answer) + " " + strip_special_chars(self.part3_answer)
 
     def get_question_set(self):
         try:
@@ -830,6 +870,10 @@ class Bonus(models.Model):
             self.part3_text = ''
             self.part3_answer = ''
 
+        self.part1_answer = strip_answer_from_answer_line(self.part1_answer)
+        self.part2_answer = strip_answer_from_answer_line(self.part2_answer)
+        self.part3_answer = strip_answer_from_answer_line(self.part3_answer)
+
         bonus_history = BonusHistory()
         bonus_history.leadin = self.leadin
         bonus_history.part1_text = self.part1_text
@@ -843,10 +887,8 @@ class Bonus(models.Model):
         bonus_history.changer = changer
         bonus_history.change_date = timezone.now()
         bonus_history.save()
+        self.setup_search_fields()
         self.save()
-
-        print "bonus_history question_history: " + str(bonus_history.question_history.id)
-        print "self.question_history: " + str(self.question_history.id)
 
 class TossupHistory(models.Model):
     tossup_text = models.TextField()
@@ -908,6 +950,25 @@ class BonusHistory(models.Model):
 class Tag(models.Model):
 
     pass
+
+class WriterQuestionSetSettings(models.Model):
+    writer = models.ForeignKey(Writer)
+    question_set = models.ForeignKey(QuestionSet)
+    email_on_all_new_comments = models.BooleanField(default=False)
+    email_on_all_new_questions = models.BooleanField(default=False)
+    
+    # Creates new per category writer settings for this object
+    def create_per_category_writer_settings(self):
+        print "self id: " + str(self.id)
+        for de in self.question_set.distribution.distributionentry_set.all():
+            pcws = PerCategoryWriterSettings(writer_question_set_settings=self, distribution_entry=de)
+            pcws.save()
+            
+class PerCategoryWriterSettings(models.Model):
+    writer_question_set_settings = models.ForeignKey(WriterQuestionSetSettings)
+    distribution_entry = models.ForeignKey(DistributionEntry)
+    email_on_new_questions = models.BooleanField(default=False)
+    email_on_new_comments = models.BooleanField(default=False)
 
 def create_user_profile(sender, instance, created, **kwargs):
     if created:

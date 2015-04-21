@@ -12,6 +12,13 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 60 * 10,
+    }
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
@@ -107,6 +114,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+#    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -119,6 +127,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'qems2.urls'
 
 AUTH_PROFILE_MODULE = 'qsub.Player'
+
+INTERNAL_IPS = ('127.0.0.1')
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'qems2.wsgi.application'
@@ -142,11 +152,10 @@ INSTALLED_APPS = (
     'django_comments',
     'djangobower',
     'unicodecsv',
-    # 'debug_toolbar',
+#    'debug_toolbar',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
     'registration',
-
     'qems2.qsub',
 )
 

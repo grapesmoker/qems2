@@ -111,6 +111,12 @@ def overall_percent(entry):
     if (bs_req is None):
         bs_req = 0
 
+    if (tu_in_cat > tu_req):
+        tu_in_cat = tu_req
+        
+    if (bs_in_cat > bs_req):
+        bs_in_cat = bs_req
+
     percentage = fpercent(tu_in_cat + bs_in_cat, tu_req + bs_req)
     if percentage == None:
         return mark_safe('<i class="fa fa-check"></i> ' + str(percentage))

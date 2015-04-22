@@ -554,6 +554,7 @@ def add_editor(request, qset_id):
                         print "No writer to delete" # TODO: Come up with a better way of handling this
 
                 qset.save()
+                cache.clear()
                 set_editors = qset.editor.all()
                 available_editors = [writer for writer in Writer.objects.all().order_by('user__last_name', 'user__first_name', 'user__username') #exclude(is_active=False)
                                      if writer not in set_editors and
@@ -614,6 +615,7 @@ def add_writer(request, qset_id):
                     writer = Writer.objects.get(id=writer_id)
                     qset.writer.add(writer)
                 qset.save()
+                cache.clear()
                 set_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset)).distinct().order_by('user__last_name', 'user__first_name', 'user__username')
                 available_writers = [writer for writer in Writer.objects.all().order_by('user__last_name', 'user__first_name', 'user__username') #exclude(is_active=False)
                                      if writer not in set_writers and

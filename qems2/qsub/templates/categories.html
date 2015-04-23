@@ -33,92 +33,104 @@
         <li><a href="/search/{{ qset.id }}/" class="button primary"><i class="fa fa-search"></i> Search</a></li>
     </ul>
     
-    <table class="tablesorter table-striped table-hover" id="category-tossup-table">
-        <thead>
-            <tr>
-                <th>Author</th>
-                <th>Preview</th>
-                <th>Answer</th>
-                <th>Question Type</th>
-                <th>Category</th>
-                <th>Packet</th>
-                <th>Created</th>
-                <th>Modified</th>
-                <th>Edited</th>
-                <th>Comments</th>
-                <th>Last Comment</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% autoescape off %}
-            {% for tossup in tossups %}
-            <tr>
-                <td>{{ tossup.author }}</td>
-                <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
-                <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
-                <td>Tossup</td>
-                <td>{{ tossup.category }}</td>
-                <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
-                <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
-                <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
-                <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
-                <td>
-                {% get_comment_list for tossup as comment_list %}
-                {% for comment in comment_list %}
-                    {% if not comment.is_removed %}
-                        <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
-                    {% endif %}
+    <p><a href="#bonuses">Jump to bonuses</a></p>
+    <div id="tossups">
+        <div class="panel header radius text-center"><strong>Tossups</strong></div>    
+        <table class="tablesorter table-striped table-hover" id="category-tossup-table">
+            <thead>
+                <tr>
+                    <th>Author</th>
+                    <th>Preview</th>
+                    <th>Answer</th>
+                    <th>Question Type</th>
+                    <th>Category</th>
+                    <th>Packet</th>
+                    <th>Created</th>
+                    <th>Modified</th>
+                    <th>Edited</th>
+                    <th>Comments</th>
+                    <th>Last Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% autoescape off %}
+                {% for tossup in tossups %}
+                <tr>
+                    <td>{{ tossup.author }}</td>
+                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
+                    <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
+                    <td>Tossup</td>
+                    <td>{{ tossup.category }}</td>
+                    <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
+                    <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
+                    <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
+                    <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                    <td>
+                    {% get_comment_list for tossup as comment_list %}
+                    {% for comment in comment_list %}
+                        {% if not comment.is_removed %}
+                            <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                    <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
+                </tr>
                 {% endfor %}
-                </td>
-                <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
-            </tr>
-            {% endfor %}
-        {% endautoescape %}
-        </tbody>
-    </table>
-    <table class="tablesorter table-striped table-hover" id="category-bonus-table">
-        <thead>
-            <tr>
-                <th>Author</th>
-                <th>Preview</th>
-                <th>Answer</th>
-                <th>Question Type</th>
-                <th>Category</th>
-                <th>Packet</th>
-                <th>Created</th>
-                <th>Modified</th>
-                <th>Edited</th>
-                <th>Comments</th>
-                <th>Last Comment</th>
-            </tr>
-        </thead>
-        <tbody>
-        {% autoescape off %}
-            {% for bonus in bonuses %}
-            <tr>
-                <td>{{ bonus.author }}</td>
-                <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_leadin }}</a></td>
-                <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_answers }}</a></td>
-                <td>Bonus</td>
-                <td>{{ bonus.category }}</td>
-                <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
-                <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
-                <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
-                <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
-                <td>
-                {% get_comment_list for bonus as comment_list %}
-                {% for comment in comment_list %}
-                    {% if not comment.is_removed %}
-                        <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
-                    {% endif %}
+            {% endautoescape %}
+            </tbody>
+        </table>
+    </div>
+    
+    <p><a href="#tossups">Jump to tossups</a></p>
+    <div id="bonuses">
+        <div class="panel header radius text-center"><strong>Bonuses</strong></div>
+        <table class="tablesorter table-striped table-hover" id="category-bonus-table">
+            <thead>
+                <tr>
+                    <th>Author</th>
+                    <th>Preview</th>
+                    <th>Answer</th>
+                    <th>Question Type</th>
+                    <th>Category</th>
+                    <th>Packet</th>
+                    <th>Created</th>
+                    <th>Modified</th>
+                    <th>Edited</th>
+                    <th>Comments</th>
+                    <th>Last Comment</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% autoescape off %}
+                {% for bonus in bonuses %}
+                <tr>
+                    <td>{{ bonus.author }}</td>
+                    <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_leadin }}</a></td>
+                    <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_answers }}</a></td>
+                    <td>Bonus</td>
+                    <td>{{ bonus.category }}</td>
+                    <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                    <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
+                    <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
+                    <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                    <td>
+                    {% get_comment_list for bonus as comment_list %}
+                    {% for comment in comment_list %}
+                        {% if not comment.is_removed %}
+                            <strong>{{comment.user}}:</strong> {{ comment.comment|preview|comment_html }}<br>
+                        {% endif %}
+                    {% endfor %}
+                    </td>
+                    <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
+                </tr>
                 {% endfor %}
-                </td>
-                <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
-            </tr>
-            {% endfor %}
-        {% endautoescape %}
-        </tbody>
-    </table>
+            {% endautoescape %}
+            </tbody>
+        </table>
+    </div>
+
+    <p><a href="#tossups">Jump to tossups</a></p>
+    <p><a href="#bonuses">Jump to bonuses</a></p>
 
     {% endblock %}
     

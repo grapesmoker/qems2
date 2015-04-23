@@ -192,7 +192,6 @@ def create_question_set (request):
                               context_instance=RequestContext(request))
 
 @login_required
-@cache_page(60 * 10)
 def edit_question_set(request, qset_id):
     read_only = False
     message = ''
@@ -407,7 +406,6 @@ def edit_question_set(request, qset_id):
                               context_instance=RequestContext(request))
 
 @login_required
-@cache_page(60 * 10)
 def categories(request, qset_id, category_id):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
@@ -447,6 +445,32 @@ def categories(request, qset_id, category_id):
         'message': message,
         'category': category_object},
         context_instance=RequestContext(request))	
+
+@login_required
+def view_all_questions(request, qset_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+    qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()
+
+    message = ''
+    tossups = []
+    bonuses = []
+    if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
+        message = 'You are not authorized to view this set'
+    else:
+        tossups = Tossup.objects.filter(question_set=qset)
+        bonuses = Bonus.objects.filter(question_set=qset)
+        	
+    return render_to_response('view_all_questions.html',
+        {
+        'user': user,
+        'tossups': tossups,
+        'bonuses': bonuses,
+        'qset': qset,
+        'message': message},
+        context_instance=RequestContext(request))	
+
 
 @login_required
 def edit_set_distribution(request, qset_id):

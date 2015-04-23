@@ -84,7 +84,7 @@ urlpatterns = patterns('',
     (r'^move_bonus/(?P<q_set_id>[0-9]+)/(?P<bonus_id>[0-9]+)/$', move_bonus),
     (r'^convert_tossup/$', convert_tossup),
     (r'^convert_bonus/$',convert_bonus),
-    
+    (r'^view_all_questions/(?P<qset_id>[0-9]+)/$',view_all_questions),    
 
     # json calls
     (r'^get_unassigned_tossups/$', get_unassigned_tossups),
@@ -104,3 +104,7 @@ urlpatterns = patterns('',
     (r'^search/(?P<passed_qset_id>[0-9]+)/$', search),
 )
 
+#import debug_toolbar
+#urlpatterns += patterns('',
+#    url(r'^__debug__/', include(debug_toolbar.urls)),
+#)

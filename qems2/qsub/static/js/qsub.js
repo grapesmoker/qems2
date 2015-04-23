@@ -168,7 +168,7 @@ $(function () {
         var result = confirm("You are about to remove this writer from the set! Are you sure that you want to do that?");
         if (result == true) {
             var qset_id = $(this).attr('qset-id');
-            $.post('/delete_writer/', {writer_id: $(this).attr('value')}, function (response) {
+            $.post('/delete_writer/', {writer_id: $(this).attr('value'), qset_id: $(this).attr('qset-id')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
                     modal: true,
@@ -190,7 +190,7 @@ $(function () {
         var result = confirm("You are about to remove this editor from the set! Are you sure you want to do that?");
         if (result == true) {
             var qset_id = $(this).attr('qset-id');
-            $.post('/delete_editor/', {editor_id: $(this).attr('value')}, function (response) {
+            $.post('/delete_editor/', {editor_id: $(this).attr('value'), qset_id: $(this).attr('qset-id')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
                     modal: true,

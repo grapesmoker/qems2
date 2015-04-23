@@ -286,11 +286,20 @@
                     <td>{{ writer.question_percent|floatformat }}%</td>
                     <td>
                         {% if writer.writer.user.username != qset.owner.user.username %}
-                        <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
-                            <a href="/delete_writer/{{ writer.writer.id }}" class="delete_writer" value="{{ writer.writer.id }}"  qset-id="{{ qset.id }}">
-                                <i class="fa fa-minus-circle"></i>
-                            </a>
-                        </span>
+                        
+                            {% if writer.writer in editors %}
+                                <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
+                                    <a href="/delete_editor/{{ writer.writer.id }}" class="delete_editor" value="{{ writer.writer.id }}"  qset-id="{{ qset.id }}">
+                                        <i class="fa fa-minus-circle"></i>
+                                    </a>
+                                </span>                            
+                            {% else %}
+                                <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
+                                    <a href="/delete_writer/{{ writer.writer.id }}" class="delete_writer" value="{{ writer.writer.id }}"  qset-id="{{ qset.id }}">
+                                        <i class="fa fa-minus-circle"></i>
+                                    </a>
+                                </span>
+                            {% endif %}
                         {% endif %}
                     </td>
                 </tr>

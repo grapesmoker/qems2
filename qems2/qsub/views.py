@@ -2,6 +2,7 @@ import json
 import csv
 import unicodecsv
 import time
+import sys
 
 from django.template.loader import get_template
 from django.template import Context, RequestContext

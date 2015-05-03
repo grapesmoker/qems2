@@ -65,7 +65,7 @@ def email_on_comments(sender, instance, created, raw, using, update_fields, **kw
                         url)
 
                     print "Email list to send for new comment: ", str(email_list)
-                    print "Email details", subject, body)                        
+                    print "Email details", subject, body                 
                     send_mail(subject, body, settings.EMAIL_HOST_USER, mail_set, fail_silently=False)
                     print "Sent new comment mail to: " + str(mail_set)   
     except:
@@ -113,7 +113,7 @@ def email_on_new_questions(sender, instance, created, raw, using, update_fields,
                         url)
                     
                     print "Email list to send for new question: ", str(email_list)
-                    print "Email details", subject, body)
+                    print "Email details", subject, body
                     send_mail(subject, body, settings.EMAIL_HOST_USER, email_list, fail_silently=False)
                     print "Sent new question mail to: " + str(email_list)       
     except:

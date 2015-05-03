@@ -65,12 +65,10 @@ def email_on_comments(sender, instance, created, raw, using, update_fields, **kw
                         instance.comment,
                         url)
 
-                    print "Email list to send for new comment: ", str(email_list)
-                    print "Email details", subject, body                 
                     send_mail(subject, body, settings.EMAIL_HOST_USER, mail_set, fail_silently=False)
                     print "Sent new comment mail to: " + str(mail_set)   
     except:
-        print "Error sending mail for comments:", sys.exc_info()[0]
+        print "Error sending mail for comments:", sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
 
 @receiver(post_save)
 def email_on_new_questions(sender, instance, created, raw, using, update_fields, **kwargs):
@@ -85,7 +83,7 @@ def email_on_new_questions(sender, instance, created, raw, using, update_fields,
                 email_list = []
                 for writer in all_writers:
                     try:
-                        if (writer != instance.author or writer.user.username == "bentley"): # TODO: Remove this hard-coded reference to bentley once done debugging
+                        if (writer != instance.author):
                             set_settings = WriterQuestionSetSettings.objects.get(writer=writer, question_set=instance.question_set)
                             if (set_settings.email_on_all_new_questions):
                                 print "Matched all"
@@ -113,8 +111,6 @@ def email_on_new_questions(sender, instance, created, raw, using, update_fields,
                         instance.to_plain_text(),
                         url)
                     
-                    print "Email list to send for new question: ", str(email_list)
-                    print "Email details", subject, body
                     send_mail(subject, body, settings.EMAIL_HOST_USER, email_list, fail_silently=False)
                     print "Sent new question mail to: " + str(email_list)       
     except:

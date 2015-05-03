@@ -117,7 +117,7 @@ def email_on_new_questions(sender, instance, created, raw, using, update_fields,
                     send_mail(subject, body, settings.EMAIL_HOST_USER, email_list, fail_silently=False)
                     print "Sent new question mail to: " + str(email_list)       
     except:
-        print "Error sending mail for new question", sys.exc_info()[0]
+        print "Error sending mail for new question", sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
 
 # Called when a user is created, saves first and last name info
 @receiver(user_registered)

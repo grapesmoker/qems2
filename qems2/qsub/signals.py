@@ -63,8 +63,10 @@ def email_on_comments(sender, instance, created, raw, using, update_fields, **kw
                         str(instance.user),
                         instance.comment,
                         url)
-                        
-                    send_mail(subject, body, "QEMS2", mail_set)
+
+                    print "Email list to send for new comment: ", str(email_list)
+                    print "Email details", subject, body)                        
+                    send_mail(subject, body, settings.EMAIL_HOST_USER, mail_set, fail_silently=False)
                     print "Sent new comment mail to: " + str(mail_set)   
     except:
         print "Error sending mail for comments:", sys.exc_info()[0]
@@ -82,7 +84,7 @@ def email_on_new_questions(sender, instance, created, raw, using, update_fields,
                 email_list = []
                 for writer in all_writers:
                     try:
-                        if (writer != instance.author):
+                        if (writer != instance.author or writer.user.username == "bentley"): # TODO: Remove this hard-coded reference to bentley once done debugging
                             set_settings = WriterQuestionSetSettings.objects.get(writer=writer, question_set=instance.question_set)
                             if (set_settings.email_on_all_new_questions):
                                 print "Matched all"
@@ -109,8 +111,10 @@ def email_on_new_questions(sender, instance, created, raw, using, update_fields,
                         qset,
                         instance.to_plain_text(),
                         url)
-                        
-                    send_mail(subject, body, "QEMS2", email_list)
+                    
+                    print "Email list to send for new question: ", str(email_list)
+                    print "Email details", subject, body)
+                    send_mail(subject, body, settings.EMAIL_HOST_USER, email_list, fail_silently=False)
                     print "Sent new question mail to: " + str(email_list)       
     except:
         print "Error sending mail for new question", sys.exc_info()[0]

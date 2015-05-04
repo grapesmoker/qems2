@@ -187,18 +187,11 @@
                     {% autoescape off %}                
                         {% for comment in comment_tab_list %}     
                             <tr>
-                                <td>{{ comment.comment.user }}</td>
-                                <td>{{ comment.comment.comment }}</td>                    
-                                <td><a href="/edit_{{ comment.question_type }}/{{ comment.question_id }}">{{ comment.question_text }}</a></td>
-                                <td>{{ comment.comment.submit_date }}</td>
+                                <td>Test</td>
+                                <td>Test</td>                    
+                                <td><a href="/edit_{{ comment.question_type }}/{{ comment.question_id }}">Test</a></td>
+                                <td>Test</td>
                                 <td>
-                                    {% if role == "editor" %}
-                                        <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
-                                            <a href="/delete_comment/{{ comment.comment.id }}" class="delete_comment" value="{{ comment.comment.id }}" qset="{{ qset.id }}">
-                                                <i class="fa fa-minus-circle"></i>
-                                            </a>
-                                        </span>                        
-                                    {% endif %}
                                 </td>
                             </tr>
                         {% endfor %}

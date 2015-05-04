@@ -363,21 +363,35 @@ def move_comments_to_bonus(tossup, bonus):
 def get_question_type_from_string(question_type):
     return QuestionType.objects.get(question_type=question_type)
 
-def get_tossup_and_bonuses_in_set(qset, question_limit=30):
+def get_tossup_and_bonuses_in_set(qset, question_limit=30, preview_only=False):
     tossup_dict = {}
     tossups = []
     tossup_count = 0
     for tossup in Tossup.objects.filter(question_set=qset).order_by('-id'):
         if (tossup_count < question_limit):
-            tossups.append(tossup)
+            if (preview_only):
+                tossup.tossup_text = preview(tossup.tossup_text)
+                tossup.tossup_answer = preview(get_primary_answer(tossup.tossup_answer))
+            
+            tossups.append(tossup)            
             tossup_count += 1
         tossup_dict[tossup.id] = tossup
 
     bonus_dict = {}
     bonuses = []
+    short_bonuses = []
     bonus_count = 0
     for bonus in Bonus.objects.filter(question_set=qset).order_by('-id'):
         if (bonus_count < question_limit):
+            if (preview_only):
+                bonus.leadin = preview(bonus.leadin)
+                bonus.part1_text = preview(bonus.part1_text)
+                bonus.part1_answer = preview(get_primary_answer(bonus.part1_answer))
+                bonus.part2_text = preview(bonus.part2_text)
+                bonus.part2_answer = preview(get_primary_answer(bonus.part2_answer))
+                bonus.part3_text = preview(bonus.part3_text)
+                bonus.part3_answer = preview(get_primary_answer(bonus.part3_answer))
+            
             bonuses.append(bonus)
             bonus_count += 1
         bonus_dict[bonus.id] = bonus

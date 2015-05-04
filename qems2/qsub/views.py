@@ -198,7 +198,7 @@ def edit_question_set(request, qset_id):
     message = ''
     tossups = []
     bonuses = []
-
+    
     qset = QuestionSet.objects.get(id=qset_id)
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
@@ -235,11 +235,10 @@ def edit_question_set(request, qset_id):
             qset.save()
             cache.clear()
 
-            tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset)
+            tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset, question_limit=30, preview_only=True)
 
             if user == qset.owner:
-                set_distro_formset = create_set_distro_formset(qset)
-                tiebreak_formset = create_tiebreak_formset(qset)
+                read_only = False
             else:
                 read_only = True
 
@@ -294,8 +293,6 @@ def edit_question_set(request, qset_id):
                                        'editors': [ed for ed in qset_editors if ed != qset.owner],
                                        'writers': qset.writer.all(),
                                        'writer_stats': writer_stats,
-                                       'set_distro_formset': set_distro_formset,
-                                       'tiebreak_formset': tiebreak_formset,
                                        'upload_form': QuestionUploadForm(),
                                        'set_status': set_status,
                                        'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
@@ -319,24 +316,17 @@ def edit_question_set(request, qset_id):
             # TODO: a better story
             return HttpResponseRedirect('/main.html')
 
-        tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset)
+        tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset, question_limit=30, preview_only=True)
         
         if user not in qset_editors and user != qset.owner:
             form = QuestionSetForm(instance=qset, read_only=True)
             read_only = True
             message = 'You are not authorized to edit this tournament.'
-            if user in qset.writer.all():
-                set_distro_formset = create_set_distro_formset(qset)
-                tiebreak_formset = create_tiebreak_formset(qset)
         else:
             if user == qset.owner:
                 read_only = False
-                set_distro_formset = create_set_distro_formset(qset)
-                tiebreak_formset = create_tiebreak_formset(qset)
             elif user in qset.writer.all() or user in qset.editor.all():
                 read_only = True
-                set_distro_formset = create_set_distro_formset(qset)
-                tiebreak_formset = create_tiebreak_formset(qset)
             form = QuestionSetForm(instance=qset)
 
         entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
@@ -394,8 +384,6 @@ def edit_question_set(request, qset_id):
                                'editors': [ed for ed in qset_editors if ed != qset.owner],
                                'writers': [wr for wr in qset_writers if wr != qset.owner],
                                'writer_stats': writer_stats,
-                               'set_distro_formset': set_distro_formset,
-                               'tiebreak_formset': tiebreak_formset,
                                'set_status': set_status,
                                'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
                                'set_pct_progress_bar': '{0:0.0f}%'.format(set_pct_complete),
@@ -465,9 +453,12 @@ def view_all_questions(request, qset_id):
     bonuses = []
     if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
         message = 'You are not authorized to view this set'
+        return render_to_response('failure.html',
+                                 {'message': message,
+                                  'message_class': 'alert-box alert'},
+                                  context_instance=RequestContext(request))        
     else:
-        tossups = Tossup.objects.filter(question_set=qset)
-        bonuses = Bonus.objects.filter(question_set=qset)
+        tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset, preview_only=True)
         	
     return render_to_response('view_all_questions.html',
         {
@@ -478,6 +469,32 @@ def view_all_questions(request, qset_id):
         'message': message},
         context_instance=RequestContext(request))	
 
+@login_required
+def question_set_distribution(request, qset_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+    qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()
+
+    message = ''
+    if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
+        message = 'You are not authorized to view this set'
+        return render_to_response('failure.html',
+                                 {'message': message,
+                                  'message_class': 'alert-box alert'},
+                                  context_instance=RequestContext(request))                
+    elif user == qset.owner:
+        set_distro_formset = create_set_distro_formset(qset)
+        tiebreak_formset = create_tiebreak_formset(qset)        
+        	
+    return render_to_response('question_set_distribution.html',
+        {
+        'user': user,
+        'set_distro_formset': set_distro_formset,
+        'tiebreak_formset': tiebreak_formset,
+        'qset': qset,
+        'message': message},
+        context_instance=RequestContext(request))	
 
 @login_required
 def edit_set_distribution(request, qset_id):
@@ -501,9 +518,23 @@ def edit_set_distribution(request, qset_id):
                 entry.num_bonuses = num_bonuses
                 entry.save()
 
-            return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
+            return HttpResponseRedirect('/question_set_distribution/{0}'.format(qset_id))
         else:
-            print formset
+            return render_to_response('failure.html',
+                                     {'message': 'Something went wrong. We\'re working on it.',
+                                      'message_class': 'alert-box alert'},
+                                      context_instance=RequestContext(request))
+    elif request.method == 'GET':
+        if user == qset.owner:
+            return render_to_response('view_all_questions.html',
+                {
+                'user': user,
+                'tossups': tossups,
+                'bonuses': bonuses,
+                'qset': qset,
+                'message': message},
+                context_instance=RequestContext(request))	
+            
 
 @login_required
 def edit_set_tiebreak(request, qset_id):
@@ -527,7 +558,7 @@ def edit_set_tiebreak(request, qset_id):
                 entry.num_bonuses = num_bonuses
                 entry.save()
 
-            return HttpResponseRedirect('/edit_question_set/{0}'.format(qset_id))
+            return HttpResponseRedirect('/question_set_distribution/{0}'.format(qset_id))
         else:
             return render_to_response('failure.html',
                                      {'message': 'Something went wrong. We\'re working on it.',

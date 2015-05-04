@@ -39,21 +39,26 @@ def get_editor_categories(editor, tour):
     return mark_safe('<p>' + '<br>'.join(cat_list) + '</p>')
 
 @register.filter(name='preview')
-def preview(text):
-    if (len(text) > 81):
-        return mark_safe(text[0:81] + '...')
-    else:
-        return mark_safe(text)
+def preview_filter(text):
+    return preview(text)
 
 @register.filter(name='short_preview')
 def short_preview(text):
     return mark_safe(text[0:25])
 
+@register.filter(name='answer_preview')
+def answer_preview(text):
+    return preview(get_primary_answer(text))
+
+@register.filter(name='tossup_answer')
+def tossup_answer(tossup):
+    return mark_safe(answer_html(preview(get_primary_answer(tossup.tossup_answer))))
+
 @register.filter(name='bonus_answers')
 def bonus_answers(bonus):
-     return mark_safe(answer_html(bonus.part1_answer[0:80]) + '<br />'
-     + answer_html(bonus.part2_answer[0:80]) + '<br />'
-     + answer_html(bonus.part3_answer[0:80]))
+     return mark_safe(answer_html(preview(get_primary_answer(bonus.part1_answer))) + '<br />'
+        + answer_html(preview(get_primary_answer(bonus.part2_answer))) + '<br />'
+        + answer_html(preview(get_primary_answer(bonus.part3_answer))))
 
 @register.filter(name='percent')
 def percent(x, y):

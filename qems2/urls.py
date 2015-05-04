@@ -85,7 +85,8 @@ urlpatterns = patterns('',
     (r'^convert_tossup/$', convert_tossup),
     (r'^convert_bonus/$',convert_bonus),
     (r'^view_all_questions/(?P<qset_id>[0-9]+)/$',view_all_questions),    
-
+    (r'^question_set_distribution/(?P<qset_id>[0-9]+)/$',question_set_distribution),    
+    
     # json calls
     (r'^get_unassigned_tossups/$', get_unassigned_tossups),
     (r'^get_unassigned_bonuses/$', get_unassigned_bonuses),

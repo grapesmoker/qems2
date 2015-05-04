@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from bs4 import BeautifulSoup
 from django.utils.encoding import smart_unicode
+from django.utils.safestring import mark_safe
 import unicodedata
 
 DEFAULT_ALLOWED_TAGS = ['b', 'i', 'u', 'strong', 'em']
@@ -100,6 +101,26 @@ def get_answer_no_formatting(line):
     output = output.replace('_', '')
     output = output.replace('~', '')
     return output
+
+# Figure out if there's an [or]
+def get_primary_answer(line):
+    if line is None:
+        return line
+    
+    index = line.lower().find("[or")
+    if (index >= 0):
+        return line[:index]
+    else:
+        return line
+
+def preview(text):
+    if (text is None):
+        return text
+    
+    if (len(text) > 81):
+        return mark_safe(text[0:81] + '...')
+    else:
+        return mark_safe(text)    
 
 def get_formatted_question_html_for_bonus_answers(bonus):
     return get_formatted_question_html(bonus.part1_answer[0:80], True, True, False) + '<br />' + get_formatted_question_html(bonus.part2_answer[0:80], True, True, False) + '<br />' + get_formatted_question_html(bonus.part3_answer[0:80], True, True, False) + '<br />'

@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% load cache %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block title %}{% if qset %}{{ qset.name }} - Distribution - QEMS2{% else %}Distribution - QEMS2{% endif %}{% endblock %}
+
+{% block content %}
+{% load static %}
+{% load filters %}
+{% if active_tab == 'qset_info' %} {{ 'active' }} {% endif %}
+
+<h3 class="page-header">Question Set Management</h3>
+
+<dl class="tabs" data-tab>
+    <dd class="active"><a href="#set-wide-distribution">Set-Wide Distro</a></dd>
+    <dd><a href="#tiebreak-distribution">Tiebreaker Distro</a></dd>
+</dl>
+
+{% block tab_group_2 %}
+    {% include "tab_group_2.html" %}
+{% endblock %}
+
+<div class="tabs-content">
+    <div class="content active" id="set-wide-distribution">
+        <div class="alert-box warning radius">
+            <i class="fa fa-exclamation-triangle"></i>
+            The set-wide distribution controls the total number of questions of each kind that your set
+            will contain. It is distinct from the "template" distribution; you cannot change the categories
+            this way, only the <em>total</em> number of questions in those categories that will appear in
+            this set. For example, if the ACF distribution calls for a minimum of 1 and a maximum of 2
+            social science questions per packet, and you have 10 packets in your set, then any number
+            between 10 and 20 social science questions might appear in your set unless you restrict it here,
+            e.g. by setting the maximum allowed number of such questions to 15. Setting these values is
+            crucial for the packet-level and set-level verification algorithms to work, so don't skip this section!
+        </div>
+        <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
+            {% csrf_token %}
+            <table class="table-striped table-hover" id="set-wide-reqs-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Subcategory</th>
+                        <th>Total Tossups (per set)</th>
+                        <th>Total Bonuses (per set)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for entry in set_distro_formset %}
+                    <tr>
+                        <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
+                        <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
+                        <td>{{ entry.category.value }}</td>
+                        <td>{{ entry.subcategory.value }}</td>
+                        <td>{% if role == "owner" %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
+                        <td>{% if role == "owner" %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <input type="submit" class="button primary right">
+            {{ set_distro_formset.management_form }}
+        </form>
+    </div>
+    <div class="content" id="tiebreak-distribution">
+        <div class="alert-box warning radius">
+            <i class="fa fa-exclamation-triangle"></i>
+            The tiebreaker distribution isn't working right now.  Use the primary distribution to control how many
+            total questions you need the in set and packetize accordingly.  A major refactoring will redo how distribution
+            entry works in the future, at which point tiebreaker distributions and packetization will be fully functional.
+        </div>
+    </div>
+</div>
+
+<input type="hidden" id="qset-id" value="{{ qset.id }}">
+{% include "dialog.html" %}
+
+{% endblock %}

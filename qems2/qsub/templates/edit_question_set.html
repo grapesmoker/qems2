@@ -16,23 +16,16 @@
 <h3 class="page-header">Question Set Management</h3>
 
 <dl class="tabs" data-tab>
-    <dd class="active"><a href="#qset-info">Overall Info</a></dd>
+    <dd class="active"><a href="#qset-info">Home</a></dd>
     <dd><a href="#questions">Recent Questions</a></dd>
     <dd><a href="#comments">Recent Comments</a></dd> 
-    <dd><a href="#editors">Contributors</a></dd>
+    <dd><a href="#editors">Writers</a></dd>
     <dd><a href="#packets">Packets</a></dd>
-    <dd><a href="#set-wide-distribution">Set-wide Distro</a></dd>
-    <dd><a href="#tiebreak-distribution">Tiebreaker Distro</a></dd>    
 </dl>
 
-<ul class="button-group even">
-    <li><a href="/add_tossups/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add Tossup</a></li>
-    <li><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add ACF Bonus</a></li>
-    <li><a href="/add_bonuses/{{ qset.id }}/VHSL bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add VHSL Bonus</a></li>
-    <li><a href="/type_questions/{{ qset.id }}" class="button primary"><i class="fa fa-file-text"></i> Type Questions</a></li>
-    <li><a href="/view_all_questions/{{ qset.id }}/" class="button primary"><i class="fa fa-ellipsis-h"></i> All Questions</a></li>
-    <li><a href="/search/{{ qset.id }}/" class="button primary"><i class="fa fa-search"></i> Search</a></li>
-</ul>
+{% block tab_group_2 %}
+    {% include "tab_group_2.html" %}
+{% endblock %}
 
 <div class="tabs-content">
     <div class="content active" id="qset-info">
@@ -164,52 +157,19 @@
             {% endif %}
         </form>
         <div class="panel header radius text-center">
-            <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
-        </div>
+            <strong><a href="/question_set_distribution/{{ qset.id }}">Set-Specific Distribution</a></strong>
+        </div>        
         {% if role == "editor" %}
+            <div class="panel header radius text-center">
+                <strong><a href="/export_question_set/{{ qset.id }}/csv/">Export Question Set to CSV</a></strong>
+            </div>
             <div class="panel header radius text-center">
                 <strong><a href="/bulk_change_set/{{ qset.id }}">Make Bulk Changes to this Set</a></strong>
             </div>
         {% endif %}
         <div class="panel header radius text-center">
             <strong><a href="/writer_question_set_settings/{{ qset.id }}">Your settings for this set</a></strong>
-        </div>        
-        <a id="#qset-comments"></a>
-        
-        {% cache 500 setwidecomments qset %}
-        
-            <div class="panel header radius text-center"><strong>Set-Wide Comments</strong></div>
-            <div class="comments small-6 columns end">
-                {% autoescape off %}
-                    {% get_comment_list for qset as comment_list %}
-                    {% for comment in comment_list %}
-                        {% if not comment.is_removed %}
-                            <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br /><br />
-                            {% if role == "editor" %}
-                                <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br /><br />
-                            {% endif %}
-                        {% endif %}
-                    {% endfor %}
-                {% endautoescape %}
-
-                {% get_comment_form for qset as cform %}
-                <form action="{% comment_form_target %}" method="POST" class="clearfix">
-                    {% csrf_token %}
-                    <label>Comment
-                        <textarea rows="5" id="{{ cform.comment.id_for_label }}" name="{{ cform.comment.html_name }}"></textarea>
-                    </label>
-                    {{ cform.honeypot }}
-                    {{ cform.content_type }}
-                    {{ cform.object_pk }}
-                    {{ cform.timestamp }}
-                    {{ cform.security_hash }}
-                    <input type="submit" name="submit" value="Comment" class="button primary right" />
-                    <!--<input type="submit" name="preview" value="Preview" class="btn btn-primary">-->
-                    <input type="hidden" name="next" value="/edit_question_set/{{ qset.id }}/">
-                </form>
-            </div>
-        
-        {% endcache %}
+        </div>
     </div>
     <div class="content" id="comments"> 
         {% cache 500 comments qset %}
@@ -307,82 +267,6 @@
             </tbody>
         </table>
     </div>
-    <div class="content" id="set-wide-distribution">
-        <div class="alert-box warning radius">
-            <i class="fa fa-exclamation-triangle"></i>
-            The set-wide distribution controls the total number of questions of each kind that your set
-            will contain. It is distinct from the "template" distribution; you cannot change the categories
-            this way, only the <em>total</em> number of questions in those categories that will appear in
-            this set. For example, if the ACF distribution calls for a minimum of 1 and a maximum of 2
-            social science questions per packet, and you have 10 packets in your set, then any number
-            between 10 and 20 social science questions might appear in your set unless you restrict it here,
-            e.g. by setting the maximum allowed number of such questions to 15. Setting these values is
-            crucial for the packet-level and set-level verification algorithms to work, so don't skip this section!
-        </div>
-        <form action="/edit_set_distribution/{{ qset.id }}/" method="POST">
-            {% csrf_token %}
-            <table class="table-striped table-hover" id="set-wide-reqs-table">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Subcategory</th>
-                        <th>Total Tossups (per set)</th>
-                        <th>Total Bonuses (per set)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in set_distro_formset %}
-                    <tr>
-                        <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
-                        <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
-                        <td>{{ entry.category.value }}</td>
-                        <td>{{ entry.subcategory.value }}</td>
-                        <td>{% if role == "editor" %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                        <td>{% if role == "editor" %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <input type="submit" class="button primary right">
-            {{ set_distro_formset.management_form }}
-        </form>
-    </div>
-    <div class="content" id="tiebreak-distribution">
-        <div class="alert-box warning radius">
-            <i class="fa fa-exclamation-triangle"></i>
-            The tiebreaker distribution controls the total number of questions required as tiebreakers for the
-            whole set. It is like the set-wide distribution in that you cannot change the categories, only
-            the <em>total</em> number of questions in those categories that will appear as tiebreakers in the
-            set. Keep in mind that in order for a question to be picked up as a tiebreaker, it must be
-            <em>explicitly</em> designated as such.
-        </div>
-        <form action="/edit_set_tiebreak/{{ qset.id }}/" method="POST">
-            {% csrf_token %}
-            <table class="table-striped table-hover" id ="tb-reqs-table">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Subcategory</th>
-                        <th>Total Tossups (per set)</th>
-                        <th>Total Bonuses (per set)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for entry in tiebreak_formset %}
-                    <tr>
-                        <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
-                        <td>{{ entry.category.value }}</td>
-                        <td>{{ entry.subcategory.value }}</td>
-                        <td>{% if role == "editor" %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
-                        <td>{% if role == "editor" %} {{ entry.num_bonuses.value }} {% else %} {{ entry.num_bonuses }} {% endif %}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            <input type="submit" class="button primary right">
-            {{ tiebreak_formset.management_form }}
-        </form>
-    </div>
     <div class="content" id="questions">
         {% cache 500 questions qset %}
 
@@ -411,7 +295,7 @@
                         <tr>
                             <td>{{ tossup.author }}</td>
                             <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
-                            <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
+                            <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup|tossup_answer }}</a></td>
                             <td>Tossup</td>
                             <td>{{ tossup.category }}</td>
                             <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>

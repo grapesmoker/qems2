@@ -375,8 +375,6 @@ def edit_question_set(request, qset_id):
     
     # TODO: Remove this debugging code
     edit_url = 'edit_question_set.html'
-    if (user.user.username == "bentley"):
-        edit_url = 'edit_question_set_debug.html'
     
     return render_to_response(edit_url,
                               {'form': form,

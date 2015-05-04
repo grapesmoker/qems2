@@ -171,6 +171,44 @@
             <strong><a href="/writer_question_set_settings/{{ qset.id }}">Your settings for this set</a></strong>
         </div>
     </div>
+    <div class="content" id="comments"> 
+        {% cache 500 comments qset %}
+   
+            <table class="tablesorter table-striped table-hover" id="comments-table">
+                <thead>
+                    <tr>
+                        <th>Commenter</th>
+                        <th>Comment</th>
+                        <th>Question</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% autoescape off %}                
+                        {% for comment in comment_tab_list %}     
+                            <tr>
+                                <td>{{ comment.comment.user }}</td>
+                                <td>{{ comment.comment.comment|comment_html }}</td>                    
+                                <td><a href="/edit_{{ comment.question_type }}/{{ comment.question_id }}">{{ comment.question_text }}</a></td>
+                                <td>{{ comment.comment.submit_date }}</td>
+                                <td>
+                                    {% if role == "editor" %}
+                                        <span data-tooltip aria-haspopup="true" class="has-tip tip-right" title="Delete">
+                                            <a href="/delete_comment/{{ comment.comment.id }}" class="delete_comment" value="{{ comment.comment.id }}" qset="{{ qset.id }}">
+                                                <i class="fa fa-minus-circle"></i>
+                                            </a>
+                                        </span>                        
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% endautoescape %}
+                </tbody>
+            </table>
+            
+        {% endcache %}
+    </div>
     <div class="content" id="questions">
         {% cache 500 questions qset %}
 

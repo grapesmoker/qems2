@@ -473,6 +473,8 @@ def question_set_distribution(request, qset_id):
     qset = QuestionSet.objects.get(id=qset_id)
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()
+    set_distro_formset = []
+    tiebreak_formset = []
 
     message = ''
     if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
@@ -2336,10 +2338,8 @@ def logout_view(request):
 def move_tossup(request, q_set_id, tossup_id):
     user = request.user.writer
     q_set = QuestionSet.objects.get(id=q_set_id)
-    q_set_editors = []
-    q_set_editors.append(q_set.editor.all())
-    q_set_editors.append(q_set.owner)
-
+    role = get_role_no_owner(user, q_set)
+    
     tossup = Tossup.objects.get(id=tossup_id)
     if (tossup is None or tossup.question_set != q_set):
         message = 'Invalid tossup'
@@ -2349,7 +2349,7 @@ def move_tossup(request, q_set_id, tossup_id):
     move_sets = user.question_set_editor.exclude(id=q_set_id)
 
     if request.method == 'GET':
-        if (user in q_set_editors):
+        if (role == "editor"):
             if (tossup is not None):
                 form = MoveTossupForm(move_sets=move_sets)
 
@@ -2390,7 +2390,7 @@ def move_tossup(request, q_set_id, tossup_id):
 
     else:
         # Update the question set for this tossup
-        if (user in q_set_editors):
+        if (role == 'editor'):
             form = MoveTossupForm(request.POST, move_sets=move_sets)
 
             if form.is_valid():
@@ -2456,9 +2456,7 @@ def move_tossup(request, q_set_id, tossup_id):
 def move_bonus(request, q_set_id, bonus_id):
     user = request.user.writer
     q_set = QuestionSet.objects.get(id=q_set_id)
-    q_set_editors = []
-    q_set_editors.append(q_set.editor.all())
-    q_set_editors.append(q_set.owner)
+    role = get_role_no_owner(user, q_set)
 
     bonus = Bonus.objects.get(id=bonus_id)
     if (bonus is None or bonus.question_set != q_set):
@@ -2469,7 +2467,7 @@ def move_bonus(request, q_set_id, bonus_id):
     move_sets = user.question_set_editor.exclude(id=q_set_id)
 
     if request.method == 'GET':
-        if (user in q_set_editors):
+        if (role == 'editor'):
             if (bonus is not None):
                 form = MoveBonusForm(move_sets=move_sets)
 
@@ -2510,7 +2508,7 @@ def move_bonus(request, q_set_id, bonus_id):
 
     else:
         # Update the question set for this bonus
-        if (user in q_set_editors):
+        if (role == 'editor'):
             form = MoveBonusForm(request.POST, move_sets=move_sets)
             if form.is_valid():
                 dest_qset_id = request.POST["move_sets"]
@@ -2571,9 +2569,10 @@ def move_bonus(request, q_set_id, bonus_id):
 def export_question_set(request, qset_id, output_format):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
-    qset_editors = qset.editor.all()
+    role = get_role_no_owner(user, qset)
+    
     if request.method == 'GET':
-        if (user in qset.editor.all()):
+        if (role == 'editor'):
             if (output_format == "csv"):
                 tossups = Tossup.objects.filter(question_set=qset)
                 bonuses = Bonus.objects.filter(question_set=qset)

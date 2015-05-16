@@ -236,6 +236,8 @@ def strip_special_chars(line):
     return line.replace('_', '').replace('~', '')
 
 def strip_unicode(line):
+    if (line is None or line == ""):
+        return ""
     return ''.join(c for c in unicodedata.normalize('NFKD', line)
               if unicodedata.category(c) != 'Mn')
 

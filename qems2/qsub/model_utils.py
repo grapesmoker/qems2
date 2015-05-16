@@ -251,7 +251,7 @@ def tossup_to_bonus(tossup, output_question_type):
             bonus.part2_answer = ""
             bonus.part3_text = ""
             bonus.part3_answer = ""
-            bonus.save()
+            bonus.save_question(QUESTION_CREATE, tossup.author)
             move_comments_to_bonus(tossup, bonus)                        
             tossup.delete()
     elif (output_question_type == VHSL_BONUS):
@@ -265,7 +265,7 @@ def tossup_to_bonus(tossup, output_question_type):
             bonus.part2_answer = ""
             bonus.part3_text = ""
             bonus.part3_answer = ""
-            bonus.save()
+            bonus.save_question(QUESTION_CREATE, tossup.author)
             move_comments_to_bonus(tossup, bonus)            
             tossup.delete()                  
         
@@ -283,7 +283,7 @@ def bonus_to_bonus(bonus, output_question_type):
             bonus.part2_answer = ""
             bonus.part3_text = ""
             bonus.part3_answer = ""
-            bonus.save()
+            bonus.save_question(QUESTION_CREATE, tossup.author)
     elif (output_question_type == VHSL_BONUS):
         if (bonus.get_bonus_type() == ACF_STYLE_BONUS):
             print "Convert to VHSL"
@@ -294,7 +294,7 @@ def bonus_to_bonus(bonus, output_question_type):
             bonus.part2_answer = ""
             bonus.part3_text = ""
             bonus.part3_answer = ""            
-            bonus.save()            
+            bonus.save_question(QUESTION_CREATE, tossup.author)            
         
 def bonus_to_tossup(bonus, output_question_type):
     if (output_question_type == ACF_STYLE_TOSSUP):
@@ -303,7 +303,7 @@ def bonus_to_tossup(bonus, output_question_type):
             tossup.question_type = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
             tossup.tossup_text = bonus.part1_text
             tossup.tossup_answer = bonus.part1_answer
-            tossup.save()
+            tossup.save_question(QUESTION_CREATE, bonus.author)
             move_comments_to_tossup(bonus, tossup)
             bonus.delete()            
         elif (bonus.get_bonus_type() == ACF_STYLE_BONUS):
@@ -311,7 +311,7 @@ def bonus_to_tossup(bonus, output_question_type):
             tossup.question_type = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
             tossup.tossup_text = bonus.leadin + " " + bonus.part1_text + " " + bonus.part1_answer + " " + bonus.part2_text + " " + bonus.part2_answer + " " + bonus.part3_text + " " + bonus.part3_answer
             tossup.tossup_answer = bonus.part1_answer
-            tossup.save()
+            tossup.save_question(QUESTION_CREATE, bonus.author)
             move_comments_to_tossup(bonus, tossup)            
             bonus.delete()                        
         

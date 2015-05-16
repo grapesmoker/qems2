@@ -51,7 +51,32 @@ $(function () {
     match_table('#packet-tossup-table','#packet-bonus-table');
     match_table('#bulk-change-tossup-table','#bulk-change-bonus-table');
 
-    // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
+    // $("#tossup-table").trigger("destroy", [false, function(){
+    //     $('#tossup-table').tablesorter({
+    //         dateFormat : "mmddyyyy",
+    //         headers: { 
+    //             6: { sorter: 'shortDate'},
+    //             7: { sorter: 'shortDate'}
+    //         }
+    //     });
+    // }]);
+    // 
+    // 
+    // $("#comments-table").trigger("destroy", [false, function(){
+    //     $('#comments-table').tablesorter({
+    //         dateFormat : "mmddyyyy",
+    //         headers: { 
+    //             3: { sorter: 'shortDate'}
+    //         }
+    //     });
+    // }]);
+
+
+    //$('#comments-table').tablesorter({
+    //    headers: { 3: { sorter: 'shortDate'} }
+    //});
+
+    
     // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
     // $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});

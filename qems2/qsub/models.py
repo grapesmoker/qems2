@@ -640,7 +640,7 @@ class Bonus(models.Model):
 
     def __unicode__(self):
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
-            return '{0!s}...'.format(strip_markup(get_answer_no_formatting(self.leadin))[0:40])
+            return '{0!s}...'.format(strip_markup(get_answer_no_formatting(self.part1_answer))[0:40])
         else:
             return '{0!s}...'.format(strip_markup(get_answer_no_formatting(self.part1_answer))[0:40])
 

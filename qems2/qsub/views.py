@@ -456,7 +456,7 @@ def view_all_questions(request, qset_id):
                                   'message_class': 'alert-box alert'},
                                   context_instance=RequestContext(request))        
     else:
-        tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset, preview_only=True)
+        tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset, question_limit=10000, preview_only=True)
         	
     return render_to_response('view_all_questions.html',
         {

@@ -102,12 +102,12 @@ def get_answer_no_formatting(line):
     output = output.replace('~', '')
     return output
 
-# Figure out if there's an [or]
+# Figure out if there's an "["
 def get_primary_answer(line):
     if line is None:
         return line
     
-    index = line.lower().find("[or")
+    index = line.lower().find("[")
     if (index >= 0):
         return line[:index]
     else:

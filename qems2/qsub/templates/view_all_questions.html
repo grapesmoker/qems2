@@ -44,9 +44,9 @@
                     <td>Tossup</td>
                     <td>{{ tossup.category }}</td>
                     <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
-                    <td>{{ tossup.created_date|date:"m/d/y h:i" }}</td>
-                    <td>{{ tossup.last_changed_date|date:"m/d/y h:i" }}</td>
-                    <td>{% if tossup.edited_date %} {{ tossup.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                    <td>{{ tossup.created_date|to_short_datetime }}</td>
+                    <td>{{ tossup.last_changed_date|to_short_datetime }}</td>
+                    <td>{% if tossup.edited_date %} {{ tossup.edited_date|to_short_datetime }} {% endif %}</td>
                     <td>
                     {% get_comment_list for tossup as comment_list %}
                     {% for comment in comment_list %}
@@ -55,7 +55,7 @@
                         {% endif %}
                     {% endfor %}
                     </td>
-                    <td>{{ tossup|tossup_last_comment_date|date:"m/d/y h:i" }}</td>
+                    <td>{{ tossup|tossup_last_comment_date|to_short_datetime }}</td>
                 </tr>
                 {% endfor %}
             {% endautoescape %}
@@ -92,9 +92,9 @@
                     <td>Bonus</td>
                     <td>{{ bonus.category }}</td>
                     <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
-                    <td>{{ bonus.created_date|date:"m/d/y h:i" }}</td>
-                    <td>{{ bonus.last_changed_date|date:"m/d/y h:i" }}</td>
-                    <td>{% if bonus.edited_date %} {{ bonus.edited_date|date:"m/d/y h:i" }} {% endif %}</td>
+                    <td>{{ bonus.created_date|to_short_datetime }}</td>
+                    <td>{{ bonus.last_changed_date|to_short_datetime }}</td>
+                    <td>{% if bonus.edited_date %} {{ bonus.edited_date|to_short_datetime }} {% endif %}</td>
                     <td>
                     {% get_comment_list for bonus as comment_list %}
                     {% for comment in comment_list %}
@@ -103,7 +103,7 @@
                         {% endif %}
                     {% endfor %}
                     </td>
-                    <td>{{ bonus|bonus_last_comment_date|date:"m/d/y h:i" }}</td>
+                    <td>{{ bonus|bonus_last_comment_date|to_short_datetime }}</td>
                 </tr>
                 {% endfor %}
             {% endautoescape %}

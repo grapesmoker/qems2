@@ -60,6 +60,12 @@ def bonus_answers(bonus):
         + answer_html(preview(get_primary_answer(bonus.part2_answer))) + '<br />'
         + answer_html(preview(get_primary_answer(bonus.part3_answer))))
 
+@register.filter(name='to_short_datetime')
+def to_short_datetime(date):
+    if (date is None):
+        return ""
+    return date.strftime("%Y-%m-%d %H:%M")
+    
 @register.filter(name='percent')
 def percent(x, y):
     try:
@@ -210,7 +216,7 @@ def tossup_last_comment_date(tossup):
     if (len(comments) > 0):
         return comments[0].submit_date
     else:
-        return ''
+        return None
 
 @register.filter(name='bonus_last_comment_date')
 def bonus_last_comment_date(bonus):
@@ -219,7 +225,7 @@ def bonus_last_comment_date(bonus):
     if (len(comments) > 0):
         return comments[0].submit_date
     else:
-        return ''
+        return None
 
 @register.filter(name='verbose_username')
 def verbose_username(writer):

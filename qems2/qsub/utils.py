@@ -54,6 +54,9 @@ VHSL_TOSSUP_PERIOD = "VHSL Tossup Period"
 VHSL_BONUS_PERIOD = "VHSL Bonus Period"
 VHSL_TIEBREAKER_PERIOD = "VHSL Tiebreaker Period"
 
+def remove_new_lines(line):
+    return line.replace("\n", "").replace("\r", "")
+
 def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
     soup = BeautifulSoup(html)
     for tag in soup.find_all(True):

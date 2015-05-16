@@ -2584,13 +2584,13 @@ def export_question_set(request, qset_id, output_format):
 
                 writer.writerow(["Tossup Question", "Answer", "Category", "Author", "Edited", "Packet", "Question Number"])
                 for tossup in tossups:
-                    writer.writerow([tossup.tossup_text, tossup.tossup_answer, tossup.category, tossup.author, tossup.edited, tossup.packet, tossup.question_number])
+                    writer.writerow([remove_new_lines(tossup.tossup_text), remove_new_lines(tossup.tossup_answer), tossup.category, tossup.author, tossup.edited, tossup.packet, tossup.question_number])
 
                 writer.writerow([])
 
                 writer.writerow(["Bonus Leadin", "Bonus Part 1", "Bonus Answer 1", "Bonus Part 2", "Bonus Answer 2", "Bonus Part 3", "Bonus Answer 3", "Category", "Author", "Edited", "Packet", "Question Number"])
                 for bonus in bonuses:
-                    writer.writerow([bonus.leadin, bonus.part1_text, bonus.part1_answer, bonus.part2_text, bonus.part2_answer, bonus.part3_text, bonus.part3_answer, bonus.category, bonus.author, bonus.edited, bonus.packet, bonus.question_number])
+                    writer.writerow([remove_new_lines(bonus.leadin), remove_new_lines(bonus.part1_text), remove_new_lines(bonus.part1_answer), remove_new_lines(bonus.part2_text), remove_new_lines(bonus.part2_answer), remove_new_lines(bonus.part3_text), remove_new_lines(bonus.part3_answer), bonus.category, bonus.author, bonus.edited, bonus.packet, bonus.question_number])
 
                 return response
             elif (output_format == "pdf"):

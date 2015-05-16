@@ -129,6 +129,7 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
     italicsFlag = False
     parensFlag = False
     underlineFlag = False
+    previousChar = u""
     output = u""    
     for c in line:
         if (c == u"~"):
@@ -138,12 +139,18 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
             else:
                 output += u"</i>"
                 italicsFlag = False
-        elif (c == u"(" and allowParens):
+        elif (c == u"(" and allowParens and previousChar != u"\\"):
             output += u"<strong>("
             parensFlag = True
-        elif (c == u")" and allowParens):
+        elif (c == u"(" and allowParens and previousChar == u"\\"):
+            output = output[:-1] # Get rid of the escape character
+            output += c
+        elif (c == u")" and allowParens and previousChar != u"\\"):
             output += u")</strong>"
             parensFlag = False
+        elif (c == u")" and allowParens and previousChar == u"\\"):
+            output = output[:-1] # Get rid of the escape character
+            output += c
         else:
             if (c == u"_" and allowUnderlines):
                 if (not underlineFlag):
@@ -154,6 +161,7 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
                     underlineFlag = False
             else:
                 output += c
+        previousChar = c
 
     if (italicsFlag):
         output += u"</i>"
@@ -172,18 +180,20 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
 def get_character_count(line, ignore_pronunciation):
     count = 0
     parensFlag = False # Parentheses indicate pronunciation guide
+    previousChar = ""
     for c in line:
         if (not ignore_pronunciation):
             count = count + 1
         else:
             if (parensFlag):
-                if (c == ")"):
+                if (c == ")" and previousChar != "\\"):
                     parensFlag = False
             else:
-                if (c == "("):
-                    parensFlag = True
-                elif (c != "~"):
+                if (c == "(" and previousChar != "\\"):
+                    parensFlag = True                    
+                elif (c != "~" and not (previousChar == "\\" and (c == ")" or c == "("))):
                     count = count + 1 # Only count non-special chars not in pronunciation guide
+        previousChar = c
 
     return count
 
@@ -191,6 +201,7 @@ def are_special_characters_balanced(line):
     underlineFlag = False
     italicsFlag = False
     parensFlag = False
+    previousChar = ""
     for c in line:
         if (c == '_'):
             if (underlineFlag):
@@ -202,18 +213,19 @@ def are_special_characters_balanced(line):
                 italicsFlag = False
             else:
                 italicsFlag = True
-        elif (c == '('):
+        elif (c == '(' and previousChar != "\\"):
             if (parensFlag):
                 # There are too many open parens
                 return False
             else:
                 parensFlag = True
-        elif (c == ')'):
+        elif (c == ')' and previousChar != "\\"):
             if (parensFlag):
                 parensFlag = False
             else:
                 # There are too many close parens
                 return False
+        previousChar = c
 
     if (underlineFlag or italicsFlag or parensFlag):
         return False

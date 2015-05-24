@@ -2626,7 +2626,7 @@ def export_question_set(request, qset_id, output_format):
 
                 writer.writerow(["Bonus Leadin", "Bonus Part 1", "Bonus Answer 1", "Bonus Part 2", "Bonus Answer 2", "Bonus Part 3", "Bonus Answer 3", "Category", "Author", "Edited", "Packet", "Question Number", "Comments"])
                 for bonus in bonuses:
-                    comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=tossup.id).order_by('-submit_date')
+                    comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=bonus.id).order_by('-submit_date')
                     comment_string = ""
                     for comment in comment_list:
                         comment_string = comment_string + str(comment.user) + ": " + comment.comment + "||"

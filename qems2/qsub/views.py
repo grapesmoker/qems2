@@ -2615,23 +2615,23 @@ def export_question_set(request, qset_id, output_format):
 
                 writer.writerow(["Tossup Question", "Answer", "Category", "Author", "Edited", "Packet", "Question Number", "Comments"])
                 for tossup in tossups:
-                    comment_list = Comment.objects.filter(content_type_id=tossup_content_type_id).filter(object_pk=tossup.id).order_by('-submit_date')
+                    comment_list = Comment.objects.filter(content_type_id=tossup_content_type_id).filter(object_pk=tossup.id).order_by('submit_date')
                     comment_string = ""
                     for comment in comment_list:
                         comment_string = comment_string + str(comment.user) + ": " + comment.comment + "||"
                     
-                    writer.writerow([remove_new_lines(tossup.tossup_text), remove_new_lines(tossup.tossup_answer), tossup.category, tossup.author, tossup.edited, tossup.packet, tossup.question_number, comment_string])
+                    writer.writerow([remove_new_lines(tossup.tossup_text), remove_new_lines(tossup.tossup_answer), tossup.category, tossup.author.get_last_name(), tossup.edited, tossup.packet, tossup.question_number, comment_string])
 
                 writer.writerow([])
 
                 writer.writerow(["Bonus Leadin", "Bonus Part 1", "Bonus Answer 1", "Bonus Part 2", "Bonus Answer 2", "Bonus Part 3", "Bonus Answer 3", "Category", "Author", "Edited", "Packet", "Question Number", "Comments"])
                 for bonus in bonuses:
-                    comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=bonus.id).order_by('-submit_date')
+                    comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=bonus.id).order_by('submit_date')
                     comment_string = ""
                     for comment in comment_list:
                         comment_string = comment_string + str(comment.user) + ": " + comment.comment + "||"
                     
-                    writer.writerow([remove_new_lines(bonus.leadin), remove_new_lines(bonus.part1_text), remove_new_lines(bonus.part1_answer), remove_new_lines(bonus.part2_text), remove_new_lines(bonus.part2_answer), remove_new_lines(bonus.part3_text), remove_new_lines(bonus.part3_answer), bonus.category, bonus.author, bonus.edited, bonus.packet, bonus.question_number, comment_string])
+                    writer.writerow([remove_new_lines(bonus.leadin), remove_new_lines(bonus.part1_text), remove_new_lines(bonus.part1_answer), remove_new_lines(bonus.part2_text), remove_new_lines(bonus.part2_answer), remove_new_lines(bonus.part3_text), remove_new_lines(bonus.part3_answer), bonus.category, bonus.author.get_last_name(), bonus.edited, bonus.packet, bonus.question_number, comment_string])
 
                 return response
             elif (output_format == "pdf"):

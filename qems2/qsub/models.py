@@ -119,6 +119,12 @@ class Writer (models.Model):
 
     send_mail_on_comments = models.BooleanField(default=False)
 
+    def get_real_name(self):
+        return '{0!s} {1!s} '.format(self.user.first_name, self.user.last_name)
+        
+    def get_last_name(self):
+        return self.user.last_name
+
     def __str__(self):
         return '{0!s} {1!s} ({2!s})'.format(self.user.first_name, self.user.last_name, self.user.username)
 

@@ -399,7 +399,7 @@ def get_tossup_and_bonuses_in_set(qset, question_limit=30, preview_only=False):
         
     return tossups, tossup_dict, bonuses, bonus_dict
 
-def get_comment_tab_list(tossup_dict, bonus_dict):
+def get_comment_tab_list(tossup_dict, bonus_dict, comment_limit=60):
     comment_tab_list = []
     
     tossup_content_type_id = ContentType.objects.get(name="tossup")
@@ -416,7 +416,7 @@ def get_comment_tab_list(tossup_dict, bonus_dict):
                                     'question_type': 'tossup'}
                 comment_tab_list.append(new_comment)
                 comment_count += 1
-                if (comment_count >= 60):
+                if (comment_count >= comment_limit):
                     break
         else:
             if (long(comment.object_pk) in bonus_dict):
@@ -427,7 +427,7 @@ def get_comment_tab_list(tossup_dict, bonus_dict):
                                     'question_type': 'bonus'}
                 comment_tab_list.append(new_comment)
                 comment_count += 1
-                if (comment_count >= 60):
+                if (comment_count >= comment_limit):
                     break
     
     return comment_tab_list

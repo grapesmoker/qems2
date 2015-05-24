@@ -468,6 +468,34 @@ def view_all_questions(request, qset_id):
         context_instance=RequestContext(request))	
 
 @login_required
+def view_all_comments(request, qset_id):
+    user = request.user.writer
+    qset = QuestionSet.objects.get(id=qset_id)
+    qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()
+
+    message = ''
+    tossups = []
+    bonuses = []
+    if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
+        message = 'You are not authorized to view this set'
+        return render_to_response('failure.html',
+                                 {'message': message,
+                                  'message_class': 'alert-box alert'},
+                                  context_instance=RequestContext(request))        
+    else:
+        tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset, question_limit=10000, preview_only=True)
+        comment_tab_list = get_comment_tab_list(tossup_dict, bonus_dict, comment_limit=10000)
+        	
+    return render_to_response('view_all_comments.html',
+        {
+        'user': user,
+        'comment_tab_list': comment_tab_list,
+        'qset': qset,
+        'message': message},
+        context_instance=RequestContext(request))	
+
+@login_required
 def question_set_distribution(request, qset_id):
     user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
@@ -2571,6 +2599,9 @@ def export_question_set(request, qset_id, output_format):
     qset = QuestionSet.objects.get(id=qset_id)
     role = get_role_no_owner(user, qset)
     
+    tossup_content_type_id = ContentType.objects.get(name="tossup")
+    bonus_content_type_id = ContentType.objects.get(name="bonus")    
+    
     if request.method == 'GET':
         if (role == 'editor'):
             if (output_format == "csv"):
@@ -2582,15 +2613,25 @@ def export_question_set(request, qset_id, output_format):
 
                 writer = unicodecsv.writer(response, encoding='utf-8', quoting=csv.QUOTE_ALL)
 
-                writer.writerow(["Tossup Question", "Answer", "Category", "Author", "Edited", "Packet", "Question Number"])
+                writer.writerow(["Tossup Question", "Answer", "Category", "Author", "Edited", "Packet", "Question Number", "Comments"])
                 for tossup in tossups:
-                    writer.writerow([remove_new_lines(tossup.tossup_text), remove_new_lines(tossup.tossup_answer), tossup.category, tossup.author, tossup.edited, tossup.packet, tossup.question_number])
+                    comment_list = Comment.objects.filter(content_type_id=tossup_content_type_id).filter(object_pk=tossup.id).order_by('-submit_date')
+                    comment_string = ""
+                    for comment in comment_list:
+                        comment_string = comment_string + str(comment.user) + ": " + comment.comment + "||"
+                    
+                    writer.writerow([remove_new_lines(tossup.tossup_text), remove_new_lines(tossup.tossup_answer), tossup.category, tossup.author, tossup.edited, tossup.packet, tossup.question_number, comment_string])
 
                 writer.writerow([])
 
-                writer.writerow(["Bonus Leadin", "Bonus Part 1", "Bonus Answer 1", "Bonus Part 2", "Bonus Answer 2", "Bonus Part 3", "Bonus Answer 3", "Category", "Author", "Edited", "Packet", "Question Number"])
+                writer.writerow(["Bonus Leadin", "Bonus Part 1", "Bonus Answer 1", "Bonus Part 2", "Bonus Answer 2", "Bonus Part 3", "Bonus Answer 3", "Category", "Author", "Edited", "Packet", "Question Number", "Comments"])
                 for bonus in bonuses:
-                    writer.writerow([remove_new_lines(bonus.leadin), remove_new_lines(bonus.part1_text), remove_new_lines(bonus.part1_answer), remove_new_lines(bonus.part2_text), remove_new_lines(bonus.part2_answer), remove_new_lines(bonus.part3_text), remove_new_lines(bonus.part3_answer), bonus.category, bonus.author, bonus.edited, bonus.packet, bonus.question_number])
+                    comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=tossup.id).order_by('-submit_date')
+                    comment_string = ""
+                    for comment in comment_list:
+                        comment_string = comment_string + str(comment.user) + ": " + comment.comment + "||"
+                    
+                    writer.writerow([remove_new_lines(bonus.leadin), remove_new_lines(bonus.part1_text), remove_new_lines(bonus.part1_answer), remove_new_lines(bonus.part2_text), remove_new_lines(bonus.part2_answer), remove_new_lines(bonus.part3_text), remove_new_lines(bonus.part3_answer), bonus.category, bonus.author, bonus.edited, bonus.packet, bonus.question_number, comment_string])
 
                 return response
             elif (output_format == "pdf"):

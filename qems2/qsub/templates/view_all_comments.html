@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load cache %}
+
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+{% block title %}{% if qset %}Comments - {{ qset.name }} - QEMS2{% else %}Comments - QEMS2{% endif %}{% endblock %}
+
+{% block content %}
+{% load static %}
+{% load filters %}
+{% load comments %}
+
+<h3 class="page-header">{{qset.name}} - Comments</h3>
+
+{% block tab_group_2 %}
+    {% include "tab_group_2.html" %}
+{% endblock %}
+
+<table class="tablesorter table-striped table-hover" id="comments-table">
+    <thead>
+        <tr>
+            <th>Commenter</th>
+            <th>Comment</th>
+            <th>Question</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% autoescape off %}                
+            {% for comment in comment_tab_list %}     
+                <tr>
+                    <td>{{ comment.comment.user }}</td>
+                    <td>{{ comment.comment.comment|comment_html }}</td>                    
+                    <td><a href="/edit_{{ comment.question_type }}/{{ comment.question_id }}">{{ comment.question_text }}</a></td>
+                    <td>{{ comment.comment.submit_date|to_short_datetime }}</td>
+                </tr>
+            {% endfor %}
+        {% endautoescape %}
+    </tbody>
+</table>
+
+<input type="hidden" id="qset-id" value="{{ qset.id }}">
+{% include "dialog.html" %}
+
+{% endblock %}

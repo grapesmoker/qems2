@@ -92,10 +92,10 @@ SCIENCE_SUBTYPES = (('S-P-QM', 'Science - physics - quantum mechanics'),
                     ('S-B-E', 'Science - biology - evolutionary bio'),
                     ('S-B-MSC', 'Science - biology - miscellaneous'),
                     ('S-O-A', 'Science - other - astronomy'),
-                    ('S-O-A', 'Science - other - mathematics'),
-                    ('S-O-A', 'Science - other - computer science'),
-                    ('S-O-A', 'Science - other - engineering'),
-                    ('S-O-A', 'Science - other - earth science'),)
+                    ('S-O-M', 'Science - other - mathematics'),
+                    ('S-O-CS', 'Science - other - computer science'),
+                    ('S-O-ENG', 'Science - other - engineering'),
+                    ('S-O-ES', 'Science - other - earth science'),)
 
 ACF_DISTRO = OrderedDict([('S', (5, 5)),
                           ('L', (5, 5)),

@@ -168,7 +168,7 @@ REGISTRATION_OPEN = True
 DEFAULT_FROM_EMAIL = 'QEMS <support@hsapq.com>'
 EMAIL_USE_SSL = True
 EMAIL_HOST = 'smtp-relay.gmail.com'
-EMAIL_PORT = 465
+EMAIL_PORT = 587
 # EMAIL_HOST_USER = '{username}'
 # EMAIL_HOST_PASSWORD = '{password}'
 # You'll need to allow access for less secure apps to test.

@@ -2109,6 +2109,72 @@ def type_questions(request, qset_id=None):
                                       context_instance=RequestContext(request))
 
 @login_required
+def type_questions_edit(request, question_type, question_id):
+    user = request.user.writer
+    
+    if (question_type == "tossup"):
+        question = Tossup.objects.get(id=question_id)
+    elif (question_type == "bonus"):
+        question = Bonus.objects.get(id=question_id)
+    
+    qset = question.question_set
+    packet = question.packet
+    message = ''
+    message_class = ''
+    read_only = True
+    role = get_role_no_owner(user, qset)
+
+    if request.method == 'POST':
+        if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
+            form = TypeQuestionsForm(request.POST)
+            if form.is_valid():
+                question_data = request.POST['questions'].splitlines()
+                tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(question_data)
+
+                return render_to_response('type_questions_edit_preview.html',
+                                         {'tossups': tossups,
+                                          'bonuses': bonuses,
+                                          'tossup_errors': tossup_errors,
+                                          'bonus_errors': bonus_errors,
+                                          'message': 'Please verify that these questions have been correctly parsed. Hitting "Submit" will '\
+                                          'commit these questions to the database. If you see any mistakes, hit "Cancel" and correct your mistakes.',
+                                          'qset': qset,
+                                          'user': user},
+                                          context_instance=RequestContext(request))
+            else:
+                question_data = request.POST['questions']
+                tossups, bonuses = parse_packet_data(question_data)
+                messages.error(request, form.questions.errors)
+
+        else:
+            tossups = None
+            bonuses = None
+            messages.error(request, 'You do not have permission to edit this question')
+            return render_to_response('type_questions_edit.html',
+                                     {'tossups': tossups,
+                                      'bonuses': bonuses,
+                                      'qset': qset,
+                                      'user': user},
+                                      context_instance=RequestContext(request))
+    elif request.method == 'GET':
+        if (user == qset.owner or user in qset.editor.all() or user in qset.writer.all()):
+            dist_entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
+
+            form = TypeQuestionsForm(request.POST)
+            return render_to_response('type_questions_edit.html',
+                                     {'user': user,
+                                      'qset': qset,
+                                      'form': form,
+                                      'dist_entries': dist_entries},
+                                      context_instance=RequestContext(request))
+        else:
+            messages.error(request, 'You do not have permission to edit this question')
+            return render_to_response('type_questions_edit.html',
+                                     {'qset': qset,
+                                      'user': user},
+                                      context_instance=RequestContext(request))
+
+@login_required
 def complete_upload(request):
     user = request.user.writer
     if request.method == 'POST':

@@ -2709,7 +2709,7 @@ def export_question_set(request, qset_id, output_format):
                 entries = qset.setwidedistributionentry_set.all()                
                 writer.writerow(["Category", "Subcategory", "Total Tossups", "Total Bonuses"])
                 for entry in entries:
-                    writer.writerow([entry.category.value, entry.subcategory.value, entry.num_tossups, entry.num_bonuses])
+                    writer.writerow([entry.dist_entry.category.value, entry.dist_entry.subcategory.value, entry.num_tossups, entry.num_bonuses])
 
                 return response
             elif (output_format == "pdf"):

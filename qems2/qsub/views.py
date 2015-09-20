@@ -2704,6 +2704,12 @@ def export_question_set(request, qset_id, output_format):
                         comment_string = comment_string + str(comment.user) + ": " + comment.comment + "||"
                     
                     writer.writerow([remove_new_lines(bonus.leadin), remove_new_lines(bonus.part1_text), remove_new_lines(bonus.part1_answer), remove_new_lines(bonus.part2_text), remove_new_lines(bonus.part2_answer), remove_new_lines(bonus.part3_text), remove_new_lines(bonus.part3_answer), bonus.category, bonus.author.get_last_name(), bonus.edited, bonus.packet, bonus.question_number, remove_new_lines(comment_string)])
+                    
+                writer.writerow([])
+                entries = qset.setwidedistributionentry_set.all()                
+                writer.writerow(["Category", "Subcategory", "Total Tossups", "Total Bonuses"])
+                for entry in entries:
+                    writer.writerow([entry.category.value, entry.subcategory.value, entry.num_tossups, entry.num_bonuses])
 
                 return response
             elif (output_format == "pdf"):

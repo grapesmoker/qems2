@@ -51,7 +51,6 @@
                     {% for entry in set_distro_formset %}
                     <tr>
                         <input type="hidden" value="{{ entry.initial.entry_id }}" name="{{ entry.entry_id.html_name }}">
-                        <!--<input type="hidden" value="{{ entry.initial.dist_entry.id }}" name="{{ entry.dist_entry.html_name}}">-->
                         <td>{{ entry.category.value }}</td>
                         <td>{{ entry.subcategory.value }}</td>
                         <td>{% if role == "owner" %} {{ entry.num_tossups.value }} {% else %} {{ entry.num_tossups }} {% endif %}</td>
@@ -60,7 +59,11 @@
                     {% endfor %}
                 </tbody>
             </table>
-            <input type="submit" class="button primary right">
+            {% if not read_only %}
+                <input type="submit" class="button primary right">
+            {% else %}
+                <p>Only the owner of a set may make changes to the distribution.</p>
+            {% endif %}
             {{ set_distro_formset.management_form }}
         </form>
     </div>

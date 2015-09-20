@@ -503,6 +503,7 @@ def question_set_distribution(request, qset_id):
     qset_writers = qset.writer.all()
     set_distro_formset = []
     tiebreak_formset = []
+    read_only = True
 
     message = ''
     if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
@@ -513,6 +514,10 @@ def question_set_distribution(request, qset_id):
                                   context_instance=RequestContext(request))                
     elif user == qset.owner:
         set_distro_formset = create_set_distro_formset(qset)
+        tiebreak_formset = create_tiebreak_formset(qset)    
+        read_only = False
+    else:
+        set_distro_formset = create_set_distro_formset(qset)
         tiebreak_formset = create_tiebreak_formset(qset)        
         	
     return render_to_response('question_set_distribution.html',
@@ -521,7 +526,8 @@ def question_set_distribution(request, qset_id):
         'set_distro_formset': set_distro_formset,
         'tiebreak_formset': tiebreak_formset,
         'qset': qset,
-        'message': message},
+        'message': message,
+        'read_only': read_only},
         context_instance=RequestContext(request))	
 
 @login_required

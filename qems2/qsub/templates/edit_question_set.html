@@ -185,13 +185,15 @@
                 </thead>
                 <tbody>
                     {% autoescape off %}                
-                        {% for comment in comment_tab_list %}     
-                            <tr>
-                                <td>{{ comment.comment.user }}</td>
-                                <td>{{ comment.comment.comment|comment_html }}</td>                    
-                                <td><a href="/edit_{{ comment.question_type }}/{{ comment.question_id }}">{{ comment.question_text }}</a></td>
-                                <td>{{ comment.comment.submit_date|to_short_datetime }}</td>
-                            </tr>
+                        {% for comment in comment_tab_list %}
+                            {% if not comment.is_removed %}
+                                <tr>
+                                    <td>{{ comment.comment.user }}</td>
+                                    <td>{{ comment.comment.comment|comment_html }}</td>                    
+                                    <td><a href="/edit_{{ comment.question_type }}/{{ comment.question_id }}">{{ comment.question_text }}</a></td>
+                                    <td>{{ comment.comment.submit_date|to_short_datetime }}</td>
+                                </tr>
+                            {% endif %}
                         {% endfor %}
                     {% endautoescape %}
                 </tbody>

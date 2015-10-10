@@ -407,28 +407,29 @@ def get_comment_tab_list(tossup_dict, bonus_dict, comment_limit=60):
     
     comment_count = 0
     for comment in Comment.objects.filter(Q(content_type_id=tossup_content_type_id) | Q(content_type_id=bonus_content_type_id)).order_by('-submit_date'):
-        if (comment.content_type_id == tossup_content_type_id.id):
-            if (long(comment.object_pk) in tossup_dict):
-                tossup = tossup_dict[long(comment.object_pk)]            
-                new_comment = { 'comment': comment,
-                                    'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False),
-                                    'question_id': tossup.id,
-                                    'question_type': 'tossup'}
-                comment_tab_list.append(new_comment)
-                comment_count += 1
-                if (comment_count >= comment_limit):
-                    break
-        else:
-            if (long(comment.object_pk) in bonus_dict):
-                bonus = bonus_dict[long(comment.object_pk)]            
-                new_comment = { 'comment': comment,
-                                    'question_text': get_formatted_question_html_for_bonus_answers(bonus),
-                                    'question_id': bonus.id,
-                                    'question_type': 'bonus'}
-                comment_tab_list.append(new_comment)
-                comment_count += 1
-                if (comment_count >= comment_limit):
-                    break
+        if (not comment.is_removed):
+            if (comment.content_type_id == tossup_content_type_id.id):
+                if (long(comment.object_pk) in tossup_dict):
+                    tossup = tossup_dict[long(comment.object_pk)]            
+                    new_comment = { 'comment': comment,
+                                        'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False),
+                                        'question_id': tossup.id,
+                                        'question_type': 'tossup'}
+                    comment_tab_list.append(new_comment)
+                    comment_count += 1
+                    if (comment_count >= comment_limit):
+                        break
+            else:
+                if (long(comment.object_pk) in bonus_dict):
+                    bonus = bonus_dict[long(comment.object_pk)]            
+                    new_comment = { 'comment': comment,
+                                        'question_text': get_formatted_question_html_for_bonus_answers(bonus),
+                                        'question_id': bonus.id,
+                                        'question_type': 'bonus'}
+                    comment_tab_list.append(new_comment)
+                    comment_count += 1
+                    if (comment_count >= comment_limit):
+                        break
     
     return comment_tab_list
 

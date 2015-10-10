@@ -169,7 +169,7 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
         elif (c == u")" and allowParens and previousChar == u"\\"):
             output = output[:-1] # Get rid of the escape character
             output += c
-        elif (c == u"s" and previousChar == u"\\" and secondPreviousChar != u"\\" and !superScriptFlag):
+        elif (c == u"s" and previousChar == u"\\" and secondPreviousChar != u"\\" and not superScriptFlag):
             output = output[:-1] # Get rid of the escape character
             if (subScriptFlag):
                 subScriptFlag = False
@@ -177,7 +177,7 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
             else:
                 subScriptFlag = True
                 output += u"<sub>"
-        elif (c == u"S" and previousChar == u"\\" and secondPreviousChar != u"\\" and !subScriptFlag):
+        elif (c == u"S" and previousChar == u"\\" and secondPreviousChar != u"\\" and not subScriptFlag):
             output = output[:-1] # Get rid of the escape character
             if (superScriptFlag):
                 superScriptFlag = False

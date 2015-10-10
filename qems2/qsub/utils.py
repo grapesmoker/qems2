@@ -132,7 +132,11 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
     italicsFlag = False
     parensFlag = False
     underlineFlag = False
+    needToRestoreItalicsFlag = False
+    subScriptFlag = False
+    superScriptFlag = False
     previousChar = u""
+    secondPreviousChar = u""
     output = u""    
     for c in line:
         if (c == u"~"):
@@ -143,17 +147,44 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
                 output += u"</i>"
                 italicsFlag = False
         elif (c == u"(" and allowParens and previousChar != u"\\"):
+            if (italicsFlag):
+                needToRestoreItalicsFlag = True
+                itatlicsFlag = False
+                output += u"</i>"
+            
             output += u"<strong>("
             parensFlag = True
-        elif (c == u"(" and allowParens and previousChar == u"\\"):
+        elif (c == u"(" and allowParens and previousChar == u"\\" and secondPreviousChar != u"\\"):
             output = output[:-1] # Get rid of the escape character
             output += c
-        elif (c == u")" and allowParens and previousChar != u"\\"):
+        elif (c == u")" and allowParens and previousChar != u"\\" and secondPreviousChar != u"\\"):
             output += u")</strong>"
             parensFlag = False
+            
+            if (needToRestoreItalicsFlag):
+                output += u"<i>"
+                italticsFlag = True
+                needToRestoreItalicsFlag = False
+                
         elif (c == u")" and allowParens and previousChar == u"\\"):
             output = output[:-1] # Get rid of the escape character
             output += c
+        elif (c == u"s" and previousChar == u"\\" and secondPreviousChar != u"\\" and !superScriptFlag):
+            output = output[:-1] # Get rid of the escape character
+            if (subScriptFlag):
+                subScriptFlag = False
+                output += u"</sub>"
+            else:
+                subScriptFlag = True
+                output += u"<sub>"
+        elif (c == u"S" and previousChar == u"\\" and secondPreviousChar != u"\\" and !subScriptFlag):
+            output = output[:-1] # Get rid of the escape character
+            if (superScriptFlag):
+                superScriptFlag = False
+                output += u"</super>"
+            else:
+                superScriptFlag = True
+                output += u"<super>"            
         else:
             if (c == u"_" and allowUnderlines):
                 if (not underlineFlag):
@@ -164,6 +195,7 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
                     underlineFlag = False
             else:
                 output += c
+        secondPreviousChar = previousChar
         previousChar = c
 
     if (italicsFlag):

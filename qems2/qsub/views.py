@@ -1360,17 +1360,21 @@ def delete_editor(request):
     message_class = ''
     read_only = True
 
+    print("In editor removed")
     if request.method == 'POST':
         qset_id = request.POST['qset_id']
         qset = QuestionSet.objects.get(id=qset_id)
         editor_id = request.POST['editor_id']
         editor = qset.editor.get(id=editor_id)
+        print("Deleting editor", str(editor))
         if user == qset.owner:
+            print("Editor removed")            
             qset.editor.remove(editor)
             cache.clear()
             message = 'Editor removed'
             message_class = 'alert-box success'
         else:
+            print("Editor not removed")
             message = 'You are not authorized to remove editors from this set!'
             message_class = 'alert-box warning'
 

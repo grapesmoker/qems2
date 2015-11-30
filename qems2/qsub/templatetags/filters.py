@@ -3,8 +3,8 @@ from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from qems2.qsub.models import *
 from qems2.qsub.utils import sanitize_html, strip_markup, get_formatted_question_html, get_answer_no_formatting
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.comments import *
+from django.contrib.contenttypes.models import ContentType, ContentTypeManager
+from django_comments.models import *
 
 @register.filter(name='lookup')
 def lookup(dict, key):
@@ -211,7 +211,7 @@ def bonus_history_html(bonus):
 
 @register.filter(name='tossup_last_comment_date')
 def tossup_last_comment_date(tossup):
-    tossup_content_type_id = ContentType.objects.get(name="tossup")
+    tossup_content_type_id = ContentType.objects.get_for_model(Tossup).id
     comments = Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id).order_by('-id')
     if (len(comments) > 0):
         return comments[0].submit_date
@@ -220,7 +220,7 @@ def tossup_last_comment_date(tossup):
 
 @register.filter(name='bonus_last_comment_date')
 def bonus_last_comment_date(bonus):
-    bonus_content_type_id = ContentType.objects.get(name="bonus")
+    bonus_content_type_id = ContentType.objects.get_for_model(Bonus).id
     comments = Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id).order_by('-id')
     if (len(comments) > 0):
         return comments[0].submit_date
@@ -230,6 +230,10 @@ def bonus_last_comment_date(bonus):
 @register.filter(name='verbose_username')
 def verbose_username(writer):
     return str(writer) + " - " + writer.user.email
+
+@register.filter(name='question_set_id')
+def question_set_id(question):
+    return question.question_set.id
 
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

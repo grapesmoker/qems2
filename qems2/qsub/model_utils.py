@@ -5,8 +5,8 @@ from models import *
 from forms import *
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.comments import *
+from django.contrib.contenttypes.models import ContentType, ContentTypeManager
+from django_comments.models import Comment
 from django.db.models import Q
 
 import os
@@ -402,9 +402,9 @@ def get_tossup_and_bonuses_in_set(qset, question_limit=30, preview_only=False):
 def get_comment_tab_list(tossup_dict, bonus_dict, comment_limit=60):
     comment_tab_list = []
     
-    tossup_content_type_id = ContentType.objects.get(name="tossup")
-    bonus_content_type_id = ContentType.objects.get(name="bonus")
-    
+    tossup_content_type_id = ContentType.objects.get_for_model(Tossup).id
+    bonus_content_type_id = ContentType.objects.get_for_model(Bonus).id
+        
     comment_count = 0
     for comment in Comment.objects.filter(Q(content_type_id=tossup_content_type_id) | Q(content_type_id=bonus_content_type_id)).order_by('-submit_date'):
         if (not comment.is_removed):

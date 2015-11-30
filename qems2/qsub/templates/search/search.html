@@ -86,8 +86,10 @@
         <th>Author</th>
         <th>Question</th>
         <th>Category</th>
+        <th>Created</th>
+        <th>Modified</th>
+        <th>Edited</th>        
         <th>Packet</th>
-        <th>Actions</th>
     </tr>
     </thead>
     <tbody>
@@ -96,31 +98,17 @@
         <tr>
             <td>{{ question.author }}</td>
             {% if question|class_name == "Tossup" %}
-            <td>{{ question|tossup_html }} </td>
+            <td><a href="/edit_tossup/{{ question.id }}/">{{ question|tossup_html }}</a></td>
             {% elif question|class_name == "Bonus" %}
             <td>
-                {{ question|bonus_html }}
+                <a href="/edit_bonus/{{ question.id }}/">{{ question|bonus_html }}</a>
             {% endif %}
             </td>
-            <td>{{ question.category }}</td>
+            <td><a href="/categories/{{ question|question_set_id }}/{{ question.category.id }}">{{ question.category }}</a></td>
+            <td>{{ question.created_date|to_short_datetime }}</td>
+            <td>{{ question.last_changed_date|to_short_datetime }}</td>
+            <td>{% if question.edited_date %} {{ question.edited_date|to_short_datetime }} {% endif %}</td>                        
             <td>{% if question.packet %} {{ question.packet }} {% else %} Not in packet {% endif %}</td>
-            <td>
-                {% if question|class_name == "Tossup" %}
-                <a href="/edit_tossup/{{ question.id }}" title="Edit">
-                    <i class="fa fa-edit"></i>
-                </a>
-                <a href="/delete_tossup/{{ question.id }}" title="Delete" class="delete_tossup" value="{{ question.id }}">
-                    <i class="fa fa-minus-circle"></i>
-                </a>
-                {% elif question|class_name == "Bonus" %}
-                <a href="/edit_bonus/{{ question.id }}" title="Edit">
-                    <i class="fa fa-edit"></i>
-                </a>
-                <a href="/delete_bonus/{{ question.id }}" title="Delete" class="delete_bonus" value="{{ question.id }}">
-                    <i class="fa fa-minus-circle"></i>
-                </a>
-                {% endif %}
-            </td>
         </tr>
         {% endfor %}
     {% endautoescape %}

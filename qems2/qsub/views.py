@@ -30,6 +30,7 @@ from django_comments.models import Comment
 from django.db.models import Q
 from django.core.cache import cache
 from django.views.decorators.cache import cache_page
+from django.contrib.contenttypes.models import ContentType, ContentTypeManager
 
 from collections import OrderedDict
 from itertools import chain, ifilter
@@ -1067,8 +1068,6 @@ def edit_tossup(request, tossup_id):
         elif user in qset.writer.all():
             read_only = True
             form = None
-            message = 'You are only authorized to view, not to edit, this question!'
-            message_class = 'alert-box warning'
         else:
             read_only = True
             tossup = None
@@ -1189,8 +1188,6 @@ def edit_bonus(request, bonus_id):
         elif user in qset.writer.all():
             read_only = True
             form = None
-            message = 'You are only authorized to view, not to edit, this question!'
-            message_class = 'alert-box warning'
         else:
             read_only = True
             bonus = None
@@ -2072,7 +2069,7 @@ def type_questions(request, qset_id=None):
             form = TypeQuestionsForm(request.POST)
             if form.is_valid():
                 question_data = request.POST['questions'].splitlines()
-                tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(question_data)
+                tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(question_data, qset)
 
                 return render_to_response('type_questions_preview.html',
                                          {'tossups': tossups,
@@ -2086,7 +2083,7 @@ def type_questions(request, qset_id=None):
                                           context_instance=RequestContext(request))
             else:
                 question_data = request.POST['questions']
-                tossups, bonuses = parse_packet_data(question_data)
+                tossups, bonuses = parse_packet_data(question_data, qset)
                 messages.error(request, form.questions.errors)
 
         else:
@@ -2138,7 +2135,7 @@ def type_questions_edit(request, question_type, question_id):
             form = TypeQuestionsForm(request.POST)
             if form.is_valid():
                 question_data = request.POST['questions'].splitlines()
-                tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(question_data)
+                tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(question_data, qset)
 
                 return render_to_response('type_questions_edit_preview.html',
                                          {'tossups': tossups,
@@ -2152,7 +2149,7 @@ def type_questions_edit(request, question_type, question_id):
                                           context_instance=RequestContext(request))
             else:
                 question_data = request.POST['questions']
-                tossups, bonuses = parse_packet_data(question_data)
+                tossups, bonuses = parse_packet_data(question_data, qset)
                 messages.error(request, form.questions.errors)
 
         else:
@@ -2192,7 +2189,7 @@ def complete_upload(request):
 
         num_tossups = int(request.POST['num-tossups'])
         num_bonuses = int(request.POST['num-bonuses'])
-        categories = DistributionEntry.objects.all()
+        categories = DistributionEntry.objects.filter(distribution=qset.distribution)
         questionTypes = QuestionType.objects.all()
 
         new_tossups = []
@@ -2674,8 +2671,8 @@ def export_question_set(request, qset_id, output_format):
     qset = QuestionSet.objects.get(id=qset_id)
     role = get_role_no_owner(user, qset)
     
-    tossup_content_type_id = ContentType.objects.get(name="tossup")
-    bonus_content_type_id = ContentType.objects.get(name="bonus")    
+    tossup_content_type_id = ContentType.objects.get_for_model(Tossup).id
+    bonus_content_type_id = ContentType.objects.get_for_model(Bonus).id
     
     if request.method == 'GET':
         if (role == 'editor'):

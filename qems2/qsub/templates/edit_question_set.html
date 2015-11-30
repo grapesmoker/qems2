@@ -15,6 +15,7 @@
 
 <h3 class="page-header">Question Set Management</h3>
 
+
 <dl class="tabs" data-tab>
     <dd class="active"><a href="#qset-info">Home</a></dd>
     <dd><a href="#questions">Recent Questions</a></dd>
@@ -27,7 +28,7 @@
     {% include "tab_group_2.html" %}
 {% endblock %}
 
-<div class="tabs-content">
+<div class="tabs-content" data-tab="">
     <div class="content active" id="qset-info">
         {% autoescape off %}
             {% if message %}
@@ -167,6 +168,12 @@
                 <strong><a href="/bulk_change_set/{{ qset.id }}">Make Bulk Changes to this Set</a></strong>
             </div>
         {% endif %}
+        {% if role == "editor" %}
+            <div class="panel header radius text-center">
+                <strong><a href="/delete_set/{{ qset.id }}" class="delete_set" value="{{ qset.id }}">Delete this set</a></strong>
+            </div>        
+        {% endif %}
+        
         <div class="panel header radius text-center">
             <strong><a href="/writer_question_set_settings/{{ qset.id }}">Your settings for this set</a></strong>
         </div>
@@ -412,7 +419,6 @@
             </tbody>
         </table>
     </div>
-</div>
 </div>
 
 <input type="hidden" id="qset-id" value="{{ qset.id }}">

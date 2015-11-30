@@ -23,9 +23,7 @@ urlpatterns = patterns('',
     url(r'^admin/', include(admin.site.urls)),
     (r'^main/$', main),
     (r'^$', main),
-    url(r'^accounts/register/$',
-        RegistrationView.as_view(form_class=RegistrationFormWithName),
-        name='registration_register'),        
+    url(r'^accounts/register/$',RegistrationView.as_view(form_class=RegistrationFormWithName),name='registration_register'),        
     (r'^accounts/', include('registration.backends.default.urls')),         
     #(r'^register/$', register),
     #(r'^accounts/login/$', django.contrib.auth.views.login),
@@ -69,6 +67,7 @@ urlpatterns = patterns('',
     (r'^export_question_set/(?P<qset_id>[0-9]+)/(?P<output_format>.+)/$', export_question_set),
     (r'^delete_writer/$', delete_writer),
     (r'^delete_editor/$', delete_editor),
+    (r'^delete_set/$', delete_set),    
     (r'^delete_comment/$', delete_comment),
     (r'^restore_tossup/$', restore_tossup),
     (r'^restore_bonus/$', restore_bonus),
@@ -105,6 +104,9 @@ urlpatterns = patterns('',
     # (r'^search/', include('haystack.urls')),
     (r'^search/$', search),
     (r'^search/(?P<passed_qset_id>[0-9]+)/$', search),
+    
+    #auth
+    #url(r'^accounts/', include('allauth.urls')),
 )
 
 #import debug_toolbar

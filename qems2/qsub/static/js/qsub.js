@@ -338,6 +338,30 @@ $(function () {
             });
         }
     });
+    
+    $('.delete_set').click(function(e) {
+        e.preventDefault();
+        var result = confirm("Are you sure you want to delete this question set?");
+        if (result == true) {
+            var result2 = confirm("Seriously, you really want to delete this question set?");
+            if (result2 == true) {
+                $.post('/delete_set/', {qset_id: $(this).attr('value')}, function (response) {
+                    var json_response = $.parseJSON(response);
+                    var dialog = $('#info-dialog').dialog({
+                        modal: true,
+                        buttons: {
+                            Ok: function() {
+                                $(this).dialog('close');
+                                window.location.replace('/main/');
+                            }
+                        }
+                    })
+                    dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                    dialog.dialog('open');
+                });
+            }
+        }
+    });    
 
     $('#upload-dialog').dialog({
         autoOpen: false,

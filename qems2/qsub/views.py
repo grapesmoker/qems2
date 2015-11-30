@@ -1342,7 +1342,8 @@ def delete_writer(request):
         qset = QuestionSet.objects.get(id=qset_id)
         writer_id = request.POST['writer_id']
         writer = qset.writer.get(id=writer_id)
-        if user == qset.owner:
+        role = get_role_no_owner(user, qset)
+        if role == "editor":
             qset.writer.remove(writer)
             cache.clear()
             message = 'Writer removed'
@@ -1360,22 +1361,42 @@ def delete_editor(request):
     message_class = ''
     read_only = True
 
-    print("In editor removed")
     if request.method == 'POST':
         qset_id = request.POST['qset_id']
         qset = QuestionSet.objects.get(id=qset_id)
         editor_id = request.POST['editor_id']
         editor = qset.editor.get(id=editor_id)
-        print("Deleting editor", str(editor))
-        if user == qset.owner:
-            print("Editor removed")            
+        role = get_role_no_owner(user, qset)
+        if role == "editor":
             qset.editor.remove(editor)
             cache.clear()
             message = 'Editor removed'
             message_class = 'alert-box success'
         else:
-            print("Editor not removed")
             message = 'You are not authorized to remove editors from this set!'
+            message_class = 'alert-box warning'
+
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
+
+@login_required
+def delete_set(request):
+    user = request.user.writer
+    message = ''
+    message_class = ''
+    read_only = True
+
+    print("In editor removed")
+    if request.method == 'POST':
+        qset_id = request.POST['qset_id']
+        qset = QuestionSet.objects.get(id=qset_id)
+        role = get_role_no_owner(user, qset)
+        if role == "editor":
+            qset.delete()
+            cache.clear()
+            message = 'Set deleted'
+            message_class = 'alert-box success'
+        else:
+            message = 'You are not authorized to delete this set!'
             message_class = 'alert-box warning'
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))

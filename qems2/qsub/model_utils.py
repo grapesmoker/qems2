@@ -6,7 +6,7 @@ from forms import *
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
 from django.contrib.contenttypes.models import ContentType, ContentTypeManager
-from django_comments.models import Comment
+from django.contrib.comments import *
 from django.db.models import Q
 
 import os

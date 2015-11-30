@@ -52,7 +52,7 @@
                 <div class="small-6 columns">
                     <div class="row collapse">
                         <div class="small-4 columns">
-                            <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "category" %}Category ({{ field.value }}){% else %}Author{% endif %}</span>
+                            <span class="prefix text-left" for="{{ field.id_for_label }}">{% if field.html_name == "category" %}Category{% else %}Author{% endif %}</span>
                         </div>
                         <div class="small-8 columns">
                             {{ field }} 
@@ -112,11 +112,12 @@
 
 {% if tossup %}
     <ul class="button-group even">        
-        <li><a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}" class="button primary">Move to another set</a></li>
-        <li><a href="/tossup_history/{{ tossup.id }}" class="button primary">View tossup history</a></li>
-        <li><a href="/delete_tossup/{{ tossup.id }}" class="button primary delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">Delete question</a></li>
+        <li><a href="/move_tossup/{{ qset.id }}/{{ tossup.id }}" class="button primary">Move set</a></li>
+        <li><a href="/tossup_history/{{ tossup.id }}" class="button primary">History</a></li>
+        <li><a href="/delete_tossup/{{ tossup.id }}" class="button primary delete_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}">Delete</a></li>
         <li><a href="/convert_tossup/{{ tossup.id }}" class="button primary convert_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}" target-type="ACF-style bonus">Convert to ACF bonus</a></li>
         <li><a href="/convert_tossup/{{ tossup.id }}" class="button primary convert_tossup" value="{{ tossup.id }}" qset-id="{{ qset.id }}" target-type="VHSL bonus">Convert to VHSL bonus</a></li>
+        <li><a href="/categories/{{ qset.id }}/{{ tossup.category.id }}" class="button primary">All in category</a></li>        
     </ul>
 {% endif %}
 

@@ -408,7 +408,7 @@ def get_comment_tab_list(tossup_dict, bonus_dict, comment_limit=60):
     comment_count = 0
     for comment in Comment.objects.filter(Q(content_type_id=tossup_content_type_id) | Q(content_type_id=bonus_content_type_id)).order_by('-submit_date'):
         if (not comment.is_removed):
-            if (comment.content_type_id == tossup_content_type_id.id):
+            if (comment.content_type_id == tossup_content_type_id):
                 if (long(comment.object_pk) in tossup_dict):
                     tossup = tossup_dict[long(comment.object_pk)]            
                     new_comment = { 'comment': comment,

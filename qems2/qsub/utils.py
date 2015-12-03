@@ -182,10 +182,10 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
             output = output[:-1] # Get rid of the escape character
             if (superScriptFlag):
                 superScriptFlag = False
-                output += u"</super>"
+                output += u"</sup>"
             else:
                 superScriptFlag = True
-                output += u"<super>"            
+                output += u"<sup>"            
         else:
             if (c == u"_" and allowUnderlines):
                 if (not underlineFlag):

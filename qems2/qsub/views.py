@@ -216,6 +216,7 @@ def edit_question_set(request, qset_id):
     comment_tab_list = []
     tu_needed = 0
     bs_needed = 0
+    set_pct_complete = 0
 
     role = get_role_no_owner(user, qset)
 
@@ -296,8 +297,8 @@ def edit_question_set(request, qset_id):
                 read_only = True
             form = QuestionSetForm(instance=qset)
 
-            set_status, total_tu_req, total_bs_req, tu_needed, bs_needed, set_pct_complete = get_questions_remaining(qset)
-            writer_stats = get_writer_questions_remaining(qset, total_tu_req, total_bs_req)
+        set_status, total_tu_req, total_bs_req, tu_needed, bs_needed, set_pct_complete = get_questions_remaining(qset)
+        writer_stats = get_writer_questions_remaining(qset, total_tu_req, total_bs_req)
                                                                 
         comment_tab_list = get_comment_tab_list(tossup_dict, bonus_dict)                    
 

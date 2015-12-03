@@ -80,6 +80,7 @@ def sanitize_html(html, allowed_tags=DEFAULT_ALLOWED_TAGS):
 
 def strip_markup(html):
     html = convert_smart_quotes(html)
+    html = html.replace("&", "&amp;")
     soup = BeautifulSoup(html)
     return soup.get_text()
 

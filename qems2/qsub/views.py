@@ -214,6 +214,8 @@ def edit_question_set(request, qset_id):
     total_tu_written = 0
     total_bs_written = 0
     comment_tab_list = []
+    tu_needed = 0
+    bs_needed = 0
 
     role = get_role_no_owner(user, qset)
 
@@ -244,47 +246,8 @@ def edit_question_set(request, qset_id):
                 else:
                     read_only = True
 
-                entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
-                for entry in sorted(entries):
-                    tu_required = entry.num_tossups
-                    bs_required = entry.num_bonuses
-                    # TODO: really fix extra questions increasing set completion; this is temporary
-                    tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
-                    bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
-                    tu_written_for_total = min(tu_written, tu_required)
-                    bs_written_for_total = min(bs_written, bs_required)
-                    total_tu_req += tu_required
-                    total_bs_req += bs_required
-                    total_bs_written += bs_written_for_total
-                    total_tu_written += tu_written_for_total
-
-                    set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
-                                                         'tu_in_cat': tu_written,
-                                                         'bs_req': bs_required,
-                                                         'bs_in_cat': bs_written,
-                                                         'category_id': entry.dist_entry.id
-                                                         }
-                set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
-
-                for writer in qset_writers:
-                    writer_tu_written = len(qset.tossup_set.filter(author=writer))
-                    writer_bonus_written = len(qset.bonus_set.filter(author=writer))
-                    writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
-                    
-                    writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
-                                                                'bonus_written': writer_bonus_written,
-                                                                'question_percent': writer_question_percent,
-                                                                'writer': writer}
-                for writer in qset_editors:
-                    writer_tu_written = len(qset.tossup_set.filter(author=writer))
-                    writer_bonus_written = len(qset.bonus_set.filter(author=writer))
-                    writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
-                    
-                    
-                    writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
-                                                                'bonus_written': writer_bonus_written,
-                                                                'question_percent': writer_question_percent,
-                                                                'writer': writer}
+                set_status, total_tu_req, total_bs_req, tu_needed, bs_needed, set_pct_complete = get_questions_remaining(qset)
+                writer_stats = get_writer_questions_remaining(qset, total_tu_req, total_bs_req)
                                                                 
                 comment_tab_list = get_comment_tab_list(tossup_dict, bonus_dict)
 
@@ -299,8 +262,8 @@ def edit_question_set(request, qset_id):
                                            'set_status': set_status,
                                            'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
                                            'set_pct_progress_bar': '{0:0.0f}%'.format(set_pct_complete),
-                                           'tu_needed': total_tu_req - total_tu_written,
-                                           'bs_needed': total_bs_req - total_bs_written,
+                                           'tu_needed': tu_needed,
+                                           'bs_needed': bs_needed,
                                            'tossups': tossups,
                                            'bonuses': bonuses,
                                            'packets': qset.packet_set.all(),
@@ -333,54 +296,14 @@ def edit_question_set(request, qset_id):
                 read_only = True
             form = QuestionSetForm(instance=qset)
 
-        entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
-        for entry in entries:
-            tu_required = entry.num_tossups
-            bs_required = entry.num_bonuses
-            # TODO: really fix extra questions increasing set completion; this is temporary
-            tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
-            bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
-            tu_written_for_total = min(tu_written, tu_required)
-            bs_written_for_total = min(bs_written, bs_required)
-            total_tu_req += tu_required
-            total_bs_req += bs_required
-            total_bs_written += bs_written_for_total
-            total_tu_written += tu_written_for_total
-            set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
-                                                     'tu_in_cat': tu_written,
-                                                     'bs_req': bs_required,
-                                                     'bs_in_cat': bs_written,
-                                                     'category_id': entry.dist_entry.id}
-        set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
-
-        for writer in qset_writers:
-            writer_tu_written = len(qset.tossup_set.filter(author=writer))
-            writer_bonus_written = len(qset.bonus_set.filter(author=writer))
-            writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
-            
-            writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
-                                                        'bonus_written': writer_bonus_written,
-                                                        'question_percent': writer_question_percent,
-                                                        'writer': writer}
-        for writer in qset_editors:
-            writer_tu_written = len(qset.tossup_set.filter(author=writer))
-            writer_bonus_written = len(qset.bonus_set.filter(author=writer))
-            writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
-            
-            
-            writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
-                                                        'bonus_written': writer_bonus_written,
-                                                        'question_percent': writer_question_percent,
-                                                        'writer': writer}
+            set_status, total_tu_req, total_bs_req, tu_needed, bs_needed, set_pct_complete = get_questions_remaining(qset)
+            writer_stats = get_writer_questions_remaining(qset, total_tu_req, total_bs_req)
                                                                 
         comment_tab_list = get_comment_tab_list(tossup_dict, bonus_dict)                    
 
     print "End edit_question_set get", time.strftime("%H:%M:%S")
-    
-    # TODO: Remove this debugging code
-    edit_url = 'edit_question_set.html'
-    
-    return render_to_response(edit_url,
+        
+    return render_to_response('edit_question_set.html',
                               {'form': form,
                                'user': user,
                                'editors': [ed for ed in qset_editors if ed != qset.owner],
@@ -389,8 +312,8 @@ def edit_question_set(request, qset_id):
                                'set_status': set_status,
                                'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
                                'set_pct_progress_bar': '{0:0.0f}%'.format(set_pct_complete),
-                               'tu_needed': total_tu_req - total_tu_written,
-                               'bs_needed': total_bs_req - total_bs_written,
+                               'tu_needed': tu_needed,
+                               'bs_needed': bs_needed,
                                'upload_form': QuestionUploadForm(),
                                'tossups': tossups,
                                'bonuses': bonuses,
@@ -3038,6 +2961,8 @@ def questions_remaining(request, qset_id):
     total_bs_req = 0
     total_tu_written = 0
     total_bs_written = 0
+    tu_needed = 0
+    bs_needed = 0
 
     role = get_role_no_owner(user, qset)
 
@@ -3046,33 +2971,15 @@ def questions_remaining(request, qset_id):
         return HttpResponseRedirect('/failure.html/')
 
     if request.method == 'GET':
-        entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
-        for entry in entries:
-            tu_required = entry.num_tossups
-            bs_required = entry.num_bonuses
-            tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
-            bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
-            total_tu_req += tu_required
-            total_bs_req += bs_required
-            total_bs_written += bs_written
-            total_tu_written += tu_written
-
-            # Only include categories with some questions left to write
-            if (tu_written < tu_required or bs_written < bs_required):
-                set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
-                                                         'tu_in_cat': tu_written,
-                                                         'bs_req': bs_required,
-                                                         'bs_in_cat': bs_written,
-                                                         'category_id': entry.dist_entry.id}
-        set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
+        set_status, total_tu_req, total_bs_req, tu_needed, bs_needed, set_pct_complete = get_questions_remaining(qset)
 
     return render_to_response('questions_remaining.html',
                              {'user': user,
                               'set_status': set_status,
                               'set_pct_complete': '{0:0.2f}%'.format(set_pct_complete),
                               'set_pct_progress_bar': '{0:0.0f}%'.format(set_pct_complete),
-                              'tu_needed': total_tu_req - total_tu_written,
-                              'bs_needed': total_bs_req - total_bs_written,
+                              'tu_needed': tu_needed,
+                              'bs_needed': bs_needed,
                               'qset': qset,
                               'message': message},
                               context_instance=RequestContext(request))

@@ -6,7 +6,7 @@ from forms import *
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
 from django.contrib.contenttypes.models import ContentType, ContentTypeManager
-from django.contrib.comments import *
+from django_comments.models import Comment
 from django.db.models import Q
 
 import os
@@ -433,3 +433,62 @@ def get_comment_tab_list(tossup_dict, bonus_dict, comment_limit=60):
     
     return comment_tab_list
 
+def get_questions_remaining(qset):
+    total_tu_req = 0
+    total_bs_req = 0
+    total_tu_written = 0
+    total_bs_written = 0
+    set_status = {}    
+    
+    entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
+    for entry in sorted(entries):
+        tu_required = entry.num_tossups
+        bs_required = entry.num_bonuses
+        # TODO: really fix extra questions increasing set completion; this is temporary
+        tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
+        bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+        tu_written_for_total = min(tu_written, tu_required)
+        bs_written_for_total = min(bs_written, bs_required)
+        total_tu_req += tu_required
+        total_bs_req += bs_required
+        total_bs_written += bs_written_for_total
+        total_tu_written += tu_written_for_total
+
+        set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
+                                             'tu_in_cat': tu_written,
+                                             'bs_req': bs_required,
+                                             'bs_in_cat': bs_written,
+                                             'category_id': entry.dist_entry.id
+                                             }
+    set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
+    tu_needed = total_tu_req - total_tu_written
+    bs_needed = total_bs_req - total_bs_written
+    
+    return set_status, total_tu_req, total_bs_req, tu_needed, bs_needed, set_pct_complete
+    
+def get_writer_questions_remaining(qset, total_tu_req, total_bs_req):
+    qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()    
+    writer_stats = {}
+    
+    for writer in qset_writers:
+        writer_tu_written = len(qset.tossup_set.filter(author=writer))
+        writer_bonus_written = len(qset.bonus_set.filter(author=writer))
+        writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
+        
+        writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
+                                                    'bonus_written': writer_bonus_written,
+                                                    'question_percent': writer_question_percent,
+                                                    'writer': writer}
+    for writer in qset_editors:
+        writer_tu_written = len(qset.tossup_set.filter(author=writer))
+        writer_bonus_written = len(qset.bonus_set.filter(author=writer))
+        writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
+        
+        
+        writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
+                                                    'bonus_written': writer_bonus_written,
+                                                    'question_percent': writer_question_percent,
+                                                    'writer': writer}    
+    
+    return writer_stats

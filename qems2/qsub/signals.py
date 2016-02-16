@@ -1,4 +1,3 @@
-from registration.signals import user_registered
 from django.dispatch import receiver
 from qems2.qsub.forms import *
 from qems2.qsub.models import *
@@ -115,11 +114,3 @@ def email_on_new_questions(sender, instance, created, raw, using, update_fields,
                     print "Sent new question mail to: " + str(email_list)       
     except:
         print "Error sending mail for new question", sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
-
-# Called when a user is created, saves first and last name info
-@receiver(user_registered)
-def user_created(sender, user, request, **kwargs):
-    form = RegistrationFormWithName(request.POST)    
-    user.first_name=form.data['first_name']
-    user.last_name=form.data['last_name']
-    user.save()

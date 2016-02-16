@@ -35,25 +35,6 @@ from django.contrib.contenttypes.models import ContentType, ContentTypeManager
 from collections import OrderedDict
 from itertools import chain, ifilter
 
-
-def register (request):
-    if request.method == 'POST':
-        form = WriterCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            auth_user = authenticate(username=form.cleaned_data['username'],
-                                     password=form.cleaned_data['password1'])
-            if auth_user.is_active:
-                login(request, auth_user)
-                return HttpResponseRedirect("/main/")
-            else:
-                render_to_response('failure.html', {'message': 'Account disabled! Contact administrator!'})
-    else:
-        form = WriterCreationForm()
-    return render_to_response('registration/register.html',
-                              {'form': form,},
-                              context_instance=RequestContext(request))
-
 @login_required
 def main (request):
     return question_sets(request)

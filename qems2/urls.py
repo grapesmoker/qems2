@@ -3,7 +3,6 @@ from django.contrib.auth.views import logout, login, password_change, password_c
 from django.views.generic import ListView
 from qsub.views import *
 from qsub.models import *
-from registration.backends.default.views import RegistrationView
 
 import django
 

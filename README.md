@@ -32,7 +32,7 @@ Once you have those installed, you should use `pip` to get the necessary Python 
     pip install django-bower
     pip install django-contrib-comments
     pip install django-haystack
-    pip install django-registration-redux
+    pip install django-allauth
     pip install whoosh
     pip install mysql-python
     pip install unicodecsv

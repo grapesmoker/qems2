@@ -22,7 +22,7 @@ CACHES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'qems2',                      # Or path to database file if using sqlite3.
+        'NAME': 'qems92',                      # Or path to database file if using sqlite3.
         'USER': 'django',                      # Not used with sqlite3.
         'PASSWORD': 'django',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -113,6 +113,30 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # Already defined Django-related contexts here
+
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
+            ],
+        },
+    },
+]
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend'
+)
+
 MIDDLEWARE_CLASSES = (
 #    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -155,22 +179,23 @@ INSTALLED_APPS = (
 #    'debug_toolbar',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'registration',
     'qems2.qsub',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 )
 
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL='/main/'
-ACCOUNT_ACTIVATION_DAYS = 3
-REGISTRATION_AUTO_LOGIN = True
-REGISTRATION_OPEN = True
-# EMAIL_BACKEND = 'qems2.qsub.gmailapi.EmailBackend'
-DEFAULT_FROM_EMAIL = 'QEMS <support@hsapq.com>'
-EMAIL_USE_SSL = True
-EMAIL_HOST = 'smtp-relay.gmail.com'
+# Account and registration settings
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION='mandatory'
+ACCOUNT_SIGNUP_FORM_CLASS = 'qems2.qsub.forms.RegistrationFormWithName'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-# EMAIL_HOST_USER = '{username}'
-# EMAIL_HOST_PASSWORD = '{password}'
+EMAIL_HOST_USER = 'qems2mailer@gmail.com'
+EMAIL_HOST_PASSWORD = 'change'
 # You'll need to allow access for less secure apps to test.
 # https://www.google.com/settings/security/lesssecureapps
 

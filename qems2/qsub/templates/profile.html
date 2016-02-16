@@ -9,7 +9,7 @@
 {% block content %}
 
 <h3 class="page-header">Profile for {{ user.user.first_name }} {{ user.user.last_name }}</h3>
-<div data-alert class="alert-box info">You can change your profile information here, except for your username. To change your password, <a href="/password_change/">use this form</a>.</div>
+<div data-alert class="alert-box info">You can change your profile information here, except for your username. To change your password, <a href="/accounts/password/change">use this form</a>.</div>
 {% if message %}
     <div class="{{ message_class }}">{{ message }}</div>
 {% endif %}

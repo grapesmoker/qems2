@@ -19,20 +19,15 @@ urlpatterns = patterns('',
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+    
+    # accounts
+    url(r'^accounts/', include('allauth.urls')),
+    
     (r'^main/$', main),
     (r'^$', main),
-    url(r'^accounts/register/$',RegistrationView.as_view(form_class=RegistrationFormWithName),name='registration_register'),        
-    (r'^accounts/', include('registration.backends.default.urls')),         
-    #(r'^register/$', register),
-    #(r'^accounts/login/$', django.contrib.auth.views.login),
-    #(r'^accounts/logout/$', django.contrib.auth.views.logout),
-    (r'^profile/$', profile),
-    (r'^password_change_done/$', django.contrib.auth.views.password_change_done),
-    (r'^password_change/$', django.contrib.auth.views.password_change, {'post_change_redirect': '/profile/',
-                                                                        'template_name': 'registration/password.html'}),
-    #(r'^password_change/$', password_change),
+    (r'^profile/$', profile),    
+    
     (r'^question_sets/$', question_sets),
     (r'^create_question_set/$', create_question_set),
     (r'^edit_question_set/(?P<qset_id>[0-9]+)/$', edit_question_set),

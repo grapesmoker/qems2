@@ -30,6 +30,15 @@
 </head>
 
 <body>
+    <!-- This will display generic messages on pages we haven't customized, such as the password change page -->
+    {% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+        <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    
     {% block header %}{% endblock %}
     <div class="row">
         <div class="small-11 small-centered columns">

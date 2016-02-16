@@ -3,6 +3,9 @@ from __future__ import unicode_literals
 from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
+from allauth.account.signals import password_changed
+from django.dispatch import receiver
+from django.contrib import messages
 
 from datetime import datetime
 from django.utils import timezone
@@ -979,6 +982,10 @@ class PerCategoryWriterSettings(models.Model):
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Writer.objects.create(user=instance)
+
+@receiver(password_changed)
+def password_change_callback(sender, request, user, **kwargs):
+    messages.success(request, 'You have Successfully changed your Password!')
 
 post_save.connect(create_user_profile, sender=User)
 

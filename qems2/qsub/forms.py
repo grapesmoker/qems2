@@ -7,19 +7,15 @@ from django import forms
 from django.forms import ValidationError
 from django.utils.translation import ugettext, ugettext_lazy as _
 from django.db.models import Q
-from registration.forms import RegistrationForm
 
-class RegistrationFormWithName(RegistrationForm):
+class RegistrationFormWithName(forms.Form):
     first_name = forms.CharField(max_length=200)
     last_name = forms.CharField(max_length=200)
-    
-    def clean(self):
-        cleaned_data = super(RegistrationFormWithName, self).clean()
-        email = cleaned_data.get("email")
-        email_list = User.objects.filter(email=email)
-        if (len(email_list) != 0):
-            print "dupe: " + str(len(email_list))
-            self.add_error('email', ValidationError(_('Duplicate e-mail: %(value)s'), params={'value': email},))
+
+    def signup(self, request, user):
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.save()
 
 class WriterQuestionSetSettingsForm(forms.ModelForm):
     

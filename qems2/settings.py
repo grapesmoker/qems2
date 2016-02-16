@@ -190,12 +190,14 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_EMAIL_VERIFICATION='mandatory'
 ACCOUNT_SIGNUP_FORM_CLASS = 'qems2.qsub.forms.RegistrationFormWithName'
 
+LOGIN_REDIRECT_URL = "/"
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'qems2mailer@gmail.com'
-EMAIL_HOST_PASSWORD = 'change'
+EMAIL_HOST_PASSWORD = ''
 # You'll need to allow access for less secure apps to test.
 # https://www.google.com/settings/security/lesssecureapps
 

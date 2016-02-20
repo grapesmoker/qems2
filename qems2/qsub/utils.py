@@ -284,6 +284,9 @@ def strip_special_chars(line):
     return line.replace('_', '').replace('~', '')
 
 def strip_unicode(line):
+    if (isinstance(line, str)):
+        # line is not a unicode string, and normalizing it will throw
+        return line
     if (line is None or line == ""):
         return ""
     return ''.join(c for c in unicodedata.normalize('NFKD', line)

@@ -603,9 +603,8 @@ class PacketParserTests(SimpleTestCase):
 
     def test_get_assigned_acf_tossups_in_period(self):
         dist, qset, pwe, packet, period = self.create_period()
-        tossup1 = Tossup.objects.create(question_set=qset, packet=packet, question_number=1, tossup_text="Assigned Tossup", tossup_answer="_bar_", period=period)
-        tossup2 = Tossup.objects.create(question_set=qset, packet=packet, question_number=1, tossup_text="Unassigned Tossup", tossup_answer="_foo_", period=period)
-        assigned_bonus = Bonus(author=self.writer, part1_text=part1_text, part1_answer=part1_answer, question_type=get_question_type_from_string(VHSL_BONUS), question_set=qset, packet=packet, question_number=1, period=period)
+        tossup1 = self._create_tossup(self.writer, qset, packet, period, 1, "Assigned Tossup", "_bar_", None)
+        tossup2 = self._create_tossup(self.writer, qset, packet, None, 1, "Unassigned Tossup", "_foo_", None)
         
         assigned_tossups = get_assigned_acf_tossups_in_period(qset, period)
         self.assertEqual(len(assigned_tossups), 1)
@@ -826,8 +825,8 @@ class PacketParserTests(SimpleTestCase):
 
     def _create_tossup(self, writer, qset, packet, period, number, text, answer, question_type):
         return Tossup.objects.create(author=writer, question_set=qset, packet=packet, question_number=number, tossup_text=text, \
-            tossup_answer=answer, question_type=question_type, created_date=datetime.now(), last_changed_date=datetime.now())
+            period=period, tossup_answer=answer, question_type=question_type, created_date=datetime.now(), last_changed_date=datetime.now())
 
     def _create_bonus(self, writer, qset, packet, period, number, question_type, part1_text, part1_answer, part2_text=None, part2_answer=None, part3_text=None, part3_answer=None):
-        return Bonus.objects.create(author=writer, question_set=qset, packet=packet, question_number=number, \
+        return Bonus.objects.create(author=writer, question_set=qset, packet=packet, question_number=number, period=period, \
             part1_text=part1_text, part1_answer=part1_answer, question_type=question_type, created_date=datetime.now(), last_changed_date=datetime.now())

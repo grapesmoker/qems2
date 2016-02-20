@@ -48,10 +48,12 @@ class PacketParserTests(SimpleTestCase):
         non_answers = ["question:", "answer", "ansER"]
         for non_answer in non_answers:
             self.assertFalse(is_answer(non_answer), msg=non_answer)
+
     def test_remove_answer_label(self):
         answers = ["ANSWER: <u><b>my answer</b></u>", "answer:      <u><b>my answer</b></u>", "Answer:\t<u><b>my answer</b></u>"]
         for answer in answers:
             self.assertEqual(remove_answer_label(answer), '<u><b>my answer</b></u>')
+
     def test_are_special_characters_balanced(self):
         balancedLines = ["", "No special chars", "_Underscores_", "~Italics~", "(Parens)", "_~Several_~ (items) in (one) _question_."]
         unbalancedLines = ["_", "~", "_test__", "~~test~", "(test", "test)", "((test)", "(", ")", ")test(", "(test))"]
@@ -59,6 +61,7 @@ class PacketParserTests(SimpleTestCase):
             self.assertTrue(are_special_characters_balanced(balancedLine))
         for unbalancedLine in unbalancedLines:
             self.assertFalse(are_special_characters_balanced(unbalancedLine))
+
     def test_is_bpart(self):
         bonusParts = ['[10]', '[15]']
         for bonusPart in bonusParts:
@@ -66,6 +69,7 @@ class PacketParserTests(SimpleTestCase):
         notBonusParts = ['(10)', '10', '[10', '10]', '(10]', '[10)', '[or foo]', '(not a number)', '[10.5]', '[<i>10</i>]']
         for notBonus in notBonusParts:
             self.assertFalse(is_bpart(notBonus), msg=notBonus)
+
     def test_is_vhsl_bpart(self):
         bonusParts = ['[V10]', '[V15]']
         for bonusPart in bonusParts:
@@ -73,6 +77,7 @@ class PacketParserTests(SimpleTestCase):
         notBonusParts = ['(V10)', '[10]', '(10)', 'V10', '[10', '10]', '(10]', '[V10)', '[or foo]', '(not a number)']
         for notBonus in notBonusParts:
             self.assertFalse(is_vhsl_bpart(notBonus), msg=notBonus)
+
     def test_is_category(self):
         categories = ["{History - European}, 'ANSWER: _foo_ {Literature - American}"]
         for category in categories:
@@ -80,13 +85,16 @@ class PacketParserTests(SimpleTestCase):
         notCategories = ["answer: _foo_", '{History - World', 'History - Other}']
         for notCategory in notCategories:
             self.assertFalse(is_category(notCategory), msg=notCategory)
+
     def test_remove_category(self):
         self.assertEqual(remove_category('ANSWER: _foo_ {History - European}'), 'ANSWER: _foo_ ')
         self.assertEqual(remove_category('ANSWER: _foo_ {History - European'), 'ANSWER: _foo_ {History - European')
+
     def test_get_bonus_part_value(self):
         bonusParts = ['[10]']
         for bonusPart in bonusParts:
             self.assertEqual(get_bonus_part_value(bonusPart), '10')
+
     def test_parse_packet_data(self):
         dist = Distribution.objects.create(name="Test Distribution", acf_tossup_per_period_count=20, acf_bonus_per_period_count=20, vhsl_bonus_per_period_count=20)
         dist.save()
@@ -98,22 +106,24 @@ class PacketParserTests(SimpleTestCase):
         americanHistory = DistributionEntry(category="History", subcategory="American", distribution=dist)
         americanHistory.save()
 
+        qset = QuestionSet.objects.create(name="new_set", date=timezone.now(), host="test host", owner=self.writer, num_packets=10, distribution=dist)
+
         validTossup = 'This is a valid test tossup.\nANSWER: _My Answer_'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validTossup.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validTossup.splitlines(), qset)
         self.assertEqual(len(tossups), 1)
         self.assertEqual(tossups[0].tossup_text, 'This is a valid test tossup.');
         self.assertEqual(tossups[0].tossup_answer, '_My Answer_');
         self.assertEqual(tossups[0].category, None);
 
         validTossupWithCategory = 'This should be a ~European History~ tossup.\nANSWER: _Charles I_ {History - European}'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validTossupWithCategory.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validTossupWithCategory.splitlines(), qset)
         self.assertEqual(len(tossups), 1)
         self.assertEqual(tossups[0].tossup_text, 'This should be a ~European History~ tossup.');
         self.assertEqual(tossups[0].tossup_answer, '_Charles I_ ');
         self.assertEqual(str(tossups[0].category), 'History - European');
 
         validBonus = 'This is a valid bonus.  For 10 points each:\n[10] Prompt 1.\nANSWER: _Answer 1_\n[10] Prompt 2.\nANSWER: _Answer 2_\n[10] Prompt 3.\nANSWER: _Answer 3_'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validBonus.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validBonus.splitlines(), qset)
         self.assertEqual(len(bonuses), 1)
         self.assertEqual(str(bonuses[0].question_type), 'ACF-style bonus')
         self.assertEqual(bonuses[0].leadin, 'This is a valid bonus.  For 10 points each:')
@@ -125,12 +135,12 @@ class PacketParserTests(SimpleTestCase):
         self.assertEqual(bonuses[0].part3_answer, '_Answer 3_')
 
         validBonusWithCategory = validBonus + " {History - American}"
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validBonusWithCategory.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validBonusWithCategory.splitlines(), qset)
         self.assertEqual(len(bonuses), 1)
         self.assertEqual(str(bonuses[0].category), "History - American");
 
         validVHSLBonus = '[V10] This is a valid VHSL bonus.\nANSWER: _VHSL Answer_'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validVHSLBonus.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(validVHSLBonus.splitlines(), qset)
         self.assertEqual(len(bonuses), 1)
         self.assertEqual(str(bonuses[0].question_type), 'VHSL bonus')
         self.assertEqual(bonuses[0].leadin, '')
@@ -139,7 +149,7 @@ class PacketParserTests(SimpleTestCase):
 
         multipleQuestions = 'This is tossup 1.\nANSWER: _Tossup 1 Answer_\n[V10] This is a VHSL bonus.\nANSWER: _VHSL Answer_\nThis is another tossup.\nANSWER: _Tossup 2 Answer_'
         multipleQuestions += '\n' + validBonus
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(multipleQuestions.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(multipleQuestions.splitlines(), qset)
         self.assertEqual(len(bonuses), 2)
         self.assertEqual(len(tossups), 2)
         self.assertEqual(tossups[0].tossup_text, 'This is tossup 1.')
@@ -159,7 +169,7 @@ class PacketParserTests(SimpleTestCase):
         self.assertEqual(bonuses[1].part3_answer, '_Answer 3_')
 
         multipleQuestionsBlankLines = 'This is tossup 1.\nANSWER: _Tossup 1 Answer_\n\n\nThis is tossup 2.\nANSWER: _Tossup 2 Answer_'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(multipleQuestionsBlankLines.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(multipleQuestionsBlankLines.splitlines(), qset)
         self.assertEqual(len(bonuses), 0)
         self.assertEqual(len(tossups), 2)
         self.assertEqual(tossups[0].tossup_text, 'This is tossup 1.')
@@ -168,51 +178,51 @@ class PacketParserTests(SimpleTestCase):
         self.assertEqual(tossups[1].tossup_answer, '_Tossup 2 Answer_')
 
         tossupWithoutAnswer = 'This is not a valid tossup.  It does not have an answer.'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithoutAnswer.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithoutAnswer.splitlines(), qset)
         self.assertEqual(len(tossups), 0)
         self.assertEqual(len(bonuses), 0)
 
         tossupWithLineBreaks = 'This is not a valid tossup.\nIt has a line break before its answer.\nANSWER: _foo_'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithLineBreaks.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithLineBreaks.splitlines(), qset)
         self.assertEqual(len(tossups), 1)
         self.assertEqual(tossups[0].tossup_text, 'It has a line break before its answer.');
         self.assertEqual(tossups[0].tossup_answer, '_foo_');
         self.assertEqual(len(bonuses), 0)
 
         tossupWithoutQuestion = 'ANSWER: This is an answer line without a question'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithoutQuestion.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithoutQuestion.splitlines(), qset)
         self.assertEqual(len(tossups), 0)
         self.assertEqual(len(bonuses), 0)
         self.assertEqual(len(tossup_errors), 1)
 
         tossupWithSingleQuotes = "This is a tossup with 'single quotes' in it.\nANSWER: '_Single Quoted Answer_'"
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithSingleQuotes.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithSingleQuotes.splitlines(), qset)
         self.assertEqual(len(tossups), 1)
         self.assertEqual(tossups[0].tossup_text, "This is a tossup with &#39;single quotes&#39; in it.");
         self.assertEqual(tossups[0].tossup_answer, "&#39;_Single Quoted Answer_&#39;");
 
         tossupWithDoubleQuotes = 'This is a tossup with "double quotes" in it.\nANSWER: "_Double Quoted Answer_"'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithDoubleQuotes.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithDoubleQuotes.splitlines(), qset)
         self.assertEqual(len(tossups), 1)
         self.assertEqual(tossups[0].tossup_text, 'This is a tossup with &quot;double quotes&quot; in it.');
         self.assertEqual(tossups[0].tossup_answer, '&quot;_Double Quoted Answer_&quot;');
 
         tossupWithDoubleQuotes = 'This is a tossup with an <i>italic tag</i> in it.\nANSWER: <i>_Italic Answer_</i>'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithDoubleQuotes.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithDoubleQuotes.splitlines(), qset)
         self.assertEqual(len(tossups), 1)
         self.assertEqual(tossups[0].tossup_text, 'This is a tossup with an &lt;i&gt;italic tag&lt;/i&gt; in it.');
         self.assertEqual(tossups[0].tossup_answer, '&lt;i&gt;_Italic Answer_&lt;/i&gt;');
 
         bonusWithNonIntegerValues = 'This is a bonus with non-integer values.  For 10 points each:\n[A] Prompt 1.\nANSWER: _Answer 1_\n[10.5] Prompt 2.\nANSWER: _Answer 2_\n[10C] Prompt 3.\nANSWER: _Answer 3_'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithNonIntegerValues.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithNonIntegerValues.splitlines(), qset)
         self.assertEqual(len(bonuses), 0)
 
         bonusWithHtmlValues = 'This is a bonus with html values.  For 10 points each:\n[<i>10</i>] Prompt 1.\nANSWER: _Answer 1_\n[10] Prompt 2.\nANSWER: _Answer 2_\n[<i>10</i>] Prompt 3.\nANSWER: _Answer 3_'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithHtmlValues.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithHtmlValues.splitlines(), qset)
         self.assertEqual(len(bonuses), 0)
 
         bonusWithQuotesAndHtml = 'This is a <i>valid</i> "bonus".  For 10 points each:\n[10] <i>Prompt 1</i>.\nANSWER: "_Answer 1_"\n[10] "Prompt 2."\nANSWER: <i>_Answer 2_</i>\n[10] <i>Prompt 3.</i>\nANSWER: <i>_Answer 3_</i>'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithQuotesAndHtml.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithQuotesAndHtml.splitlines(), qset)
         self.assertEqual(len(bonuses), 1)
         self.assertEqual(str(bonuses[0].question_type), 'ACF-style bonus')
         self.assertEqual(bonuses[0].leadin, 'This is a &lt;i&gt;valid&lt;/i&gt; &quot;bonus&quot;.  For 10 points each:')
@@ -224,36 +234,38 @@ class PacketParserTests(SimpleTestCase):
         self.assertEqual(bonuses[0].part3_answer, '&lt;i&gt;_Answer 3_&lt;/i&gt;')
 
         tossupWithUnbalancedSpecialCharsInQuestion = 'This is a tossup question with ~an unclosed tilde.\nANSWER: _foo_'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithUnbalancedSpecialCharsInQuestion.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithUnbalancedSpecialCharsInQuestion.splitlines(), qset)
         self.assertEqual(len(tossup_errors), 1)
 
         tossupWithUnbalancedSpecialCharsInAnswer = 'This is a tossup question.\nANSWER: _unclosed answer'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithUnbalancedSpecialCharsInAnswer.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(tossupWithUnbalancedSpecialCharsInAnswer.splitlines(), qset)
         self.assertEqual(len(tossup_errors), 1)
 
         bonusWithUnbalancedSpecialCharsInLeadin = 'This is a bonus with (unbalanced leadin characters.  For 10 points each:\n[10] <i>Prompt 1</i>.\nANSWER: "_Answer 1_"\n[10] "Prompt 2."\nANSWER: <i>_Answer 2_</i>\n[10] <i>Prompt 3.</i>\nANSWER: <i>_Answer 3_</i>'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInLeadin.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInLeadin.splitlines(), qset)
         self.assertEqual(len(bonus_errors), 1)
 
         bonusWithUnbalancedSpecialCharsInPrompts = 'This is a bonus with unbalanced prompt characters.  For 10 points each:\n[10] ~Prompt 1.\nANSWER: "_Answer 1_"\n[10] "Prompt 2."\nANSWER: <i>_Answer 2_</i>\n[10] <i>Prompt 3.</i>\nANSWER: <i>_Answer 3_</i>'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInPrompts.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInPrompts.splitlines(), qset)
         self.assertEqual(len(bonus_errors), 1)
 
         bonusWithUnbalancedSpecialCharsInAnswers = 'This is a bonus with unbalanced answer characters.  For 10 points each:\n[10] Prompt 1.\nANSWER: "_Answer 1_"\n[10] "Prompt 2."\nANSWER: _Answer 2\n[10] <i>Prompt 3.</i>\nANSWER: <i>_Answer 3_</i>'
-        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInAnswers.splitlines())
+        tossups, bonuses, tossup_errors, bonus_errors = parse_packet_data(bonusWithUnbalancedSpecialCharsInAnswers.splitlines(), qset)
         self.assertEqual(len(bonus_errors), 1)
+
     def test_get_character_count(self):
         emptyTossup = ""
-        self.assertEqual(get_character_count(emptyTossup), 0)
+        self.assertEqual(get_character_count(emptyTossup, True), 0)
 
         noSpecialCharacters = "123456789"
-        self.assertEqual(get_character_count(noSpecialCharacters), 9)
+        self.assertEqual(get_character_count(noSpecialCharacters, True), 9)
 
         onlySpecialCharacters = "~~()"
-        self.assertEqual(get_character_count(onlySpecialCharacters), 0)
+        self.assertEqual(get_character_count(onlySpecialCharacters, True), 0)
 
         mixed = "(~1234~) ~67~"
-        self.assertEqual(get_character_count(mixed), 3)
+        self.assertEqual(get_character_count(mixed, True), 3)
+        self.assertEqual(get_character_count(mixed, False), len(mixed))
 
     def test_get_formatted_question_html(self):
         emptyLine = ""
@@ -644,21 +656,31 @@ class PacketParserTests(SimpleTestCase):
         pwe.acf_tossup_cur = 10
         pwe.acf_tossup_total = 10
         period.acf_tossup_cur = 10
+        pwe.save()
+        period.save()
+        pwe_pk = pwe.pk
+        period_pk = period.pk
 
         ce = CategoryEntry(distribution=dist, category_name="History", category_type=CATEGORY)
         ce.save()
         
         pwce = PeriodWideCategoryEntry(period_wide_entry=pwe, category_entry=ce)
-        pwce.save()
         pwce.acf_tossup_cur_across_periods = 10
         pwce.acf_tossup_total_across_periods = 10
+        pwce.save()
+        pwce_pk = pwce.pk
         
         opce = OnePeriodCategoryEntry(period=period, period_wide_category_entry=pwce)
-        opce.save()
         opce.acf_tossup_cur_in_period = 10
         opce.acf_tossup_total_in_period = 10
+        opce.save()
+        opce_pk = opce.pk
         
         reset_category_counts(qset, False)
+        pwe = PeriodWideEntry.objects.filter(pk=pwe_pk)[0]
+        period = Period.objects.filter(pk=period_pk)[0]
+        pwce = PeriodWideCategoryEntry.objects.filter(pk=pwce_pk)[0]
+        opce = OnePeriodCategoryEntry.objects.filter(pk=opce_pk)[0]
         self.assertEqual(pwe.acf_tossup_cur, 0)
         self.assertEqual(pwe.acf_tossup_total, 10)
         self.assertEqual(period.acf_tossup_cur, 0)
@@ -667,9 +689,13 @@ class PacketParserTests(SimpleTestCase):
         self.assertEqual(opce.acf_tossup_cur_in_period, 0)
         self.assertEqual(opce.acf_tossup_total_in_period, 10)
         
-        reset_category_counts(qset, False)
+        reset_category_counts(qset, True)
+        pwe = PeriodWideEntry.objects.filter(pk=pwe_pk)[0]
+        period = Period.objects.filter(pk=period_pk)[0]
+        pwce = PeriodWideCategoryEntry.objects.filter(pk=pwce_pk)[0]
+        opce = OnePeriodCategoryEntry.objects.filter(pk=opce_pk)[0]
         self.assertEqual(pwe.acf_tossup_cur, 0)
-        self.assertEqual(pwe.acf_tossup_total, 10)
+        self.assertEqual(pwe.acf_tossup_total, 0)
         self.assertEqual(period.acf_tossup_cur, 0)
         self.assertEqual(pwce.acf_tossup_cur_across_periods, 0)
         self.assertEqual(pwce.acf_tossup_total_across_periods, 0)

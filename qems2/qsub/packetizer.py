@@ -571,22 +571,26 @@ def reset_category_counts(qset, reset_totals=False):
         pwe.reset_current_values()
         if (reset_totals):
             pwe.reset_total_values()
+        pwe.save()
         
         periods = Period.objects.filter(period_wide_entry=pwe)
         for period in periods:
             period.reset_current_values()
+            period.save()
         
         period_wide_category_entries = PeriodWideCategoryEntry.objects.filter(period_wide_entry=pwe)        
         for pwce in period_wide_category_entries:
             pwce.reset_current_values()
             if (reset_totals):
                 pwce.reset_total_values()
+            pwce.save()
             
             one_period_category_entries = OnePeriodCategoryEntry.objects.filter(period_wide_category_entry=pwce)
             for opce in one_period_category_entries:
                 opce.reset_current_values()
                 if (reset_totals):
                     opce.reset_total_values()
+                opce.save()
 
 class DistributionRequirement():
     acf_tossups_written = 0

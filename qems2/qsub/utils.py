@@ -214,21 +214,21 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
     return output
 
 def get_character_count(line, ignore_pronunciation):
+    if not ignore_pronunciation:
+        return len(line)
+
     count = 0
     parensFlag = False # Parentheses indicate pronunciation guide
     previousChar = ""
     for c in line:
-        if (not ignore_pronunciation):
-            count = count + 1
+        if (parensFlag):
+            if (c == ")" and previousChar != "\\"):
+                parensFlag = False
         else:
-            if (parensFlag):
-                if (c == ")" and previousChar != "\\"):
-                    parensFlag = False
-            else:
-                if (c == "(" and previousChar != "\\"):
-                    parensFlag = True                    
-                elif (c != "~" and not (previousChar == "\\" and (c == ")" or c == "("))):
-                    count = count + 1 # Only count non-special chars not in pronunciation guide
+            if (c == "(" and previousChar != "\\"):
+                parensFlag = True                    
+            elif (c != "~" and not (previousChar == "\\" and (c == ")" or c == "("))):
+                count = count + 1 # Only count non-special chars not in pronunciation guide
         previousChar = c
 
     return count

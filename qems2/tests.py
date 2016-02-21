@@ -549,7 +549,7 @@ class PacketParserTests(SimpleTestCase):
     def test_clear_questions(self):
         dist, qset, pwe, packet, period = self.create_period()
         tossup = self._create_tossup(self.writer, qset, packet, None, 1, "Foo", "_bar_", get_question_type_from_string(ACF_STYLE_TOSSUP))
-        bonus = self._create_bonus(self.writer, qset, packet, None, 2, get_question_type_from_string(VHSL_BONUS), "Foobar", "_vhsl_")
+        bonus = self._create_bonus(self.writer, qset, packet, None, 2, get_question_type_from_string(VHSL_BONUS), None, "Foobar", "_vhsl_")
         tossup_pk = tossup.pk
         bonus_pk = bonus.pk
 
@@ -574,32 +574,19 @@ class PacketParserTests(SimpleTestCase):
                 
     def test_get_unassigned_acf_bonuses(self):
         dist, qset, pwe, packet, period = self.create_period()
-        
-        leadin = "Leadin with ~italics~ and (parens) and _underlines_."
-        part1_text = "Part 1 with ~italics~ and (parens) and _underlines_."
-        part1_answer = "_~Answer 1~_ [or foo (bar)]"
-        part2_text = "Part 2."
-        part2_answer = "_answer 2_"
-        part3_text = "Part 3."
-        part3_answer = "_answer 3_"
-        assigned_bonus = Bonus(author=self.writer, leadin=leadin, period=period, part1_text=part1_text, part1_answer=part1_answer, part2_text=part2_text, part2_answer=part2_answer, part3_text=part3_text, part3_answer=part3_answer, question_set=qset, packet=packet, question_number=1)
-        leadin = "Unassigned bonus."
-        unassigned_bonus = Bonus(author=self.writer, leadin=leadin, part1_text=part1_text, part1_answer=part1_answer, part2_text=part2_text, part2_answer=part2_answer, part3_text=part3_text, part3_answer=part3_answer, question_set=qset)
+        self._setup_assigned_bonus_tests_bonuses(qset, packet, period)
+
         acf_bonuses = get_unassigned_acf_bonuses(qset)
         self.assertEqual(len(acf_bonuses), 1)
-        self.assertEqual(acf_bonuses[0].leadin, "Unassigned bonus.")
+        self.assertEqual(acf_bonuses[0].leadin, "Unassigned ACF bonus.")
         
     def test_get_unassigned_vhsl_bonuses(self):
         dist, qset, pwe, packet, period = self.create_period()
-        
-        part1_text = "Part 1 with ~italics~ and (parens) and _underlines_."
-        part1_answer = "_~Answer 1~_ [or foo (bar)]"
-        assigned_bonus = Bonus(author=self.writer, part1_text=part1_text, part1_answer=part1_answer, question_type=get_question_type_from_string(VHSL_BONUS), question_set=qset, packet=packet, question_number=1, period=period)
-        part1_text = "Unassigned bonus."
-        unassigned_bonus = Bonus(author=self.writer, part1_text=part1_text, part1_answer=part1_answer, question_type=get_question_type_from_string(VHSL_BONUS), question_set=qset)
+        self._setup_assigned_bonus_tests_bonuses(qset, packet, period)
+
         vhsl_bonuses = get_unassigned_vhsl_bonuses(qset)
         self.assertEqual(len(vhsl_bonuses), 1)
-        self.assertEqual(vhsl_bonuses[0].part1_text, "Unassigned bonus.")
+        self.assertEqual(vhsl_bonuses[0].leadin, "Unassigned VHSL bonus.")
 
     def test_get_assigned_acf_tossups_in_period(self):
         dist, qset, pwe, packet, period = self.create_period()
@@ -612,43 +599,19 @@ class PacketParserTests(SimpleTestCase):
 
     def test_get_assigned_acf_bonuses_in_period(self):
         dist, qset, pwe, packet, period = self.create_period()
-        
-        leadin = "My ACF assigned bonus."
-        part1_text = u"Part 1 with ~italics~ and (parens) and _underlines_."
-        part1_answer = u"_~Answer 1~_ [or foo (bar)]"
-        part2_text = u"Part 2."
-        part2_answer = u"_answer 2_"
-        part3_text = u"Part 3."
-        part3_answer = u"_answer 3_"
-        assigned_bonus = Bonus(author=self.writer, leadin=leadin, period=period, part1_text=part1_text, part1_answer=part1_answer, part2_text=part2_text, part2_answer=part2_answer, part3_text=part3_text, part3_answer=part3_answer, question_set=qset, packet=packet, question_number=1, question_type=get_question_type_from_string(ACF_STYLE_BONUS))
-        leadin = "Unassigned bonus."
-        unassigned_bonus = Bonus(author=self.writer, leadin=leadin, part1_text=part1_text, part1_answer=part1_answer, part2_text=part2_text, part2_answer=part2_answer, part3_text=part3_text, part3_answer=part3_answer, question_set=qset)
-        tossup1 = self._create_tossup(self.writer, qset, packet, period, 1, "Assigned Tossup", "_bar", None)
-        vhsl_bonus = Bonus(author=self.writer, part1_text=part1_text, part1_answer=part1_answer, question_type=get_question_type_from_string(VHSL_BONUS), question_set=qset, packet=packet, question_number=1, period=period)
-        
+        self._setup_assigned_bonus_tests_bonuses(qset, packet, period)
+
         assigned_bonuses = get_assigned_acf_bonuses_in_period(qset, period)
         self.assertEqual(len(assigned_bonuses), 1)
         self.assertEqual(assigned_bonuses[0].leadin, "My ACF assigned bonus.")
 
     def test_get_assigned_vhsl_bonuses_in_period(self):
         dist, qset, pwe, packet, period = self.create_period()
-        
-        leadin = "My ACF assigned bonus."
-        part1_text = "Part 1 with ~italics~ and (parens) and _underlines_."
-        part1_answer = "_~Answer 1~_ [or foo (bar)]"
-        part2_text = "Part 2."
-        part2_answer = "_answer 2_"
-        part3_text = "Part 3."
-        part3_answer = "_answer 3_"
-        assigned_bonus = Bonus(author=self.writer, leadin=leadin, period=period, part1_text=part1_text, part1_answer=part1_answer, part2_text=part2_text, part2_answer=part2_answer, part3_text=part3_text, part3_answer=part3_answer, question_set=qset, packet=packet, question_number=1, question_type=get_question_type_from_string(ACF_STYLE_BONUS))
-        leadin = "Unassigned bonus."
-        unassigned_bonus = Bonus(author=self.writer, leadin=leadin, part1_text=part1_text, part1_answer=part1_answer, part2_text=part2_text, part2_answer=part2_answer, part3_text=part3_text, part3_answer=part3_answer, question_set=qset)        
-        tossup1 = Tossup.objects.create(question_set=qset, packet=packet, question_number=1, tossup_text="Assigned Tossup", tossup_answer="_bar_", period=period)        
-        vhsl_bonus = Bonus(author=self.writer, part1_text="My assigned VHSL bonus", part1_answer=part1_answer, question_type=get_question_type_from_string(VHSL_BONUS), question_set=qset, packet=packet, question_number=1, period=period)
-        
-        assigned_bonuses = get_assigned_vhsl_bonuses__in_period(qset, period)
+        self._setup_assigned_bonus_tests_bonuses(qset, packet, period)
+
+        assigned_bonuses = get_assigned_vhsl_bonuses_in_period(qset, period)
         self.assertEqual(len(assigned_bonuses), 1)
-        self.assertEqual(assigned_bonuses[0].leadin, "My assigned VHSL bonus")
+        self.assertEqual(assigned_bonuses[0].leadin, "My assigned VHSL bonus.")
 
     def test_reset_category_counts(self):
         dist, qset, pwe, packet, period = self.create_period()
@@ -823,10 +786,24 @@ class PacketParserTests(SimpleTestCase):
         
         # TODO: Finish writing these tests
 
+    def _setup_assigned_bonus_tests_bonuses(self, qset, packet, period):
+        part1_text = u"Part 1 with ~italics~ and (parens) and _underlines_."
+        part1_answer = u"_~Answer 1~_ [or foo (bar)]"
+        part2_text = u"Part 2."
+        part2_answer = u"_answer 2_"
+        part3_text = u"Part 3."
+        part3_answer = u"_answer 3_"
+        acf_question_type = get_question_type_from_string(ACF_STYLE_BONUS)
+        vhsl_question_type = get_question_type_from_string(VHSL_BONUS)
+        self._create_bonus(self.writer, qset, packet, period, 1, acf_question_type, "My ACF assigned bonus.", part1_text, part1_answer, part2_text, part2_answer, part3_text, part3_answer)
+        self._create_bonus(self.writer, qset, None, None, None, acf_question_type, "Unassigned ACF bonus.", part1_text, part1_answer, part2_text, part2_answer, part3_text, part3_answer)
+        self._create_bonus(self.writer, qset, packet, period, 1, vhsl_question_type, "My assigned VHSL bonus.", part1_text, part1_answer, part2_text, part2_answer, part3_text, part3_answer)
+        self._create_bonus(self.writer, qset, None, None, None, vhsl_question_type, "Unassigned VHSL bonus.", part1_text, part1_answer, part2_text, part2_answer, part3_text, part3_answer)
+
     def _create_tossup(self, writer, qset, packet, period, number, text, answer, question_type):
         return Tossup.objects.create(author=writer, question_set=qset, packet=packet, question_number=number, tossup_text=text, \
             period=period, tossup_answer=answer, question_type=question_type, created_date=datetime.now(), last_changed_date=datetime.now())
 
-    def _create_bonus(self, writer, qset, packet, period, number, question_type, part1_text, part1_answer, part2_text=None, part2_answer=None, part3_text=None, part3_answer=None):
-        return Bonus.objects.create(author=writer, question_set=qset, packet=packet, question_number=number, period=period, \
+    def _create_bonus(self, writer, qset, packet, period, number, question_type, leadin, part1_text, part1_answer, part2_text=None, part2_answer=None, part3_text=None, part3_answer=None):
+        return Bonus.objects.create(author=writer, question_set=qset, packet=packet, question_number=number, period=period, leadin=leadin, \
             part1_text=part1_text, part1_answer=part1_answer, question_type=question_type, created_date=datetime.now(), last_changed_date=datetime.now())

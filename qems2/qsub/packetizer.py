@@ -6,6 +6,7 @@ import random
 import string
 
 from qems2.qsub.models import *
+from qems2.qsub.model_utils import *
 
 # TODO: Add tests
 def create_acf_packet(qset, packet_name, created_by, regular_distribution, tiebreaker_distribution):
@@ -529,11 +530,13 @@ def get_unassigned_acf_tossups(qset):
     return acf_tossups
     
 def get_unassigned_acf_bonuses(qset):
-    acf_bonuses = Bonus.objects.filter(question_set=qset, question_type="ACF-style bonus", packet=None)
+    question_type = get_question_type_from_string("ACF-style bonus")
+    acf_bonuses = Bonus.objects.filter(question_set=qset, question_type=question_type, packet=None)
     return acf_bonuses
     
 def get_unassigned_vhsl_bonuses(qset):
-    vhsl_bonuses = Bonus.objects.filter(question_set=qset, question_type="VHSL bonus", packet=None)
+    question_type = get_question_type_from_string("VHSL bonus")
+    vhsl_bonuses = Bonus.objects.filter(question_set=qset, question_type=question_type, packet=None)
     return vhsl_bonuses
     
 def get_assigned_acf_tossups_in_period(qset, period):
@@ -541,11 +544,13 @@ def get_assigned_acf_tossups_in_period(qset, period):
     return acf_tossups
     
 def get_assigned_acf_bonuses_in_period(qset, period):
-    acf_bonuses = Bonus.objects.filter(question_set=qset, question_type="ACF-style bonus", period=period)
+    question_type = get_question_type_from_string("ACF-style bonus")
+    acf_bonuses = Bonus.objects.filter(question_set=qset, question_type=question_type, period=period)
     return acf_bonuses
 
 def get_assigned_vhsl_bonuses_in_period(qset, period):
-    vhsl_bonuses = Bonus.objects.filter(question_set=qset, question_type="VHSL bonus", period=period)
+    question_type = get_question_type_from_string("VHSL bonus")
+    vhsl_bonuses = Bonus.objects.filter(question_set=qset, question_type=question_type, period=period)
     return vhsl_bonuses
 
 # Clear packet information from each question

@@ -375,28 +375,27 @@ def assign_vhsl_bonuses_to_period(qset, period, distribution):
 def get_parents_from_category_entry(category_entry):
     if (category_entry.sub_category_name is None or category_entry.sub_category_name == ''):
         return category_entry, None, None
-    elif (category_entry.sub_sub_category_name is None or category_entry.sub_sub_category_name == ''):
-        category = CategoryEntry.objects.get(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=None)
+
+    category_query = CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=None)
+    category = None if (not category_query.exists()) else category_query[0]
+    if (category_entry.sub_sub_category_name is None or category_entry.sub_sub_category_name == ''):
         return category, category_entry, None
     else:
-        category = CategoryEntry.objects.get(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=None)
-        sub_category = CategoryEntry.objects.get(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name, sub_sub_category_name=None)
+        sub_category_query = CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name, sub_sub_category_name=None)
+        sub_category = None if (not sub_category_query.exists()) else sub_category_query[0]
         return category, sub_category, category_entry
 
 # Gets the current entry and any children of this category.  For instance,
 # "History" could return "History" and "History - European" and
 # "History - European - British"
 def get_children_from_category_entry(category_entry):
-    children = []
     if (category_entry.sub_category_name is None or category_entry.sub_category_name == ''):
-        children.append(CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name))
+        return CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name)
     elif (category_entry.sub_sub_category_name is None or category_entry.sub_sub_category_name == ''):
-        children.append(CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name))
+        return CategoryEntry.objects.filter(distribution=category_entry.distribution, category_name=category_entry.category_name, sub_category_name=category_entry.sub_category_name)
     else:
         # subsub categories don't have children
-        children.append(category_entry)
-     
-    return children
+        return [category_entry]
 
 # TODO: Add tests
 def get_period_entries_from_category_entry_with_parents(category_entry, period):

@@ -697,7 +697,7 @@ class PacketParserTests(SimpleTestCase):
         
         subcat2 = CategoryEntry(distribution=dist, category_name="Literature", sub_category_name="European", category_type=SUB_CATEGORY)
         subcat2.save()
-        c, sc, ssc = get_parents_from_category_entry(subcat2)        
+        c, sc, ssc = get_parents_from_category_entry(subcat2)
         self.assertEqual(c, None)
         self.assertEqual(sc, subcat2)
         self.assertEqual(ssc, None)
@@ -706,6 +706,7 @@ class PacketParserTests(SimpleTestCase):
         
         subsubcat1 = CategoryEntry(distribution=dist, category_name="History", sub_category_name="European", sub_sub_category_name="British", category_type=SUB_SUB_CATEGORY)
         subsubcat1.save()
+        c, sc, ssc = get_parents_from_category_entry(subsubcat1)
         self.assertEqual(c, ce)
         self.assertEqual(sc, subcat1)
         self.assertEqual(ssc, subsubcat1)
@@ -714,6 +715,7 @@ class PacketParserTests(SimpleTestCase):
         
         subsubcat2 = CategoryEntry(distribution=dist, category_name="Geography", sub_category_name="World", sub_sub_category_name="French", category_type=SUB_SUB_CATEGORY)
         subsubcat2.save()
+        c, sc, ssc = get_parents_from_category_entry(subsubcat2)
         self.assertEqual(c, None)
         self.assertEqual(sc, None)
         self.assertEqual(ssc, subsubcat2)

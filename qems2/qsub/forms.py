@@ -258,11 +258,8 @@ class DistributionForm(forms.ModelForm):
 
     class Meta:
         model = Distribution
-        fields = '__all__'
+        fields = ['name', 'acf_tossup_per_period_count', 'acf_bonus_per_period_count', 'vhsl_bonus_per_period_count']
         
-    def __init__(self, *args, **kwargs):
-        pass
-
 class TieBreakDistributionForm(forms.ModelForm):
 
     name = forms.CharField(max_length=100)

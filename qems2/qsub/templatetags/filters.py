@@ -1,10 +1,10 @@
 from django.template.defaultfilters import register
-from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from qems2.qsub.models import *
 from qems2.qsub.utils import sanitize_html, strip_markup, get_formatted_question_html, get_answer_no_formatting
 from django.contrib.contenttypes.models import ContentType, ContentTypeManager
 from django_comments.models import *
+from collections import OrderedDict
 
 @register.filter(name='lookup')
 def lookup(dict, key):
@@ -152,7 +152,7 @@ def class_name(obj):
 def listsort(value):
     if isinstance(value, dict):
         print "Sorted dict called"
-        new_dict = SortedDict()
+        new_dict = OrderedDict()
         key_list = sorted(value.keys())
         for key in key_list:
             new_dict[key] = value[key]

@@ -1,6 +1,3 @@
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, ReadOnlyPasswordHashField, PasswordChangeForm
-from django.contrib.auth.models import User
-from django.db import models
 from models import *
 from utils import *
 from django import forms
@@ -38,19 +35,6 @@ class PerCategoryWriterSettingsForm(forms.Form):
         super(PerCategoryWriterSettingsForm, self).__init__(*args, **kwargs)
         self.fields['distribution_entry_string'].widget.attrs.update({'readonly': 'readonly'})
         
-class WriterCreationForm(UserCreationForm):
-
-    class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email']
-
-    def __init__(self, *args, **kwargs):
-
-        super(WriterCreationForm, self).__init__(*args, **kwargs)
-
-        self.fields['password2'].widget.attrs.update({'placeholder': 'Enter the same password as above, for verification.'})
-        self.fields['username'].widget.attrs.update({'placeholder': 'Thirty characters or fewer. Letters, digits, and @.-+_ are allowed.'})
-
 class WriterChangeForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
@@ -274,6 +258,10 @@ class DistributionForm(forms.ModelForm):
 
     class Meta:
         model = Distribution
+        fields = '__all__'
+        
+    def __init__(self, *args, **kwargs):
+        pass
 
 class TieBreakDistributionForm(forms.ModelForm):
 
@@ -281,6 +269,7 @@ class TieBreakDistributionForm(forms.ModelForm):
 
     class Meta:
         model = TieBreakDistribution
+        fields = '__all__'
 
 class DistributionEntryForm(forms.ModelForm):
 
@@ -308,9 +297,9 @@ class TieBreakDistributionEntryForm(forms.Form):
 
     delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
-    #class Meta:
-    #    model = DistributionEntry
-    #    exclude = ['distribution']
+    class Meta:
+        model = DistributionEntry
+        exclude = ['distribution']
 
 class SetWideDistributionEntryForm(forms.Form):
 
@@ -323,9 +312,9 @@ class SetWideDistributionEntryForm(forms.Form):
     category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
 
-    #class Meta:
-    #    model = SetWideDistributionEntry
-    #    exclude = ['min_tossups', 'max_tossups', 'min_bonuses', 'max_bonuses', 'question_set']
+    class Meta:
+        model = SetWideDistributionEntry
+        exclude = ['min_tossups', 'max_tossups', 'min_bonuses', 'max_bonuses', 'question_set']
 
 class PacketForm(forms.Form):
 

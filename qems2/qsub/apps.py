@@ -1,5 +1,4 @@
 from django.apps import AppConfig
-from qems2.qsub.signals import *
 
 class QSubConfig(AppConfig):
     name = 'qems2.qsub'

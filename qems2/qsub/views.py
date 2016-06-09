@@ -1355,25 +1355,37 @@ def add_packets(request, qset_id):
                 name_base = form.cleaned_data['name_base']
                 num_packets = form.cleaned_data['num_packets']
                 if packet_name and len(packet_name.strip()) > 0 and (name_base is None or num_packets is None):
-                    new_packet = Packet()
-                    new_packet.packet_name = packet_name
-                    new_packet.created_by = user
-                    new_packet.question_set = qset
-                    new_packet.save()
-                    cache.clear()
-                    message = 'Your packet named {0} has been created.'.format(packet_name)
-                    message_class = 'alert-box success'
-
-                elif name_base and len(name_base.strip()) > 0 and num_packets is not None:
-                    for i in range(1, num_packets + 1):
+                    if Packet.objects.filter(question_set=qset, packet_name=packet_name).exists():
+                        message = 'The packet name "{0}" arleady exists.'.format(packet_name)
+                        message_class = 'alert-box warning'
+                    else:
                         new_packet = Packet()
-                        new_packet.packet_name = '{0!s} {1:02}'.format(name_base, i)
+                        new_packet.packet_name = packet_name
                         new_packet.created_by = user
                         new_packet.question_set = qset
                         new_packet.save()
                         cache.clear()
-                    message = 'Your {0} packets with the base name {1} have been created.'.format(num_packets, name_base)
-                    message_class = 'alert-box success'
+                        message = 'Your packet named {0} has been created.'.format(packet_name)
+                        message_class = 'alert-box success'
+
+                elif name_base and len(name_base.strip()) > 0 and num_packets is not None:
+                    create_all_failed = False
+                    for i in range(1, num_packets + 1):
+                        new_packet = Packet()
+                        packet_name = '{0!s} {1:02}'.format(name_base, i)
+                        if Packet.objects.filter(question_set=qset, packet_name=packet_name).exists():
+                            message = 'The packet name "{0}" arleady exists.'.format(packet_name)
+                            message_class = 'alert-box warning'
+                            create_all_failed = True
+                            break
+                        new_packet.packet_name = packet_name
+                        new_packet.created_by = user
+                        new_packet.question_set = qset
+                        new_packet.save()
+                        cache.clear()
+                    if not create_all_failed:
+                        message = 'Your {0} packet(s) with the base name {1} have been created.'.format(num_packets, name_base)
+                        message_class = 'alert-box success'
                 else:
                     message = 'You must enter either the name for an individual packet or a base name and the number of packets to create!'
                     message_class = 'alert-box warning'

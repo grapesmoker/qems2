@@ -1354,7 +1354,7 @@ def add_packets(request, qset_id):
                 packet_name = form.cleaned_data['packet_name']
                 name_base = form.cleaned_data['name_base']
                 num_packets = form.cleaned_data['num_packets']
-                if packet_name is not None and (name_base is None or num_packets is None):
+                if packet_name and len(packet_name.strip()) > 0 and (name_base is None or num_packets is None):
                     new_packet = Packet()
                     new_packet.packet_name = packet_name
                     new_packet.created_by = user
@@ -1364,7 +1364,7 @@ def add_packets(request, qset_id):
                     message = 'Your packet named {0} has been created.'.format(packet_name)
                     message_class = 'alert-box success'
 
-                elif name_base is not None and num_packets is not None:
+                elif name_base and len(name_base.strip()) > 0 and num_packets is not None:
                     for i in range(1, num_packets + 1):
                         new_packet = Packet()
                         new_packet.packet_name = '{0!s} {1:02}'.format(name_base, i)

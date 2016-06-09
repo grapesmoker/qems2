@@ -460,7 +460,9 @@ def get_questions_remaining(qset):
                                              'bs_in_cat': bs_written,
                                              'category_id': entry.dist_entry.id
                                              }
-    set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / float(total_tu_req + total_bs_req)
+    # Prevent divide by 0 errors
+    total_qs_req = max(1, total_tu_req + total_bs_req)
+    set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / total_qs_req
     tu_needed = total_tu_req - total_tu_written
     bs_needed = total_bs_req - total_bs_written
     
@@ -470,11 +472,12 @@ def get_writer_questions_remaining(qset, total_tu_req, total_bs_req):
     qset_editors = qset.editor.all()
     qset_writers = qset.writer.all()    
     writer_stats = {}
+    total_qs_req = max(1, total_tu_req + total_bs_req)
     
     for writer in qset_writers:
         writer_tu_written = len(qset.tossup_set.filter(author=writer))
         writer_bonus_written = len(qset.bonus_set.filter(author=writer))
-        writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
+        writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / total_qs_req
         
         writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
                                                     'bonus_written': writer_bonus_written,
@@ -483,7 +486,7 @@ def get_writer_questions_remaining(qset, total_tu_req, total_bs_req):
     for writer in qset_editors:
         writer_tu_written = len(qset.tossup_set.filter(author=writer))
         writer_bonus_written = len(qset.bonus_set.filter(author=writer))
-        writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / float(total_tu_req + total_bs_req)
+        writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / total_qs_req
         
         
         writer_stats[writer.user.username] = {'tu_written': writer_tu_written,

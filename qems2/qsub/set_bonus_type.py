@@ -5,7 +5,7 @@ from qems2.qsub.utils import *
 print "Starting script"
 
 for bonus in Bonus.objects.all():
-    if (is not None bonus.leadin and bonus.leadin != ''):
+    if (bonus.leadin is not None and bonus.leadin != ''):
         bonus.question_type = QuestionType.objects.get(question_type=ACF_STYLE_BONUS)
     else:
         bonus.question_type = QuestionType.objects.get(question_type=VHSL_BONUS)        

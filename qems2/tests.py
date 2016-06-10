@@ -1,5 +1,4 @@
-from django.test import SimpleTestCase
-from django.contrib.auth.models import AnonymousUser, User
+from django.contrib.auth.models import User
 import django
 from datetime import datetime
 
@@ -11,7 +10,7 @@ from qems2.qsub.models import *
 from qems2.qsub.model_utils import *
 from qems2.qsub.packetizer import *
 
-class PacketParserTests(SimpleTestCase):
+class PacketParserTests(django.test.TestCase):
 
     if django.VERSION[:2] == (1, 7):
         # Django 1.7 requires an explicit setup() when running tests in PTVS
@@ -29,13 +28,11 @@ class PacketParserTests(SimpleTestCase):
     writer = None
     
     def setUp(self):
-        self.user, created = User.objects.get_or_create(username="testuser")
-        if (created):
-            self.user.email='qems2test@gmail.com'
-            self.user.password='top_secret'
-            self.user.save()
+        self.user = User.objects.create_user(username="testuser", password="top_secret", email="qems2test@gmail.com")
+        self.user.save()
                         
         self.writer = Writer.objects.get(user=self.user.id)
+        self.writer.save()
 
         acfTossup = QuestionType.objects.get_or_create(question_type=ACF_STYLE_TOSSUP)
         acfBonus = QuestionType.objects.get_or_create(question_type=ACF_STYLE_BONUS)

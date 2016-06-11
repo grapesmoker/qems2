@@ -44,7 +44,7 @@ def sidebar (request):
     all_sets = editor_sets
     print 'All sets object:'
     print all_sets
-    	
+        
     return render_to_response('sidebar.html', {'question_sets': all_sets, 'user': writer},
            context_instance=RequestContext(request))
 
@@ -250,7 +250,7 @@ def edit_question_set(request, qset_id):
     else:
         print "Begin edit_question_set get", time.strftime("%H:%M:%S")
         if user not in qset_editors and user != qset.owner and user not in qset.writer.all():
-			# Just redirect to main in this case of no permissions
+            # Just redirect to main in this case of no permissions
             # TODO: a better story
             return HttpResponseRedirect('/main.html')
 
@@ -325,7 +325,7 @@ def categories(request, qset_id, category_id):
     else:
         tossups = Tossup.objects.filter(question_set=qset).filter(category=category_id)
         bonuses = Bonus.objects.filter(question_set=qset).filter(category=category_id)
-        	
+            
     return render_to_response('categories.html',
         {
         'user': user,
@@ -355,7 +355,7 @@ def view_all_questions(request, qset_id):
                                   context_instance=RequestContext(request))        
     else:
         tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset, question_limit=10000, preview_only=True)
-        	
+            
     return render_to_response('view_all_questions.html',
         {
         'user': user,
@@ -384,7 +384,7 @@ def view_all_comments(request, qset_id):
     else:
         tossups, tossup_dict, bonuses, bonus_dict = get_tossup_and_bonuses_in_set(qset, question_limit=10000, preview_only=True)
         comment_tab_list = get_comment_tab_list(tossup_dict, bonus_dict, comment_limit=10000)
-        	
+            
     return render_to_response('view_all_comments.html',
         {
         'user': user,
@@ -417,7 +417,7 @@ def question_set_distribution(request, qset_id):
     else:
         set_distro_formset = create_set_distro_formset(qset)
         tiebreak_formset = create_tiebreak_formset(qset)        
-        	
+            
     return render_to_response('question_set_distribution.html',
         {
         'user': user,
@@ -3521,7 +3521,7 @@ def contributor(request, qset_id, writer_id):
                          'bonuses_written': bonuses.count()
                          }
             
-        	
+            
     return render_to_response('contributor.html',
         {
         'user': user,

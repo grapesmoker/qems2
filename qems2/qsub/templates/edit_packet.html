@@ -127,8 +127,8 @@
             <tbody>
             {% autoescape off %}
                 {% for tossup in tossups %}
-                <tr class="tossup-row" id="tossup-order-{{ tossup.id }}" value="{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}" tossup-id="{{ tossup.id }}">
-                    <td>{% if tossup.question_number %} {{ tossup.question_number }} {% endif %}</td>
+                <tr class="tossup-row" id="tossup-order-{{ tossup.id }}" value="{% if tossup.question_number or tossup.question_number == 0 %} {{ tossup.question_number|add:"1" }} {% endif %}" tossup-id="{{ tossup.id }}">
+                    <td>{% if tossup.question_number or tossup.question_number == 0 %} {{ tossup.question_number|add:"1" }} {% endif %}</td>
                     <td>{{ tossup.author }}</td>
                     <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
                     <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_answer|safe|preview|answer_html }}</a></td>
@@ -177,8 +177,8 @@
             <tbody>
             {% autoescape off %}
                 {% for bonus in bonuses %}
-                <tr id="bonus-order-{{ bonus.id }}" value="{% if bonus.question_number %} {{ bonus.question_number}} {% endif %}" bonus-id="{{ bonus.id }}">
-                    <td>{% if bonus.question_number %} {{ bonus.question_number }} {% endif %}</td>
+                <tr id="bonus-order-{{ bonus.id }}" value="{% if bonus.question_number or bonus.question_number == 0 %} {{ bonus.question_number|add:"1"}} {% endif %}" bonus-id="{{ bonus.id }}">
+                    <td>{% if bonus.question_number or bonus.question_number == 0 %} {{ bonus.question_number|add:"1" }} {% endif %}</td>
                     <td>{{ bonus.author }}</td>
                     <td>
                         <a href="/edit_bonus/{{ bonus.id }}">

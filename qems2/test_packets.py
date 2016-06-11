@@ -51,6 +51,9 @@ class PacketsViewTests(django.test.TestCase):
 
         self.qset.writer.add(self.otherWriter)
 
+        self.packet = Packet.objects.create(packet_name="test_packet", date_submitted=datetime.now(), question_set=self.qset, created_by=self.writer)
+        self.packet.save()
+
         # Test user must be logged in for packet-related calls to pass
         self.client.login(username=user, password=self.password)
 
@@ -113,8 +116,52 @@ class PacketsViewTests(django.test.TestCase):
         packet_query = Packet.objects.filter(question_set=self.qset, packet_name=packet_name)
         self.assertEqual(1, packet_query.count(), "Wrong number of packets were saved.")
 
+    def test_edit_packet_question_numbers(self):
+        # Regression test for #185: TU/B in packet doesn't have question_number
+        current_date = datetime.now()
+        tossup1 = Tossup.objects.create(
+            packet=self.packet, question_set=self.qset, tossup_text="Tossup 1", tossup_answer="Answer 1", author=self.writer,
+            created_date=current_date, last_changed_date=current_date, question_number=0)
+        tossup1.save()
+        tossup2 = Tossup.objects.create(
+            packet=self.packet, question_set=self.qset, tossup_text="Tossup 2", tossup_answer="Answer 2", author=self.writer,
+            created_date=current_date, last_changed_date=current_date, question_number=1)
+        tossup2.save()
+
+        bonus1 = Bonus.objects.create(
+            packet=self.packet, question_set=self.qset, part1_text="Part 1", part1_answer="Answer 1", part2_text="Part 2",
+            part2_answer="Answer 2", part3_text="Part 3", part3_answer="Answer 3", author=self.writer,
+            created_date=current_date, last_changed_date=current_date, question_number=0, leadin="Leadin")
+        bonus1.save()
+        bonus2 = Bonus.objects.create(
+            packet=self.packet, question_set=self.qset, part1_text="Tossup 2", part1_answer="Answer 2", part2_text="Part 2",
+            part2_answer="Answer 2", part3_text="Part 3", part3_answer="Answer 3", author=self.writer,
+            created_date=current_date, last_changed_date=current_date, question_number=1, leadin="Leadin")
+        bonus2.save()
+
+        url = self._get_edit_packet_url()
+        response = self.client.get(url)
+        self.assertEqual(200, response.status_code, "Unexpected status code.")
+
+        content = response.content
+        tossupsIndex = content.find("id=\"tossups\"")
+        bonusesIndex = content.find("id=\"bonuses\"")
+        self.assertNotEqual(-1, tossupsIndex, "Could not find Tossups section.")
+        self.assertNotEqual(-1, bonusesIndex, "Could not find Bonuses section.")
+        self.assertGreater(bonusesIndex, tossupsIndex, "Bonuses section appears before the tossups section.")
+
+        tossups = content[tossupsIndex:bonusesIndex]
+        bonuses = content[bonusesIndex:]
+        self.assertNotEqual(-1, tossups.find("<td> 1 </td>"), "Could not find #1 label in Tossups")
+        self.assertNotEqual(-1, tossups.find("<td> 2 </td>"), "Could not find #2 label in Tossups")
+        self.assertNotEqual(-1, bonuses.find("<td> 1 </td>"), "Could not find #1 label in Bonuses")
+        self.assertNotEqual(-1, bonuses.find("<td> 2 </td>"), "Could not find #2 label in Bonuses")
+
     def _get_add_packet_url(self):
         return "/add_packets/{0}/".format(self.qset.id)
+
+    def _get_edit_packet_url(self):
+        return "/edit_packet/{0}/".format(self.packet.id)
 
     def _check_post(self, client, url, data, alert_box_type, assert_message):
         response = client.post(url, data)

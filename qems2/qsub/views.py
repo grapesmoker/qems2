@@ -4,43 +4,33 @@ import unicodecsv
 import time
 import sys
 
-from django.template.loader import get_template
-from django.template import Context, RequestContext
+
+from django.template import RequestContext
 from django.shortcuts import render_to_response
-from django import forms
 from django.forms.formsets import formset_factory
-from django.forms.models import modelformset_factory
-from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponse, HttpResponseRedirect
-from django.views.generic import ListView
-from django.contrib.auth.models import User
-from django.contrib.auth import authenticate, login, logout
+
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from models import *
 from forms import *
 from qems2.qsub.model_utils import *
 from utils import *
-#from packet_parser import handle_uploaded_packet, parse_uploaded_packet, parse_packet_data
 from packet_parser import parse_packet_data
 from django.utils.safestring import mark_safe
 from haystack.query import SearchQuerySet
-from cStringIO import StringIO
 from django_comments.models import Comment
 from django.db.models import Q
 from django.core.cache import cache
-from django.views.decorators.cache import cache_page
-from django.contrib.contenttypes.models import ContentType, ContentTypeManager
 
-from collections import OrderedDict
-from itertools import chain, ifilter
+from django.contrib.contenttypes.models import ContentType
+
 
 @login_required
 def main (request):
     return question_sets(request)
 
-    #return render_to_response('main.html', {'user': request.user.writer},
-    #                          context_instance=RequestContext(request))
 @login_required
 def sidebar (request):
     writer = request.user.writer
@@ -51,7 +41,6 @@ def sidebar (request):
     # the tournaments for which this user is an editor
     editor_sets = writer.question_set_editor.all()
 
-    # all_sets = list(set(writer_sets + editors_sets + owned_sets))
     all_sets = editor_sets
     print 'All sets object:'
     print all_sets
@@ -3542,19 +3531,3 @@ def contributor(request, qset_id, writer_id):
         'qset': qset,
         'writer': writer},
         context_instance=RequestContext(request))	
-
-# @login_required
-# def password(request):
-#
-#     user = request.user
-#
-#     if request.method == 'GET':
-#         form = PasswordChangeForm(user)
-#
-#         return render_to_response('password.html',
-#             {'form': form,
-#              'user': user},
-#             context_instance=RequestContext(request))
-#
-#     elif request.method == 'POST':
-#         pass

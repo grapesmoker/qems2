@@ -64,7 +64,7 @@ def bonus_answers(bonus):
 def to_short_datetime(date):
     if (date is None):
         return ""
-    return date.strftime("%Y-%m-%d %H:%M")
+    return date.strftime("%m-%d-%y %H:%M %p")
     
 @register.filter(name='percent')
 def percent(x, y):

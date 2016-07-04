@@ -48,6 +48,25 @@ Set up your MySQL connection as, for example, `mysql -u root -p`:
     GRANT ALL PRIVILEGES ON qems2_stable.* TO django@localhost;
     GRANT ALL PRIVILEGES ON test_qems2_stable.* TO django@localhost;
 
+If you used a different database than "qems2_stable" in the above steps, open settings.py and change the value of NAME to be whatever you used above.
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'qems2_stable',                      # Or path to database file if using sqlite3.
+            'USER': 'django',                      # Not used with sqlite3.
+            'PASSWORD': 'django',                  # Not used with sqlite3.
+            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        }
+    }
+
+While you're in settings.py, you'll probably want to disable the e-mail settings to make debugging easier:
+
+    # Account and registration settings
+    ACCOUNT_EMAIL_REQUIRED = False
+    ACCOUNT_EMAIL_VERIFICATION='none'
+
 Finally, use `manage.py` to populate the database, install the front-end packages, collect static files, and start the development server:
 
     python manage.py syncdb

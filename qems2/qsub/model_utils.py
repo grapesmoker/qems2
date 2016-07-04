@@ -412,7 +412,7 @@ def get_comment_tab_list(tossup_dict, bonus_dict, comment_limit=60):
                 if (long(comment.object_pk) in tossup_dict):
                     tossup = tossup_dict[long(comment.object_pk)]            
                     new_comment = { 'comment': comment,
-                                        'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False),
+                                        'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], False, False, False, False),
                                         'question_id': tossup.id,
                                         'question_type': 'tossup'}
                     comment_tab_list.append(new_comment)

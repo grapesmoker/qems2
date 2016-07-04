@@ -28,8 +28,6 @@
         <li><a class="button primary" href="/add_bonuses/{{ qset.id }}/ACF-style bonus">Switch to adding an ACF bonus</a></li>
     {% endif %}
 </ul>
-<p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses) unless they're escaped with \(backslashes\).  Superscripts follow the format \SMy Superscript Text\S.  Subscripts follow the format \sMy subscript text\s.</p>
-<p>Do not include [10] labels with bonus parts or the word ANSWER: in answer lines.</p>
 <form action="" method="post" id="add-bonuses">
     {% csrf_token %}
     {{ form.non_field_errors }}
@@ -145,6 +143,10 @@
             </div>
         </div>
         <input type="submit" id="submit-bonus" value="Submit Bonus" class="button primary right" />
+        
+        {% include "formatting_guide.html" %}
+        <p>Do not include [10] labels with bonus parts or the word ANSWER: in answer lines.</p>
+
     {% endif %}
 </form>
 

@@ -127,19 +127,46 @@ def preview(text):
         return mark_safe(text)    
 
 def get_formatted_question_html_for_bonus_answers(bonus):
-    return get_formatted_question_html(bonus.part1_answer[0:80], True, True, False) + '<br />' + get_formatted_question_html(bonus.part2_answer[0:80], True, True, False) + '<br />' + get_formatted_question_html(bonus.part3_answer[0:80], True, True, False) + '<br />'
+    return get_formatted_question_html(bonus.part1_answer[0:80], True, True, False, False) + '<br />' + get_formatted_question_html(bonus.part2_answer[0:80], True, True, False, False) + '<br />' + get_formatted_question_html(bonus.part3_answer[0:80], True, True, False, False) + '<br />'
 
-def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLines):
+def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLines, allowPowers):
     italicsFlag = False
     parensFlag = False
     underlineFlag = False
     needToRestoreItalicsFlag = False
     subScriptFlag = False
     superScriptFlag = False
+    powerFlag = False
+    powerIndex = -1
+    promptFlag = False
+    index = 0
+    
     previousChar = u""
     secondPreviousChar = u""
-    output = u""    
-    for c in line:
+    output = u""
+    nextChar = u""
+    
+    # If powers are allowed, see if there's a power in this question
+    # If so, then start the question in power
+    if (allowPowers):        
+        powerIndex = line.find(u"(*)")
+        if (powerIndex > -1):
+            powerFlag = True
+            output += u"<strong>"
+                
+    while (index < len(line)):
+        c = line[index]        
+        if (index < len(line) - 1):
+            nextChar = line[index + 1]
+        else:
+            nextChar = ""
+        
+        if (index == powerIndex):
+            powerFlag = False
+            output += u"(*)</strong>"
+            index += 3 # Skip over the rest of what's in the power mark
+            continue
+        
         if (c == u"~"):
             if (not italicsFlag):
                 output += u"<i>"
@@ -167,6 +194,10 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
                 italticsFlag = True
                 needToRestoreItalicsFlag = False
                 
+            # Keep things bolded if still in power
+            if (powerFlag):
+                output += u"<strong>"
+                
         elif (c == u")" and allowParens and previousChar == u"\\"):
             output = output[:-1] # Get rid of the escape character
             output += c
@@ -188,16 +219,29 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
                 output += u"<sup>"            
         else:
             if (c == u"_" and allowUnderlines):
-                if (not underlineFlag):
-                    output += u"<u><b>"
-                    underlineFlag = True
+                if (nextChar == u"_"):
+                    # This is a prompt
+                    if (not promptFlag):
+                        output += u"<u>"
+                        promptFlag = True
+                    else:
+                        output += u"</u>"
+                        promptFlag = False
+                    
+                    index += 1 # Skip ahead so we don't re-process this character
                 else:
-                    output += u"</b></u>"
-                    underlineFlag = False
+                    # This is a regular answer line
+                    if (not underlineFlag):
+                        output += u"<u><b>"
+                        underlineFlag = True
+                    else:
+                        output += u"</b></u>"
+                        underlineFlag = False
             else:
                 output += c
         secondPreviousChar = previousChar
         previousChar = c
+        index += 1
 
     if (italicsFlag):
         output += u"</i>"
@@ -207,6 +251,12 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
 
     if (parensFlag):
         output += u"</strong>"
+        
+    if (powerFlag):
+        output += u"</strong>"
+        
+    if (promptFlag):
+        output += u"</u>"
 
     if (allowNewLines):
         output = output.replace(u"&lt;br&gt;", u"<br />")

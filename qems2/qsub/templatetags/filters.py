@@ -167,11 +167,11 @@ def listsort(value):
 
 @register.filter(name='question_html')
 def question_html(line):
-    return get_formatted_question_html(line, False, True, False)
+    return get_formatted_question_html(line, False, True, False, False)
 
 @register.filter(name='answer_html')
 def answer_html(line):
-    return get_formatted_question_html(line, True, True, False)
+    return get_formatted_question_html(line, True, True, False, False)
 
 @register.filter(name='answer_no_formatting')
 def answer_no_formatting(line):
@@ -179,7 +179,7 @@ def answer_no_formatting(line):
 
 @register.filter(name='comment_html')
 def comment_html(comment):
-    return get_formatted_question_html(comment, True, False, True)
+    return get_formatted_question_html(comment, False, False, True, False)
 
 @register.filter(name='tossup_html')
 def tossup_html(tossup):

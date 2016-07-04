@@ -1,5 +1,6 @@
 from django.contrib.auth.models import User
 import django
+from django.test import TestCase
 from datetime import datetime
 
 from qems2.qsub.packet_parser import is_answer, is_bpart, is_vhsl_bpart, is_category
@@ -10,19 +11,20 @@ from qems2.qsub.models import *
 from qems2.qsub.model_utils import *
 from qems2.qsub.packetizer import *
 
-class PacketParserTests(django.test.TestCase):
+class PacketParserTests(TestCase):
 
-    if django.VERSION[:2] == (1, 7):
-        # Django 1.7 requires an explicit setup() when running tests in PTVS
-        @classmethod
-        def setUpClass(cls):
-            django.setup()
-    elif django.VERSION[:2] >= (1, 8):
-        # Django 1.8 requires a different setup. See https://github.com/Microsoft/PTVS-Samples/issues/1
-        @classmethod
-        def setUpClass(cls):
-            super(DjangoTestCase, cls).setUpClass()
-            django.setup()
+    # TODO: Determine if we really need this block of code anymore
+    #if django.VERSION[:2] == (1, 7):
+    #    # Django 1.7 requires an explicit setup() when running tests in PTVS
+    #    @classmethod
+    #    def setUpClass(cls):
+    #        django.setup()
+    #elif django.VERSION[:2] >= (1, 8):
+    #    # Django 1.8 requires a different setup. See https://github.com/Microsoft/PTVS-Samples/issues/1
+    #    @classmethod
+    #    def setUpClass(cls):
+    #        super(DjangoTestCase, cls).setUpClass()
+    #        django.setup()
 
     user = None
     writer = None
@@ -266,20 +268,31 @@ class PacketParserTests(django.test.TestCase):
 
     def test_get_formatted_question_html(self):
         emptyLine = ""
-        self.assertEqual(get_formatted_question_html(emptyLine, False, True, False), "")
-        self.assertEqual(get_formatted_question_html(emptyLine, True, True, False), "")
+        self.assertEqual(get_formatted_question_html(emptyLine, False, True, False, False), "")
+        self.assertEqual(get_formatted_question_html(emptyLine, True, True, False, False), "")
 
         noSpecialChars = "No special chars"
-        self.assertEqual(get_formatted_question_html(noSpecialChars, False, True, False), noSpecialChars)
-        self.assertEqual(get_formatted_question_html(noSpecialChars, True, True, False), noSpecialChars)
+        self.assertEqual(get_formatted_question_html(noSpecialChars, False, True, False, False), noSpecialChars)
+        self.assertEqual(get_formatted_question_html(noSpecialChars, True, True, False, False), noSpecialChars)
 
-        specialChars = "_Underlines_, ~italics~ and (parens).  And again _Underlines_, ~italics~ and (parens)."
-        self.assertEqual(get_formatted_question_html(specialChars, False, True, False), "_Underlines_, <i>italics</i> and <strong>(parens)</strong>.  And again _Underlines_, <i>italics</i> and <strong>(parens)</strong>.")
-        self.assertEqual(get_formatted_question_html(specialChars, True, True, False), "<u><b>Underlines</b></u>, <i>italics</i> and <strong>(parens)</strong>.  And again <u><b>Underlines</b></u>, <i>italics</i> and <strong>(parens)</strong>.")
+        specialChars = "_Underlines_, ~italics~ and (parens).  And again _Underlines_, ~italics~ and (parens). \\(escaped\\)"
+        self.assertEqual(get_formatted_question_html(specialChars, False, True, False, False), "_Underlines_, <i>italics</i> and <strong>(parens)</strong>.  And again _Underlines_, <i>italics</i> and <strong>(parens)</strong>. (escaped)")
+        self.assertEqual(get_formatted_question_html(specialChars, True, True, False, False), "<u><b>Underlines</b></u>, <i>italics</i> and <strong>(parens)</strong>.  And again <u><b>Underlines</b></u>, <i>italics</i> and <strong>(parens)</strong>. (escaped)")
 
         newLinesNoParens = "(No parens).&lt;br&gt;New line."
-        self.assertEqual(get_formatted_question_html(newLinesNoParens, False, False, False), "(No parens).&lt;br&gt;New line.")
-        self.assertEqual(get_formatted_question_html(newLinesNoParens, False, False, True), "(No parens).<br />New line.")
+        self.assertEqual(get_formatted_question_html(newLinesNoParens, False, False, False, False), "(No parens).&lt;br&gt;New line.")
+        self.assertEqual(get_formatted_question_html(newLinesNoParens, False, False, True, False), "(No parens).<br />New line.")
+        
+        powerMark = "A ~question~ with a (guide) and a (*) power mark (in it) like so."
+        self.assertEqual(get_formatted_question_html(powerMark, False, True, True, True), "<strong>A <i>question</i> with a <strong>(guide)</strong><strong> and a (*)</strong> power mark <strong>(in it)</strong> like so.")
+        self.assertEqual(get_formatted_question_html(powerMark, False, True, True, False), "A <i>question</i> with a <strong>(guide)</strong> and a <strong>(*)</strong> power mark <strong>(in it)</strong> like so.")
+
+        prompt = "A question with a __prompt__ and a regular _answer_ and another __prompt__"
+        self.assertEqual(get_formatted_question_html(prompt, True, True, True, False), "A question with a <u>prompt</u> and a regular <u><b>answer</b></u> and another <u>prompt</u>")
+        self.assertEqual(get_formatted_question_html(prompt, False, True, True, False), "A question with a __prompt__ and a regular _answer_ and another __prompt__")
+
+        subAndSuper = "A question with a \sSubscript\s and a \SSuperscript\S like this"
+        self.assertEqual(get_formatted_question_html(subAndSuper, True, True, True, False), "A question with a <sub>Subscript</sub> and a <sup>Superscript</sup> like this")
 
     def test_does_answerline_have_underlines(self):
         self.assertFalse(does_answerline_have_underlines("ANSWER: Foo"))

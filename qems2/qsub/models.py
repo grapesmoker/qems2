@@ -501,8 +501,8 @@ class Tossup (models.Model):
     def to_html(self, include_category=False, include_character_count=False):
 
         output = ''
-        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "<br />"
-        output = output + "ANSWER: " + get_formatted_question_html(self.tossup_answer, True, True, False) + "</p>"
+        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False, True) + "<br />"
+        output = output + "ANSWER: " + get_formatted_question_html(self.tossup_answer, True, True, False, False) + "</p>"
         if (include_category and self.category is not None):
             output = output + "<p><strong>Category:</strong> " + str(self.category) + "</p>"
         else:
@@ -702,9 +702,9 @@ class Bonus(models.Model):
     def leadin_to_html(self):
         output = ''
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
-            return get_formatted_question_html(self.leadin, False, True, False)
+            return get_formatted_question_html(self.leadin, False, True, False, False)
         elif (self.get_bonus_type() == VHSL_BONUS):
-            return get_formatted_question_html(self.part1_text, False, True, False)
+            return get_formatted_question_html(self.part1_text, False, True, False, False)
         return output
 
     def to_plain_text(self, include_category=False, include_character_count=False):
@@ -736,13 +736,13 @@ class Bonus(models.Model):
         output = ''
 
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
-            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "<br />"
-            output = output + "[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
-            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"
-            output = output + "[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "<br />"
-            output = output + "ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "<br />"
-            output = output + "[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "<br />"
-            output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "</p>"
+            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part1_text, False, True, False, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part2_text, False, True, False, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part3_text, False, True, False, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False, False) + "</p>"
 
             if (include_category and self.category is not None):
                 output = output + "<p><strong>Category:</strong> " + str(self.category) + "</p>"
@@ -758,8 +758,8 @@ class Bonus(models.Model):
                     output = output + "<p><strong>Character Count:</strong> " + str(char_count) + "</p>"
 
         elif (self.get_bonus_type() == VHSL_BONUS):
-            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
-            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "</p>"
+            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False, False) + "</p>"
 
             if (include_category and self.category is not None):
                 output = output + "<p><strong>Category:</strong> " + str(self.category) + "</p>"
@@ -912,8 +912,8 @@ class TossupHistory(models.Model):
 
     def to_html(self):
         output = ''
-        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False) + "<br />"
-        output = output + get_formatted_question_html(self.tossup_answer, True, True, False) + "<br />"
+        output = output + "<p>" + get_formatted_question_html(self.tossup_text, False, True, False, True) + "<br />"
+        output = output + get_formatted_question_html(self.tossup_answer, True, True, False, False) + "<br />"
         output = output + "Changed by " + str(self.changer) + " on " + str(self.change_date) + "</p>"
         return output
 
@@ -933,16 +933,16 @@ class BonusHistory(models.Model):
     def to_html(self):
         output = ''
         if (self.get_bonus_type() == ACF_STYLE_BONUS):
-            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False) + "<br />"
-            output = output + "[10] " + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
-            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"
-            output = output + "[10] " + get_formatted_question_html(self.part2_text, False, True, False) + "<br />"
-            output = output + "ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False) + "<br />"
-            output = output + "[10] " + get_formatted_question_html(self.part3_text, False, True, False) + "<br />"
-            output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False) + "<br />"
+            output = output + "<p>" + get_formatted_question_html(self.leadin, False, True, False, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part1_text, False, True, False, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part2_text, False, True, False, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part2_answer, True, True, False, False) + "<br />"
+            output = output + "[10] " + get_formatted_question_html(self.part3_text, False, True, False, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part3_answer, True, True, False, False) + "<br />"
         else:
-            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False) + "<br />"
-            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False) + "<br />"
+            output = output + "<p>" + get_formatted_question_html(self.part1_text, False, True, False, False) + "<br />"
+            output = output + "ANSWER: " + get_formatted_question_html(self.part1_answer, True, True, False, False) + "<br />"
 
         output = output + "Changed by <strong>" + str(self.changer) + "</strong> on <strong>" + str(self.change_date) + "</strong></p>"
         return output

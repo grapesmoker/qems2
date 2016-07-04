@@ -1,23 +1,25 @@
 from django.contrib.auth.models import User
 import django
+from django.test import TestCase
 
 from qems2.qsub.models import *
 from qems2.qsub.model_utils import *
 from django.test.client import Client
 
-class PacketsViewTests(django.test.TestCase):
+class PacketsViewTests(TestCase):
 
-    if django.VERSION[:2] == (1, 7):
-        # Django 1.7 requires an explicit setup() when running tests in PTVS
-        @classmethod
-        def setUpClass(cls):
-            django.setup()
-    elif django.VERSION[:2] >= (1, 8):
-        # Django 1.8 requires a different setup. See https://github.com/Microsoft/PTVS-Samples/issues/1
-        @classmethod
-        def setUpClass(cls):
-            super(DjangoTestCase, cls).setUpClass()
-            django.setup()
+    # TODO: Determine if we really need this block of code anymore
+    #if django.VERSION[:2] == (1, 7):
+    #    # Django 1.7 requires an explicit setup() when running tests in PTVS
+    #    @classmethod
+    #    def setUpClass(cls):
+    #        django.setup()
+    #elif django.VERSION[:2] >= (1, 8):
+    #    # Django 1.8 requires a different setup. See https://github.com/Microsoft/PTVS-Samples/issues/1
+    #    @classmethod
+    #    def setUpClass(cls):
+    #        super(DjangoTestCase, cls).setUpClass()
+    #        django.setup()
 
     def setUp(self):
         user = "testuser"

@@ -2,8 +2,8 @@ import json
 import csv
 import unicodecsv
 import time
+import datetime
 import sys
-
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response
@@ -56,19 +56,24 @@ def question_sets (request):
     owned_sets = QuestionSet.objects.filter(owner=writer)
     # the tournaments for which this user is an editor
     editor_sets = writer.question_set_editor.all()
-    # the tournaments for which this user is a writer
-    # by definition this includes sets you're editing and owning
-    # Python is having trouble unioning these sets by default,
-    # so be more explicit about what to union by using IDs as a key in a dict
-    writer_sets_dict = {}
+    
+    # Sets that are in the future
+    upcoming_sets = {}
+    
+    # Sets that are in the past
+    completed_sets = {}
+        
     for qset in (owned_sets | editor_sets | writer.question_set_writer.all()):
-        writer_sets_dict[qset.id] = qset
+        if (qset.date >= datetime.now().date()):
+            upcoming_sets[qset.id] = qset
+        else:
+            completed_sets[qset.id] = qset
+            
+    upcoming_sets = upcoming_sets.values()
+    completed_sets = completed_sets.values()
 
-    writer_sets = writer_sets_dict.values()
-
-    all_sets  = [{'header': 'All your question sets', 'qsets': writer_sets, 'id': 'qsets-write'},
-                 {'header': 'Question sets you are editing', 'qsets': editor_sets, 'id': 'qsets-edit'},
-                 {'header': 'Question sets you own', 'qsets': owned_sets, 'id': 'qsets-owned'}]
+    all_sets  = [{'header': 'Upcoming question sets', 'qsets': upcoming_sets, 'id': 'qsets-write'},
+                 {'header': 'Completed question sets', 'qsets': completed_sets, 'id': 'qsets-complete'}]
 
     print all_sets
     return render_to_response('question_sets.html', {'question_set_list': all_sets, 'user': writer},

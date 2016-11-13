@@ -77,6 +77,9 @@ def question_sets (request):
             
     upcoming_sets = upcoming_sets.values()
     completed_sets = completed_sets.values()
+    
+    upcoming_sets = sorted(upcoming_sets, key=lambda qset: qset.date)
+    completed_sets = sorted(completed_sets, key=lambda qset: qset.date)
 
     all_sets  = [{'header': 'Upcoming question sets', 'qsets': upcoming_sets, 'id': 'qsets-write'},
                  {'header': 'Completed question sets', 'qsets': completed_sets, 'id': 'qsets-complete'}]

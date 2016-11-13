@@ -57,20 +57,23 @@ def question_sets (request):
     # the tournaments for which this user is an editor
     editor_sets = writer.question_set_editor.all()
     
+    all_sets = owned_sets | editor_sets | writer.question_set_writer.all()
+    all_sets = all_sets.order_by('date')
+    
     # Sets that are in the future
     upcoming_sets = {}
     
     # Sets that are in the past
     completed_sets = {}
         
-    for qset in (owned_sets | editor_sets | writer.question_set_writer.all()):
+    for qset in (all_sets):
         if (qset.date >= datetime.now().date()):
             upcoming_sets[qset.id] = qset
         else:
             completed_sets[qset.id] = qset
             
-    upcoming_sets = upcoming_sets.order_by('date')
-    completed_sets = completed_sets.order_by('date')
+    upcoming_sets = upcoming_sets
+    completed_sets = completed_sets
             
     upcoming_sets = upcoming_sets.values()
     completed_sets = completed_sets.values()

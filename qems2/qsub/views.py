@@ -69,6 +69,9 @@ def question_sets (request):
         else:
             completed_sets[qset.id] = qset
             
+    upcoming_sets = upcoming_sets.order_by('date')
+    completed_sets = completed_sets.order_by('date')
+            
     upcoming_sets = upcoming_sets.values()
     completed_sets = completed_sets.values()
 

@@ -370,6 +370,7 @@ def get_tossup_and_bonuses_in_set(qset, question_limit=30, preview_only=False):
     tossup_count = 0
     for tossup in Tossup.objects.filter(question_set=qset).order_by('-id'):
         if (tossup_count < question_limit):
+            tossup.question_length = tossup.character_count()
             if (preview_only):
                 tossup.tossup_text = preview(tossup.tossup_text)
                 tossup.tossup_answer = preview(get_primary_answer(tossup.tossup_answer))
@@ -384,6 +385,7 @@ def get_tossup_and_bonuses_in_set(qset, question_limit=30, preview_only=False):
     bonus_count = 0
     for bonus in Bonus.objects.filter(question_set=qset).order_by('-id'):
         if (bonus_count < question_limit):
+            bonus.question_length = bonus.character_count()
             if (preview_only):
                 bonus.leadin = preview(bonus.leadin)
                 bonus.part1_text = preview(bonus.part1_text)

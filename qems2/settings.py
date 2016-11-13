@@ -195,9 +195,11 @@ LOGIN_REDIRECT_URL = "/"
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
+DEFAULT_FROM_EMAIL = 'qems2@outlook.com'
+SERVER_EMAIL = 'smtp-mail.outlook.com'
+EMAIL_HOST = 'smtp-mail.outlook.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'qems2mailer@gmail.com'
+EMAIL_HOST_USER = 'qems2@outlook.com'
 EMAIL_HOST_PASSWORD = ''
 # You'll need to allow access for less secure apps to test.
 # https://www.google.com/settings/security/lesssecureapps

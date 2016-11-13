@@ -234,6 +234,11 @@ def verbose_username(writer):
 @register.filter(name='question_set_id')
 def question_set_id(question):
     return question.question_set.id
+    
+@register.filter(name='question_length')
+def question_length(question):
+    return question.character_count()
+
 
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

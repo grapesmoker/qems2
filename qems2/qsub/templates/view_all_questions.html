@@ -26,7 +26,7 @@
                     <th>Answer</th>
                     <th>Question Type</th>
                     <th>Category</th>
-                    <th>Packet</th>
+                    <th>Length</th>
                     <th>Created</th>
                     <th>Modified</th>
                     <th>Edited</th>
@@ -43,7 +43,7 @@
                     <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup|tossup_answer }}</a></td>
                     <td>Tossup</td>
                     <td><a href="/categories/{{ qset.id }}/{{ tossup.category.id }}">{{ tossup.category }}</a></td>
-                    <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
+                    <td>{% tossup.character_count() %}</td>
                     <td>{{ tossup.created_date|to_short_datetime }}</td>
                     <td>{{ tossup.last_changed_date|to_short_datetime }}</td>
                     <td>{% if tossup.edited_date %} {{ tossup.edited_date|to_short_datetime }} {% endif %}</td>
@@ -74,7 +74,7 @@
                     <th>Answer</th>
                     <th>Question Type</th>
                     <th>Category</th>
-                    <th>Packet</th>
+                    <th>Length</th>
                     <th>Created</th>
                     <th>Modified</th>
                     <th>Edited</th>
@@ -91,7 +91,7 @@
                     <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_answers }}</a></td>
                     <td>Bonus</td>
                     <td><a href="/categories/{{ qset.id }}/{{ bonus.category.id }}">{{ bonus.category }}</a></td>
-                    <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                    <td>{% bonus.character_count() %}</td>
                     <td>{{ bonus.created_date|to_short_datetime }}</td>
                     <td>{{ bonus.last_changed_date|to_short_datetime }}</td>
                     <td>{% if bonus.edited_date %} {{ bonus.edited_date|to_short_datetime }} {% endif %}</td>

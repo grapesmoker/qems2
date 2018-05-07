@@ -161,7 +161,7 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
         else:
             nextChar = ""
         
-        if (index == powerIndex):
+        if (index >= powerIndex and powerFlag):
             powerFlag = False
             output += u"(*)</strong>"
             index += 3 # Skip over the rest of what's in the power mark
@@ -180,24 +180,22 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
                 itatlicsFlag = False
                 output += u"</i>"
             
-            output += u"<strong>("
-            parensFlag = True
+            if (not powerFlag):
+                output += u"<strong>("
+                parensFlag = True
         elif (c == u"(" and allowParens and previousChar == u"\\" and secondPreviousChar != u"\\"):
             output = output[:-1] # Get rid of the escape character
             output += c
         elif (c == u")" and allowParens and previousChar != u"\\" and secondPreviousChar != u"\\"):
-            output += u")</strong>"
-            parensFlag = False
-            
+            if (not powerFlag):
+                output += u")</strong>"
+                parensFlag = False
+
             if (needToRestoreItalicsFlag):
                 output += u"<i>"
                 italticsFlag = True
                 needToRestoreItalicsFlag = False
-                
-            # Keep things bolded if still in power
-            if (powerFlag):
-                output += u"<strong>"
-                
+
         elif (c == u")" and allowParens and previousChar == u"\\"):
             output = output[:-1] # Get rid of the escape character
             output += c
@@ -216,7 +214,7 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
                 output += u"</sup>"
             else:
                 superScriptFlag = True
-                output += u"<sup>"            
+                output += u"<sup>"
         else:
             if (c == u"_" and allowUnderlines):
                 if (nextChar == u"_"):

@@ -257,7 +257,7 @@ $(function () {
         e.preventDefault();
         var result = confirm("Are you sure you want to delete all comments?  It can only be restored by a QEMS2 admin.");
         if (result == true) {
-            $.post('/delete_all_comments/', { question_id: $(this).attr('value'), qset_id: $(this).attr('qset'), question_type: $(this).attr('question_type'), }, function (response) {
+            $.post('/delete_all_comments/', { question_id: $(this).attr('value'), qset_id: $(this).attr('qset'), question_type: $(this).attr('question-type'), }, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
                     modal: true,

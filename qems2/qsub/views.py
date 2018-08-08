@@ -1158,6 +1158,7 @@ def edit_bonus(request, bonus_id):
                 except InvalidBonus as ex:
                     message = str(ex)
                     message_class = 'alert-box warning'
+                    read_only = False
 
             elif form.is_valid() and not can_change:
                 message = 'This bonus is locked and can only be changed by an editor!'

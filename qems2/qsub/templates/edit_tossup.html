@@ -135,6 +135,9 @@
                     {% endif %}
                 {% endif %}
             {% endfor %}
+            {% if role == "editor" %}
+                <a href="/delete_all_comments/{{ tossup.id }}" class="delete_comment" value="{{ tossup.id }}" qset="{{ qset.id }}" question_type="tossup">Delete All Comments</a><br /><br />
+            {% endif %}
         {% endautoescape %}
 
         {% get_comment_form for tossup as cform %}

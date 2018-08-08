@@ -1340,6 +1340,43 @@ def delete_comment(request):
 
     return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
+@login_required
+def delete_all_comments(request):
+    user = request.user.writer
+    message = ''
+    message_class = ''
+    read_only = True
+
+    if request.method == 'POST':
+        qset_id = request.POST['qset_id']
+        qset = QuestionSet.objects.get(id=qset_id)
+        qset_editors = qset.editor.all()
+        question_type = request.POST['question_type']
+
+        if (question_type == 'tossup'):
+            comment_list = Comment.objects.filter(content_type_id=tossup_content_type_id).filter(object_pk=question.id).order_by('submit_date')
+            question_id = request.POST['tossup_id']
+        else:
+            comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=question.id).order_by('submit_date')
+            question_id = request.POST['bonus_id']
+
+        if (comment_list is None):
+            message = 'Error retrieving comments.'
+            message_class = 'alert-box warning'
+        else:
+            if user in qset_editors:
+                for comment in comment_list:
+                    comment.is_removed = True
+                    comment.save()
+                    cache.clear()
+
+                message = 'Comments removed'
+                message_class = 'alert-box success'
+            else:
+                message = 'You are not authorized to remove comments from this set!'
+                message_class = 'alert-box warning'
+
+    return HttpResponse(json.dumps({'message': message, 'message_class': message_class}))
 
 @login_required
 def add_packets(request, qset_id):

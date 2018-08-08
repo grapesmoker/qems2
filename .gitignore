@@ -5,3 +5,8 @@ whoosh_index/
 # but keep qsub/static
 *.py[cdo]
 secret
+/.vs/VSWorkspaceState.json
+/.vs/slnx.sqlite
+/.vs/qems2/v15/.suo
+/.vs/qems2/v15
+/.vs/config/applicationhost.config

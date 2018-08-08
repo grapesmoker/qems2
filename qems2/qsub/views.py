@@ -1355,9 +1355,9 @@ def delete_all_comments(request):
         question_id = request.POST['question_id']
 
         if (question_type == 'tossup'):
-            comment_list = Comment.objects.filter(content_type_id=tossup_content_type_id).filter(object_pk=question.id).order_by('submit_date')
+            comment_list = Comment.objects.filter(content_type_id=tossup_content_type_id).filter(object_pk=question_id).order_by('submit_date')
         else:
-            comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=question.id).order_by('submit_date')
+            comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=question_id).order_by('submit_date')
 
         if (comment_list is None):
             message = 'Error retrieving comments.'

@@ -1352,13 +1352,12 @@ def delete_all_comments(request):
         qset = QuestionSet.objects.get(id=qset_id)
         qset_editors = qset.editor.all()
         question_type = request.POST['question_type']
+        question_id = request.POST['question_id']
 
         if (question_type == 'tossup'):
             comment_list = Comment.objects.filter(content_type_id=tossup_content_type_id).filter(object_pk=question.id).order_by('submit_date')
-            question_id = request.POST['tossup_id']
         else:
             comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=question.id).order_by('submit_date')
-            question_id = request.POST['bonus_id']
 
         if (comment_list is None):
             message = 'Error retrieving comments.'

@@ -1749,6 +1749,8 @@ def edit_distribution(request, dist_id=None):
                     if dist_form.is_valid() and formset.is_valid():
                         dist = Distribution.objects.get(id=dist_id)
                         dist.name = dist_form.cleaned_data['name']
+                        dist.save()
+
                         qsets = dist.questionset_set.all()
                         for form in formset:
                             if form.cleaned_data != {}:

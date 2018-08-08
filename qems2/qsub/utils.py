@@ -183,6 +183,8 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
             if (not powerFlag):
                 output += u"<strong>("
                 parensFlag = True
+            else:
+                output += u"("
         elif (c == u"(" and allowParens and previousChar == u"\\" and secondPreviousChar != u"\\"):
             output = output[:-1] # Get rid of the escape character
             output += c
@@ -190,6 +192,8 @@ def get_formatted_question_html(line, allowUnderlines, allowParens, allowNewLine
             if (not powerFlag):
                 output += u")</strong>"
                 parensFlag = False
+            else:
+                output += u")"
 
             if (needToRestoreItalicsFlag):
                 output += u"<i>"

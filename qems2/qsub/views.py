@@ -2679,7 +2679,7 @@ def export_question_set(request, qset_id, output_format):
                     for comment in comment_list:
                         comment_string = comment_string + str(comment.user) + ": " + comment.comment + "||"
                     
-                    writer.writerow([remove_new_lines(tossup.tossup_text), remove_new_lines(tossup.tossup_answer), tossup.category, tossup.author.get_last_name(), tossup.edited, tossup.packet, tossup.question_number, remove_new_lines(comment_string)], tossup.id)
+                    writer.writerow([remove_new_lines(tossup.tossup_text), remove_new_lines(tossup.tossup_answer), tossup.category, tossup.author.get_last_name(), tossup.edited, tossup.packet, tossup.question_number, remove_new_lines(comment_string), tossup.id])
 
                 writer.writerow([])
 

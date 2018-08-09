@@ -1347,6 +1347,9 @@ def delete_all_comments(request):
     message_class = ''
     read_only = True
 
+    tossup_content_type_id = ContentType.objects.get_for_model(Tossup).id
+    bonus_content_type_id = ContentType.objects.get_for_model(Bonus).id
+
     if request.method == 'POST':
         qset_id = request.POST['qset_id']
         qset = QuestionSet.objects.get(id=qset_id)

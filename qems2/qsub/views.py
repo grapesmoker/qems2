@@ -2674,7 +2674,7 @@ def export_question_set(request, qset_id, output_format):
 
                 writer.writerow(["Tossup Question", "Answer", "Category", "Author", "Edited", "Packet", "Question Number", "Comments","Id"])
                 for tossup in tossups:
-                    comment_list = Comment.objects.filter(content_type_id=tossup_content_type_id).filter(object_pk=tossup.id).order_by('submit_date')
+                    comment_list = Comment.objects.filter(content_type_id=tossup_content_type_id).filter(object_pk=tossup.id).filter(is_removed=False).order_by('submit_date')
                     comment_string = ""
                     for comment in comment_list:
                         comment_string = comment_string + str(comment.user) + ": " + comment.comment + "||"
@@ -2685,7 +2685,7 @@ def export_question_set(request, qset_id, output_format):
 
                 writer.writerow(["Bonus Leadin", "Bonus Part 1", "Bonus Answer 1", "Bonus Part 2", "Bonus Answer 2", "Bonus Part 3", "Bonus Answer 3", "Category", "Author", "Edited", "Packet", "Question Number", "Comments", "Id"])
                 for bonus in bonuses:
-                    comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=bonus.id).order_by('submit_date')
+                    comment_list = Comment.objects.filter(content_type_id=bonus_content_type_id).filter(object_pk=bonus.id).filter(is_removed=False).order_by('submit_date')
                     comment_string = ""
                     for comment in comment_list:
                         comment_string = comment_string + str(comment.user) + ": " + comment.comment + "||"

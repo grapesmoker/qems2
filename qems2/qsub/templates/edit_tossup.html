@@ -135,7 +135,7 @@
             {% get_comment_list for tossup as comment_list %}
             {% for comment in comment_list %}
                 {% if not comment.is_removed %}
-                    <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br><br>
+                    <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html|linebreaks }} ({{ comment.submit_date }})<br><br>
                     {% if role == "editor" %}
                         <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br /><br />
                     {% endif %}

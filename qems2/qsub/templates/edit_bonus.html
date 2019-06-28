@@ -164,15 +164,18 @@
 <div class="row">
     <div class="small-6 columns end comments">
         {% autoescape off %}
-            {% get_comment_list for bonus as comment_list %}
+            {% get_comment_list for bonus as comment_list %}            
             {% for comment in comment_list %}
                 {% if not comment.is_removed %}
-                    <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br><br>
+                    <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html|linebreaks }} ({{ comment.submit_date }})<br><br>
                     {% if role == "editor" %}
                         <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br><br>
                     {% endif %}
                 {% endif %}
             {% endfor %}
+            {% if role == "editor" %}
+                <a href="/delete_all_comments/{{ bonus.id }}" class="delete_all_comments" value="{{ bonus.id }}" qset="{{ qset.id }}" question-type="bonus">Delete All Comments</a><br /><br />
+            {% endif %}            
         {% endautoescape %}
 
         {% get_comment_form for bonus as cform %}

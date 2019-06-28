@@ -26,6 +26,9 @@
             {% if tossup.edited %}
                 <p><strong>Edited by:</strong> {{ tossup.editor }} on {{ tossup.edited_date }}</p>
             {% endif %}
+            {% if tossup.proofread %}
+                <p><strong>Proofread by:</strong> {{ tossup.proofreader }} on {{ tossup.proofread_date }}</p>
+            {% endif %}            
             <p><strong>Last modified:</strong> {{ tossup.last_changed_date }}</p>
         </div>
     {% endautoescape %}
@@ -98,6 +101,9 @@
                     {% if form.edited.errors %}{{ form.edited.errors }}{% endif %}
                 </div>
             {% endif %}
+            {{ form.proofread }}
+            <label>Proofread</label>
+            {% if form.proofread.errors %}{{ form.proofread.errors }}{% endif %}            
         </div>
 
 

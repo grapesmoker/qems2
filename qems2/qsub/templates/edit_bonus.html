@@ -24,6 +24,10 @@
             {% if bonus.edited %}
                 <p><strong>Edited by:</strong> {{ bonus.editor }} on {{ bonus.edited_date }}</p>
             {% endif %}
+            {% if bonus.proofread %}
+                <p><strong>Proofread by:</strong> {{ bonus.proofreader }} on {{ bonus.proofread_date }}</p>
+            {% endif %}
+            
             <p><strong>Last modified:</strong> {{ bonus.last_changed_date }}</p>
         </div>
     {% endif %}
@@ -126,6 +130,9 @@
                     {% if form.edited.errors %}{{ form.edited.errors }}{% endif %}
                 </div>
             {% endif %}
+            {{ form.proofread }}
+            <label>Proofread</label>
+            {% if form.proofread.errors %}{{ form.proofread.errors }}{% endif %}
         </div>
 
         <div class="fieldWrapper">

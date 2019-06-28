@@ -45,6 +45,42 @@
             {% endif %}
         {% endautoescape %}
 
+        {% get_comment_count for qset as comment_count %}
+        {% if comment_count > 0 or role == "editor" %}
+            <div class="panel header radius text-center"><strong>Set-Wide Messages</strong></div>
+            <div class="row">
+                <div class="small-6 columns end comments">
+                    {% autoescape off %}
+                        {% get_comment_list for qset as comment_list %}
+                        {% for comment in comment_list %}
+                            {% if not comment.is_removed %}
+                                <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html|linebreaks }} ({{ comment.submit_date }})<br>
+                                {% if role == "editor" %}
+                                    <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br />
+                                {% endif %}
+                            {% endif %}
+                        {% endfor %}
+                    {% endautoescape %}
+
+                    {% if role == "editor" %}
+                        {% get_comment_form for qset as cform %}
+                        <form action="{% comment_form_target %}" method="POST">
+                            {% csrf_token %}
+                            <label>Comment
+                                <textarea rows="2" id="{{ cform.comment.id_for_label }}" name="{{ cform.comment.html_name }}"></textarea>
+                            </label>
+                            {{ cform.content_type }}
+                            {{ cform.object_pk }}
+                            {{ cform.timestamp }}
+                            {{ cform.security_hash }}
+                            <input type="submit" name="submit" value="Post" class="button primary right">
+                            <input type="hidden" name="next" value="/edit_question_set/{{ qset.id }}/">
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+
         <div class="panel header radius text-center">
             <div class="small-7 small-centered columns">
                 <div class="progress success round">

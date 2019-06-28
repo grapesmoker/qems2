@@ -28,14 +28,49 @@ class Migration(migrations.Migration):
                 ('location', models.CharField(max_length=500)),
                 ('locked', models.BooleanField(default=False)),
                 ('edited', models.BooleanField(default=False)),
+                ('proofread', models.BooleanField(default=False)),
                 ('question_number', models.PositiveIntegerField(null=True)),
-                ('search_leadin', models.CharField(default='', max_length=500, null=True)),
-                ('search_part1_text', models.TextField(default='')),
-                ('search_part1_answer', models.TextField(default='')),
-                ('search_part2_text', models.TextField(default='', null=True)),
-                ('search_part2_answer', models.TextField(default='', null=True)),
-                ('search_part3_text', models.TextField(default='', null=True)),
-                ('search_part3_answer', models.TextField(default='', null=True)),
+                ('search_question_content', models.TextField(default='')),
+                ('search_question_answers', models.TextField(default='')),
+                ('created_date', models.DateTimeField()),
+                ('last_changed_date', models.DateTimeField()),
+                ('edited_date', models.DateTimeField(null=True)),
+                ('proofread_date', models.DateTimeField(null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='BonusHistory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('leadin', models.CharField(max_length=500, null=True)),
+                ('part1_text', models.TextField()),
+                ('part1_answer', models.TextField()),
+                ('part2_text', models.TextField(null=True)),
+                ('part2_answer', models.TextField(null=True)),
+                ('part3_text', models.TextField(null=True)),
+                ('part3_answer', models.TextField(null=True)),
+                ('change_date', models.DateTimeField()),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='CategoryEntry',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('category_name', models.CharField(max_length=200)),
+                ('sub_category_name', models.CharField(max_length=200, null=True)),
+                ('sub_sub_category_name', models.CharField(max_length=200, null=True)),
+                ('category_type', models.CharField(max_length=200)),
+                ('acf_tossup_fraction', models.DecimalField(null=True, max_digits=5, decimal_places=1)),
+                ('acf_bonus_fraction', models.DecimalField(null=True, max_digits=5, decimal_places=1)),
+                ('vhsl_bonus_fraction', models.DecimalField(null=True, max_digits=5, decimal_places=1)),
+                ('min_total_questions_in_period', models.PositiveIntegerField(null=True)),
+                ('max_total_questions_in_period', models.PositiveIntegerField(null=True)),
             ],
             options={
             },
@@ -46,6 +81,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=100)),
+                ('acf_tossup_per_period_count', models.PositiveIntegerField(default=20)),
+                ('acf_bonus_per_period_count', models.PositiveIntegerField(default=20)),
+                ('vhsl_bonus_per_period_count', models.PositiveIntegerField(default=0)),
             ],
             options={
             },
@@ -81,11 +119,94 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='OnePeriodCategoryEntry',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('acf_tossup_cur_in_period', models.PositiveIntegerField(default=0)),
+                ('acf_bonus_cur_in_period', models.PositiveIntegerField(default=0)),
+                ('vhsl_bonus_cur_in_period', models.PositiveIntegerField(default=0)),
+                ('acf_tossup_total_in_period', models.PositiveIntegerField(null=True)),
+                ('acf_bonus_total_in_period', models.PositiveIntegerField(null=True)),
+                ('vhsl_bonus_total_in_period', models.PositiveIntegerField(null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='Packet',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('packet_name', models.CharField(max_length=200)),
                 ('date_submitted', models.DateField(auto_now_add=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='PerCategoryWriterSettings',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('email_on_new_questions', models.BooleanField(default=False)),
+                ('email_on_new_comments', models.BooleanField(default=False)),
+                ('distribution_entry', models.ForeignKey(to='qsub.DistributionEntry')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='Period',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('name', models.CharField(max_length=200)),
+                ('acf_tossup_cur', models.PositiveIntegerField(default=0)),
+                ('acf_bonus_cur', models.PositiveIntegerField(default=0)),
+                ('vhsl_bonus_cur', models.PositiveIntegerField(default=0)),
+                ('packet', models.ForeignKey(to='qsub.Packet')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='PeriodWideCategoryEntry',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('acf_tossup_cur_across_periods', models.PositiveIntegerField(default=0)),
+                ('acf_bonus_cur_across_periods', models.PositiveIntegerField(default=0)),
+                ('vhsl_bonus_cur_across_periods', models.PositiveIntegerField(default=0)),
+                ('acf_tossup_total_across_periods', models.PositiveIntegerField(null=True)),
+                ('acf_bonus_total_across_periods', models.PositiveIntegerField(null=True)),
+                ('vhsl_bonus_total_across_periods', models.PositiveIntegerField(null=True)),
+                ('category_entry', models.ForeignKey(to='qsub.CategoryEntry')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='PeriodWideEntry',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('period_type', models.CharField(max_length=200)),
+                ('acf_tossup_cur', models.PositiveIntegerField(default=0)),
+                ('acf_bonus_cur', models.PositiveIntegerField(default=0)),
+                ('vhsl_bonus_cur', models.PositiveIntegerField(default=0)),
+                ('acf_tossup_total', models.PositiveIntegerField(null=True)),
+                ('acf_bonus_total', models.PositiveIntegerField(null=True)),
+                ('vhsl_bonus_total', models.PositiveIntegerField(null=True)),
+                ('distribution', models.ForeignKey(to='qsub.Distribution')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='QuestionHistory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
             ],
             options={
             },
@@ -100,6 +221,10 @@ class Migration(migrations.Migration):
                 ('host', models.CharField(max_length=200)),
                 ('address', models.TextField(max_length=200)),
                 ('num_packets', models.PositiveIntegerField()),
+                ('max_acf_tossup_length', models.PositiveIntegerField(default=750)),
+                ('max_acf_bonus_length', models.PositiveIntegerField(default=400)),
+                ('max_vhsl_bonus_length', models.PositiveIntegerField(default=100)),
+                ('char_count_ignores_pronunciation_guides', models.BooleanField(default=True)),
                 ('distribution', models.ForeignKey(to='qsub.Distribution')),
             ],
             options={
@@ -185,9 +310,26 @@ class Migration(migrations.Migration):
                 ('location', models.CharField(max_length=500)),
                 ('locked', models.BooleanField(default=False)),
                 ('edited', models.BooleanField(default=False)),
+                ('proofread', models.BooleanField(default=False)),
                 ('question_number', models.PositiveIntegerField(null=True)),
-                ('search_tossup_text', models.TextField(default='')),
-                ('search_tossup_answer', models.TextField(default='')),
+                ('search_question_content', models.TextField(default='')),
+                ('search_question_answers', models.TextField(default='')),
+                ('created_date', models.DateTimeField()),
+                ('last_changed_date', models.DateTimeField()),
+                ('edited_date', models.DateTimeField(null=True)),
+                ('proofread_date', models.DateTimeField(null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='TossupHistory',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('tossup_text', models.TextField()),
+                ('tossup_answer', models.TextField()),
+                ('change_date', models.DateTimeField()),
             ],
             options={
             },
@@ -198,6 +340,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('administrator', models.BooleanField(default=False)),
+                ('send_mail_on_comments', models.BooleanField(default=False)),
                 ('question_set_editor', models.ManyToManyField(related_name='editor', to='qsub.QuestionSet')),
                 ('question_set_writer', models.ManyToManyField(related_name='writer', to='qsub.QuestionSet')),
                 ('user', models.OneToOneField(to=settings.AUTH_USER_MODEL)),
@@ -205,6 +348,37 @@ class Migration(migrations.Migration):
             options={
             },
             bases=(models.Model,),
+        ),
+        migrations.CreateModel(
+            name='WriterQuestionSetSettings',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('email_on_all_new_comments', models.BooleanField(default=False)),
+                ('email_on_all_new_questions', models.BooleanField(default=False)),
+                ('question_set', models.ForeignKey(to='qsub.QuestionSet')),
+                ('writer', models.ForeignKey(to='qsub.Writer')),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='tossuphistory',
+            name='changer',
+            field=models.ForeignKey(to='qsub.Writer'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='tossuphistory',
+            name='question_history',
+            field=models.ForeignKey(to='qsub.QuestionHistory'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='tossuphistory',
+            name='question_type',
+            field=models.ForeignKey(to='qsub.QuestionType', null=True),
+            preserve_default=True,
         ),
         migrations.AddField(
             model_name='tossup',
@@ -220,8 +394,32 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='tossup',
+            name='editor',
+            field=models.ForeignKey(related_name='tossup_editor', to='qsub.Writer', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='tossup',
             name='packet',
             field=models.ForeignKey(to='qsub.Packet', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='tossup',
+            name='period',
+            field=models.ForeignKey(to='qsub.Period', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='tossup',
+            name='proofreader',
+            field=models.ForeignKey(related_name='tossup_proofreader', to='qsub.Writer', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='tossup',
+            name='question_history',
+            field=models.ForeignKey(to='qsub.QuestionHistory', null=True),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -249,6 +447,30 @@ class Migration(migrations.Migration):
             preserve_default=True,
         ),
         migrations.AddField(
+            model_name='periodwideentry',
+            name='question_set',
+            field=models.ForeignKey(to='qsub.QuestionSet'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='periodwidecategoryentry',
+            name='period_wide_entry',
+            field=models.ForeignKey(to='qsub.PeriodWideEntry'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='period',
+            name='period_wide_entry',
+            field=models.ForeignKey(to='qsub.PeriodWideEntry'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='percategorywritersettings',
+            name='writer_question_set_settings',
+            field=models.ForeignKey(to='qsub.WriterQuestionSetSettings'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
             model_name='packet',
             name='created_by',
             field=models.ForeignKey(related_name='packet_creator', to='qsub.Writer'),
@@ -261,9 +483,45 @@ class Migration(migrations.Migration):
             preserve_default=True,
         ),
         migrations.AddField(
+            model_name='oneperiodcategoryentry',
+            name='period',
+            field=models.ForeignKey(to='qsub.Period'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='oneperiodcategoryentry',
+            name='period_wide_category_entry',
+            field=models.ForeignKey(to='qsub.PeriodWideCategoryEntry'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
             model_name='distributionperpacket',
             name='question_set',
             field=models.ManyToManyField(to='qsub.QuestionSet'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='categoryentry',
+            name='distribution',
+            field=models.ForeignKey(to='qsub.Distribution'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='bonushistory',
+            name='changer',
+            field=models.ForeignKey(to='qsub.Writer'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='bonushistory',
+            name='question_history',
+            field=models.ForeignKey(to='qsub.QuestionHistory'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='bonushistory',
+            name='question_type',
+            field=models.ForeignKey(to='qsub.QuestionType', null=True),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -280,8 +538,32 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='bonus',
+            name='editor',
+            field=models.ForeignKey(related_name='bonus_editor', to='qsub.Writer', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='bonus',
             name='packet',
             field=models.ForeignKey(to='qsub.Packet', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='bonus',
+            name='period',
+            field=models.ForeignKey(to='qsub.Period', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='bonus',
+            name='proofreader',
+            field=models.ForeignKey(related_name='bonus_proofreader', to='qsub.Writer', null=True),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='bonus',
+            name='question_history',
+            field=models.ForeignKey(to='qsub.QuestionHistory', null=True),
             preserve_default=True,
         ),
         migrations.AddField(

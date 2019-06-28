@@ -4,14 +4,18 @@
 from qems2.qsub.models import *
 from qems2.qsub.utils import *
 from datetime import datetime
+from django.contrib.auth.models import User
 
-# Set this to an existing user in the database
-# TODO: Probably just create a new user in the future
+# Create a new user
 username = "admin2"
+email = "qems2@pace-nsc.org"
+password = "temp_password" # TODO: Change this
+newUser = User.objects.create_user(username=username, email=email, password=password)
 
 print "Starting script"
 
 # Delete existing data
+print "Deleting existing data"
 for tossup in Tossup.objects.all():
     tossup.delete()
 
@@ -34,6 +38,8 @@ for writer in Writer.objects.all():
     if (writer.user.username != username):
         writer.user.delete()
         writer.delete()
+
+print "Creating data"
 
 distribution = Distribution(name="Default Distribution")
 distribution.save()
@@ -88,6 +94,8 @@ dist_entry = DistributionEntry(
                 max_bonuses=1)
 dist_entry.save()
 
+print "creating question types"
+
 acf_style_tossup = QuestionType(question_type=ACF_STYLE_TOSSUP)
 acf_style_tossup.save()
 
@@ -97,8 +105,10 @@ acf_style_bonus.save()
 vhsl_bonus = QuestionType(question_type=VHSL_BONUS)
 vhsl_bonus.save()
 
-user = User.objects.get(username=username)
-writer = Writer.objects.get(user=user)
+print "creating users"
+
+#user = User.objects.get(username=username)
+writer = Writer.objects.get(user=newUser)
 
 qset = QuestionSet(
                     name="Default Question Set",
@@ -110,8 +120,12 @@ qset = QuestionSet(
                     num_packets=10)
 qset.save()
 
+print "Adding writer permissions"
+
 writer.question_set_editor.add(qset)
 writer.save()
+
+print "Creating distribution entries"
 
 for dist_entry in DistributionEntry.objects.filter(distribution=distribution):
     swde = SetWideDistributionEntry(
@@ -121,6 +135,7 @@ for dist_entry in DistributionEntry.objects.filter(distribution=distribution):
                                     num_bonuses=(10*dist_entry.max_bonuses))
     swde.save()
 
+print "Creating tossups and bonuses"
 
 tossup = Tossup(
                     question_set=qset,

@@ -86,11 +86,11 @@ Install the 32-bit MySQL installer from http://dev.mysql.com/downloads/windows/ 
 
 Run an instance of Windows PowerShell as an administrator and:
 
-    pip install django
+    pip install django<2
     pip install beautifulsoup4
     pip install django-bower
     pip install django-contrib-comments
-    pip install django-haystack
+    pip install django-haystack<2
     pip install django-registration-redux
     pip install whoosh
     pip install unicodecsv

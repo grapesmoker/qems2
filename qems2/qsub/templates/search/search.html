@@ -28,10 +28,10 @@
     <div class="row">
         <div class="small-6 columns">
             <div class="row collapse">
-                <div class="small-3 columns">
+                <div class="small-4 columns">
                     <span class="prefix text-left" for="id-qset">Tournament</span>
                 </div>
-                <div class="small-9 columns">
+                <div class="small-8 columns">
                     <select class="form-control" id="id_qset" name="qset">
                         {% for qset in q_sets %}
                             <option value="{{ qset.id }}"{% if passed_q_set and qset == passed_q_set %} selected{% endif %}>{{ qset.name }}</option>
@@ -59,7 +59,15 @@
         </div>
     </div>
     <div class="row">
-        <div class="small-6 small-offset-6 columns">
+        <div class="small-6 columns">
+            <label>Search All Tournaments I Have Access To</label>
+            {% if search_all_selected == "checked" %}
+                <input checked="checked" id="id_models_2" name="models" type="checkbox" value="qsub.search_all" />
+            {% else %}
+                <input id="id_models_2" name="models" type="checkbox" value="qsub.search_all" />
+            {% endif %}
+        </div>
+        <div class="small-6 columns">
             <label>Question Types to Search</label>
             {% if tossups_selected == "checked" %}
                 <input checked="checked" id="id_models_0" name="models" type="checkbox" value="qsub.tossup" />
@@ -90,7 +98,7 @@
         <th>Modified</th>
         <th>Edited</th>  
         <th>Proofread</th>      
-        <th>Packet</th>
+        <th>Tournament</th>
     </tr>
     </thead>
     <tbody>
@@ -110,7 +118,7 @@
             <td>{{ question.last_changed_date|to_short_datetime }}</td>
             <td>{% if question.edited_date %} {{ question.edited_date|to_short_datetime }} {% endif %}</td>
             <td>{% if question.proofread_date %} {{ question.proofread_date|to_short_datetime }} {% endif %}</td>
-            <td>{% if question.packet %} {{ question.packet }} {% else %} Not in packet {% endif %}</td>
+            <td>{{ question.question_set.name}}</td>
         </tr>
         {% endfor %}
     {% endautoescape %}

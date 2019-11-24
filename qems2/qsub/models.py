@@ -471,7 +471,7 @@ class Tossup (models.Model):
     category = models.ForeignKey(DistributionEntry, null=True) # TODO: Delete this later
     subtype = models.CharField(max_length=500)
     
-    category_entry = models.ForeignKey(CategoryEntry, null=True)
+    #category_entry = models.ForeignKey(CategoryEntry, null=True)
     
     time_period = models.CharField(max_length=500)
     location = models.CharField(max_length=500)
@@ -481,6 +481,7 @@ class Tossup (models.Model):
     locked = models.BooleanField(default=False)
     edited = models.BooleanField(default=False)
     proofread = models.BooleanField(default=False)
+    read_carefully = models.BooleanField(default=False)
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
@@ -670,7 +671,7 @@ class Bonus(models.Model):
     location = models.CharField(max_length=500)
     question_type = models.ForeignKey(QuestionType, null=True)
 
-    category_entry = models.ForeignKey(CategoryEntry, null=True)
+    #category_entry = models.ForeignKey(CategoryEntry, null=True)
 
     question_history = models.ForeignKey(QuestionHistory, null=True)
 
@@ -679,6 +680,7 @@ class Bonus(models.Model):
     locked = models.BooleanField(default=False)
     edited = models.BooleanField(default=False)
     proofread = models.BooleanField(default=False)
+    read_carefully = models.BooleanField(default=False)
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)

@@ -54,13 +54,17 @@
                         {% get_comment_list for qset as comment_list %}
                         {% for comment in comment_list %}
                             {% if not comment.is_removed %}
-                                <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html|linebreaks }} ({{ comment.submit_date }})<br>
+                                <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html|linebreaks }}<br>
                                 {% if role == "editor" %}
                                     <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br />
                                 {% endif %}
                             {% endif %}
                         {% endfor %}
                     {% endautoescape %}
+
+                    {% if role == "editor" and comment_count == 0 %}
+                    <div>Note: This section will be hidden for writers until a comment is added.</div>
+                    {% endif %}
 
                     {% if role == "editor" %}
                         {% get_comment_form for qset as cform %}

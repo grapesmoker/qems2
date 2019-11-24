@@ -42,6 +42,7 @@ QUESTION_CHANGE = 'Question Change'
 QUESTION_EDIT = 'Question Edit'
 QUESTION_RESTORE = 'Question Restore'
 QUESTION_PROOFREAD = 'Question Proofread'
+QUESTION_READ_CAREFULLY = 'Question Marked Read Carefully'
 
 # Constants for types of categories
 CATEGORY = "Category"

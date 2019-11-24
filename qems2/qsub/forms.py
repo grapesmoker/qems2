@@ -182,7 +182,7 @@ class BonusForm(forms.ModelForm):
     proofreader = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     proofread_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)     
     last_changed_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
-    created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)        
+    created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
 
     class Meta:
         model = Bonus

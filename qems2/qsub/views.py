@@ -997,10 +997,11 @@ def edit_tossup(request, tossup_id):
             context_instance=RequestContext(request))
 
     elif request.method == 'POST':
+        print "start post for edit tossup"
         if user == tossup.author or user == qset.owner or user in qset.editor.all():
             form = TossupForm(request.POST, qset_id=qset.id, role=role)
             can_change = True
-            if user == tossup.author and tossup.locked and not user in qset.editor.all():
+            if tossup.locked and not (user == qset.owner or user in qset.editor.all()):
                 can_change = False
 
             if form.is_valid() and can_change:
@@ -1008,6 +1009,7 @@ def edit_tossup(request, tossup_id):
 
                 is_tossup_already_edited = tossup.edited
                 is_tossup_already_proofread = tossup.proofread
+                is_tossup_already_read_carefully = tossup.read_carefully
 
                 tossup.tossup_text = strip_markup(form.cleaned_data['tossup_text'])
                 tossup.tossup_answer = strip_markup(form.cleaned_data['tossup_answer'])
@@ -1016,8 +1018,10 @@ def edit_tossup(request, tossup_id):
                 tossup.locked = form.cleaned_data['locked']
                 tossup.edited = form.cleaned_data['edited']
                 tossup.proofread = form.cleaned_data['proofread']
+                tossup.read_carefully = form.cleaned_data['read_carefully']
                 tossup.question_type = form.cleaned_data['question_type']
                 tossup.author = form.cleaned_data['author']
+                print "trying to save tossup"
 
                 try:
                     tossup.is_valid()
@@ -1027,6 +1031,9 @@ def edit_tossup(request, tossup_id):
 
                     if (not is_tossup_already_proofread and tossup.proofread == True):
                         change_type = QUESTION_PROOFREAD
+
+                    if (not is_tossup_already_read_carefully and tossup.read_carefully == True):
+                        change_type = QUESTION_READ_CAREFULLY
 
                     tossup.save_question(edit_type=change_type, changer=user)
                     tossup_length = tossup.character_count()
@@ -1127,12 +1134,13 @@ def edit_bonus(request, bonus_id):
             form = BonusForm(request.POST, qset_id=qset.id, role=role, question_type=question_type)
             
             can_change = True
-            if user == bonus.author and bonus.locked:
+            if bonus.locked and not (user == qset.owner or user in qset.editor.all()):
                 can_change = False
 
             if form.is_valid() and can_change:
                 is_bonus_already_edited = bonus.edited
                 is_bonus_already_proofread = bonus.proofread
+                is_bonus_already_read_carefully = bonus.read_carefully
 
                 bonus.leadin = strip_markup(form.cleaned_data['leadin'])
                 bonus.part1_text = strip_markup(form.cleaned_data['part1_text'])
@@ -1146,6 +1154,7 @@ def edit_bonus(request, bonus_id):
                 bonus.locked = form.cleaned_data['locked']
                 bonus.edited = form.cleaned_data['edited']
                 bonus.proofread = form.cleaned_data['proofread']
+                bonus.read_carefully = form.cleaned_data['read_carefully']
                 bonus.question_type = form.cleaned_data['question_type']
                 bonus.author = form.cleaned_data['author']
 
@@ -1157,6 +1166,9 @@ def edit_bonus(request, bonus_id):
 
                     if (not is_bonus_already_proofread and bonus.proofread):
                         change_type = QUESTION_PROOFREAD
+                        
+                    if (not is_bonus_already_read_carefully and bonus.read_carefully):
+                        change_type = QUESTION_READ_CAREFULLY
 
                     bonus.save_question(edit_type=change_type, changer=user)
                     char_count = bonus.character_count()
@@ -2359,6 +2371,7 @@ def search(request, passed_qset_id=None):
                                        'selected_set': q_set,
                                        'tossups_selected': 'checked',
                                        'bonuses_selected': 'checked',
+                                       'search_all_selected' :'unchecked',
                                        'passed_q_set': passed_q_set},
                                       context_instance=RequestContext(request))
 
@@ -2370,10 +2383,13 @@ def search(request, passed_qset_id=None):
             search_category = request.GET.get('category')
             tossups_selected = "unchecked"
             bonuses_selected = "unchecked"
+            search_all_selected = "unchecked"
             if 'qsub.tossup' in search_models:
                 tossups_selected = "checked"
             if 'qsub.bonus' in search_models:
                 bonuses_selected = "checked"
+            if 'qsub.search_all' in search_models:
+                search_all_selected = "checked"
 
             if user in qset.writer.all() or user in qset.editor.all() or user == qset.owner:
 
@@ -2397,8 +2413,9 @@ def search(request, passed_qset_id=None):
                         elif question_type == 'bonus':
                             question = Bonus.objects.get(id=question_id)
 
-                        if question.question_set == qset and (str(question.category) == search_category or search_category == 'All') and question not in questions:
-                            questions.append(question)
+                        if (question.question_set == qset or search_all_selected == 'checked') and (str(question.category) == search_category or search_category == 'All') and question not in questions:
+                            if user in question.question_set.writer.all() or user in question.question_set.editor.all() or user == question.question_set.owner:
+                                questions.append(question)
                     except:
                         print "Error retrieving search data for search query", query, sys.exc_info()[0]
 
@@ -2421,6 +2438,7 @@ def search(request, passed_qset_id=None):
                                        'search_qset': qset,
                                        'tossups_selected': tossups_selected,
                                        'bonuses_selected': bonuses_selected,
+                                       'search_all_selected': search_all_selected,
                                        'passed_q_set': passed_q_set,
                                        'message': message,
                                        'message_class': message_class},
@@ -3136,8 +3154,8 @@ def bulk_change_set(request, qset_id):
                     cache.clear()
                     return render_to_response('bulk_change_packet.html',
                                              {'user': user,
-                                              'tossups': tossups,
-                                              'bonuses': bonuses,
+                                              'tossups': change_tossups,
+                                              'bonuses': change_bonuses,
                                               'qset': qset,
                                               'message': message,
                                               'message_class': message_class},
@@ -3242,9 +3260,10 @@ def bulk_change_set(request, qset_id):
                     cache.clear()
                     return render_to_response('bulk_move_questions.html',
                                              {'user': user,
-                                              'tossups': tossups,
-                                              'bonuses': bonuses,
+                                              'tossups': change_tossups,
+                                              'bonuses': change_bonuses,
                                               'qset': qset,
+                                              'new_sets': new_sets,
                                               'message': message,
                                               'message_class': message_class},
                                              context_instance=RequestContext(request))
@@ -3287,7 +3306,7 @@ def bulk_change_set(request, qset_id):
 
 @login_required
 def bulk_change_author(request, qset_id):
-    user = request.user.writerbulk_change_author
+    user = request.user.writer
     qset = QuestionSet.objects.get(id=qset_id)
 
     message = ''
@@ -3454,7 +3473,7 @@ def bulk_move_question(request, qset_id):
         tossups = Tossup.objects.filter(question_set=qset).order_by('-id')
         bonuses = Bonus.objects.filter(question_set=qset).order_by('-id')
 
-        return render_to_response('bulk_move_question.html',
+        return render_to_response('bulk_change_set.html',
                                  {'user': user,
                                   'tossups': tossups,
                                   'bonuses': bonuses,

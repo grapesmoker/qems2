@@ -80,7 +80,7 @@
                     {% if form.question_type.errors %}{{ form.question_type.errors }}{% endif %}
                 </div>
             </div>-->
-            <div class="small-6 columns">
+            <div class="small-4 columns">
                 <div class="row collapse">
                     <div class="small-4 columns">
                         <span class="prefix text-left" for="{{ form.packet.id_for_label }}">Packet</span>
@@ -91,7 +91,7 @@
                     {% if form.packet.errors %}{{ form.packet.errors }}{% endif %}
                 </div>
             </div>
-            <div class="small-6 columns">
+            <div class="small-8 columns">
                 {% if role == "editor" %}
                     {{ form.locked }}
                     <label>Locked</label>
@@ -103,6 +103,9 @@
                 {{ form.proofread }}
                 <label>Proofread</label>
                 {% if form.proofread.errors %}{{ form.proofread.errors }}{% endif %}  
+                {{ form.read_carefully }}
+                <label>Read Answer Carefully</label>
+                {% if form.read_carefully.errors %}{{ form.read_carefully.errors }}{% endif %}
             </div>          
         </div>
 

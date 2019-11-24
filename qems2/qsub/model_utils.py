@@ -5,8 +5,9 @@ from models import *
 from forms import *
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.comments import *
+from django.contrib.contenttypes.models import ContentType, ContentTypeManager
+from django_comments.models import Comment
+from django.db.models import Q
 
 import os
 
@@ -250,7 +251,7 @@ def tossup_to_bonus(tossup, output_question_type):
             bonus.part2_answer = ""
             bonus.part3_text = ""
             bonus.part3_answer = ""
-            bonus.save()
+            bonus.save_question(QUESTION_CREATE, tossup.author)
             move_comments_to_bonus(tossup, bonus)                        
             tossup.delete()
     elif (output_question_type == VHSL_BONUS):
@@ -264,7 +265,7 @@ def tossup_to_bonus(tossup, output_question_type):
             bonus.part2_answer = ""
             bonus.part3_text = ""
             bonus.part3_answer = ""
-            bonus.save()
+            bonus.save_question(QUESTION_CREATE, tossup.author)
             move_comments_to_bonus(tossup, bonus)            
             tossup.delete()                  
         
@@ -282,7 +283,7 @@ def bonus_to_bonus(bonus, output_question_type):
             bonus.part2_answer = ""
             bonus.part3_text = ""
             bonus.part3_answer = ""
-            bonus.save()
+            bonus.save_question(QUESTION_CREATE, tossup.author)
     elif (output_question_type == VHSL_BONUS):
         if (bonus.get_bonus_type() == ACF_STYLE_BONUS):
             print "Convert to VHSL"
@@ -293,7 +294,7 @@ def bonus_to_bonus(bonus, output_question_type):
             bonus.part2_answer = ""
             bonus.part3_text = ""
             bonus.part3_answer = ""            
-            bonus.save()            
+            bonus.save_question(QUESTION_CREATE, tossup.author)            
         
 def bonus_to_tossup(bonus, output_question_type):
     if (output_question_type == ACF_STYLE_TOSSUP):
@@ -302,7 +303,7 @@ def bonus_to_tossup(bonus, output_question_type):
             tossup.question_type = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
             tossup.tossup_text = bonus.part1_text
             tossup.tossup_answer = bonus.part1_answer
-            tossup.save()
+            tossup.save_question(QUESTION_CREATE, bonus.author)
             move_comments_to_tossup(bonus, tossup)
             bonus.delete()            
         elif (bonus.get_bonus_type() == ACF_STYLE_BONUS):
@@ -310,7 +311,7 @@ def bonus_to_tossup(bonus, output_question_type):
             tossup.question_type = QuestionType.objects.get(question_type=ACF_STYLE_TOSSUP)
             tossup.tossup_text = bonus.leadin + " " + bonus.part1_text + " " + bonus.part1_answer + " " + bonus.part2_text + " " + bonus.part2_answer + " " + bonus.part3_text + " " + bonus.part3_answer
             tossup.tossup_answer = bonus.part1_answer
-            tossup.save()
+            tossup.save_question(QUESTION_CREATE, bonus.author)
             move_comments_to_tossup(bonus, tossup)            
             bonus.delete()                        
         
@@ -363,3 +364,136 @@ def move_comments_to_bonus(tossup, bonus):
 def get_question_type_from_string(question_type):
     return QuestionType.objects.get(question_type=question_type)
 
+def get_tossup_and_bonuses_in_set(qset, question_limit=30, preview_only=False):
+    tossup_dict = {}
+    tossups = []
+    tossup_count = 0
+    for tossup in Tossup.objects.filter(question_set=qset).order_by('-id'):
+        if (tossup_count < question_limit):
+            tossup.question_length = tossup.character_count()
+            if (preview_only):
+                tossup.tossup_text = preview(tossup.tossup_text)
+                tossup.tossup_answer = preview(get_primary_answer(tossup.tossup_answer))
+            
+            tossups.append(tossup)            
+            tossup_count += 1
+        tossup_dict[tossup.id] = tossup
+
+    bonus_dict = {}
+    bonuses = []
+    short_bonuses = []
+    bonus_count = 0
+    for bonus in Bonus.objects.filter(question_set=qset).order_by('-id'):
+        if (bonus_count < question_limit):
+            bonus.question_length = bonus.character_count()
+            if (preview_only):
+                bonus.leadin = preview(bonus.leadin)
+                bonus.part1_text = preview(bonus.part1_text)
+                bonus.part1_answer = preview(get_primary_answer(bonus.part1_answer))
+                bonus.part2_text = preview(bonus.part2_text)
+                bonus.part2_answer = preview(get_primary_answer(bonus.part2_answer))
+                bonus.part3_text = preview(bonus.part3_text)
+                bonus.part3_answer = preview(get_primary_answer(bonus.part3_answer))
+            
+            bonuses.append(bonus)
+            bonus_count += 1
+        bonus_dict[bonus.id] = bonus
+        
+    return tossups, tossup_dict, bonuses, bonus_dict
+
+def get_comment_tab_list(tossup_dict, bonus_dict, comment_limit=60):
+    comment_tab_list = []
+    
+    tossup_content_type_id = ContentType.objects.get_for_model(Tossup).id
+    bonus_content_type_id = ContentType.objects.get_for_model(Bonus).id
+        
+    comment_count = 0
+    for comment in Comment.objects.filter(Q(content_type_id=tossup_content_type_id) | Q(content_type_id=bonus_content_type_id)).order_by('-submit_date'):
+        if (not comment.is_removed):
+            if (comment.content_type_id == tossup_content_type_id):
+                if (long(comment.object_pk) in tossup_dict):
+                    tossup = tossup_dict[long(comment.object_pk)]            
+                    new_comment = { 'comment': comment,
+                                        'question_text': get_formatted_question_html(tossup.tossup_answer[0:80], True, True, False, False),
+                                        'question_id': tossup.id,
+                                        'question_type': 'tossup'}
+                    comment_tab_list.append(new_comment)
+                    comment_count += 1
+                    if (comment_count >= comment_limit):
+                        break
+            else:
+                if (long(comment.object_pk) in bonus_dict):
+                    bonus = bonus_dict[long(comment.object_pk)]            
+                    new_comment = { 'comment': comment,
+                                        'question_text': get_formatted_question_html_for_bonus_answers(bonus),
+                                        'question_id': bonus.id,
+                                        'question_type': 'bonus'}
+                    comment_tab_list.append(new_comment)
+                    comment_count += 1
+                    if (comment_count >= comment_limit):
+                        break
+    
+    return comment_tab_list
+
+def get_questions_remaining(qset):
+    total_tu_req = 0
+    total_bs_req = 0
+    total_tu_written = 0
+    total_bs_written = 0
+    set_status = {}    
+    
+    entries = qset.setwidedistributionentry_set.all().order_by('dist_entry__category', 'dist_entry__subcategory')
+    for entry in sorted(entries):
+        tu_required = entry.num_tossups
+        bs_required = entry.num_bonuses
+        # TODO: really fix extra questions increasing set completion; this is temporary
+        tu_written = qset.tossup_set.filter(category=entry.dist_entry).count()
+        bs_written = qset.bonus_set.filter(category=entry.dist_entry).count()
+        tu_written_for_total = min(tu_written, tu_required)
+        bs_written_for_total = min(bs_written, bs_required)
+        total_tu_req += tu_required
+        total_bs_req += bs_required
+        total_bs_written += bs_written_for_total
+        total_tu_written += tu_written_for_total
+
+        set_status[str(entry.dist_entry)] = {'tu_req': tu_required,
+                                             'tu_in_cat': tu_written,
+                                             'bs_req': bs_required,
+                                             'bs_in_cat': bs_written,
+                                             'category_id': entry.dist_entry.id
+                                             }
+    # Prevent divide by 0 errors
+    total_qs_req = max(1, total_tu_req + total_bs_req)
+    set_pct_complete = (float(total_tu_written + total_bs_written) * 100) / total_qs_req
+    tu_needed = total_tu_req - total_tu_written
+    bs_needed = total_bs_req - total_bs_written
+    
+    return set_status, total_tu_req, total_bs_req, tu_needed, bs_needed, set_pct_complete
+    
+def get_writer_questions_remaining(qset, total_tu_req, total_bs_req):
+    qset_editors = qset.editor.all()
+    qset_writers = qset.writer.all()    
+    writer_stats = {}
+    total_qs_req = max(1, total_tu_req + total_bs_req)
+    
+    for writer in qset_writers:
+        writer_tu_written = len(qset.tossup_set.filter(author=writer))
+        writer_bonus_written = len(qset.bonus_set.filter(author=writer))
+        writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / total_qs_req
+        
+        writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
+                                                    'bonus_written': writer_bonus_written,
+                                                    'question_percent': writer_question_percent,
+                                                    'writer': writer}
+    for writer in qset_editors:
+        writer_tu_written = len(qset.tossup_set.filter(author=writer))
+        writer_bonus_written = len(qset.bonus_set.filter(author=writer))
+        writer_question_percent = (float(writer_tu_written + writer_bonus_written) * 100) / total_qs_req
+        
+        
+        writer_stats[writer.user.username] = {'tu_written': writer_tu_written,
+                                                    'bonus_written': writer_bonus_written,
+                                                    'question_percent': writer_question_percent,
+                                                    'writer': writer}    
+    
+    return writer_stats

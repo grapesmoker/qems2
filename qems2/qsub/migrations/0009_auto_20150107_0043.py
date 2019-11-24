@@ -129,10 +129,10 @@ class Migration(migrations.Migration):
 #            field=models.ForeignKey(to='qsub.QuestionHistory', null=True),
 #            preserve_default=True,
 #        ),
-#        migrations.AddField(
-#            model_name='writer',
-#            name='send_mail_on_comments',
-#            field=models.BooleanField(default=False),
-#            preserve_default=True,
-#        ),    
+        migrations.AddField(
+            model_name='writer',
+            name='send_mail_on_comments',
+            field=models.BooleanField(default=False),
+            preserve_default=True,
+        ),    
     ]

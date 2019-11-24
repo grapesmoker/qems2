@@ -7,7 +7,9 @@ QEMS2 is a successor to a system called, intuitively enough, QEMS, which was use
 
 ## Stack
 
-QEMS2 is based on a technology stack that uses MySQL for storage, Python (in the form of Django) for the backend, and jQuery/Foundation for frontend manipulations. 
+QEMS2 is based on a technology stack that uses MySQL for storage, Python (in the form of Django) for the backend, and jQuery/Foundation for frontend manipulations.
+
+Packetization is currently (sort of) handled with a separate C# app available here: https://github.com/mbentley00/QemsPacketizer
 
 ## Installation
 
@@ -32,7 +34,7 @@ Once you have those installed, you should use `pip` to get the necessary Python 
     pip install django-bower
     pip install django-contrib-comments
     pip install django-haystack
-    pip install django-registration-redux
+    pip install django-allauth
     pip install whoosh
     pip install mysql-python
     pip install unicodecsv
@@ -47,6 +49,25 @@ Set up your MySQL connection as, for example, `mysql -u root -p`:
     CREATE DATABASE qems2_stable;
     GRANT ALL PRIVILEGES ON qems2_stable.* TO django@localhost;
     GRANT ALL PRIVILEGES ON test_qems2_stable.* TO django@localhost;
+
+If you used a different database than "qems2_stable" in the above steps, open settings.py and change the value of NAME to be whatever you used above.
+
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
+            'NAME': 'qems2_stable',                      # Or path to database file if using sqlite3.
+            'USER': 'django',                      # Not used with sqlite3.
+            'PASSWORD': 'django',                  # Not used with sqlite3.
+            'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
+            'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        }
+    }
+
+While you're in settings.py, you'll probably want to disable the e-mail settings to make debugging easier:
+
+    # Account and registration settings
+    ACCOUNT_EMAIL_REQUIRED = False
+    ACCOUNT_EMAIL_VERIFICATION='none'
 
 Finally, use `manage.py` to populate the database, install the front-end packages, collect static files, and start the development server:
 
@@ -74,9 +95,9 @@ Run an instance of Windows PowerShell as an administrator and:
     pip install whoosh
     pip install unicodecsv
 
-Install the latest from https://pypi.python.org/pypi/MySQL-python/, make sure git is installed, and make sure all of the above programs are in your path, incl. variations on: C:\Program Files (x86)\MySQL\MySQL Workbench 6.2 CE\, C:\Program Files (x86)\Git\cmd\, C:\Python27\, C:\Python27\Scripts\, C:\Program Files (x86)\nodejs\, C:\Users\Andrew\AppData\Roaming\npm\. Then npm install -g bower.
+Install the latest from https://pypi.python.org/pypi/MySQL-python/, make sure git is installed, and make sure all of the above programs are in your path, incl. variations on: C:\Program Files (x86)\MySQL\MySQL Workbench 6.2 CE\, C:\Program Files (x86)\Git\cmd\, C:\Python27\, C:\Python27\Scripts\, C:\Program Files (x86)\nodejs\, %LocalAppData%\\..\Roaming\npm\. Then npm install -g bower.
 
-Then follow the above instructions to set up the MySQL connection and the server, except make sure to add `BOWER_PATH = os.path.normpath(r'C:\Users\{username}\AppData\Roaming\npm\bower.cmd')` below the `BOWER_COMPONENTS_ROOT` line in settings.py before `bower install`'ing. Note that the installation of git may require you to reference python as `C:\Python27\python.exe` instead of `python` in PowerShell.
+Then follow the above instructions to set up the MySQL connection and the server, except make sure to add `BOWER_PATH = os.path.normpath(r'C:\Users\{username}\AppData\Roaming\npm\bower.cmd')` below the `BOWER_COMPONENTS_ROOT` line in settings.py before `bower install`'ing. If you see an error about being unable to connect to port 10061, update the HOST and PORT properties in DATABASES in settings.py. Note that the installation of git may require you to reference python as `C:\Python27\python.exe` instead of `python` in PowerShell.
 
 ### Running QEMS2
 

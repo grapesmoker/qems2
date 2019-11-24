@@ -18,19 +18,15 @@ urlpatterns = patterns('',
     # Uncomment the admin/doc line below to enable admin documentation:
     # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
 
-    # Uncomment the next line to enable the admin:
     url(r'^admin/', include(admin.site.urls)),
+    
+    # accounts
+    url(r'^accounts/', include('allauth.urls')),
+    
     (r'^main/$', main),
     (r'^$', main),
-    (r'^accounts/', include('registration.backends.default.urls')),
-    #(r'^register/$', register),
-    #(r'^accounts/login/$', django.contrib.auth.views.login),
-    #(r'^accounts/logout/$', django.contrib.auth.views.logout),
-    (r'^profile/$', profile),
-    (r'^password_change_done/$', django.contrib.auth.views.password_change_done),
-    (r'^password_change/$', django.contrib.auth.views.password_change, {'post_change_redirect': '/profile/',
-                                                                        'template_name': 'registration/password.html'}),
-    #(r'^password_change/$', password_change),
+    (r'^profile/$', profile),    
+    
     (r'^question_sets/$', question_sets),
     (r'^create_question_set/$', create_question_set),
     (r'^edit_question_set/(?P<qset_id>[0-9]+)/$', edit_question_set),
@@ -55,6 +51,7 @@ urlpatterns = patterns('',
     (r'^edit_packet/(?P<packet_id>[0-9]+)/$', edit_packet),
     (r'^type_questions/$', type_questions),
     (r'^type_questions/(?P<qset_id>[0-9]+)/$', type_questions),
+    (r'^type_questions_edit/(?P<question_type>.+)/(?P<question_id>[0-9]+)/$', type_questions_edit),    
     #(r'^edit_packet/(?P<packet_id>[0-9]+)/change_tossup_position/(?P<old_index>[0-9]+)/(?P<new_index>[0-9]+)$', change_tossup_order),
     #(r'^edit_packet/(?P<packet_id>[0-9]+)/change_bonus_position/(?P<old_index>[0-9]+)/(?P<new_index>[0-9]+)$', change_bonus_order),
     (r'^delete_packet/$', delete_packet),
@@ -64,13 +61,17 @@ urlpatterns = patterns('',
     (r'^export_question_set/(?P<qset_id>[0-9]+)/(?P<output_format>.+)/$', export_question_set),
     (r'^delete_writer/$', delete_writer),
     (r'^delete_editor/$', delete_editor),
+    (r'^delete_set/$', delete_set),    
     (r'^delete_comment/$', delete_comment),
+    (r'^delete_all_comments/$', delete_all_comments),
     (r'^restore_tossup/$', restore_tossup),
     (r'^restore_bonus/$', restore_bonus),
     (r'^tossup_history/(?P<tossup_id>[0-9]+)/$', tossup_history),
     (r'^bonus_history/(?P<bonus_id>[0-9]+)/$', bonus_history),
     (r'^questions_remaining/(?P<qset_id>[0-9]+)/$', questions_remaining),
-    (r'^bulk_change_set/(?P<qset_id>[0-9]+)/$', bulk_change_set),   
+    (r'^bulk_change_set/(?P<qset_id>[0-9]+)/$', bulk_change_set),
+    (r'^writer_question_set_settings/(?P<qset_id>[0-9]+)/$', writer_question_set_settings),    
+    (r'^contributor/(?P<qset_id>[0-9]+)/(?P<writer_id>[0-9]+)/$', contributor),
               
     (r'^upload_questions/(?P<qset_id>[0-9]+)/$', upload_questions),
     (r'^complete_upload/$', complete_upload),
@@ -78,8 +79,10 @@ urlpatterns = patterns('',
     (r'^move_bonus/(?P<q_set_id>[0-9]+)/(?P<bonus_id>[0-9]+)/$', move_bonus),
     (r'^convert_tossup/$', convert_tossup),
     (r'^convert_bonus/$',convert_bonus),
+    (r'^view_all_questions/(?P<qset_id>[0-9]+)/$',view_all_questions),    
+    (r'^view_all_comments/(?P<qset_id>[0-9]+)/$',view_all_comments),    
+    (r'^question_set_distribution/(?P<qset_id>[0-9]+)/$',question_set_distribution),    
     
-
     # json calls
     (r'^get_unassigned_tossups/$', get_unassigned_tossups),
     (r'^get_unassigned_bonuses/$', get_unassigned_bonuses),
@@ -96,5 +99,12 @@ urlpatterns = patterns('',
     # (r'^search/', include('haystack.urls')),
     (r'^search/$', search),
     (r'^search/(?P<passed_qset_id>[0-9]+)/$', search),
+    
+    #auth
+    #url(r'^accounts/', include('allauth.urls')),
 )
 
+#import debug_toolbar
+#urlpatterns += patterns('',
+#    url(r'^__debug__/', include(debug_toolbar.urls)),
+#)

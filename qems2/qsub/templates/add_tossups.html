@@ -20,8 +20,6 @@
     </div>
     {% endif %}
 {% endautoescape %}
-<p>Answers should be wrapped with _underscores_.  Italicize titles by using ~tildes~.  Pronunciation guides use (parentheses).</p>
-<p>Do not include ANSWER: in your answer line.</p>
 <form action="" method="post" id="add-tossups">
     {% csrf_token %}
     {{ form.non_field_errors }}
@@ -96,7 +94,13 @@
                 </div>
             </div>
         </div>
-        <input type="submit" id="submit-tossup" value="Submit Tossup" class="button primary right" />
+        <div>
+            <input type="submit" id="submit-tossup" value="Submit Tossup" class="button primary right" />
+        </div>
+        
+        {% include "formatting_guide.html" %}
+        <p>Do not include ANSWER: in your answer line.</p>
+        
     {% endif %}
 
 </form>

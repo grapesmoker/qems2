@@ -1,10 +1,10 @@
 from django.template.defaultfilters import register
-from django.utils.datastructures import SortedDict
 from django.utils.safestring import mark_safe
 from qems2.qsub.models import *
 from qems2.qsub.utils import sanitize_html, strip_markup, get_formatted_question_html, get_answer_no_formatting
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.comments import *
+from django.contrib.contenttypes.models import ContentType, ContentTypeManager
+from django_comments.models import *
+from collections import OrderedDict
 
 @register.filter(name='lookup')
 def lookup(dict, key):
@@ -39,22 +39,33 @@ def get_editor_categories(editor, tour):
     return mark_safe('<p>' + '<br>'.join(cat_list) + '</p>')
 
 @register.filter(name='preview')
-def preview(text):
-    if (len(text) > 81):
-        return mark_safe(text[0:81] + '...')
-    else:
-        return mark_safe(text)
+def preview_filter(text):
+    return preview(text)
 
 @register.filter(name='short_preview')
 def short_preview(text):
     return mark_safe(text[0:25])
 
+@register.filter(name='answer_preview')
+def answer_preview(text):
+    return preview(get_primary_answer(text))
+
+@register.filter(name='tossup_answer')
+def tossup_answer(tossup):
+    return mark_safe(answer_html(preview(get_primary_answer(tossup.tossup_answer))))
+
 @register.filter(name='bonus_answers')
 def bonus_answers(bonus):
-    return mark_safe(answer_html(bonus.part1_answer[0:80].encode('utf-8')) + '<br />'
-    + answer_html(bonus.part2_answer[0:80].encode('utf-8')) + '<br />'
-    + answer_html(bonus.part3_answer[0:80].encode('utf-8')))
+     return mark_safe(answer_html(preview(get_primary_answer(bonus.part1_answer))) + '<br />'
+        + answer_html(preview(get_primary_answer(bonus.part2_answer))) + '<br />'
+        + answer_html(preview(get_primary_answer(bonus.part3_answer))))
 
+@register.filter(name='to_short_datetime')
+def to_short_datetime(date):
+    if (date is None):
+        return ""
+    return date.strftime("%m-%d-%y %H:%M %p")
+    
 @register.filter(name='percent')
 def percent(x, y):
     try:
@@ -111,6 +122,12 @@ def overall_percent(entry):
     if (bs_req is None):
         bs_req = 0
 
+    if (tu_in_cat > tu_req):
+        tu_in_cat = tu_req
+        
+    if (bs_in_cat > bs_req):
+        bs_in_cat = bs_req
+
     percentage = fpercent(tu_in_cat + bs_in_cat, tu_req + bs_req)
     if percentage == None:
         return mark_safe('<i class="fa fa-check"></i> ' + str(percentage))
@@ -135,7 +152,7 @@ def class_name(obj):
 def listsort(value):
     if isinstance(value, dict):
         print "Sorted dict called"
-        new_dict = SortedDict()
+        new_dict = OrderedDict()
         key_list = sorted(value.keys())
         for key in key_list:
             new_dict[key] = value[key]
@@ -150,11 +167,11 @@ def listsort(value):
 
 @register.filter(name='question_html')
 def question_html(line):
-    return get_formatted_question_html(line, False, True, False)
+    return get_formatted_question_html(line, False, True, False, False)
 
 @register.filter(name='answer_html')
 def answer_html(line):
-    return get_formatted_question_html(line, True, True, False)
+    return get_formatted_question_html(line, True, True, False, False)
 
 @register.filter(name='answer_no_formatting')
 def answer_no_formatting(line):
@@ -162,7 +179,7 @@ def answer_no_formatting(line):
 
 @register.filter(name='comment_html')
 def comment_html(comment):
-    return get_formatted_question_html(comment, True, False, True)
+    return get_formatted_question_html(comment, False, False, True, False)
 
 @register.filter(name='tossup_html')
 def tossup_html(tossup):
@@ -194,21 +211,34 @@ def bonus_history_html(bonus):
 
 @register.filter(name='tossup_last_comment_date')
 def tossup_last_comment_date(tossup):
-    tossup_content_type_id = ContentType.objects.get(name="tossup")
+    tossup_content_type_id = ContentType.objects.get_for_model(Tossup).id
     comments = Comment.objects.filter(object_pk=tossup.id).filter(content_type_id=tossup_content_type_id).order_by('-id')
     if (len(comments) > 0):
         return comments[0].submit_date
     else:
-        return ''
+        return None
 
 @register.filter(name='bonus_last_comment_date')
 def bonus_last_comment_date(bonus):
-    bonus_content_type_id = ContentType.objects.get(name="bonus")
+    bonus_content_type_id = ContentType.objects.get_for_model(Bonus).id
     comments = Comment.objects.filter(object_pk=bonus.id).filter(content_type_id=bonus_content_type_id).order_by('-id')
     if (len(comments) > 0):
         return comments[0].submit_date
     else:
-        return ''
+        return None
+
+@register.filter(name='verbose_username')
+def verbose_username(writer):
+    return str(writer) + " - " + writer.user.email
+
+@register.filter(name='question_set_id')
+def question_set_id(question):
+    return question.question_set.id
+    
+@register.filter(name='question_length')
+def question_length(question):
+    return question.character_count()
+
 
 #@register.filter(name='compare_categories'):
 #def compare_categories(cat1, cat2):

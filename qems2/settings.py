@@ -12,10 +12,17 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'TIMEOUT': 60 * 10,
+    }
+}
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': 'qems2',                      # Or path to database file if using sqlite3.
+        'NAME': 'qems92',                      # Or path to database file if using sqlite3.
         'USER': 'django',                      # Not used with sqlite3.
         'PASSWORD': 'django',                  # Not used with sqlite3.
         'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
@@ -106,7 +113,33 @@ TEMPLATE_LOADERS = (
 #     'django.template.loaders.eggs.Loader',
 )
 
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                # Already defined Django-related contexts here
+
+                # `allauth` needs this from django
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+            ],
+        },
+    },
+]
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    'django.contrib.auth.backends.ModelBackend',
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    'allauth.account.auth_backends.AuthenticationBackend'
+)
+
 MIDDLEWARE_CLASSES = (
+#    'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -119,6 +152,8 @@ MIDDLEWARE_CLASSES = (
 ROOT_URLCONF = 'qems2.urls'
 
 AUTH_PROFILE_MODULE = 'qsub.Player'
+
+INTERNAL_IPS = ('127.0.0.1')
 
 # Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'qems2.wsgi.application'
@@ -142,24 +177,30 @@ INSTALLED_APPS = (
     'django_comments',
     'djangobower',
     'unicodecsv',
-    # 'debug_toolbar',
+#    'debug_toolbar',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
-    'registration',
-
     'qems2.qsub',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
 )
 
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL='/main/'
-ACCOUNT_ACTIVATION_DAYS = 3
-REGISTRATION_AUTO_LOGIN = True
-REGISTRATION_OPEN = True
-EMAIL_USE_SSL = True
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 465
-EMAIL_HOST_USER = '{username}'
-EMAIL_HOST_PASSWORD = '{password}'
+# Account and registration settings
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_EMAIL_VERIFICATION='mandatory'
+ACCOUNT_SIGNUP_FORM_CLASS = 'qems2.qsub.forms.RegistrationFormWithName'
+
+LOGIN_REDIRECT_URL = "/"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'qems2@outlook.com'
+SERVER_EMAIL = 'smtp-mail.outlook.com'
+EMAIL_HOST = 'smtp-mail.outlook.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'qems2@outlook.com'
+EMAIL_HOST_PASSWORD = ''
 # You'll need to allow access for less secure apps to test.
 # https://www.google.com/settings/security/lesssecureapps
 
@@ -215,6 +256,8 @@ HAYSTACK_CONNECTIONS = {
         'PATH': os.path.join(os.path.dirname(__file__), 'whoosh_index')
     },
 }
+
+HAYSTACK_SIGNAL_PROCESSOR = 'haystack.signals.RealtimeSignalProcessor'
 
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 #COMMENTS_APP = "django_comments_xtd"

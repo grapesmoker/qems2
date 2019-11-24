@@ -1,24 +1,40 @@
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm, ReadOnlyPasswordHashField, PasswordChangeForm
-from django.contrib.auth.models import User
-from django.db import models
 from models import *
 from utils import *
 from django import forms
+from django.forms import ValidationError
 from django.utils.translation import ugettext, ugettext_lazy as _
+from django.db.models import Q
 
-class WriterCreationForm(UserCreationForm):
+class RegistrationFormWithName(forms.Form):
+    first_name = forms.CharField(max_length=200)
+    last_name = forms.CharField(max_length=200)
 
+    def signup(self, request, user):
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        user.save()
+
+class WriterQuestionSetSettingsForm(forms.ModelForm):
+    
     class Meta:
-        model = User
-        fields = ['username', 'first_name', 'last_name', 'email']
+        model = WriterQuestionSetSettings
+        exclude = ['question_set', 'writer']
 
     def __init__(self, *args, **kwargs):
+        super(WriterQuestionSetSettingsForm, self).__init__(*args, **kwargs)
+        self.fields['email_on_all_new_comments'] = forms.BooleanField(required=False)
+        self.fields['email_on_all_new_questions'] = forms.BooleanField(required=False)
+    
+class PerCategoryWriterSettingsForm(forms.Form):
+    email_on_new_comments = forms.BooleanField(required=False)
+    email_on_new_questions = forms.BooleanField(required=False)
+    distribution_entry_string = forms.CharField(max_length=200)
+    entry_id = forms.IntegerField(widget=forms.TextInput(attrs={'style': 'display: none'}))
 
-        super(WriterCreationForm, self).__init__(*args, **kwargs)
-
-        self.fields['password2'].widget.attrs.update({'placeholder': 'Enter the same password as above, for verification.'})
-        self.fields['username'].widget.attrs.update({'placeholder': 'Thirty characters or fewer. Letters, digits, and @.-+_ are allowed.'})
-
+    def __init__(self, *args, **kwargs):
+        super(PerCategoryWriterSettingsForm, self).__init__(*args, **kwargs)
+        self.fields['distribution_entry_string'].widget.attrs.update({'readonly': 'readonly'})
+        
 class WriterChangeForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
@@ -76,8 +92,8 @@ class TossupForm(forms.ModelForm):
 
     tossup_text = forms.CharField(widget=forms.Textarea(attrs={'rows': 5, 'class': 'expanding'}))
     tossup_answer = forms.CharField(widget=forms.Textarea(attrs={'rows': 1, 'class': 'expanding'}))
-    search_tossup_text = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_tossup_answer = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_question_content = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_question_answers = forms.CharField(widget=forms.HiddenInput, required=False)
     question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     editor = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     edited_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
@@ -93,6 +109,7 @@ class TossupForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
         packet_id = kwargs.pop('packet_id', None)
+        period_id = kwargs.pop('period_id', None)
         role = kwargs.pop('role', None)
         writer = kwargs.pop('writer', None)
 
@@ -106,7 +123,7 @@ class TossupForm(forms.ModelForm):
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
-                all_writers = qset.writer.all() | qset.editor.all()
+                all_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset)).distinct().order_by('user__last_name', 'user__first_name', 'user__username')
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)
@@ -123,8 +140,16 @@ class TossupForm(forms.ModelForm):
                 else:
                     pack_label = 'None'
                     packets = qset.packet_set.all()
+                                
+                periods = Period.objects.filter(period_wide_entry__question_set=qset)                
+                if period_id is not None:
+                    period_label = None                    
+                else:
+                    period_label = 'None'
+                    
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
                 self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)
+                self.fields['period'] = forms.ModelChoiceField(queryset=periods, required=False, empty_label=period_label)
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'
                 self.fields['category'] = forms.ModelChoiceField([], empty_label=None)
@@ -147,18 +172,13 @@ class BonusForm(forms.ModelForm):
     part2_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'expanding', 'rows': 1}), required=False)
     part3_text = forms.CharField(widget=forms.Textarea(attrs={'class': 'expanding', 'rows': 2}), required=False)
     part3_answer = forms.CharField(widget=forms.Textarea(attrs={'class': 'expanding', 'rows': 1}), required=False)
-    search_leadin = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part1_text = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part1_answer = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part2_text = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part2_answer = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part3_text = forms.CharField(widget=forms.HiddenInput, required=False)
-    search_part3_answer = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_question_content = forms.CharField(widget=forms.HiddenInput, required=False)
+    search_question_answers = forms.CharField(widget=forms.HiddenInput, required=False)
     question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     editor = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     edited_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
     last_changed_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
-    created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)    
+    created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)        
 
     class Meta:
         model = Bonus
@@ -167,6 +187,7 @@ class BonusForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         qset_id = kwargs.pop('qset_id', None)
         packet_id = kwargs.pop('packet_id', None)
+        period_id = kwargs.pop('period_id', None)
         role = kwargs.pop('role', None)
         writer = kwargs.pop('writer', None)
         question_type = kwargs.pop('question_type', None)
@@ -179,7 +200,7 @@ class BonusForm(forms.ModelForm):
         if qset_id:
             try:
                 qset = QuestionSet.objects.get(id=qset_id)
-                all_writers = qset.writer.all() | qset.editor.all()
+                all_writers = Writer.objects.filter(Q(question_set_writer=qset) | Q(question_set_editor=qset)).distinct().order_by('user__last_name', 'user__first_name', 'user__username')
                 if writer:
                     user = User.objects.get(username=writer)
                     my_writer = all_writers.get(user=user)
@@ -196,8 +217,16 @@ class BonusForm(forms.ModelForm):
                 else:
                     pack_label = 'None'
                     packets = qset.packet_set.all()
+                    
+                periods = Period.objects.filter(period_wide_entry__question_set=qset)                
+                if period_id is not None:
+                    period_label = None                    
+                else:
+                    period_label = 'None'
+                    
                 self.fields['category'] = forms.ModelChoiceField(queryset=dist_entries, empty_label=None)
                 self.fields['packet'] = forms.ModelChoiceField(queryset=packets, required=False, empty_label=pack_label)
+                self.fields['period'] = forms.ModelChoiceField(queryset=periods, required=False, empty_label=period_label)
 
             except QuestionSet.DoesNotExist:
                 print 'Non-existent question set!'
@@ -223,15 +252,21 @@ class DistributionForm(forms.ModelForm):
 
     name = forms.CharField(max_length=100)
 
+    acf_tossup_per_period_count = forms.CharField(widget=forms.HiddenInput, required=False)
+    acf_bonus_per_period_count = forms.CharField(widget=forms.HiddenInput, required=False)
+    vhsl_bonus_per_period_count = forms.CharField(widget=forms.HiddenInput, required=False)
+
     class Meta:
         model = Distribution
-
+        fields = ['name', 'acf_tossup_per_period_count', 'acf_bonus_per_period_count', 'vhsl_bonus_per_period_count']
+        
 class TieBreakDistributionForm(forms.ModelForm):
 
     name = forms.CharField(max_length=100)
 
     class Meta:
         model = TieBreakDistribution
+        fields = '__all__'
 
 class DistributionEntryForm(forms.ModelForm):
 
@@ -259,9 +294,9 @@ class TieBreakDistributionEntryForm(forms.Form):
 
     delete = forms.BooleanField(widget=forms.CheckboxInput, required=False)
 
-    #class Meta:
-    #    model = DistributionEntry
-    #    exclude = ['distribution']
+    class Meta:
+        model = DistributionEntry
+        exclude = ['distribution']
 
 class SetWideDistributionEntryForm(forms.Form):
 
@@ -274,9 +309,9 @@ class SetWideDistributionEntryForm(forms.Form):
     category = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
     subcategory = forms.CharField(max_length=100, widget=forms.TextInput(attrs={}), required=False)
 
-    #class Meta:
-    #    model = SetWideDistributionEntry
-    #    exclude = ['min_tossups', 'max_tossups', 'min_bonuses', 'max_bonuses', 'question_set']
+    class Meta:
+        model = SetWideDistributionEntry
+        exclude = ['min_tossups', 'max_tossups', 'min_bonuses', 'max_bonuses', 'question_set']
 
 class PacketForm(forms.Form):
 

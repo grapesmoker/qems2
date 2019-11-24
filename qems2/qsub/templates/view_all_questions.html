@@ -9,34 +9,16 @@
 {% load filters %}
 {% load comments %}
 
-{% block title %}{% if category %}{{ category }} - QEMS2{% else %}Category View - QEMS2{% endif %}{% endblock %}
+{% cache 500 allquestions qset %}
 
-{% cache 500 categorycache category qset %}
+    {% block title %}{% if qset %}{{ qset.name }} - All Questions - QEMS2{% else %}All Questions - QEMS2{% endif %}{% endblock %}
 
     {% block content %}
 
-    <h3 class="page-header">{{ category }}</h3>
-    <p>Overall Percent: {{ category_status|overall_percent}}<br />
-    Tossups Remaining: {{ category_status|tossups_remaining }}, Tossup Completion: {{ category_status.tu_in_cat|percent:category_status.tu_req }}<br />
-    Bonuses Remaining: {{ category_status|bonuses_remaining }}, Bonus Completion: {{ category_status.bs_in_cat|percent:category_status.bs_req }}</p>
-    <ul class="button-group even">
-        <li><a class="button primary open-all tossup bonus"><i class="fa fa-external-link"></i> Open All Questions</a></li>
-        <li><a class="button primary open-all tossup"><i class="fa fa-external-link"></i> Open All Tossups</a></li>
-        <li><a class="button primary open-all bonus"><i class="fa fa-external-link"></i> Open All Bonuses</a></li>
-    </ul>
-    <ul class="button-group even">
-        <li><a href="/add_tossups/{{ qset.id }}" class="button primary"><i class="fa fa-plus-circle"></i> Add Tossup</a></li>
-        <li><a href="/add_bonuses/{{ qset.id }}/ACF-style bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add ACF Bonus</a></li>
-        <li><a href="/add_bonuses/{{ qset.id }}/VHSL bonus" class="button primary"><i class="fa fa-plus-circle"></i> Add VHSL Bonus</a></li>
-        <li><a href="/type_questions/{{ qset.id }}" class="button primary"><i class="fa fa-file-text"></i> Type Questions</a></li>
-        <li><a href="/view_all_questions/{{ qset.id }}/" class="button primary"><i class="fa fa-ellipsis-h"></i> All Questions</a></li>
-        <li><a href="/search/{{ qset.id }}/" class="button primary"><i class="fa fa-search"></i> Search</a></li>
-    </ul>
-    
     <p><a href="#bonuses">Jump to bonuses</a></p>
     <div id="tossups">
-        <div class="panel header radius text-center"><strong>Tossups</strong></div>    
-        <table class="tablesorter table-striped table-hover" id="category-tossup-table">
+        <div class="panel header radius text-center"><strong>Tossups</strong></div>
+        <table class="tablesorter table-striped table-hover" id="all-questions-tossup-table">
             <thead>
                 <tr>
                     <th>Author</th>
@@ -44,7 +26,7 @@
                     <th>Answer</th>
                     <th>Question Type</th>
                     <th>Category</th>
-                    <th>Packet</th>
+                    <th>Length</th>
                     <th>Created</th>
                     <th>Modified</th>
                     <th>Edited</th>
@@ -60,8 +42,8 @@
                     <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup.tossup_text|safe|preview|question_html }}</a></td>
                     <td><a href="/edit_tossup/{{ tossup.id }}">{{ tossup|tossup_answer }}</a></td>
                     <td>Tossup</td>
-                    <td>{{ tossup.category }}</td>
-                    <td>{% if tossup.packet %} {{ tossup.packet }} {% else %} Not in packet {% endif %}</td>
+                    <td><a href="/categories/{{ qset.id }}/{{ tossup.category.id }}">{{ tossup.category }}</a></td>
+                    <td>{{ tossup.question_length }}</td>
                     <td>{{ tossup.created_date|to_short_datetime }}</td>
                     <td>{{ tossup.last_changed_date|to_short_datetime }}</td>
                     <td>{% if tossup.edited_date %} {{ tossup.edited_date|to_short_datetime }} {% endif %}</td>
@@ -80,11 +62,11 @@
             </tbody>
         </table>
     </div>
-    
+
     <p><a href="#tossups">Jump to tossups</a></p>
     <div id="bonuses">
         <div class="panel header radius text-center"><strong>Bonuses</strong></div>
-        <table class="tablesorter table-striped table-hover" id="category-bonus-table">
+        <table class="tablesorter table-striped table-hover" id="all-questions-bonus-table">
             <thead>
                 <tr>
                     <th>Author</th>
@@ -92,7 +74,7 @@
                     <th>Answer</th>
                     <th>Question Type</th>
                     <th>Category</th>
-                    <th>Packet</th>
+                    <th>Length</th>
                     <th>Created</th>
                     <th>Modified</th>
                     <th>Edited</th>
@@ -108,8 +90,8 @@
                     <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_leadin }}</a></td>
                     <td><a href="/edit_bonus/{{ bonus.id }}/">{{ bonus|bonus_answers }}</a></td>
                     <td>Bonus</td>
-                    <td>{{ bonus.category }}</td>
-                    <td>{% if bonus.packet %} {{ bonus.packet }} {% else %} Not in packet {% endif %}</td>
+                    <td><a href="/categories/{{ qset.id }}/{{ bonus.category.id }}">{{ bonus.category }}</a></td>
+                    <td>{{ bonus.question_length }}</td>
                     <td>{{ bonus.created_date|to_short_datetime }}</td>
                     <td>{{ bonus.last_changed_date|to_short_datetime }}</td>
                     <td>{% if bonus.edited_date %} {{ bonus.edited_date|to_short_datetime }} {% endif %}</td>
@@ -132,6 +114,8 @@
     <p><a href="#tossups">Jump to tossups</a></p>
     <p><a href="#bonuses">Jump to bonuses</a></p>
 
+
     {% endblock %}
     
 {% endcache %}
+

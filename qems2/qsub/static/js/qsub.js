@@ -51,7 +51,32 @@ $(function () {
     match_table('#packet-tossup-table','#packet-bonus-table');
     match_table('#bulk-change-tossup-table','#bulk-change-bonus-table');
 
-    // $('#tossup-table').tablesorter().tablesorterPager({container: $("#tossup-pager")});
+    // $("#tossup-table").trigger("destroy", [false, function(){
+    //     $('#tossup-table').tablesorter({
+    //         dateFormat : "mmddyyyy",
+    //         headers: { 
+    //             6: { sorter: 'shortDate'},
+    //             7: { sorter: 'shortDate'}
+    //         }
+    //     });
+    // }]);
+    // 
+    // 
+    // $("#comments-table").trigger("destroy", [false, function(){
+    //     $('#comments-table').tablesorter({
+    //         dateFormat : "mmddyyyy",
+    //         headers: { 
+    //             3: { sorter: 'shortDate'}
+    //         }
+    //     });
+    // }]);
+
+
+    //$('#comments-table').tablesorter({
+    //    headers: { 3: { sorter: 'shortDate'} }
+    //});
+
+    
     // $('#tossup-pager').css({cursor: "pointer", position: "relative", top: "0px"});
 
     // $('#bonus-table').tablesorter().tablesorterPager({container: $("#bonus-pager")});
@@ -168,7 +193,7 @@ $(function () {
         var result = confirm("You are about to remove this writer from the set! Are you sure that you want to do that?");
         if (result == true) {
             var qset_id = $(this).attr('qset-id');
-            $.post('/delete_writer/', {writer_id: $(this).attr('value')}, function (response) {
+            $.post('/delete_writer/', {writer_id: $(this).attr('value'), qset_id: $(this).attr('qset-id')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
                     modal: true,
@@ -190,7 +215,7 @@ $(function () {
         var result = confirm("You are about to remove this editor from the set! Are you sure you want to do that?");
         if (result == true) {
             var qset_id = $(this).attr('qset-id');
-            $.post('/delete_editor/', {editor_id: $(this).attr('value')}, function (response) {
+            $.post('/delete_editor/', {editor_id: $(this).attr('value'), qset_id: $(this).attr('qset-id')}, function (response) {
                 var json_response = $.parseJSON(response);
                 var dialog = $('#info-dialog').dialog({
                     modal: true,
@@ -227,6 +252,28 @@ $(function () {
             });
         }
     });
+
+    $('.delete_all_comments').click(function (e) {
+        e.preventDefault();
+        var result = confirm("Are you sure you want to delete all comments?  It can only be restored by a QEMS2 admin.");
+        if (result == true) {
+            $.post('/delete_all_comments/', { question_id: $(this).attr('value'), qset_id: $(this).attr('qset'), question_type: $(this).attr('question-type'), }, function (response) {
+                var json_response = $.parseJSON(response);
+                var dialog = $('#info-dialog').dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function () {
+                            $(this).dialog('close');
+                            window.location.reload();
+                        }
+                    }
+                })
+                dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                dialog.dialog('open');
+            });
+        }
+    });
+
 
     $('.restore_tossup').click(function(e) {
         e.preventDefault();
@@ -313,6 +360,30 @@ $(function () {
             });
         }
     });
+    
+    $('.delete_set').click(function(e) {
+        e.preventDefault();
+        var result = confirm("Are you sure you want to delete this question set?");
+        if (result == true) {
+            var result2 = confirm("Seriously, you really want to delete this question set?");
+            if (result2 == true) {
+                $.post('/delete_set/', {qset_id: $(this).attr('value')}, function (response) {
+                    var json_response = $.parseJSON(response);
+                    var dialog = $('#info-dialog').dialog({
+                        modal: true,
+                        buttons: {
+                            Ok: function() {
+                                $(this).dialog('close');
+                                window.location.replace('/main/');
+                            }
+                        }
+                    })
+                    dialog.append('<div class="' + json_response['message_class'] + '">' + json_response['message'] + '</div>');
+                    dialog.dialog('open');
+                });
+            }
+        }
+    });    
 
     $('#upload-dialog').dialog({
         autoOpen: false,

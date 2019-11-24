@@ -138,9 +138,9 @@
 </form>
 {% if bonus %}
     <ul class="button-group even">
-        <li><a href="/move_bonus/{{ qset.id }}/{{ bonus.id }}" class="button primary">Move to another set</a></li>
-        <li><a href="/bonus_history/{{ bonus.id }}" class="button primary">View bonus history</a></li>
-        <li><a href="/delete_bonus/{{ bonus.id }}" class="button primary delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">Delete question</a></li>
+        <li><a href="/move_bonus/{{ qset.id }}/{{ bonus.id }}" class="button primary">Move set</a></li>
+        <li><a href="/bonus_history/{{ bonus.id }}" class="button primary">History</a></li>
+        <li><a href="/delete_bonus/{{ bonus.id }}" class="button primary delete_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}">Delete</a></li>
         <li><a href="/convert_bonus/{{ bonus.id }}" class="button primary convert_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}" target-type="ACF-style tossup">Convert to ACF tossup</a></li>
         {% if question_type == "ACF-style bonus" %}
             <li><a href="/convert_bonus/{{ bonus.id }}" class="button primary convert_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}" target-type="VHSL bonus">Convert to VHSL bonus</a></li>
@@ -148,6 +148,7 @@
         {% if question_type == "VHSL bonus" %}
             <li><a href="/convert_bonus/{{ bonus.id }}" class="button primary convert_bonus" value="{{ bonus.id }}" qset-id="{{ qset.id }}" target-type="ACF-style bonus">Convert to ACF bonus</a></li>
         {% endif %}
+        <li><a href="/categories/{{ qset.id }}/{{ bonus.category.id }}" class="button primary">All in category</a></li>        
     </ul>
 {% endif %}
 
@@ -183,6 +184,9 @@
     </div>
 </div>
 {% endif %}
+
+{% include "formatting_guide.html" %}
+<p>Do not include [10] labels with bonus parts or the word ANSWER: in answer lines.</p>
 
 {% include "dialog.html" %}
 

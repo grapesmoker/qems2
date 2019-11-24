@@ -51,7 +51,7 @@ def get_bonus_part_value(line):
     match = re.search(bpart_regex, line)
     return re.sub(bonus_value_regex, '', match.group(0))     
 
-def parse_packet_data(data):
+def parse_packet_data(data, question_set):
 
     data = [line for line in data if line.strip() != '']
 
@@ -88,14 +88,14 @@ def parse_packet_data(data):
                 # know that this is a VHSL bonus
                 vhsl_bonus_flag = True
 
-        print this_line
-        print tossup_flag, bonus_flag, vhsl_bonus_flag
+        # print this_line
+        # print tossup_flag, bonus_flag, vhsl_bonus_flag
 
         # if there are two items on the stack and the second one is an ANSWER:
         # pop the stack and create a tossup
         if (len(question_stack) == 2 or i == len(data) - 1) and tossup_flag:
             if (len(question_stack) < 2):
-                print "Tossups required both a question and answer, but only one item found on stack."
+                # print "Tossups required both a question and answer, but only one item found on stack."
                 tossup = Tossup('', question_stack.pop(), i, '')
                 tossup_errors.append(tossup)
             else:
@@ -106,12 +106,12 @@ def parse_packet_data(data):
                 tossup_text = question_stack.pop()
                 tossup = None        
                 try:
-                    tossup = create_tossup(tossup_text, tossup_answer, tossup_category)
+                    tossup = create_tossup(tossup_text, tossup_answer, tossup_category, question_set=question_set)
                     validate_tossup_category(tossup, tossup_category)                    
                     tossup.is_valid()
                     tossups.append(tossup)
                 except InvalidTossup as ex:
-                    print ex
+                    # print ex
                     tossup_errors.append(ex)
                 tossup_flag = False
             
@@ -133,46 +133,46 @@ def parse_packet_data(data):
             category = ''
             while question_stack != []:
                 bonus_line = question_stack.pop()
-                print "Bonus Line from question stack: " + bonus_line
+                # print "Bonus Line from question stack: " + bonus_line
                 if is_bpart(bonus_line):
-                    print "Is BPart"
+                    # print "Is BPart"
                     val = get_bonus_part_value(bonus_line)
                     question = string.strip(re.sub(bpart_regex, '', bonus_line))
                     values.append(val)
                     parts.append(question)
                 elif is_answer(bonus_line):
-                    print "Is Answer"
+                    # print "Is Answer"
                     answer = bonus_line
                     tempCategory = get_category(answer)
-                    print "Answer Line: " + answer
-                    print "TempCategory: " + tempCategory
+                    # print "Answer Line: " + answer
+                    # print "TempCategory: " + tempCategory
                     if (tempCategory != ''):
                         category = tempCategory
                         answer = remove_category(answer)
                     
                     answers.append(answer)
                 else:
-                    print "Is Leadin"
+                    # print "Is Leadin"
                     leadin = bonus_line
             parts.reverse()
             values.reverse()
             answers.reverse()
             
-            print leadin
-            print parts
-            print answers
+            # print leadin
+            # print parts
+            # print answers
             
             if (i < len(data) - 1):
                 question_stack.append(next_question_line)
             
             bonus = None
             try:
-                bonus = create_bonus(leadin, parts, answers, values, question_type_text=ACF_STYLE_BONUS, category_text=category)
+                bonus = create_bonus(leadin, parts, answers, values, question_type_text=ACF_STYLE_BONUS, category_text=category, question_set=question_set)
                 validate_bonus_category(bonus, category)                
                 bonus.is_valid()
                 bonuses.append(bonus)
             except InvalidBonus as ex:
-                print ex
+                # print ex
                 bonus_errors.append(ex)
             bonus_flag = False
 
@@ -189,12 +189,12 @@ def parse_packet_data(data):
             
             bonus = None
             try:
-                bonus = create_bonus('', [question], [answer], [], question_type_text=VHSL_BONUS, category_text=category)
+                bonus = create_bonus('', [question], [answer], [], question_type_text=VHSL_BONUS, category_text=category, question_set=question_set)
                 validate_bonus_category(bonus, category)
                 bonus.is_valid()
                 bonuses.append(bonus)
             except InvalidBonus as ex:
-                print ex
+                # print ex
                 bonus_errors.append(ex)
             vhsl_bonus_flag = False
  
@@ -208,18 +208,18 @@ def validate_bonus_category(bonus, category_text):
     if (category_text is not None and category_text != '' and bonus.category is None):
         raise InvalidBonus('category', category_text, bonus.part1_answer)
 
-def create_tossup(question='', answer='', category_text='', question_type_text='ACF-style tossup'):
+def create_tossup(question='', answer='', category_text='', question_type_text='ACF-style tossup', question_set=''):
     
     question = escape(question)
     answer = escape(remove_answer_label(answer))
 
-    categories = DistributionEntry.objects.all() 
+    categories = DistributionEntry.objects.filter(distribution=question_set.distribution)
     setCategory = None
     for category in categories:
         formattedCategory = category.category + " - " + category.subcategory
-        print "formattedCategory: " + formattedCategory
+        # print "formattedCategory: " + formattedCategory
         if (formattedCategory == category_text):
-            print "setCategory"
+            # print "setCategory"
             setCategory = category
             break
         
@@ -233,7 +233,7 @@ def create_tossup(question='', answer='', category_text='', question_type_text='
     tossup = Tossup(tossup_text=question, tossup_answer=answer, category=setCategory, question_type=setQuestionType)
     return tossup
 
-def create_bonus(leadin='', parts=[], answers=[], values=[], question_type_text=ACF_STYLE_BONUS, category_text=''):
+def create_bonus(leadin='', parts=[], answers=[], values=[], question_type_text=ACF_STYLE_BONUS, category_text='', question_set=''):
     
     leadin = escape(leadin)
     sanitizedParts = []
@@ -252,11 +252,11 @@ def create_bonus(leadin='', parts=[], answers=[], values=[], question_type_text=
     setQuestionType = None
     for questionType in questionTypes:
         if (str(questionType) == question_type_text):
-            print "setQuestionType: " + str(questionType)
+            # print "setQuestionType: " + str(questionType)
             setQuestionType = questionType
             break;
 
-    categories = DistributionEntry.objects.all() 
+    categories = DistributionEntry.objects.filter(distribution=question_set.distribution)
     setCategory = None
     for category in categories:
         formattedCategory = category.category + " - " + category.subcategory

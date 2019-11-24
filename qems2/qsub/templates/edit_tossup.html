@@ -26,6 +26,9 @@
             {% if tossup.edited %}
                 <p><strong>Edited by:</strong> {{ tossup.editor }} on {{ tossup.edited_date }}</p>
             {% endif %}
+            {% if tossup.proofread %}
+                <p><strong>Proofread by:</strong> {{ tossup.proofreader }} on {{ tossup.proofread_date }}</p>
+            {% endif %}            
             <p><strong>Last modified:</strong> {{ tossup.last_changed_date }}</p>
         </div>
     {% endautoescape %}
@@ -88,16 +91,19 @@
                     {% if form.packet.errors %}{{ form.packet.errors }}{% endif %}
                 </div>
             </div>
-            {% if role == "editor" %}
-                <div class="small-6 columns">
+            <div class="small-6 columns">
+                {% if role == "editor" %}
                     {{ form.locked }}
                     <label>Locked</label>
                     {% if form.locked.errors %}{{ form.locked.errors }}{% endif %}
                     {{ form.edited }}
                     <label>Edited</label>
                     {% if form.edited.errors %}{{ form.edited.errors }}{% endif %}
-                </div>
-            {% endif %}
+                {% endif %}
+                {{ form.proofread }}
+                <label>Proofread</label>
+                {% if form.proofread.errors %}{{ form.proofread.errors }}{% endif %}  
+            </div>          
         </div>
 
 
@@ -129,7 +135,7 @@
             {% get_comment_list for tossup as comment_list %}
             {% for comment in comment_list %}
                 {% if not comment.is_removed %}
-                    <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html }} ({{ comment.submit_date }})<br><br>
+                    <strong>{{comment.user}}:</strong> {{ comment.comment|safe|comment_html|linebreaks }} ({{ comment.submit_date }})<br><br>
                     {% if role == "editor" %}
                         <a href="/delete_comment/{{ comment.id }}" class="delete_comment" value="{{ comment.id }}" qset="{{ qset.id }}">Delete Comment</a><br /><br />
                     {% endif %}

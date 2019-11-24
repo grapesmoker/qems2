@@ -97,6 +97,8 @@ class TossupForm(forms.ModelForm):
     question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     editor = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     edited_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
+    proofreader = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
+    proofread_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)    
     last_changed_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
     created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
 
@@ -177,6 +179,8 @@ class BonusForm(forms.ModelForm):
     question_history = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     editor = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
     edited_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
+    proofreader = forms.ModelChoiceField([], widget=forms.HiddenInput, required=False)
+    proofread_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)     
     last_changed_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)
     created_date = forms.DateTimeField(widget=forms.HiddenInput, required=False)        
 

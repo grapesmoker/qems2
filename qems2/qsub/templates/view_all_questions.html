@@ -30,6 +30,7 @@
                     <th>Created</th>
                     <th>Modified</th>
                     <th>Edited</th>
+                    <th>Proofread</th>
                     <th>Comments</th>
                     <th>Last Comment</th>
                 </tr>
@@ -47,6 +48,7 @@
                     <td>{{ tossup.created_date|to_short_datetime }}</td>
                     <td>{{ tossup.last_changed_date|to_short_datetime }}</td>
                     <td>{% if tossup.edited_date %} {{ tossup.edited_date|to_short_datetime }} {% endif %}</td>
+                    <td>{% if tossup.proofread_date %} {{ tossup.proofread_date|to_short_datetime }} {% endif %}</td>
                     <td>
                     {% get_comment_list for tossup as comment_list %}
                     {% for comment in comment_list %}
@@ -78,6 +80,7 @@
                     <th>Created</th>
                     <th>Modified</th>
                     <th>Edited</th>
+                    <th>Proofread</th>
                     <th>Comments</th>
                     <th>Last Comment</th>
                 </tr>
@@ -95,6 +98,7 @@
                     <td>{{ bonus.created_date|to_short_datetime }}</td>
                     <td>{{ bonus.last_changed_date|to_short_datetime }}</td>
                     <td>{% if bonus.edited_date %} {{ bonus.edited_date|to_short_datetime }} {% endif %}</td>
+                    <td>{% if bonus.proofread_date %} {{ bonus.proofread_date|to_short_datetime }} {% endif %}</td>
                     <td>
                     {% get_comment_list for bonus as comment_list %}
                     {% for comment in comment_list %}

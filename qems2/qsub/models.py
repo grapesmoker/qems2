@@ -480,6 +480,7 @@ class Tossup (models.Model):
 
     locked = models.BooleanField(default=False)
     edited = models.BooleanField(default=False)
+    proofread = models.BooleanField(default=False)
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
@@ -493,6 +494,8 @@ class Tossup (models.Model):
     last_changed_date = models.DateTimeField()
     edited_date = models.DateTimeField(null=True)
     editor = models.ForeignKey(Writer, null=True, related_name='tossup_editor')
+    proofread_date = models.DateTimeField(null=True)
+    proofreader = models.ForeignKey(Writer, null=True, related_name='tossup_proofreader')
 
     # Calculates character count, ignoring special characters
     def character_count(self):
@@ -625,6 +628,10 @@ class Tossup (models.Model):
         if (edit_type == QUESTION_EDIT):
             self.editor = changer
             self.edited_date = timezone.now()
+
+        if (edit_type == QUESTION_PROOFREAD):
+            self.proofreader = changer
+            self.proofread_date = timezone.now()
         
         self.tossup_answer = strip_answer_from_answer_line(self.tossup_answer)
         tossup_history = TossupHistory()
@@ -671,6 +678,7 @@ class Bonus(models.Model):
 
     locked = models.BooleanField(default=False)
     edited = models.BooleanField(default=False)
+    proofread = models.BooleanField(default=False)
 
     #order = models.PositiveIntegerField(null=True)
     question_number = models.PositiveIntegerField(null=True)
@@ -682,6 +690,8 @@ class Bonus(models.Model):
     last_changed_date = models.DateTimeField()
     edited_date = models.DateTimeField(null=True)
     editor = models.ForeignKey(Writer, null=True, related_name='bonus_editor')
+    proofread_date = models.DateTimeField(null=True)
+    proofreader = models.ForeignKey(Writer, null=True, related_name='bonus_proofreader')
 
     # Calculates character count, ignoring special characters
     def character_count(self):
@@ -923,6 +933,10 @@ class Bonus(models.Model):
         if (edit_type == QUESTION_EDIT):
             self.editor = changer
             self.edited_date = timezone.now()
+
+        if (edit_type == QUESTION_PROOFREAD):
+            self.proofreader = changer
+            self.proofread_date = timezone.now()            
 
         if (self.get_bonus_type() == VHSL_BONUS):
             self.leadin = ''

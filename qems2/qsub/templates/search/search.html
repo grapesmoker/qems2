@@ -88,7 +88,8 @@
         <th>Category</th>
         <th>Created</th>
         <th>Modified</th>
-        <th>Edited</th>        
+        <th>Edited</th>  
+        <th>Proofread</th>      
         <th>Packet</th>
     </tr>
     </thead>
@@ -107,7 +108,8 @@
             <td><a href="/categories/{{ question|question_set_id }}/{{ question.category.id }}">{{ question.category }}</a></td>
             <td>{{ question.created_date|to_short_datetime }}</td>
             <td>{{ question.last_changed_date|to_short_datetime }}</td>
-            <td>{% if question.edited_date %} {{ question.edited_date|to_short_datetime }} {% endif %}</td>                        
+            <td>{% if question.edited_date %} {{ question.edited_date|to_short_datetime }} {% endif %}</td>
+            <td>{% if question.proofread_date %} {{ question.proofread_date|to_short_datetime }} {% endif %}</td>
             <td>{% if question.packet %} {{ question.packet }} {% else %} Not in packet {% endif %}</td>
         </tr>
         {% endfor %}

@@ -1007,6 +1007,7 @@ def edit_tossup(request, tossup_id):
                 read_only = False
 
                 is_tossup_already_edited = tossup.edited
+                is_tossup_already_proofread = tossup.proofread
 
                 tossup.tossup_text = strip_markup(form.cleaned_data['tossup_text'])
                 tossup.tossup_answer = strip_markup(form.cleaned_data['tossup_answer'])
@@ -1014,6 +1015,7 @@ def edit_tossup(request, tossup_id):
                 tossup.packet = form.cleaned_data['packet']
                 tossup.locked = form.cleaned_data['locked']
                 tossup.edited = form.cleaned_data['edited']
+                tossup.proofread = form.cleaned_data['proofread']
                 tossup.question_type = form.cleaned_data['question_type']
                 tossup.author = form.cleaned_data['author']
 
@@ -1022,6 +1024,9 @@ def edit_tossup(request, tossup_id):
                     change_type = QUESTION_CHANGE
                     if (not is_tossup_already_edited and tossup.edited == True):
                         change_type = QUESTION_EDIT
+
+                    if (not is_tossup_already_proofread and tossup.proofread == True):
+                        change_type = QUESTION_PROOFREAD
 
                     tossup.save_question(edit_type=change_type, changer=user)
                     tossup_length = tossup.character_count()
@@ -1127,6 +1132,7 @@ def edit_bonus(request, bonus_id):
 
             if form.is_valid() and can_change:
                 is_bonus_already_edited = bonus.edited
+                is_bonus_already_proofread = bonus.proofread
 
                 bonus.leadin = strip_markup(form.cleaned_data['leadin'])
                 bonus.part1_text = strip_markup(form.cleaned_data['part1_text'])
@@ -1139,6 +1145,7 @@ def edit_bonus(request, bonus_id):
                 bonus.packet = form.cleaned_data['packet']
                 bonus.locked = form.cleaned_data['locked']
                 bonus.edited = form.cleaned_data['edited']
+                bonus.proofread = form.cleaned_data['proofread']
                 bonus.question_type = form.cleaned_data['question_type']
                 bonus.author = form.cleaned_data['author']
 
@@ -1147,6 +1154,9 @@ def edit_bonus(request, bonus_id):
                     change_type = QUESTION_CHANGE
                     if (not is_bonus_already_edited and bonus.edited):
                         change_type = QUESTION_EDIT
+
+                    if (not is_bonus_already_proofread and bonus.proofread):
+                        change_type = QUESTION_PROOFREAD
 
                     bonus.save_question(edit_type=change_type, changer=user)
                     char_count = bonus.character_count()

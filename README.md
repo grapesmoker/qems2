@@ -1,5 +1,4 @@
-QEMS2 - a question submission and editing system
-=====
+# QEMS2 - a question submission and editing system
 
 ## What is it?
 
@@ -17,33 +16,55 @@ Grab the code:
 
     git clone https://github.com/grapesmoker/qems2
 
-Because the Django secret key is not checked in, you will need to create a new file called "secret" in the root directory that you cloned.  This file will look something like this:
+Because the Django secret key is not checked in, you will need to create a new file called "secret" in the root directory that you cloned. This file will look something like this:
 
     SECRET_KEY = 'your secret key'
 
-### Generic *nix (including OS X)
+### MacOS MySQL
+
+Run the following:
+
+    brew install mysql
+    brew unlink mysql
+    brew install mysql-connector-c
+    brew link --overwrite mysql
+
+Then, find the `include/` directory, and make a copy of the `mysql.h` file called `my_config.h`.
+Example commands:
+
+    cp /usr/local/mysql-8.0.32-macos13-x86_64/include/mysql.h /usr/local/mysql-8.0.32-macos13-x86_64/include/my_config.h
+    cp /usr/local/Cellar/mysql/9.3.0/include/mysql/mysql.h /usr/local/Cellar/mysql/9.3.0/include/mysql/my_config.h
+
+It may also be helpful to run `pip install mysql-connector-python`.
+Do not run `pip install MySQL-python` (see note below).
+
+Sources: https://stackoverflow.com/a/51729684 and https://stackoverflow.com/a/61800247
+
+### Generic \*nix (including macOS)
 
 To run QEMS2, you'll need the following prerequisites.
 
     python2 >= 2.7, MySQL, nodejs
 
-Once you have those installed, you should use `pip` to get the necessary Python packages. It's generally recommended that you use `virtualenv` to set up a virtual environment for your project.
+Once you have those installed, you should use `pip` to get the necessary Python packages. It's generally recommended that you use `virtualenv` to set up a virtual environment for your project.[^1]
 
-    pip install django<2
+    pip install "django<1.9"
     pip install beautifulsoup4
     pip install django-bower
-    pip install django-contrib-comments
+    pip install "django-contrib-comments<1.9"
     pip install django-haystack==2.3.1
-    pip install django-allauth
+    pip install "django-allauth<0.35.0"
     pip install whoosh
-    pip install mysql-python
+    pip install mysqlclient
     pip install unicodecsv
+
+> Note: installing both mysql-python and mysqlclient raises errors, so it's recommended to only install mysqlclient (and uninstall mysql-python, if installed).
 
 Next, grab `bower` using `npm` for front-end package management:
 
     sudo npm install -g bower
 
-Set up your MySQL connection as, for example, `mysql -u root -p`:
+Set up your MySQL connection as, for example, `mysql -u root -p` (you may need to change the value of USER and PASSWORD in settings.py):
 
     CREATE USER django@localhost IDENTIFIED BY 'django';
     CREATE DATABASE qems2_stable;
@@ -86,13 +107,14 @@ Install the 32-bit MySQL installer from http://dev.mysql.com/downloads/windows/ 
 
 Run an instance of Windows PowerShell as an administrator and:
 
-    pip install django<2
+    pip install "django<1.9"
     pip install beautifulsoup4
     pip install django-bower
-    pip install django-contrib-comments
-    pip install django-haystack
-    pip install django-registration-redux
+    pip install "django-contrib-comments<1.9"
+    pip install django-haystack==2.3.1
+    pip install "django-allauth<0.35.0"
     pip install whoosh
+    pip install mysql-python
     pip install unicodecsv
 
 Install the latest from https://pypi.python.org/pypi/MySQL-python/, make sure git is installed, and make sure all of the above programs are in your path, incl. variations on: C:\Program Files (x86)\MySQL\MySQL Workbench 6.2 CE\, C:\Program Files (x86)\Git\cmd\, C:\Python27\, C:\Python27\Scripts\, C:\Program Files (x86)\nodejs\, %LocalAppData%\\..\Roaming\npm\. Then npm install -g bower.
@@ -145,7 +167,7 @@ The submission/editing cycle continues until both the set-level constraints and 
 If you are uploading questions, they have to be formatted in a certain way. An uploaded file must be in plain text, and the questions must have this form:
 
 ##### Tossups:
-        
+
 > This scientist noted the difference between Asiatic and Oceanic fauna, hypothesizing that their geographical isolation played a role in their different developments; the boundary between the two types of fauna is now known as his namesake line. For 10 points, identify this scientist who proposed a theory of evolution contemporaneously with Charles Darwin.
 
 > ANSWER: Alfred Russell \_Wallace\_

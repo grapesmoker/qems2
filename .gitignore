@@ -1,4 +1,6 @@
+.DS_Store
 .idea/
+.vscode/
 components/
 whoosh_index/
 /static/

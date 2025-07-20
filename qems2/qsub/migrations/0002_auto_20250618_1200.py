@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
-from django.db import models, migrations
+from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('qsub', '0013_writer_send_mail_on_comments'),
+        ('qsub', '0001_initial'),
     ]
 
     operations = [
@@ -20,12 +20,7 @@ class Migration(migrations.Migration):
                 ('vhsl_bonus_fraction', models.DecimalField(null=True, max_digits=5, decimal_places=1)),
                 ('min_total_questions_in_period', models.PositiveIntegerField(null=True)),
                 ('max_total_questions_in_period', models.PositiveIntegerField(null=True)),
-                ('category_entry', models.ForeignKey(to='qsub.CategoryEntry')),
-                ('distribution', models.ForeignKey(to='qsub.Distribution')),
             ],
-            options={
-            },
-            bases=(models.Model,),
         ),
         migrations.RemoveField(
             model_name='categoryentry',
@@ -68,9 +63,28 @@ class Migration(migrations.Migration):
             name='category_entry',
         ),
         migrations.AddField(
+            model_name='bonus',
+            name='read_carefully',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='tossup',
+            name='read_carefully',
+            field=models.BooleanField(default=False),
+        ),
+        migrations.AddField(
+            model_name='categoryentryfordistribution',
+            name='category_entry',
+            field=models.ForeignKey(to='qsub.CategoryEntry'),
+        ),
+        migrations.AddField(
+            model_name='categoryentryfordistribution',
+            name='distribution',
+            field=models.ForeignKey(to='qsub.Distribution'),
+        ),
+        migrations.AddField(
             model_name='periodwidecategoryentry',
             name='category_entry_for_distribution',
             field=models.ForeignKey(to='qsub.CategoryEntryForDistribution', null=True),
-            preserve_default=True,
         ),
     ]

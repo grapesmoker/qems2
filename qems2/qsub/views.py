@@ -2347,11 +2347,7 @@ def search(request, passed_qset_id=None):
     if passed_qset_id is not None:
         passed_q_set = QuestionSet.objects.get(id=passed_qset_id)
 
-    all_question_sets = QuestionSet.objects.all()
-    question_sets = []
-    for qset in all_question_sets:
-        if user in qset.writer.all() or user in qset.editor.all() or user == qset.owner:
-            question_sets.append(qset)
+    question_sets = QuestionSet.objects.filter(Q(writer=user) | Q(editor=user) | Q(owner=user)).distinct()
 
     if request.method == 'GET':
         all_categories = [(cat.category, cat.subcategory) for cat in DistributionEntry.objects.all()]
@@ -2368,7 +2364,7 @@ def search(request, passed_qset_id=None):
                                       {'user': user,
                                        'categories': categories,
                                        'q_sets': question_sets,
-                                       'selected_set': q_set,
+                                       'selected_qset': q_set,
                                        'tossups_selected': 'checked',
                                        'bonuses_selected': 'checked',
                                        'search_all_selected' :'unchecked',
@@ -2378,7 +2374,7 @@ def search(request, passed_qset_id=None):
         else:
             query = request.GET.get('q')
             search_models = request.GET.getlist('models')
-            qset_id = request.GET.get('qset')
+            qset_id = int(request.GET.get('qset'))
             qset = QuestionSet.objects.get(id=qset_id)
             search_category = request.GET.get('category')
             tossups_selected = "unchecked"
@@ -2392,13 +2388,18 @@ def search(request, passed_qset_id=None):
                 search_all_selected = "checked"
 
             if user in qset.writer.all() or user in qset.editor.all() or user == qset.owner:
+                if search_all_selected == 'checked':
+                    search_query_set = SearchQuerySet().filter(question_set__in=question_sets)
+                else:
+                    search_query_set = SearchQuerySet().filter(question_set=qset)
+                search_query_set = search_query_set.filter(Q(question_answers=query) | Q(question_content=query))
 
-                if 'qsub.tossup' in search_models and 'qsub.bonus' not in search_models:                    
-                    result_ids = [r.id for r in SearchQuerySet().filter(Q(question_answers=query) | Q(question_content=query)).models(Tossup)]
+                if 'qsub.tossup' in search_models and 'qsub.bonus' not in search_models:
+                    result_ids = [r.id for r in search_query_set.models(Tossup)]
                 elif 'qsub.bonus' in search_models and 'qsub.tossup' not in search_models:
-                    result_ids = [r.id for r in SearchQuerySet().filter(Q(question_answers=query) | Q(question_content=query)).models(Bonus)]
+                    result_ids = [r.id for r in search_query_set.models(Bonus)]
                 elif 'qsub.tossup' in search_models and 'qsub.bonus' in search_models:
-                    result_ids = [r.id for r in SearchQuerySet().filter(Q(question_answers=query) | Q(question_content=query)).models(Tossup, Bonus)]
+                    result_ids = [r.id for r in search_query_set.models(Tossup, Bonus)]
                 else:
                     result_ids = []
 
@@ -2413,9 +2414,10 @@ def search(request, passed_qset_id=None):
                         elif question_type == 'bonus':
                             question = Bonus.objects.get(id=question_id)
 
-                        if (question.question_set == qset or search_all_selected == 'checked') and (str(question.category) == search_category or search_category == 'All') and question not in questions:
-                            if user in question.question_set.writer.all() or user in question.question_set.editor.all() or user == question.question_set.owner:
-                                questions.append(question)
+                        print(question.question_set == qset)
+
+                        if str(question.category) == search_category or search_category == 'All':
+                            questions.append(question)
                     except:
                         print "Error retrieving search data for search query", query, sys.exc_info()[0]
 
@@ -2435,7 +2437,7 @@ def search(request, passed_qset_id=None):
                                        'result': result,
                                        'search_term': query,
                                        'search_category': search_category,
-                                       'search_qset': qset,
+                                       'selected_qset': qset,
                                        'tossups_selected': tossups_selected,
                                        'bonuses_selected': bonuses_selected,
                                        'search_all_selected': search_all_selected,
@@ -2688,7 +2690,7 @@ def export_question_set(request, qset_id, output_format):
     
     tossup_content_type_id = ContentType.objects.get_for_model(Tossup).id
     bonus_content_type_id = ContentType.objects.get_for_model(Bonus).id
-    
+
     if request.method == 'GET':
         if (role == 'editor'):
             if (output_format == "csv"):
